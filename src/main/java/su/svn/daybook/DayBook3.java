@@ -8,14 +8,34 @@ import javax.ws.rs.Path;
 
 import javax.ws.rs.QueryParam;
 
+import io.vertx.core.json.JsonArray;
 import io.vertx.mutiny.core.eventbus.EventBus;
 import io.vertx.mutiny.core.eventbus.Message;
+
+import io.vertx.mutiny.core.Vertx;
+import io.vertx.mutiny.ext.web.client.HttpResponse;
+import io.vertx.mutiny.ext.web.client.WebClient;
+
 
 @Path("/")
 public class DayBook3 {
 
+    private static final String URL
+            = "https://en.wikipedia.org"
+            + "/w/api.php?action=parse&page=Quarkus&format=json&prop=langlinks";
+
     @Inject
     EventBus bus;
+
+    private final Vertx vertx;
+
+    private final WebClient client;
+
+    @Inject
+    public DayBook3(Vertx vertx) {
+        this.vertx = vertx;
+        this.client = WebClient.create(vertx);
+    }
 
     @GET
     @Path("/hello")
@@ -23,5 +43,14 @@ public class DayBook3 {
         return bus.<String>request("greetings", name)
                 .onItem()
                 .transform(Message::body);
+    }
+
+    @GET
+    @Path("/web")
+    public Uni<JsonArray> retrieveDataFromWikipedia() {
+        return client.getAbs(URL).send()
+                .onItem().transform(HttpResponse::bodyAsJsonObject)
+                .onItem().transform(json -> json.getJsonObject("parse")
+                        .getJsonArray("langlinks"));
     }
 }
