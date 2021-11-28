@@ -17,6 +17,7 @@ dependencies {
     implementation 'io.quarkus:quarkus-arc'
     implementation "io.netty:netty-transport-native-epoll:4.1.69.Final:linux-x86_64"
     implementation "io.netty:netty-transport-native-kqueue:4.1.69.Final:osx-x86_64"
+    implementation 'io.smallrye.reactive:smallrye-mutiny-vertx-web-client'
     testImplementation 'io.quarkus:quarkus-junit5'
     testImplementation 'io.rest-assured:rest-assured'
 }
