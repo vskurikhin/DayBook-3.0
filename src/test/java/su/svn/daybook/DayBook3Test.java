@@ -1,6 +1,7 @@
 package su.svn.daybook;
 
 import io.quarkus.test.junit.QuarkusTest;
+import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.Test;
 
 import static io.restassured.RestAssured.given;
@@ -12,10 +13,11 @@ public class DayBook3Test {
     @Test
     public void testHelloEndpoint() {
         given()
-          .when().get("/hello")
-          .then()
-             .statusCode(200)
-             .body(is("Hello RESTEasy"));
+                .queryParam("name", "Quarkus")
+                .when()
+                .get("/hello")
+                .then()
+                .statusCode(200)
+                .body(CoreMatchers.startsWith("Hello Quarkus"));
     }
-
 }
