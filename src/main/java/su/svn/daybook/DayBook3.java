@@ -16,10 +16,6 @@ import io.vertx.mutiny.core.Vertx;
 @Path("/")
 public class DayBook3 {
 
-    private static final String URL
-            = "https://en.wikipedia.org"
-            + "/w/api.php?action=parse&page=Quarkus&format=json&prop=langlinks";
-
     @Inject
     EventBus bus;
 

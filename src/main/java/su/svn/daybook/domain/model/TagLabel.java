@@ -1,4 +1,4 @@
-package su.svn.daybook.model;
+package su.svn.daybook.domain.model;
 
 import io.smallrye.mutiny.Uni;
 import io.vertx.mutiny.pgclient.PgPool;
@@ -8,6 +8,7 @@ import io.vertx.mutiny.sqlclient.Tuple;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class TagLabel implements Serializable {
 
@@ -48,7 +49,31 @@ public class TagLabel implements Serializable {
         this.flags = flags;
     }
 
-    private static TagLabel from(Row row) {
+    public static final String SELECT_FROM_DICTIONARY_TAG_LABEL_WHERE_ID_$1
+            = "SELECT id, label, user_name, create_time, update_time, enabled, visible, flags "
+            + "  FROM dictionary.tag_label "
+            + " WHERE id = $1";
+
+    public static final String INSERT_INTO_DICTIONARY_TAG_LABEL
+            = "INSERT INTO dictionary.tag_label "
+            + " (id, label, user_name, create_time, update_time, enabled, visible, flags) "
+            + " VALUES "
+            + " ($1, $2, $3, now(), now(), $4, $5, $6) RETURNING id";
+
+    public static final String UPDATE_DICTIONARY_TAG_LABEL_WHERE_ID_$1
+            = "UPDATE dictionary.tag_label "
+            + " SET "
+            + "  label = $2,"
+            + "  user_name = $3, "
+            + "  create_time = $4, "
+            + "  update_time = $5,"
+            + "  enabled = $6, "
+            + "  visible = $7, "
+            + "  flags = $8 "
+            + " WHERE id = $1 "
+            + " RETURNING id";
+
+    public static TagLabel from(Row row) {
         return new TagLabel(
                 row.getString("id"),
                 row.getString("label"),
@@ -62,22 +87,25 @@ public class TagLabel implements Serializable {
     }
 
     public static Uni<TagLabel> findById(PgPool client, String id) {
-        return client.preparedQuery("SELECT " +
-                " id, label, user_name, create_time, update_time, enabled, visible, flags " +
-                " FROM dictionary.tag_label " +
-                " WHERE id = $1")
+        return client.preparedQuery(SELECT_FROM_DICTIONARY_TAG_LABEL_WHERE_ID_$1)
                 .execute(Tuple.of(id))
                 .onItem()
                 .transform(RowSet::iterator)
                 .onItem()
-                .transform(iterator -> iterator.hasNext() ? from(iterator.next()) : null);
+                .transform(iterator -> iterator.hasNext() ? TagLabel.from(iterator.next()) : null);
     }
 
     public Uni<String> insert(PgPool client) {
-        return client.preparedQuery("INSERT INTO dictionary.tag_label " +
-                " (id, label, user_name, create_time, update_time, enabled, visible, flags) " +
-                " VALUES ($1, $2, $3, now(), now(), $4, $5, $6) RETURNING id")
+        return client.preparedQuery(INSERT_INTO_DICTIONARY_TAG_LABEL)
                 .execute(Tuple.of(id, label, userName, enabled, visible, flags))
+                .onItem()
+                .transform(pgRowSet -> pgRowSet.iterator().next().getString("id"));
+    }
+
+    public Uni<String> update(PgPool client) {
+        updateTime = LocalDateTime.now();
+        return client.preparedQuery(UPDATE_DICTIONARY_TAG_LABEL_WHERE_ID_$1)
+                .execute(Tuple.of(List.of(id, label, userName, createTime, updateTime, enabled, visible, flags)))
                 .onItem()
                 .transform(pgRowSet -> pgRowSet.iterator().next().getString("id"));
     }

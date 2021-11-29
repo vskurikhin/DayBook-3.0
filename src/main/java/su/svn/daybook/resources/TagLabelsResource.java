@@ -3,7 +3,7 @@ package su.svn.daybook.resources;
 import io.smallrye.mutiny.Uni;
 import io.vertx.mutiny.core.eventbus.EventBus;
 import io.vertx.mutiny.core.eventbus.Message;
-import su.svn.daybook.model.TagLabel;
+import su.svn.daybook.domain.model.TagLabel;
 
 import javax.inject.Inject;
 import javax.ws.rs.GET;
