@@ -20,13 +20,4 @@ public class DayBook3Test {
                 .statusCode(200)
                 .body(CoreMatchers.startsWith("Hello Quarkus"));
     }
-
-    @Test
-    public void testWebEndpoint() {
-        given()
-                .when()
-                .get("/web")
-                .then()
-                .statusCode(200);
-    }
 }
