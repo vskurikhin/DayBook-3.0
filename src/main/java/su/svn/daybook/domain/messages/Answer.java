@@ -1,13 +1,20 @@
-package su.svn.daybook.messages;
+package su.svn.daybook.domain.messages;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.io.Serializable;
 
-public class Answer {
+public class Answer implements Serializable {
+
+    private static final long serialVersionUID = 4530969986917184578L;
+
+    public static final String DEFAULT_MESSAGE = "ANSWER";
+
+    public static final String EMPTY = "EMPTY";
 
     private final String message;
 
-    private final long error;
+    private final int error;
 
     private Object payload;
 
@@ -18,28 +25,38 @@ public class Answer {
         this.error = 0;
     }
 
-    public Answer(@Nonnull String message, long error) {
+    public Answer(@Nonnull String message, int error) {
         this.message = message;
         this.error = error;
     }
 
-    private Answer(@Nonnull String message, long error, Object payload, Class<?> aClass) {
+    private Answer(String message, int error, Object payload, Class<?> payloadClass) {
         this.message = message;
         this.error = error;
         this.payload = payload;
-        this.payloadClass = aClass;
+        this.payloadClass = payloadClass;
+    }
+
+    public static Answer empty() {
+        return new Answer(EMPTY, 404);
+    }
+
+    public static <T> Answer of(@Nonnull T o) {
+        return create(DEFAULT_MESSAGE, o);
     }
 
     /** @noinspection unchecked*/
-    public static <T> Answer from(@Nonnull String message, @Nonnull T payload) {
-        return new Answer(message, 0, payload, payload.getClass());
+    public static <T> Answer create(@Nonnull String message, T o) {
+        Class<T> tClass = (Class<T>) o.getClass();
+        return new Answer(message, 0, o, tClass);
     }
 
+    @Nonnull
     public String getMessage() {
         return message;
     }
 
-    public long getError() {
+    public int getError() {
         return error;
     }
 
@@ -48,13 +65,13 @@ public class Answer {
         return payload;
     }
 
-    public <T> void setPayload(@Nonnull T payload) {
-        this.payload = payload;
+    public <T> void setPayload(T o) {
         //noinspection unchecked
-        this.payloadClass = (Class<T>) payload.getClass();
+        Class<T> tClass = (Class<T>) o.getClass();
+        this.payload = o;
+        this.payloadClass = tClass;
     }
 
-    @Nullable
     public Class<?> getPayloadClass() {
         return payloadClass;
     }
@@ -87,7 +104,7 @@ public class Answer {
                 "message='" + message + '\'' +
                 ", error=" + error +
                 ", payload=" + payload +
-                ", payloadClass=" + (payloadClass != null ? payloadClass.getCanonicalName() : "null") +
+                ", payloadClass=" + ((payloadClass != null) ? payloadClass.getCanonicalName() : "null") +
                 '}';
     }
 }

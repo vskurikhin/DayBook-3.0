@@ -2,7 +2,11 @@ package su.svn.daybook.services;
 
 import io.quarkus.vertx.ConsumeEvent;
 import io.smallrye.mutiny.Uni;
-import su.svn.daybook.model.TagLabel;
+import io.smallrye.mutiny.Multi;
+import org.jboss.logging.Logger;
+import su.svn.daybook.domain.messages.Answer;
+import su.svn.daybook.domain.model.TagLabel;
+import su.svn.daybook.domain.dao.TagLabelDao;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -10,30 +14,48 @@ import javax.inject.Inject;
 @ApplicationScoped
 public class TagLabelService {
 
+    private static final Logger LOG = Logger.getLogger(TagLabelService.class);
+
     @Inject
-    io.vertx.mutiny.pgclient.PgPool client;
+    TagLabelDao tagLabelDao;
 
     @ConsumeEvent("tag-get")
-    public Uni<TagLabel> tagGet(Object o) {
+    public Uni<Answer> tagGet(Object o) {
         if (o instanceof String) {
             return get((String) o);
         }
-        return null;
+        return Uni.createFrom().item(Answer.empty());
     }
 
-    private Uni<TagLabel> get(String id) {
-        return TagLabel.findById(client, id);
+    private Uni<Answer> get(String id) {
+        return tagLabelDao.findById(id)
+                .map(t -> t.isEmpty() ? Answer.empty() : Answer.of(t));
     }
 
     @ConsumeEvent("tag-add")
-    public Uni<String> tagAdd(Object o) {
-        if (o instanceof TagLabel) {
-            return add((TagLabel) o);
-        }
-        return null;
+    public Uni<Answer> tagAdd(TagLabel o) {
+        return add(o);
     }
 
-    private Uni<String> add(TagLabel tagLabel) {
-        return tagLabel.insert(client);
+    private Uni<Answer> add(TagLabel entry) {
+        return tagLabelDao.insert(entry)
+                .map(o -> o.isEmpty() ? Answer.empty() : Answer.of(o.get()));
+    }
+
+    public Multi<Answer> getAll() {
+        LOG.trace("getAll");
+        return tagLabelDao.findAll()
+                .onItem()
+                .transform(this::getTagLabelAnswerFunction);
+    }
+
+    private Answer getTagLabelAnswerFunction(TagLabel tagLabel) {
+        if (tagLabel != null) {
+            LOG.tracef("getTagLabelAnswerFunction tagLabel: %s", tagLabel);
+            return Answer.of(tagLabel);
+        } else  {
+            LOG.trace("getTagLabelAnswerFunction tagLabel: is null");
+            return Answer.empty();
+        }
     }
 }
