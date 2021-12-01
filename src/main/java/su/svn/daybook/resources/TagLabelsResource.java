@@ -30,7 +30,7 @@ public class TagLabelsResource {
                 .onItem()
                 .transform(this::extractTagLabel)
                 .onTermination()
-                .invoke(() -> LOG.tracef("all counter %s", counter.get()));
+                .invoke(() -> LOG.debugf("all counter %s", counter.get()));
     }
 
     private TagLabel extractTagLabel(Answer answer) {
