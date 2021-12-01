@@ -1,5 +1,6 @@
 package su.svn.daybook.domain.model;
 
+import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import io.vertx.mutiny.pgclient.PgPool;
 import io.vertx.mutiny.sqlclient.Row;
@@ -29,6 +30,8 @@ public class TagLabel implements Serializable {
     private Boolean visible;
 
     private Integer flags;
+
+    public TagLabel() {}
 
     public TagLabel(
             String id,
@@ -95,11 +98,26 @@ public class TagLabel implements Serializable {
                 .transform(iterator -> iterator.hasNext() ? TagLabel.from(iterator.next()) : null);
     }
 
+    public static Multi<TagLabel> findAll(PgPool client) {
+        return client
+                .query("SELECT id, label, user_name, create_time, update_time, enabled, visible, flags "
+                + "  FROM dictionary.tag_label "
+                + " ORDER BY id ASC")
+                .execute()
+                .onItem()
+                .transformToMulti(set -> Multi.createFrom().iterable(set))
+                .onItem()
+                .transform(TagLabel::from);
+
+    }
+
     public Uni<String> insert(PgPool client) {
         return client.preparedQuery(INSERT_INTO_DICTIONARY_TAG_LABEL)
                 .execute(Tuple.of(id, label, userName, enabled, visible, flags))
                 .onItem()
-                .transform(pgRowSet -> pgRowSet.iterator().next().getString("id"));
+                .transform(RowSet::iterator)
+                .onItem()
+                .transform(iterator -> iterator.hasNext() ? iterator.next().getString("id") : null);
     }
 
     public Uni<String> update(PgPool client) {

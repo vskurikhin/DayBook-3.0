@@ -8,6 +8,10 @@ repositories {
     mavenLocal()
 }
 
+static def getEnv(key, defaultValue) {
+    return System.getenv(key) ?: defaultValue
+}
+
 ext.libVers = [
         google_collections          : '1.0',
         jsr305                      : '1.3.9',
@@ -18,7 +22,6 @@ dependencies {
     implementation 'io.quarkus:quarkus-resteasy-reactive'
     implementation 'io.quarkus:quarkus-resteasy-reactive-jackson'
     implementation 'io.quarkus:quarkus-reactive-pg-client'
-    // implementation 'io.quarkus:quarkus-resteasy-mutiny'
     implementation 'io.quarkus:quarkus-vertx'
     implementation enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}")
     implementation 'io.quarkus:quarkus-arc'
@@ -26,9 +29,6 @@ dependencies {
     implementation "io.netty:netty-transport-native-kqueue:4.1.69.Final:osx-x86_64"
     implementation "com.google.code.findbugs:jsr305:$libVers.jsr305"
     implementation "com.google.collections:google-collections:$libVers.google_collections"
-
-//    compileOnly 'org.projectlombok:lombok'
-//    annotationProcessor 'org.projectlombok:lombok'
 
     testImplementation 'io.quarkus:quarkus-junit5'
     testImplementation 'io.rest-assured:rest-assured'

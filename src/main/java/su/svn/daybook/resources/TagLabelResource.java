@@ -33,12 +33,12 @@ public class TagLabelResource {
     private Uni<Response> request(String address, Object o) {
         return bus.<Answer>request(address, o)
                 .onItem()
-                .transform(this::getResponse)
+                .transform(this::createResponseBuilder)
                 .onItem()
                 .transform(Response.ResponseBuilder::build);
     }
 
-    private Response.ResponseBuilder getResponse(Message<Answer> message) {
+    private Response.ResponseBuilder createResponseBuilder(Message<Answer> message) {
         return message.body().getPayload() != null
                 ? Response.ok(message.body().getPayload())
                 : Response.status(message.body().getError(), message.body().getMessage());

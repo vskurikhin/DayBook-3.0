@@ -29,10 +29,10 @@ class TagLabelServiceTest {
                 .transform(i -> Optional.of(DataTest.TEZD_TagLabel));
         Uni<Answer> empty = Uni.createFrom()
                 .item(new Answer("empty", 1));
-        Uni<String> tezdString = Uni.createFrom().item("tezd");
+        Uni<Optional<String>> tezdString = Uni.createFrom().item(Optional.of("tezd"));
 
         TagLabelDao mock = Mockito.mock(TagLabelDao.class);
-        Mockito.when(mock.findyId("tezd")).thenReturn(tezd);
+        Mockito.when(mock.findById("tezd")).thenReturn(tezd);
         Mockito.when(mock.insert(DataTest.TEZD_TagLabel)).thenReturn(tezdString);
         QuarkusMock.installMockForType(mock, TagLabelDao.class);
     }
