@@ -1,3 +1,11 @@
+/*
+ * This file was last modified at 2021.02.27 11:33 by Victor N. Skurikhin.
+ * This is free and unencumbered software released into the public domain.
+ * For more information, please refer to <http://unlicense.org>
+ * AbstractRecordService.java
+ * $Id$
+ */
+
 package su.svn.daybook;
 
 import io.smallrye.mutiny.Uni;
