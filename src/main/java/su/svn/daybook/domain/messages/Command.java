@@ -8,43 +8,74 @@ public class Command implements Serializable {
 
     private static final long serialVersionUID = 8774569874565187574L;
 
-    public static final String DEFAULT_MESSAGE = "COMMAND";
+    public static final String PING = "PING";
 
-    public static final String EMPTY = "EMPTY";
+    public static final String PONG = "PONG";
 
-    private final String message;
+    public static final String SEND = "SEND";
+
+    public static final String DEFAULT_COMMAND = SEND;
+
+    private final String command;
+
+    private String recipient;
+
+    private final String sender;
 
     private Object payload;
 
     private Class<?> payloadClass;
 
-    public Command(@Nonnull String message) {
-        this.message = message;
+    public Command(@Nonnull String sender, @Nonnull String recipient, @Nonnull String command) {
+        this.command = command;
+        this.recipient = recipient;
+        this.sender = sender;
     }
 
-    private Command(String message, Object payload, Class<?> payloadClass) {
-        this.message = message;
+    private Command(String sender, String recipient, String command, Object payload, Class<?> payloadClass) {
+        this.command = command;
+        this.recipient = recipient;
         this.payload = payload;
         this.payloadClass = payloadClass;
+        this.sender = sender;
     }
 
-    public static Command empty() {
-        return new Command(EMPTY);
+    public static Command createPing(@Nonnull String sender, @Nonnull String recipient) {
+        return new Command(sender, recipient, PING);
     }
 
-    public static <T> Command of(@Nonnull T o) {
-        return create(DEFAULT_MESSAGE, o);
+    public static Command createPongOf(@Nonnull Command ping) {
+        Command command = new Command(ping.getRecipient(), ping.getSender(), PONG);
+        command.setRecipient(ping.getSender());
+        return command;
+    }
+
+    public static <T> Command createSend(@Nonnull String sender, @Nonnull String recipient, @Nonnull T o) {
+        return create(sender, recipient, DEFAULT_COMMAND, o);
     }
 
     /** @noinspection unchecked*/
-    public static <T> Command create(@Nonnull String message, T o) {
-        Class<T> tClass = (Class<T>) o.getClass();
-        return new Command(message, o, tClass);
+    public static <T> Command create(@Nonnull String sender, @Nonnull String recipient, @Nonnull String command, T o) {
+        Class<T> tClass = (o != null) ? (Class<T>) o.getClass() : null;
+        return new Command(sender, recipient, command, o, tClass);
     }
 
     @Nonnull
-    public String getMessage() {
-        return message;
+    public String getCommand() {
+        return command;
+    }
+
+    public String getRecipient() {
+        return recipient;
+    }
+
+    public void setRecipient(@Nonnull String recipient) {
+        this.recipient = recipient;
+    }
+
+    @Nonnull
+    public String getSender() {
+        return sender;
     }
 
     @Nullable
@@ -66,18 +97,22 @@ public class Command implements Serializable {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Command)) return false;
+        if (o == null || getClass() != o.getClass()) return false;
 
-        Command answer = (Command) o;
+        Command command1 = (Command) o;
 
-        if (!message.equals(answer.message)) return false;
-        if (payload != null ? !payload.equals(answer.payload) : answer.payload != null) return false;
-        return payloadClass != null ? payloadClass.equals(answer.payloadClass) : answer.payloadClass == null;
+        if (!command.equals(command1.command)) return false;
+        if (recipient != null ? !recipient.equals(command1.recipient) : command1.recipient != null) return false;
+        if (!sender.equals(command1.sender)) return false;
+        if (payload != null ? !payload.equals(command1.payload) : command1.payload != null) return false;
+        return payloadClass != null ? payloadClass.equals(command1.payloadClass) : command1.payloadClass == null;
     }
 
     @Override
     public int hashCode() {
-        int result = message.hashCode();
+        int result = command.hashCode();
+        result = 31 * result + (recipient != null ? recipient.hashCode() : 0);
+        result = 31 * result + sender.hashCode();
         result = 31 * result + (payload != null ? payload.hashCode() : 0);
         result = 31 * result + (payloadClass != null ? payloadClass.hashCode() : 0);
         return result;
@@ -86,7 +121,9 @@ public class Command implements Serializable {
     @Override
     public String toString() {
         return "Command{" +
-                "message='" + message + '\'' +
+                "command='" + command + '\'' +
+                ", recipient='" + recipient + '\'' +
+                ", sender='" + sender + '\'' +
                 ", payload=" + payload +
                 ", payloadClass=" + ((payloadClass != null) ? payloadClass.getCanonicalName() : "null") +
                 '}';
