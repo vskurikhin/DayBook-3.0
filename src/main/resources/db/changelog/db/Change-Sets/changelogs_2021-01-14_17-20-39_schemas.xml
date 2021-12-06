@@ -1,0 +1,25 @@
+<!--
+  ~ This file was last modified at 2021.12.06 18:25 by Victor N. Skurikhin.
+  ~ This is free and unencumbered software released into the public domain.
+  ~ For more information, please refer to <http://unlicense.org>
+  ~ changelogs_2021-01-14_17-20-39_schemas.xml
+  ~ $Id$
+  -->
+
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.2.xsd"
+        logicalFilePath="./src/main/resources/db/changelog/db/Change-Sets/changelogs_2021-01-14_17-20-39_schemas.xml">
+
+  <changeSet id="2021-01-14_17-20-39" author="Victor N. Skurikhin">
+      <sql>
+          <![CDATA[
+            CREATE SCHEMA IF NOT EXISTS db;
+            CREATE SCHEMA IF NOT EXISTS dictionary;
+            CREATE SCHEMA IF NOT EXISTS security;
+          ]]>
+      </sql>
+  </changeSet>
+</databaseChangeLog>
