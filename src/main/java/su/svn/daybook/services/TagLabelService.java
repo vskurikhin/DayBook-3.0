@@ -1,3 +1,11 @@
+/*
+ * This file was last modified at 2021.12.06 18:10 by Victor N. Skurikhin.
+ * This is free and unencumbered software released into the public domain.
+ * For more information, please refer to <http://unlicense.org>
+ * TagLabelService.java
+ * $Id$
+ */
+
 package su.svn.daybook.services;
 
 import io.quarkus.vertx.ConsumeEvent;
@@ -21,6 +29,7 @@ public class TagLabelService {
 
     @ConsumeEvent("tag-get")
     public Uni<Answer> tagGet(Object o) {
+        LOG.tracef("tagGet(%s)", o);
         if (o instanceof String) {
             return get((String) o);
         }
@@ -34,6 +43,7 @@ public class TagLabelService {
 
     @ConsumeEvent("tag-add")
     public Uni<Answer> tagAdd(TagLabel o) {
+        LOG.tracef("tagAdd(%s)", o);
         return add(o);
     }
 
