@@ -87,7 +87,7 @@ public class Answer implements Serializable {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Answer)) return false;
+        if (o == null || getClass() != o.getClass()) return false;
 
         Answer answer = (Answer) o;
 
@@ -100,7 +100,7 @@ public class Answer implements Serializable {
     @Override
     public int hashCode() {
         int result = message.hashCode();
-        result = 31 * result + (int) (error ^ (error >>> 32));
+        result = 31 * result + error;
         result = 31 * result + (payload != null ? payload.hashCode() : 0);
         result = 31 * result + (payloadClass != null ? payloadClass.hashCode() : 0);
         return result;

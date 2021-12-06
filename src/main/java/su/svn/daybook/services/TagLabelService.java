@@ -56,10 +56,11 @@ public class TagLabelService {
         LOG.trace("getAll");
         return tagLabelDao.findAll()
                 .onItem()
-                .transform(this::getTagLabelAnswerFunction);
+                .transform(this::getTagLabelAnswer);
     }
 
-    private Answer getTagLabelAnswerFunction(TagLabel tagLabel) {
+    private Answer getTagLabelAnswer(TagLabel tagLabel) {
+        LOG.infof("getTagLabelAnswer %s", tagLabel);
         if (tagLabel != null) {
             LOG.tracef("getTagLabelAnswerFunction tagLabel: %s", tagLabel);
             return Answer.of(tagLabel);
