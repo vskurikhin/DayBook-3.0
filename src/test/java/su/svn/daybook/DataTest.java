@@ -11,4 +11,8 @@ public class DataTest {
     public static final String TEZD_TagLabel_JSON
             = "{\"id\":\"tezd\",\"label\":null,\"userName\":null,\"createTime\":null,\"updateTime\":null,"
             + "\"enabled\":null,\"visible\":null,\"flags\":null}";
+
+    public static final String TEZD_TagLabel_JSON_ARRAY
+            = "[{\"id\":\"tezd\",\"label\":null,\"userName\":null,\"createTime\":null,\"updateTime\":null,\""
+            + "enabled\":null,\"visible\":null,\"flags\":null}]";
 }

@@ -49,6 +49,11 @@ public class TagLabel implements Serializable {
             + "  FROM dictionary.tag_label "
             + " WHERE id = $1";
 
+    public static final String SELECT_ALL_FROM_DICTIONARY_TAG_LABEL_ORDER_BY_ID_ASC
+            = "SELECT id, label, user_name, create_time, update_time, enabled, visible, flags "
+            + "  FROM dictionary.tag_label "
+            + " ORDER BY id ASC";
+
     public static final String INSERT_INTO_DICTIONARY_TAG_LABEL
             = "INSERT INTO dictionary.tag_label "
             + " (id, label, user_name, create_time, update_time, enabled, visible, flags) "
