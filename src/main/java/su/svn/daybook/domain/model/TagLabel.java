@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2021.12.06 18:10 by Victor N. Skurikhin.
+ * This file was last modified at 2021.12.06 19:31 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * TagLabel.java
@@ -39,26 +39,10 @@ public class TagLabel implements Serializable {
 
     private Integer flags;
 
-    public TagLabel() {}
-
-    public TagLabel(
-            String id,
-            String label,
-            String userName,
-            LocalDateTime createTime,
-            LocalDateTime updateTime,
-            Boolean enabled,
-            Boolean visible,
-            Integer flags) {
-        this.id = id;
-        this.label = label;
-        this.userName = userName;
-        this.createTime = createTime;
-        this.updateTime = updateTime;
-        this.enabled = enabled;
-        this.visible = visible;
-        this.flags = flags;
-    }
+    public static final String SELECT_ALL_FROM_DICTIONARY_TAG_LABEL_ORDER_BY_ID_ASC
+            = "SELECT id, label, user_name, create_time, update_time, enabled, visible, flags "
+            + "  FROM dictionary.tag_label "
+            + " ORDER BY id ASC";
 
     public static final String SELECT_FROM_DICTIONARY_TAG_LABEL_WHERE_ID_$1
             = "SELECT id, label, user_name, create_time, update_time, enabled, visible, flags "
@@ -81,6 +65,11 @@ public class TagLabel implements Serializable {
             + "  enabled = $6, "
             + "  visible = $7, "
             + "  flags = $8 "
+            + " WHERE id = $1 "
+            + " RETURNING id";
+
+    public static final String DELETE_FROM_DICTIONARY_TAG_LABEL_WHERE_ID_$1
+            = "DELETE FROM dictionary.tag_label "
             + " WHERE id = $1 "
             + " RETURNING id";
 
@@ -108,9 +97,7 @@ public class TagLabel implements Serializable {
 
     public static Multi<TagLabel> findAll(PgPool client) {
         return client
-                .query("SELECT id, label, user_name, create_time, update_time, enabled, visible, flags "
-                + "  FROM dictionary.tag_label "
-                + " ORDER BY id ASC")
+                .query(SELECT_ALL_FROM_DICTIONARY_TAG_LABEL_ORDER_BY_ID_ASC)
                 .execute()
                 .onItem()
                 .transformToMulti(set -> Multi.createFrom().iterable(set))
@@ -134,6 +121,34 @@ public class TagLabel implements Serializable {
                 .execute(Tuple.of(List.of(id, label, userName, createTime, updateTime, enabled, visible, flags)))
                 .onItem()
                 .transform(pgRowSet -> pgRowSet.iterator().next().getString("id"));
+    }
+
+    public Uni<String> delete(PgPool client) {
+        return client.preparedQuery(DELETE_FROM_DICTIONARY_TAG_LABEL_WHERE_ID_$1)
+                .execute(Tuple.of(id))
+                .onItem()
+                .transform(pgRowSet -> pgRowSet.iterator().next().getString("id"));
+    }
+
+    public TagLabel() {}
+
+    public TagLabel(
+            String id,
+            String label,
+            String userName,
+            LocalDateTime createTime,
+            LocalDateTime updateTime,
+            Boolean enabled,
+            Boolean visible,
+            Integer flags) {
+        this.id = id;
+        this.label = label;
+        this.userName = userName;
+        this.createTime = createTime;
+        this.updateTime = updateTime;
+        this.enabled = enabled;
+        this.visible = visible;
+        this.flags = flags;
     }
 
     public String getId() {

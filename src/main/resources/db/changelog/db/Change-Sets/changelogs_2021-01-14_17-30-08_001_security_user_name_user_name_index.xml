@@ -1,0 +1,31 @@
+<!--
+  ~ This file was last modified at 2021.12.06 19:31 by Victor N. Skurikhin.
+  ~ This is free and unencumbered software released into the public domain.
+  ~ For more information, please refer to <http://unlicense.org>
+  ~ changelogs_2021-01-14_17-30-08_001_security_user_name_user_name_index.xml
+  ~ $Id$
+  -->
+
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.2.xsd"
+        logicalFilePath="./src/main/resources/db/changelog/db/Change-Sets/changelogs_2021-01-14_17-30-08_001_security_user_name_user_name_index.xml">
+
+  <changeSet id="2021-01-14_17-30-08" author="Victor N. Skurikhin">
+      <sql>
+          <![CDATA[
+            CREATE INDEX IF NOT EXISTS IDX_security_user_name_user_name
+                ON security.user_name (user_name);
+          ]]>
+      </sql>
+      <rollback>
+          <sql>
+              <![CDATA[
+                DROP INDEX IF EXISTS security.IDX_security_user_name_user_name;
+            ]]>
+          </sql>
+      </rollback>
+  </changeSet>
+</databaseChangeLog>
