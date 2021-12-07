@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2021.12.06 19:31 by Victor N. Skurikhin.
+ * This file was last modified at 2021.12.07 07:56 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * TagLabel.java
@@ -38,11 +38,6 @@ public class TagLabel implements Serializable {
     private Boolean visible;
 
     private Integer flags;
-
-    public static final String SELECT_ALL_FROM_DICTIONARY_TAG_LABEL_ORDER_BY_ID_ASC
-            = "SELECT id, label, user_name, create_time, update_time, enabled, visible, flags "
-            + "  FROM dictionary.tag_label "
-            + " ORDER BY id ASC";
 
     public static final String SELECT_FROM_DICTIONARY_TAG_LABEL_WHERE_ID_$1
             = "SELECT id, label, user_name, create_time, update_time, enabled, visible, flags "
