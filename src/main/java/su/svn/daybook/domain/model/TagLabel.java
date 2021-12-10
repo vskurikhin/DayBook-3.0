@@ -53,7 +53,8 @@ public class TagLabel implements Serializable {
             = "INSERT INTO dictionary.tag_label "
             + " (id, label, user_name, create_time, update_time, enabled, visible, flags) "
             + " VALUES "
-            + " ($1, $2, $3, now(), now(), $4, $5, $6) RETURNING id";
+            + " ($1, $2, $3, now(), now(), $4, $5, $6) "
+            + " RETURNING id";
 
     public static final String UPDATE_DICTIONARY_TAG_LABEL_WHERE_ID_$1
             = "UPDATE dictionary.tag_label "

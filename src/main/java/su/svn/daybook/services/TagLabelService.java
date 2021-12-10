@@ -12,6 +12,7 @@ import io.quarkus.vertx.ConsumeEvent;
 import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.Multi;
 import org.jboss.logging.Logger;
+import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.model.TagLabel;
 import su.svn.daybook.domain.dao.TagLabelDao;
@@ -27,7 +28,7 @@ public class TagLabelService {
     @Inject
     TagLabelDao tagLabelDao;
 
-    @ConsumeEvent("tag-get")
+    @ConsumeEvent(EventAddress.TAG_GET)
     public Uni<Answer> tagGet(Object o) {
         LOG.tracef("tagGet(%s)", o);
         if (o instanceof String) {
@@ -41,7 +42,7 @@ public class TagLabelService {
                 .map(t -> t.isEmpty() ? Answer.empty() : Answer.of(t));
     }
 
-    @ConsumeEvent("tag-add")
+    @ConsumeEvent(EventAddress.TAG_ADD)
     public Uni<Answer> tagAdd(TagLabel o) {
         LOG.tracef("tagAdd(%s)", o);
         return add(o);
