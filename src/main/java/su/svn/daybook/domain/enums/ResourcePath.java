@@ -5,6 +5,8 @@ public enum ResourcePath {
 
     public static final String CODIFIER = "/code";
 
+    public static final String I18N = "/i18n";
+
     public static final String TAG_LABEL = "/tag";
 
     public static final String TAG_LABELS = "/tags";
