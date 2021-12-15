@@ -11,44 +11,39 @@ package su.svn.daybook.domain.dao;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import org.jboss.logging.Logger;
-import su.svn.daybook.domain.model.TagLabel;
+import su.svn.daybook.domain.model.Codifier;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.util.Optional;
 
 @ApplicationScoped
-public class TagLabelDao {
+public class CodifierDao {
 
-    private static final Logger LOG = Logger.getLogger(TagLabelDao.class);
+    private static final Logger LOG = Logger.getLogger(CodifierDao.class);
 
     @Inject
     io.vertx.mutiny.pgclient.PgPool client;
 
-    public Multi<TagLabel> findAll() {
+    public Multi<Codifier> findAll() {
         LOG.trace("findAll");
-        Multi<TagLabel> result = TagLabel.findAll(client);
+        Multi<Codifier> result = Codifier.findAll(client);
         LOG.tracef("findAll result: %s", result);
-        return TagLabel.findAll(client);
+        return Codifier.findAll(client);
     }
 
-    public Uni<Optional<TagLabel>> findById(String id) {
-        return TagLabel.findById(client, id)
+    public Uni<Optional<Codifier>> findById(Long id) {
+        return Codifier.findById(client, id)
                 .map(t -> t != null ? Optional.of(t) : Optional.empty());
     }
 
-    public Uni<Optional<String>> insert(TagLabel entry) {
+    public Uni<Optional<Long>> insert(Codifier entry) {
         return entry.insert(client)
                 .map(t -> t != null ? Optional.of(t) : Optional.empty());
     }
 
-    public Uni<Optional<String>> update(TagLabel entry) {
+    public Uni<Optional<Long>> update(Codifier entry) {
         return entry.update(client)
-                .map(t -> t != null ? Optional.of(t) : Optional.empty());
-    }
-
-    public Uni<Optional<String>> delete(TagLabel entry) {
-        return entry.delete(client)
                 .map(t -> t != null ? Optional.of(t) : Optional.empty());
     }
 }

@@ -8,8 +8,16 @@
 
 package su.svn.daybook.domain.model;
 
+import io.smallrye.mutiny.Multi;
+import io.smallrye.mutiny.Uni;
+import io.vertx.mutiny.pgclient.PgPool;
+import io.vertx.mutiny.sqlclient.Row;
+import io.vertx.mutiny.sqlclient.RowSet;
+import io.vertx.mutiny.sqlclient.Tuple;
+
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class Codifier implements Serializable {
 
@@ -33,6 +41,99 @@ public class Codifier implements Serializable {
 
     private Integer flags;
 
+    public static final String SELECT_FROM_DICTIONARY_CODIFIER_WHERE_ID_$1
+            = "SELECT id, code, value, user_name, create_time, update_time, enabled, visible, flags "
+            + "  FROM dictionary.codifier "
+            + " WHERE id = $1";
+
+    public static final String SELECT_ALL_FROM_DICTIONARY_CODIFIER_ORDER_BY_ID_ASC
+            = "SELECT id, code, value, user_name, create_time, update_time, enabled, visible, flags "
+            + "  FROM dictionary.codifier "
+            + " ORDER BY id ASC";
+
+    public static final String INSERT_INTO_DICTIONARY_CODIFIER
+            = "INSERT INTO dictionary.codifier "
+            + " (id, code, user_name, create_time, update_time, enabled, visible, flags) "
+            + " VALUES "
+            + " ($1, $2, $3, now(), now(), $4, $5, $6) "
+            + " RETURNING id";
+
+    public static final String UPDATE_DICTIONARY_CODIFIER_WHERE_ID_$1
+            = "UPDATE dictionary.codifier "
+            + " SET "
+            + "  code = $2,"
+            + "  user_name = $3, "
+            + "  create_time = $4, "
+            + "  update_time = $5,"
+            + "  enabled = $6, "
+            + "  visible = $7, "
+            + "  flags = $8 "
+            + " WHERE id = $1 "
+            + " RETURNING id";
+
+    public static final String DELETE_FROM_DICTIONARY_CODIFIER_WHERE_ID_$1
+            = "DELETE FROM dictionary.codifier "
+            + " WHERE id = $1 "
+            + " RETURNING id";
+
+    public static Codifier from(Row row) {
+        return new Codifier(
+                row.getLong("id"),
+                row.getString("code"),
+                row.getString("value"),
+                row.getString("user_name"),
+                row.getLocalDateTime("create_time"),
+                row.getLocalDateTime("update_time"),
+                row.getBoolean("enabled"),
+                row.getBoolean("visible"),
+                row.getInteger("flags")
+        );
+    }
+
+    public static Uni<Codifier> findById(PgPool client, Long id) {
+        return client.preparedQuery(SELECT_FROM_DICTIONARY_CODIFIER_WHERE_ID_$1)
+                .execute(Tuple.of(id))
+                .onItem()
+                .transform(RowSet::iterator)
+                .onItem()
+                .transform(iterator -> iterator.hasNext() ? Codifier.from(iterator.next()) : null);
+    }
+
+    public static Multi<Codifier> findAll(PgPool client) {
+        return client
+                .query(SELECT_ALL_FROM_DICTIONARY_CODIFIER_ORDER_BY_ID_ASC)
+                .execute()
+                .onItem()
+                .transformToMulti(set -> Multi.createFrom().iterable(set))
+                .onItem()
+                .transform(Codifier::from);
+
+    }
+
+    public Uni<Long> insert(PgPool client) {
+        return client.preparedQuery(INSERT_INTO_DICTIONARY_CODIFIER)
+                .execute(Tuple.of(List.of(id, code, value, userName, enabled, visible, flags)))
+                .onItem()
+                .transform(RowSet::iterator)
+                .onItem()
+                .transform(iterator -> iterator.hasNext() ? iterator.next().getLong("id") : null);
+    }
+
+    public Uni<Long> update(PgPool client) {
+        updateTime = LocalDateTime.now();
+        return client.preparedQuery(UPDATE_DICTIONARY_CODIFIER_WHERE_ID_$1)
+                .execute(Tuple.of(List.of(id, code, value, userName, createTime, updateTime, enabled, visible, flags)))
+                .onItem()
+                .transform(pgRowSet -> pgRowSet.iterator().next().getLong("id"));
+    }
+
+    public Uni<Long> delete(PgPool client) {
+        return client.preparedQuery(DELETE_FROM_DICTIONARY_CODIFIER_WHERE_ID_$1)
+                .execute(Tuple.of(id))
+                .onItem()
+                .transform(pgRowSet -> pgRowSet.iterator().next().getLong("id"));
+    }
+    
     public Codifier() {}
 
     public Codifier(

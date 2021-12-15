@@ -11,39 +11,36 @@ package su.svn.daybook.resources;
 import io.smallrye.mutiny.Uni;
 import io.vertx.mutiny.core.eventbus.EventBus;
 import io.vertx.mutiny.core.eventbus.Message;
+import org.jboss.logging.Logger;
 import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.enums.ResourcePath;
 import su.svn.daybook.domain.messages.Answer;
-import su.svn.daybook.domain.model.TagLabel;
+import su.svn.daybook.domain.model.Codifier;
 
 import javax.inject.Inject;
-import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 
-@Path(ResourcePath.TAG_LABEL)
-public class TagLabelResource {
+@Path(ResourcePath.CODIFIER)
+public class CodifierResource {
+
+    private static final Logger LOG = Logger.getLogger(CodifierResource.class);
 
     @Inject
     EventBus bus;
 
     @GET
     @Path(ResourcePath.ID)
-    @Consumes
-    @Produces
     public Uni<Response> get(String id) {
-        return request(EventAddress.TAG_GET, id);
+        return request(EventAddress.CODE_GET, id);
     }
 
     @POST
     @Path(ResourcePath.ADD)
-    @Consumes
-    @Produces
-    public Uni<Response> add(TagLabel tagLabel) {
-        return request(EventAddress.TAG_ADD, tagLabel);
+    public Uni<Response> add(Codifier Codifier) {
+        return request(EventAddress.CODE_ADD, Codifier);
     }
 
     private Uni<Response> request(String address, Object o) {
@@ -55,6 +52,9 @@ public class TagLabelResource {
     }
 
     private Response.ResponseBuilder createResponseBuilder(Message<Answer> message) {
+        if (message.body() == null) {
+            return Response.status(406, "body is null");
+        }
         return message.body().getPayload() != null
                 ? Response.ok(message.body().getPayload())
                 : Response.status(message.body().getError(), message.body().getMessage());
