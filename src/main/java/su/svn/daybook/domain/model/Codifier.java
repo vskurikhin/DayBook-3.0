@@ -8,6 +8,7 @@
 
 package su.svn.daybook.domain.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import io.vertx.mutiny.pgclient.PgPool;
@@ -19,6 +20,7 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Codifier implements Serializable {
 
     private static final long serialVersionUID = 1265480523704797546L;
@@ -55,7 +57,7 @@ public class Codifier implements Serializable {
             = "INSERT INTO dictionary.codifier "
             + " (id, code, user_name, create_time, update_time, enabled, visible, flags) "
             + " VALUES "
-            + " ($1, $2, $3, now(), now(), $4, $5, $6) "
+            + " ($1, $2, $3, $4, $5, $6, $7, $8) "
             + " RETURNING id";
 
     public static final String UPDATE_DICTIONARY_CODIFIER_WHERE_ID_$1
@@ -112,7 +114,7 @@ public class Codifier implements Serializable {
 
     public Uni<Long> insert(PgPool client) {
         return client.preparedQuery(INSERT_INTO_DICTIONARY_CODIFIER)
-                .execute(Tuple.of(List.of(id, code, value, userName, enabled, visible, flags)))
+                .execute(Tuple.of(listOf()))
                 .onItem()
                 .transform(RowSet::iterator)
                 .onItem()
@@ -122,18 +124,22 @@ public class Codifier implements Serializable {
     public Uni<Long> update(PgPool client) {
         updateTime = LocalDateTime.now();
         return client.preparedQuery(UPDATE_DICTIONARY_CODIFIER_WHERE_ID_$1)
-                .execute(Tuple.of(List.of(id, code, value, userName, createTime, updateTime, enabled, visible, flags)))
+                .execute(Tuple.of(listOf()))
                 .onItem()
                 .transform(pgRowSet -> pgRowSet.iterator().next().getLong("id"));
     }
 
-    public Uni<Long> delete(PgPool client) {
+    public static Uni<Long> delete(PgPool client, Long id) {
         return client.preparedQuery(DELETE_FROM_DICTIONARY_CODIFIER_WHERE_ID_$1)
                 .execute(Tuple.of(id))
                 .onItem()
                 .transform(pgRowSet -> pgRowSet.iterator().next().getLong("id"));
     }
-    
+
+    private List<?> listOf() {
+        return List.of(id, code, value, userName, createTime, updateTime, enabled, visible, flags);
+    }
+
     public Codifier() {}
 
     public Codifier(
@@ -274,5 +280,83 @@ public class Codifier implements Serializable {
                 ", visible=" + visible +
                 ", flags=" + flags +
                 '}';
+    }
+
+    public static Codifier.Builder builder() {
+        return new Codifier.Builder();
+    }
+
+    public static final class Builder {
+        private Long id;
+        private String code;
+        private String value;
+        private String userName;
+        private LocalDateTime createTime;
+        private LocalDateTime updateTime;
+        private Boolean enabled;
+        private Boolean visible;
+        private Integer flags;
+
+        private Builder() {
+        }
+
+        public Builder withId(Long id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder withCode(String code) {
+            this.code = code;
+            return this;
+        }
+
+        public Builder withValue(String value) {
+            this.value = value;
+            return this;
+        }
+
+        public Builder withUserName(String userName) {
+            this.userName = userName;
+            return this;
+        }
+
+        public Builder withCreateTime(LocalDateTime createTime) {
+            this.createTime = createTime;
+            return this;
+        }
+
+        public Builder withUpdateTime(LocalDateTime updateTime) {
+            this.updateTime = updateTime;
+            return this;
+        }
+
+        public Builder withEnabled(Boolean enabled) {
+            this.enabled = enabled;
+            return this;
+        }
+
+        public Builder withVisible(Boolean visible) {
+            this.visible = visible;
+            return this;
+        }
+
+        public Builder withFlags(Integer flags) {
+            this.flags = flags;
+            return this;
+        }
+
+        public Codifier build() {
+            Codifier codifier = new Codifier();
+            codifier.setId(id);
+            codifier.setCode(code);
+            codifier.setValue(value);
+            codifier.setUserName(userName);
+            codifier.setCreateTime(createTime);
+            codifier.setUpdateTime(updateTime);
+            codifier.setEnabled(enabled);
+            codifier.setVisible(visible);
+            codifier.setFlags(flags);
+            return codifier;
+        }
     }
 }
