@@ -7,6 +7,10 @@ public enum EventAddress {
 
     public static final String CODE_GET = "code_get";
 
+    public static final String CODE_PUT = "code_put";
+
+    public static final String CODE_DEL = "code_del";
+
     public static final String I18N_ADD = "i18n_add";
 
     public static final String I18N_GET = "i18n_get";

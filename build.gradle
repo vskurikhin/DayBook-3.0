@@ -5,6 +5,7 @@
  * build.gradle
  * $Id$
  */
+//file:noinspection GradlePackageUpdate
 
 buildscript {
     def liquibase_gradle_plugin = System.getProperty('VERSION_LIQUIBASE_GRADLE_PLUGIN') ?: VERSION_LIQUIBASE_GRADLE_PLUGIN
@@ -101,4 +102,11 @@ compileJava {
 
 compileTestJava {
     options.encoding = 'UTF-8'
+}
+
+quarkusBuild {
+    nativeArgs {
+        containerBuild = true
+        buildImage = "quay.io/quarkus/ubi-quarkus-native-image:21.3.0-java11"
+    }
 }
