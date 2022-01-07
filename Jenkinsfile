@@ -1,59 +1,52 @@
 pipeline {
-    withCredentials([usernamePassword(
-        credentialsId: "${DOCKER_CRED_ID}",
-        usernameVariable: 'USERNAME', 
-        passwordVariable: 'PASSWORD'
-    )]) {
+    agent any
+    environment {
+        DOCKER_CRED = credentials("DOCKER_CRED_ID")
+        IMAGE_NAME = "$DOCKER_CRED_USR/daybook3-build-$BUILD_NUMBER"
+    }
+    stages {
         stage('git branch main') {
-            git branch: 'main', url: 'https://github.com/vskurikhin/DayBook-3.0.git'
+            steps {
+                git branch: 'main', url: 'https://github.com/vskurikhin/DayBook-3.0.git'
+            }
         }
         stage('gradle clean build') {
-            try {
+            steps {
                 sh '''
                   set +x
                   gradle clean build \
                         -Dquarkus.package.type=native \
                         -Dquarkus.native.remote-container-build=true
                 '''
-            } catch (err) {
-                echo "Error message: " + err.getMessage()
             }
-            echo "currentBuild.result: ${currentBuild.result}"
         }
-        stage("docker build $USERNAME/daybook3-build-${BUILD_NUMBER}") {
-            try {
+        stage('docker build') {
+            steps {
+                echo "for: ${IMAGE_NAME}"
                 sh '''
-                    set +x
-                    docker build \
-                        -f src/main/docker/Dockerfile.native \
-                        -t ${USERNAME}/daybook3-build-${BUILD_NUMBER} \
-                        .
+                  set +x
+                  docker build \
+                      -f src/main/docker/Dockerfile.native \
+                      -t ${IMAGE_NAME} \
+                      .
                 '''
-            } catch (err) {
-                echo "Error message: " + err.getMessage()
             }
-            echo "currentBuild.result: ${currentBuild.result}"
         }
         stage('docker login') {
-            sh '''
-              set +x
-              docker login --username ${USERNAME} --password $PASSWORD
-            '''
-        }
-        stage("docker push $USERNAME/daybook3-build-${BUILD_NUMBER}") {
-            try {
+            steps {
                 sh '''
-                    set +x
-                    docker push ${USERNAME}/daybook3-build-${BUILD_NUMBER}
+                  set +x
+                  docker login --username ${DOCKER_CRED_USR} --password ${DOCKER_CRED_PSW}
                 '''
-            } catch (err) {
-                echo "Error message: " + err.getMessage()
             }
-            echo "currentBuild.result: ${currentBuild.result}"
         }
-        stage('sleep') {
-            for (int i = 0; i < 10; i++) {
-                sh '$i - sleep 1'
+        stage('docker push') {
+            steps {
+                echo "for: ${IMAGE_NAME}"
+                sh '''
+                  set +x
+                  docker push ${IMAGE_NAME}
+                '''
             }
         }
     }
