@@ -1,4 +1,4 @@
-node("${NODE}") {
+pipeline {
     withCredentials([usernamePassword(
         credentialsId: "${DOCKER_CRED_ID}",
         usernameVariable: 'USERNAME', 
