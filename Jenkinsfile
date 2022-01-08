@@ -2,7 +2,8 @@ pipeline {
     agent any
     environment {
         DOCKER_CRED = credentials("DOCKER_CRED_ID")
-        IMAGE_NAME = "$DOCKER_CRED_USR/daybook3-build-$BUILD_NUMBER"
+        IMAGE_NAME = "$DOCKER_CRED_USR/daybook3:v3.$BUILD_NUMBER"
+        IMAGE_LATEST = "$DOCKER_CRED_USR/daybook3:latest"
     }
     stages {
         stage('git branch main') {
@@ -29,6 +30,7 @@ pipeline {
                       -f src/main/docker/Dockerfile.native \
                       -t ${IMAGE_NAME} \
                       .
+                  docker tag ${IMAGE_NAME} ${IMAGE_LATEST}
                 '''
             }
         }
@@ -46,6 +48,7 @@ pipeline {
                 sh '''
                   set +x
                   docker push ${IMAGE_NAME}
+                  docker push ${IMAGE_LATEST}
                 '''
             }
         }
