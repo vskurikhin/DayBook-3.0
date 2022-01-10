@@ -32,7 +32,7 @@ class I18nResourceTest {
         Uni<Answer> tezd = Uni.createFrom()
                 .item(1)
                 .onItem()
-                .transform(i -> Answer.of(DataTest.TEZD_I18n));
+                .transform(i -> Answer.of(DataTest.OBJECT_I18n_0));
         Uni<Answer> empty = Uni.createFrom()
                 .item(Answer.empty());
         Uni<Answer> tezdId = Uni.createFrom().item(Answer.of(0L));
@@ -40,7 +40,7 @@ class I18nResourceTest {
         I18nService mock = Mockito.mock(I18nService.class);
         Mockito.when(mock.i18nGet("0")).thenReturn(tezd);
         Mockito.when(mock.i18nGet("2147483647")).thenReturn(empty);
-        Mockito.when(mock.i18nAdd(DataTest.TEZD_I18n)).thenReturn(tezdId);
+        Mockito.when(mock.i18nAdd(DataTest.OBJECT_I18n_0)).thenReturn(tezdId);
         QuarkusMock.installMockForType(mock, I18nService.class);
     }
 
@@ -51,7 +51,7 @@ class I18nResourceTest {
                 .get("/i18n/0")
                 .then()
                 .statusCode(200)
-                .body(CoreMatchers.startsWith(DataTest.TEZD_I18n_JSON));
+                .body(CoreMatchers.startsWith(DataTest.JSON_I18n_0));
     }
 
     @Test
@@ -67,7 +67,7 @@ class I18nResourceTest {
     void add() {
         given()
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
-                .body(DataTest.TEZD_I18n_JSON)
+                .body(DataTest.JSON_I18n_0)
                 .when()
                 .post("/i18n/add")
                 .then()

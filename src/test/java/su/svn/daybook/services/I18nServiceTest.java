@@ -22,7 +22,9 @@ import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.model.I18n;
 
 import javax.inject.Inject;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @QuarkusTest
 class I18nServiceTest {
@@ -32,28 +34,51 @@ class I18nServiceTest {
 
     static I18nDao mock;
 
+    static Uni<Optional<I18n>> optionalUniTest = Uni.createFrom().item(Optional.of(DataTest.OBJECT_I18n_0));
+
+    static Uni<Answer> empty = Uni.createFrom().item(new Answer("empty", 1));
+
+    static Uni<Optional<Long>> optionalUniId = Uni.createFrom().item(Optional.of(0L));
+
+    static Multi<I18n> multiTest = Multi.createFrom().item(DataTest.OBJECT_I18n_0);
+
+    static Multi<I18n> multiEmpties = Multi.createFrom().empty();
+
     @BeforeAll
     public static void setup() {
-        Uni<Optional<I18n>> tezd = Uni.createFrom()
-                .item(Optional.of(DataTest.TEZD_I18n));
-        Uni<Answer> empty = Uni.createFrom()
-                .item(new Answer("empty", 1));
-        Uni<Optional<Long>> tezdId = Uni.createFrom().item(Optional.of(0L));
-        Multi<I18n> tezds = Multi.createFrom()
-                .item(DataTest.TEZD_I18n);
 
         mock = Mockito.mock(I18nDao.class);
-        Mockito.when(mock.findById(0L)).thenReturn(tezd);
-        Mockito.when(mock.insert(DataTest.TEZD_I18n)).thenReturn(tezdId);
-        Mockito.when(mock.findAll()).thenReturn(tezds);
+        Mockito.when(mock.findById(0L)).thenReturn(optionalUniTest);
+        Mockito.when(mock.insert(DataTest.OBJECT_I18n_0)).thenReturn(optionalUniId);
+        Mockito.when(mock.findAll()).thenReturn(multiTest);
         QuarkusMock.installMockForType(mock, I18nDao.class);
     }
 
     @Test
-    void tagGet() {
+    void testMethod_getAll() {
+        service.getAll()
+                .onItem()
+                .invoke(actual -> Assertions.assertEquals(Answer.of(DataTest.OBJECT_I18n_0), actual))
+                .toUni()
+                .await()
+                .indefinitely();
+    }
+
+    @Test
+    void testMethod_getAll_whithEmptyResult() {
+        Mockito.when(mock.findAll()).thenReturn(multiEmpties);
+        List<Answer> result = service.getAll()
+                .subscribe()
+                .asStream()
+                .collect(Collectors.toList());
+        Assertions.assertEquals(0, result.size());
+    }
+
+    @Test
+    void testMethod_i18nGet() {
         service.i18nGet("0")
                 .onItem()
-                .invoke(actual -> Assertions.assertEquals(Answer.of(Optional.of(DataTest.TEZD_I18n)), actual))
+                .invoke(actual -> Assertions.assertEquals(Answer.of(Optional.of(DataTest.OBJECT_I18n_0)), actual))
                 .await()
                 .indefinitely();
     }
@@ -69,19 +94,9 @@ class I18nServiceTest {
 
     @Test
     void tagAdd() {
-        service.i18nAdd(DataTest.TEZD_I18n)
+        service.i18nAdd(DataTest.OBJECT_I18n_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(Answer.of(0L), actual))
-                .await()
-                .indefinitely();
-    }
-
-    @Test
-    void getAll() {
-        service.getAll()
-                .onItem()
-                .invoke(actual -> Assertions.assertEquals(Answer.of(DataTest.TEZD_I18n), actual))
-                .toUni()
                 .await()
                 .indefinitely();
     }
@@ -92,7 +107,7 @@ class I18nServiceTest {
         QuarkusMock.installMockForType(mock, I18nDao.class);
         service.getAll()
                 .onItem()
-                .invoke(actual -> Assertions.assertEquals(Answer.of(DataTest.TEZD_I18n), actual))
+                .invoke(actual -> Assertions.assertEquals(Answer.of(DataTest.OBJECT_I18n_0), actual))
                 .toUni()
                 .await()
                 .indefinitely();

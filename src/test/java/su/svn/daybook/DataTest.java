@@ -10,7 +10,7 @@ public class DataTest {
             0L, null, null, null, null, null, null, null, null
     );
 
-    public static final I18n TEZD_I18n = new I18n(
+    public static final I18n OBJECT_I18n_0 = new I18n(
             0L, null, null, null, null, null, null, null, null, null
     );
 
@@ -22,7 +22,7 @@ public class DataTest {
             = "{\"id\":0,\"code\":null,\"value\":null,\"userName\":null,\"createTime\":null,\"updateTime\":null,"
             + "\"enabled\":null,\"visible\":null,\"flags\":null}";
 
-    public static final String TEZD_I18n_JSON
+    public static final String JSON_I18n_0
             = "{\"id\":0,\"languageId\":null,\"message\":null,\"translation\":null,\"userName\":null,"
             + "\"createTime\":null,\"updateTime\":null,\"enabled\":null,\"visible\":null,\"flags\":null}";
 

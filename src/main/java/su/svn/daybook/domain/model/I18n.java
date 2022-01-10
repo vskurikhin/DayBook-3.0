@@ -308,13 +308,17 @@ public class I18n implements Serializable {
         private String message;
         private String translation;
         private String userName;
-        private LocalDateTime createTime = LocalDateTime.now();
-        private LocalDateTime updateTime = LocalDateTime.now();
-        private Boolean enabled = true;
-        private Boolean visible = true;
+        private LocalDateTime createTime;
+        private LocalDateTime updateTime;
+        private Boolean enabled;
+        private Boolean visible;
         private Integer flags;
 
         private Builder() {
+        }
+
+        public static Builder anI18n() {
+            return new Builder();
         }
 
         public Builder withId(Long id) {
@@ -365,6 +369,19 @@ public class I18n implements Serializable {
         public Builder withFlags(Integer flags) {
             this.flags = flags;
             return this;
+        }
+
+        public Builder but() {
+            return anI18n().withId(id)
+                    .withLanguageId(languageId)
+                    .withMessage(message)
+                    .withTranslation(translation)
+                    .withUserName(userName)
+                    .withCreateTime(createTime)
+                    .withUpdateTime(updateTime)
+                    .withEnabled(enabled)
+                    .withVisible(visible)
+                    .withFlags(flags);
         }
 
         public I18n build() {
