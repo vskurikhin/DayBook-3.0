@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: daybook3
+  labels:
+    app: daybook3
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: daybook3
+  template:
+    metadata:
+      labels:
+        app: daybook3
+    spec:
+      containers:
+      - name: daybook3
+        image: vskurikhin/daybook3
+        ports:
+        - containerPort: 8080
+        env:
+        - name: DATASOURCE_USERNAME
+          valueFrom:
+            configMapKeyRef:
+              name: daybook3
+              key: datasource_username
+        - name: DATASOURCE_PASSWORD
+          valueFrom:
+            configMapKeyRef:
+              name: daybook3
+              key: datasource_password
+        - name: DATASOURCE_REACTIVE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: daybook3
+              key: datasource_reactive_url

@@ -1,0 +1,21 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: daybook3
+  namespace: default
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+      - daybook3.rune.ru
+  rules:
+  - host: daybook3.rune.ru
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: daybook3
+            port:
+              number: 8080
