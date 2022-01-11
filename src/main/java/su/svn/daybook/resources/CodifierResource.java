@@ -1,8 +1,8 @@
 /*
- * This file was last modified at 2021.12.06 18:10 by Victor N. Skurikhin.
+ * This file was last modified at 2022.01.11 17:44 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
- * TagLabelResource.java
+ * CodifierResource.java
  * $Id$
  */
 
@@ -63,7 +63,6 @@ public class CodifierResource {
     }
 
     private Uni<Response> request(String address, Object o) {
-        System.err.println("address = " + address + " " + "o = " + o);
         return bus.<Answer>request(address, o)
                 .onItem()
                 .transform(this::createResponseBuilder)
@@ -72,11 +71,9 @@ public class CodifierResource {
     }
 
     private Response.ResponseBuilder createResponseBuilder(Message<Answer> message) {
-        System.err.println("message = " + message);
         if (message.body() == null) {
             return Response.status(406, "body is null");
         }
-        System.err.println("message = " + message.body());
         return message.body().getPayload() != null
                 ? Response.ok(message.body().getPayload())
                 : Response.status(message.body().getError(), message.body().getMessage());
