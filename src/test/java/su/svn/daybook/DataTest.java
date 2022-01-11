@@ -1,3 +1,11 @@
+/*
+ * This file was last modified at 2022.01.11 17:59 by Victor N. Skurikhin.
+ * This is free and unencumbered software released into the public domain.
+ * For more information, please refer to <http://unlicense.org>
+ * DataTest.java
+ * $Id$
+ */
+
 package su.svn.daybook;
 
 import su.svn.daybook.domain.messages.Answer;
@@ -13,6 +21,8 @@ public class DataTest {
             0L, null, null, null, null, null, null, null, null
     );
     public static final String JSON_Codifier_0 = "{\"id\":0}";
+
+    public static final String JSON_ARRAY_Codifier_0 =  "[{\"id\":0}]";
 
     public static final I18n TEZD_I18n = new I18n(
             0L, null, null, null, null, null, null, null, null, null
