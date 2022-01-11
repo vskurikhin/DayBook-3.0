@@ -66,4 +66,17 @@ class AnswerTest {
         Answer test1 = Answer.create("test", o);
         Assertions.assertTrue(test1.toString().length() > 0);
     }
+
+    @Test
+    void builder() {
+        Object o = new Object();
+
+        Answer.Builder builder = Answer.builder()
+                .withMessage("test")
+                .withPayload(o)
+                .but();
+        Answer test1 = builder.build();
+        Answer test2 = Answer.create("test", o);
+        Assertions.assertEquals(test1, test2);
+    }
 }

@@ -1,9 +1,25 @@
 package su.svn.daybook.domain.enums;
 
 public enum ResourcePath {
-    RESOURCE_PATH;
+    Null(null),
+    Add(ResourcePath.ADD),
+    All(ResourcePath.ALL),
+    Codifier(ResourcePath.CODIFIER),
+    I18n(ResourcePath.I18N),
+    Id(ResourcePath.ID),
+    Put(ResourcePath.PUT),
+    TagLabel(ResourcePath.TAG_LABEL),
+    TagLabels(ResourcePath.TAG_LABELS);
+
+    public static final String ADD = "/add";
+
+    public static final String ALL = "/all";
 
     public static final String CODIFIER = "/code";
+
+    public static final String ID = "/{id}";
+
+    public static final String PUT = "/put";
 
     public static final String I18N = "/i18n";
 
@@ -11,9 +27,31 @@ public enum ResourcePath {
 
     public static final String TAG_LABELS = "/tags";
 
-    public static final String ID = "/{id}";
+    private final String value;
 
-    public static final String ADD = "/add";
+    ResourcePath(String value) {
+        this.value = value;
+    }
 
-    public static final String ALL = "/all";
+    public String getValue() {
+        return value;
+    }
+
+    public boolean stringEquals(String other) {
+        return this.value != null && this.value.equals(other) || other == null;
+    }
+
+    public static ResourcePath lookup(String key) {
+
+        if (null == key) {
+            return Null;
+        }
+        for (ResourcePath v : values()) {
+
+            if (v.getValue() != null && v.getValue().equals(key)) {
+                return v;
+            }
+        }
+        return null;
+    }
 }

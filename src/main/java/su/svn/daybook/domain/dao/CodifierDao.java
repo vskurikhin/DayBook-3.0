@@ -46,4 +46,9 @@ public class CodifierDao {
         return entry.update(client)
                 .map(t -> t != null ? Optional.of(t) : Optional.empty());
     }
+
+    public Uni<Optional<Long>> delete(Long id) {
+        return Codifier.delete(client, id)
+                .map(t -> t != null ? Optional.of(t) : Optional.empty());
+    }
 }

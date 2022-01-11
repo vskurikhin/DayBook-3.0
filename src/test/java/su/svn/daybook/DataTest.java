@@ -1,14 +1,18 @@
 package su.svn.daybook;
 
+import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.model.Codifier;
 import su.svn.daybook.domain.model.I18n;
 import su.svn.daybook.domain.model.TagLabel;
 
 public class DataTest {
 
-    public static final Codifier TEZD_Codifier = new Codifier(
+    public static Answer errorNoNumber = new Answer("For input string: \"noNumber\"", 404);
+
+    public static final Codifier OBJECT_Codifier_0 = new Codifier(
             0L, null, null, null, null, null, null, null, null
     );
+    public static final String JSON_Codifier_0 = "{\"id\":0}";
 
     public static final I18n OBJECT_I18n_0 = new I18n(
             0L, null, null, null, null, null, null, null, null, null

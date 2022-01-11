@@ -53,10 +53,8 @@ public class Answer implements Serializable {
         return create(DEFAULT_MESSAGE, o);
     }
 
-    /** @noinspection unchecked*/
-    public static <T> Answer create(@Nonnull String message, T o) {
-        Class<T> tClass = (Class<T>) o.getClass();
-        return new Answer(message, 0, o, tClass);
+    public static Answer create(@Nonnull String message, @Nonnull Object o) {
+        return new Answer(message, 0, o, o.getClass());
     }
 
     @Nonnull
@@ -73,11 +71,9 @@ public class Answer implements Serializable {
         return payload;
     }
 
-    public <T> void setPayload(T o) {
-        //noinspection unchecked
-        Class<T> tClass = (Class<T>) o.getClass();
+    public void setPayload(@Nonnull Object o) {
         this.payload = o;
-        this.payloadClass = tClass;
+        this.payloadClass = o.getClass();
     }
 
     public Class<?> getPayloadClass() {
@@ -114,5 +110,48 @@ public class Answer implements Serializable {
                 ", payload=" + payload +
                 ", payloadClass=" + ((payloadClass != null) ? payloadClass.getCanonicalName() : "null") +
                 '}';
+    }
+
+    public static Builder builder() {
+        return new Answer.Builder();
+    }
+
+    public static final class Builder {
+        private String message;
+        private int error;
+        private Object payload;
+
+        private Builder() {
+        }
+
+        public Builder withMessage(String message) {
+            this.message = message;
+            return this;
+        }
+
+        public Builder withError(int error) {
+            this.error = error;
+            return this;
+        }
+
+        public Builder withPayload(@Nonnull Object payload) {
+            this.payload = payload;
+            return this;
+        }
+
+        public Builder but() {
+            return Answer.builder()
+                    .withMessage(message)
+                    .withError(error)
+                    .withPayload(payload);
+        }
+
+        public Answer build() {
+            Answer answer = new Answer(message != null ? message : EMPTY, error);
+            if (payload != null) {
+                answer.setPayload(payload);
+            }
+            return answer;
+        }
     }
 }
