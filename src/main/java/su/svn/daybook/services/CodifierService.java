@@ -1,8 +1,8 @@
 /*
- * This file was last modified at 2021.12.06 18:10 by Victor N. Skurikhin.
+ * This file was last modified at 2022.01.11 17:44 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
- * TagLabelService.java
+ * CodifierService.java
  * $Id$
  */
 
@@ -44,7 +44,7 @@ public class CodifierService {
                 return get(Long.parseLong(o.toString()));
             } catch (NumberFormatException e) {
                 LOG.error(methodCall, e);
-                Answer numberError = new Answer(e.getMessage(), 404);
+                var numberError = new Answer(e.getMessage(), 404);
                 return Uni.createFrom().item(numberError);
             }
         }
@@ -104,7 +104,7 @@ public class CodifierService {
                 return delete(Long.parseLong(o.toString()));
             } catch (NumberFormatException e) {
                 LOG.error(methodCall, e);
-                Answer numberError = new Answer(e.getMessage(), 404);
+                var numberError = new Answer(e.getMessage(), 404);
                 return Uni.createFrom().item(numberError);
             }
         }
