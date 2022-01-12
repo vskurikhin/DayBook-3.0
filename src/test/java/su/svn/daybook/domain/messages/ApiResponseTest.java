@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2021.12.21 15:19 by Victor N. Skurikhin.
+ * This file was last modified at 2022.01.12 17:47 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * ApiResponseTest.java
@@ -41,6 +41,14 @@ class ApiResponseTest {
         test3.setPayload(o);
         Assertions.assertEquals(test3, test4);
         Assertions.assertEquals(test3.hashCode(), test4.hashCode());
+    }
+
+
+    @Test
+    void testToString() {
+        Object o = new Object();
+        ApiResponse test1 = new ApiResponse(0L, "");
+        Assertions.assertTrue(test1.toString().length() > 0);
     }
 
     @Test
