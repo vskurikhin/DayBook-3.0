@@ -1,3 +1,11 @@
+/*
+ * This file was last modified at 2022.01.12 22:58 by Victor N. Skurikhin.
+ * This is free and unencumbered software released into the public domain.
+ * For more information, please refer to <http://unlicense.org>
+ * EventAddress.java
+ * $Id$
+ */
+
 package su.svn.daybook.domain.enums;
 
 public enum EventAddress {
@@ -33,6 +41,14 @@ public enum EventAddress {
     public static final String TAG_ADD = "tag_add";
 
     public static final String TAG_GET = "tag_get";
+
+    public static final String VOCABULARY_ADD = "vocabulary_add";
+
+    public static final String VOCABULARY_GET = "vocabulary_get";
+
+    public static final String VOCABULARY_PUT = "vocabulary_put";
+
+    public static final String VOCABULARY_DEL = "vocabulary_del";
 
     public static final String WORD_ADD = "word_add";
 

@@ -1,10 +1,15 @@
+/*
+ * This file was last modified at 2022.01.12 22:58 by Victor N. Skurikhin.
+ * This is free and unencumbered software released into the public domain.
+ * For more information, please refer to <http://unlicense.org>
+ * DataTest.java
+ * $Id$
+ */
+
 package su.svn.daybook;
 
 import su.svn.daybook.domain.messages.Answer;
-import su.svn.daybook.domain.model.Codifier;
-import su.svn.daybook.domain.model.I18n;
-import su.svn.daybook.domain.model.TagLabel;
-import su.svn.daybook.domain.model.Word;
+import su.svn.daybook.domain.model.*;
 
 public class DataTest {
 
@@ -23,6 +28,13 @@ public class DataTest {
     public static final String JSON_Word_0 = "{\"id\":0}";
 
     public static final String JSON_ARRAY_Word_0 = "[{\"id\":0}]";
+
+    public static final Vocabulary OBJECT_Vocabulary_0 = new Vocabulary(
+            0L, null, null, null, null, null, null, null, null
+    );
+    public static final String JSON_Vocabulary_0 = "{\"id\":0}";
+
+    public static final String JSON_ARRAY_Vocabulary_0 = "[{\"id\":0}]";
 
     public static final I18n OBJECT_I18n_0 = new I18n(
             0L, null, null, null, null, null, null, null, null, null

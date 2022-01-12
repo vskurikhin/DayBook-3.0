@@ -1,0 +1,31 @@
+<!--
+  ~ This file was last modified at 2022.01.12 22:58 by Victor N. Skurikhin.
+  ~ This is free and unencumbered software released into the public domain.
+  ~ For more information, please refer to <http://unlicense.org>
+  ~ changelogs_2021-01-15_00-28-46_130_dictionary_vocabulary_word_id_index.xml
+  ~ $Id$
+  -->
+
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.2.xsd"
+        logicalFilePath="./src/main/resources/db/changelog/db/Change-Sets/changelogs_2021-01-15_00-28-46_130_dictionary_vocabulary_word_id_index.xml">
+
+  <changeSet id="2021-01-15_00-28-46" author="Victor N. Skurikhin">
+      <sql>
+          <![CDATA[
+            CREATE INDEX IF NOT EXISTS IDX_dictionary_vocabulary_user_name
+                ON dictionary.vocabulary (user_name);
+          ]]>
+      </sql>
+      <rollback>
+          <sql>
+            <![CDATA[
+              DROP INDEX IF EXISTS dictionary.IDX_dictionary_vocabulary_word_id;
+            ]]>
+          </sql>
+      </rollback>
+  </changeSet>
+</databaseChangeLog>
