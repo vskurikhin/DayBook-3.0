@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2022.01.11 23:26 by Victor N. Skurikhin.
+ * This file was last modified at 2022.01.12 17:31 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * WordServiceTest.java
@@ -55,10 +55,59 @@ class WordServiceTest {
     }
 
     @Test
+    void testMethod_getAll() {
+        Mockito.when(mock.findAll()).thenReturn(multiTest);
+        List<Answer> result = service.getAll()
+                .subscribe()
+                .asStream()
+                .peek(actual -> Assertions.assertEquals(Answer.of(DataTest.OBJECT_Word_0), actual))
+                .collect(Collectors.toList());
+        Assertions.assertTrue(result.size() > 0);
+    }
+
+    @Test
+    void testMethod_getAll_whithEmptyResult() {
+        Mockito.when(mock.findAll()).thenReturn(multiEmpties);
+        List<Answer> result = service.getAll()
+                .subscribe()
+                .asStream()
+                .collect(Collectors.toList());
+        Assertions.assertEquals(0, result.size());
+    }
+
+    @Test
+    void testMethod_getAll_whithNullResult() {
+        Mockito.when(mock.findAll()).thenReturn(multiWithNull);
+        List<Answer> result = service.getAll()
+                .subscribe()
+                .asStream()
+                .collect(Collectors.toList());
+        Assertions.assertEquals(0, result.size());
+    }
+
+    @Test
     void testMethod_wordGet() {
         service.wordGet("0")
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(Answer.of(Optional.of(DataTest.OBJECT_Word_0)), actual))
+                .await()
+                .indefinitely();
+    }
+
+    @Test
+    void testMethod_codeGet_whenNoNumberParameter() {
+        service.wordGet("noNumber")
+                .onItem()
+                .invoke(actual -> Assertions.assertEquals(DataTest.errorNoNumber, actual))
+                .await()
+                .indefinitely();
+    }
+
+    @Test
+    void testMethod_codeGet_whenNullParameter() {
+        service.wordGet(null)
+                .onItem()
+                .invoke(actual -> Assertions.assertEquals(Answer.empty(), actual))
                 .await()
                 .indefinitely();
     }
@@ -75,12 +124,32 @@ class WordServiceTest {
     }
 
     @Test
+    void testMethod_codeAdd_whithEmptyResult() {
+        Mockito.when(mock.insert(DataTest.OBJECT_Word_0)).thenReturn(optionalUniEmptyId);
+        service.wordAdd(DataTest.OBJECT_Word_0)
+                .onItem()
+                .invoke(actual -> Assertions.assertEquals(Answer.empty(), actual))
+                .await()
+                .indefinitely();
+    }
+
+    @Test
     void testMethod_wordPut() {
         Mockito.when(mock.update(DataTest.OBJECT_Word_0)).thenReturn(optionalUniId);
         var expected = Answer.of(new ApiResponse(0L));
         service.wordPut(DataTest.OBJECT_Word_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
+                .await()
+                .indefinitely();
+    }
+
+    @Test
+    void testMethod_codePut_whithEmptyResult() {
+        Mockito.when(mock.update(DataTest.OBJECT_Word_0)).thenReturn(optionalUniEmptyId);
+        service.wordPut(DataTest.OBJECT_Word_0)
+                .onItem()
+                .invoke(actual -> Assertions.assertEquals(Answer.empty(), actual))
                 .await()
                 .indefinitely();
     }
@@ -97,13 +166,20 @@ class WordServiceTest {
     }
 
     @Test
-    void testMethod_getAll() {
-        Mockito.when(mock.findAll()).thenReturn(multiTest);
-        List<Answer> result = service.getAll()
-                .subscribe()
-                .asStream()
-                .peek(actual -> Assertions.assertEquals(Answer.of(DataTest.OBJECT_Word_0), actual))
-                .collect(Collectors.toList());
-        Assertions.assertTrue(result.size() > 0);
+    void testMethod_codeDelete_whenNoNumberParameter() {
+        service.wordDelete("noNumber")
+                .onItem()
+                .invoke(actual -> Assertions.assertEquals(DataTest.errorNoNumber, actual))
+                .await()
+                .indefinitely();
+    }
+
+    @Test
+    void testMethod_codeDelete_whenNullParameter() {
+        service.wordDelete(null)
+                .onItem()
+                .invoke(actual -> Assertions.assertEquals(Answer.empty(), actual))
+                .await()
+                .indefinitely();
     }
 }
