@@ -1,0 +1,32 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.2.xsd"
+        logicalFilePath="./src/main/resources/db/changelog/db/Change-Sets/changelogs_2021-01-15_00-18-27_120_dictionary_word.xml">
+
+  <changeSet id="2021-01-15_00-18-27" author="Victor N. Skurikhin">
+      <sql>
+          <![CDATA[
+            CREATE SEQUENCE dictionary.word_seq START 1;
+
+            CREATE TABLE dictionary.word (
+              id            BIGINT  PRIMARY KEY  NOT NULL  DEFAULT nextval('dictionary.word_seq'),
+              word          VARCHAR(256)  NOT NULL
+                            CONSTRAINT UC_63c5_dictionary_word_must_be_different
+                            UNIQUE,
+              user_name     VARCHAR(64),
+                            CONSTRAINT FK_7854_dictionary_word_security_user_name
+                            FOREIGN KEY (user_name)
+                            REFERENCES  security.user_name (user_name)
+                            ON DELETE CASCADE ON UPDATE CASCADE,
+              create_time   TIMESTAMP WITHOUT TIME ZONE  NOT NULL   DEFAULT now(),
+              update_time   TIMESTAMP WITHOUT TIME ZONE  NOT NULL   DEFAULT now(),
+              enabled       BOOLEAN                                 DEFAULT false,
+              visible       BOOLEAN                                 DEFAULT true,
+              flags         INT
+            );
+          ]]>
+      </sql>
+  </changeSet>
+</databaseChangeLog>

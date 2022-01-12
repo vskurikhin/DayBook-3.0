@@ -4,6 +4,7 @@ import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.model.Codifier;
 import su.svn.daybook.domain.model.I18n;
 import su.svn.daybook.domain.model.TagLabel;
+import su.svn.daybook.domain.model.Word;
 
 public class DataTest {
 
@@ -15,6 +16,13 @@ public class DataTest {
     public static final String JSON_Codifier_0 = "{\"id\":0}";
 
     public static final String JSON_ARRAY_Codifier_0 = "[{\"id\":0}]";
+
+    public static final Word OBJECT_Word_0 = new Word(
+            0L, null, null, null, null, null, null, null
+    );
+    public static final String JSON_Word_0 = "{\"id\":0}";
+
+    public static final String JSON_ARRAY_Word_0 = "[{\"id\":0}]";
 
     public static final I18n OBJECT_I18n_0 = new I18n(
             0L, null, null, null, null, null, null, null, null, null

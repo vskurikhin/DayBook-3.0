@@ -1,0 +1,109 @@
+/*
+ * This file was last modified at 2022.01.11 23:26 by Victor N. Skurikhin.
+ * This is free and unencumbered software released into the public domain.
+ * For more information, please refer to <http://unlicense.org>
+ * WordServiceTest.java
+ * $Id$
+ */
+
+package su.svn.daybook.services;
+
+import io.quarkus.test.junit.QuarkusMock;
+import io.quarkus.test.junit.QuarkusTest;
+import io.smallrye.mutiny.Multi;
+import io.smallrye.mutiny.Uni;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+import su.svn.daybook.DataTest;
+import su.svn.daybook.domain.dao.WordDao;
+import su.svn.daybook.domain.messages.Answer;
+import su.svn.daybook.domain.messages.ApiResponse;
+import su.svn.daybook.domain.model.Word;
+
+import javax.inject.Inject;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+@QuarkusTest
+class WordServiceTest {
+
+    @Inject
+    WordService service;
+
+    static WordDao mock;
+
+    static Uni<Optional<Word>> optionalUniTest = Uni.createFrom().item(Optional.of(DataTest.OBJECT_Word_0));
+
+    static Uni<Optional<Long>> optionalUniId = Uni.createFrom().item(Optional.of(0L));
+
+    static Uni<Optional<Long>> optionalUniEmptyId = Uni.createFrom().item(Optional.empty());
+
+    static Multi<Word> multiTest = Multi.createFrom().item(DataTest.OBJECT_Word_0);
+
+    static Multi<Word> multiEmpties = Multi.createFrom().empty();
+
+    static Multi<Word> multiWithNull = Multi.createFrom().item(() -> null);
+
+    @BeforeEach
+    void setUp() {
+        mock = Mockito.mock(WordDao.class);
+        Mockito.when(mock.findById(0L)).thenReturn(optionalUniTest);
+        QuarkusMock.installMockForType(mock, WordDao.class);
+    }
+
+    @Test
+    void testMethod_wordGet() {
+        service.wordGet("0")
+                .onItem()
+                .invoke(actual -> Assertions.assertEquals(Answer.of(Optional.of(DataTest.OBJECT_Word_0)), actual))
+                .await()
+                .indefinitely();
+    }
+
+    @Test
+    void testMethod_wordAdd() {
+        var expected = Answer.of(new ApiResponse(0L));
+        Mockito.when(mock.insert(DataTest.OBJECT_Word_0)).thenReturn(optionalUniId);
+        service.wordAdd(DataTest.OBJECT_Word_0)
+                .onItem()
+                .invoke(actual -> Assertions.assertEquals(expected, actual))
+                .await()
+                .indefinitely();
+    }
+
+    @Test
+    void testMethod_wordPut() {
+        Mockito.when(mock.update(DataTest.OBJECT_Word_0)).thenReturn(optionalUniId);
+        var expected = Answer.of(new ApiResponse(0L));
+        service.wordPut(DataTest.OBJECT_Word_0)
+                .onItem()
+                .invoke(actual -> Assertions.assertEquals(expected, actual))
+                .await()
+                .indefinitely();
+    }
+
+    @Test
+    void testMethod_wordDelete() {
+        Mockito.when(mock.delete(0L)).thenReturn(optionalUniId);
+        var expected = Answer.of(new ApiResponse(0L));
+        service.wordDelete("0")
+                .onItem()
+                .invoke(actual -> Assertions.assertEquals(expected, actual))
+                .await()
+                .indefinitely();
+    }
+
+    @Test
+    void testMethod_getAll() {
+        Mockito.when(mock.findAll()).thenReturn(multiTest);
+        List<Answer> result = service.getAll()
+                .subscribe()
+                .asStream()
+                .peek(actual -> Assertions.assertEquals(Answer.of(DataTest.OBJECT_Word_0), actual))
+                .collect(Collectors.toList());
+        Assertions.assertTrue(result.size() > 0);
+    }
+}
