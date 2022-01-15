@@ -23,7 +23,7 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Vocabulary implements Serializable {
 
-    private static final long serialVersionUID = 1265480523704797546L;
+    private static final long serialVersionUID = -71735002217330331L;
 
     private Long id;
 
