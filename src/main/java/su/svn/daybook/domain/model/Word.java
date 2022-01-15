@@ -23,7 +23,7 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Word implements Serializable {
 
-    private static final long serialVersionUID = 1265480523704797546L;
+    private static final long serialVersionUID = 1026290511346629702L;
 
     private Long id;
 

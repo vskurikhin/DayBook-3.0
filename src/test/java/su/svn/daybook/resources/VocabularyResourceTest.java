@@ -1,8 +1,8 @@
 /*
- * This file was last modified at 2022.01.15 10:05 by Victor N. Skurikhin.
+ * This file was last modified at 2022.01.15 10:49 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
- * WordResourceTest.java
+ * VocabularyResourceTest.java
  * $Id$
  */
 
@@ -18,20 +18,22 @@ import org.mockito.Mockito;
 import su.svn.daybook.DataTest;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.messages.ApiResponse;
+import su.svn.daybook.services.VocabularyService;
 import su.svn.daybook.services.WordService;
 
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 
 import static io.restassured.RestAssured.given;
+import static org.junit.jupiter.api.Assertions.*;
 
 @QuarkusTest
-class WordResourceTest {
+class VocabularyResourceTest {
 
     static Uni<Answer> tezd = Uni.createFrom()
             .item(1)
             .onItem()
-            .transform(i -> Answer.of(DataTest.OBJECT_Word_0));
+            .transform(i -> Answer.of(DataTest.OBJECT_Vocabulary_0));
 
     static Uni<Answer> empty = Uni.createFrom().item(Answer.empty());
 
@@ -41,21 +43,21 @@ class WordResourceTest {
 
     @BeforeEach
     void setUp() {
-        WordService mock = Mockito.mock(WordService.class);
-        Mockito.when(mock.wordGet("0")).thenReturn(tezd);
-        Mockito.when(mock.wordGet(Integer.toString(Integer.MAX_VALUE))).thenReturn(empty);
-        Mockito.when(mock.wordGet(Integer.toString(Integer.MIN_VALUE))).thenReturn(nullAnswer);
-        Mockito.when(mock.wordAdd(DataTest.OBJECT_Word_0)).thenReturn(tezdId);
-        Mockito.when(mock.wordPut(DataTest.OBJECT_Word_0)).thenReturn(tezdId);
-        Mockito.when(mock.wordDelete("0")).thenReturn(tezdId);
-        QuarkusMock.installMockForType(mock, WordService.class);
+        VocabularyService mock = Mockito.mock(VocabularyService.class);
+        Mockito.when(mock.vocabularyGet("0")).thenReturn(tezd);
+        Mockito.when(mock.vocabularyGet(Integer.toString(Integer.MAX_VALUE))).thenReturn(empty);
+        Mockito.when(mock.vocabularyGet(Integer.toString(Integer.MIN_VALUE))).thenReturn(nullAnswer);
+        Mockito.when(mock.vocabularyAdd(DataTest.OBJECT_Vocabulary_0)).thenReturn(tezdId);
+        Mockito.when(mock.vocabularyPut(DataTest.OBJECT_Vocabulary_0)).thenReturn(tezdId);
+        Mockito.when(mock.vocabularyDelete("0")).thenReturn(tezdId);
+        QuarkusMock.installMockForType(mock, VocabularyService.class);
     }
 
     @Test
     void testEndpoint_get() {
         given()
                 .when()
-                .get("/word/0")
+                .get("/vocabulary/0")
                 .then()
                 .statusCode(200)
                 .body(CoreMatchers.startsWith("{\"id\":0}"));
@@ -65,7 +67,7 @@ class WordResourceTest {
     void testEndpoint_get_whenNone() {
         given()
                 .when()
-                .get("/word/" + Integer.MAX_VALUE)
+                .get("/vocabulary/" + Integer.MAX_VALUE)
                 .then()
                 .statusCode(404);
     }
@@ -74,7 +76,7 @@ class WordResourceTest {
     void testEndpoint_get_whenNull() {
         given()
                 .when()
-                .get("/word/" + Integer.MIN_VALUE)
+                .get("/vocabulary/" + Integer.MIN_VALUE)
                 .then()
                 .statusCode(406);
     }
@@ -83,33 +85,33 @@ class WordResourceTest {
     void testEndpoint_add() {
         given()
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
-                .body(DataTest.JSON_Word_0)
+                .body(DataTest.JSON_Vocabulary_0)
                 .when()
-                .post("/word/add")
+                .post("/vocabulary/add")
                 .then()
                 .statusCode(200)
-                .body(CoreMatchers.startsWith(DataTest.JSON_Word_0));
+                .body(CoreMatchers.startsWith(DataTest.JSON_Vocabulary_0));
     }
 
     @Test
     void testEndpoint_put() {
         given()
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
-                .body(DataTest.JSON_Word_0)
+                .body(DataTest.JSON_Vocabulary_0)
                 .when()
-                .put("/word/put")
+                .put("/vocabulary/put")
                 .then()
                 .statusCode(200)
-                .body(CoreMatchers.startsWith(DataTest.JSON_Word_0));
+                .body(CoreMatchers.startsWith(DataTest.JSON_Vocabulary_0));
     }
 
     @Test
-    void testEndpoint_delete() {
+    void delete() {
         given()
                 .when()
-                .delete("/word/0")
+                .delete("/vocabulary/0")
                 .then()
                 .statusCode(200)
-                .body(CoreMatchers.startsWith(DataTest.JSON_Codifier_0));
+                .body(CoreMatchers.startsWith(DataTest.JSON_Vocabulary_0));
     }
 }

@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2022.01.15 20:59 by Victor N. Skurikhin.
+ * This file was last modified at 2022.01.11 17:59 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * ResourcePath.java
@@ -41,7 +41,9 @@ public enum ResourcePath {
 
     public static final String WORD = "/word";
 
-    public static final String WORDS = "/wordS";
+    public static final String WORDS = "/words";
+
+    public static final String VOCABULARY = "/vocabulary";
 
     private final String value;
 
