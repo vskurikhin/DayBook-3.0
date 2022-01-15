@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2022.01.11 17:59 by Victor N. Skurikhin.
+ * This file was last modified at 2022.01.15 20:59 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * ResourcePath.java
@@ -17,7 +17,9 @@ public enum ResourcePath {
     Id(ResourcePath.ID),
     Put(ResourcePath.PUT),
     TagLabel(ResourcePath.TAG_LABEL),
-    TagLabels(ResourcePath.TAG_LABELS);
+    TagLabels(ResourcePath.TAG_LABELS),
+    Word(ResourcePath.WORD),
+    Words(ResourcePath.WORDS);
 
     public static final String ADD = "/add";
 
@@ -36,6 +38,10 @@ public enum ResourcePath {
     public static final String TAG_LABEL = "/tag";
 
     public static final String TAG_LABELS = "/tags";
+
+    public static final String WORD = "/word";
+
+    public static final String WORDS = "/wordS";
 
     private final String value;
 
