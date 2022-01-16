@@ -40,6 +40,8 @@ public enum ResourcePath {
 
     public static final String WORD = "/word";
 
+    public static final String WORDS = "/words";
+
     public static final String VOCABULARY = "/vocabulary";
 
     public static final String VOCABULARIES = "/vocabularies";
