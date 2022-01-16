@@ -114,7 +114,7 @@ class VocabularyServiceTest {
 
     @Test
     void testMethod_vocabularyAdd() {
-        var expected = Answer.of(new ApiResponse(0L));
+        var expected = Answer.of(new ApiResponse<>(0L));
         Mockito.when(mock.insert(DataTest.OBJECT_Vocabulary_0)).thenReturn(optionalUniId);
         service.vocabularyAdd(DataTest.OBJECT_Vocabulary_0)
                 .onItem()
@@ -136,7 +136,7 @@ class VocabularyServiceTest {
     @Test
     void testMethod_vocabularyPut() {
         Mockito.when(mock.update(DataTest.OBJECT_Vocabulary_0)).thenReturn(optionalUniId);
-        var expected = Answer.of(new ApiResponse(0L));
+        var expected = Answer.of(new ApiResponse<>(0L));
         service.vocabularyPut(DataTest.OBJECT_Vocabulary_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
@@ -157,7 +157,7 @@ class VocabularyServiceTest {
     @Test
     void testMethod_vocabularyDelete() {
         Mockito.when(mock.delete(0L)).thenReturn(optionalUniId);
-        var expected = Answer.of(new ApiResponse(0L));
+        var expected = Answer.of(new ApiResponse<>(0L));
         service.vocabularyDelete("0")
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))

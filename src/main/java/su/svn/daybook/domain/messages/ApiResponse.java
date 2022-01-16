@@ -11,9 +11,9 @@ package su.svn.daybook.domain.messages;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ApiResponse {
+public class ApiResponse<I> {
 
-    private Long id;
+    private I id;
 
     private String message;
 
@@ -25,20 +25,16 @@ public class ApiResponse {
 
     public ApiResponse() {}
 
-    public ApiResponse(Long id) {
+    public ApiResponse(I id) {
         this.id = id;
     }
 
-    public ApiResponse(String message) {
-        this.message = message;
-    }
-
-    public ApiResponse(Long id, String message) {
+    public ApiResponse(I id, String message) {
         this.id = id;
         this.message = message;
     }
 
-    public <T> ApiResponse(Long id, String message, Integer error, T payload) {
+    public <T> ApiResponse(I id, String message, Integer error, T payload) {
         this.id = id;
         this.message = message;
         this.error = error;
@@ -46,11 +42,15 @@ public class ApiResponse {
         this.payloadClass = payload.getClass();
     }
 
-    public Long getId() {
+    public static ApiResponse<Object> message(String message) {
+        return new ApiResponse<>(null, message);
+    }
+
+    public I getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(I id) {
         this.id = id;
     }
 
@@ -88,7 +88,7 @@ public class ApiResponse {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        ApiResponse that = (ApiResponse) o;
+        ApiResponse<?> that = (ApiResponse<?>) o;
 
         if (id != null ? !id.equals(that.id) : that.id != null) return false;
         if (message != null ? !message.equals(that.message) : that.message != null) return false;
@@ -118,12 +118,12 @@ public class ApiResponse {
                 '}';
     }
 
-    public static Builder builder() {
-        return new ApiResponse.Builder();
+    public static <T> ApiResponse.Builder<T> builder() {
+        return new ApiResponse.Builder<>();
     }
 
-    public static final class Builder {
-        private Long id;
+    public static final class Builder<J> {
+        private J id;
         private String message;
         private Integer error;
         private Object payload;
@@ -131,35 +131,36 @@ public class ApiResponse {
         private Builder() {
         }
 
-        public Builder withId(Long id) {
+        public Builder<J> withId(J id) {
             this.id = id;
             return this;
         }
 
-        public Builder withMessage(String message) {
+        public Builder<J> withMessage(String message) {
             this.message = message;
             return this;
         }
 
-        public Builder withError(Integer error) {
+        public Builder<J> withError(Integer error) {
             this.error = error;
             return this;
         }
 
-        public Builder withPayload(Object payload) {
+        public Builder<J> withPayload(Object payload) {
             this.payload = payload;
             return this;
         }
 
-        public Builder but() {
-            return builder().withId(id)
+        public ApiResponse.Builder<J> but() {
+            return ApiResponse.<J>builder()
+                    .withId(id)
                     .withMessage(message)
                     .withError(error)
                     .withPayload(payload);
         }
 
-        public ApiResponse build() {
-            ApiResponse apiResponse = new ApiResponse();
+        public ApiResponse<J> build() {
+            ApiResponse<J> apiResponse = new ApiResponse<J>();
             apiResponse.setId(id);
             apiResponse.setMessage(message);
             apiResponse.setError(error);

@@ -70,7 +70,7 @@ public class WordService {
 
     private Uni<Answer> add(Word entry) {
         return codifierDao.insert(entry)
-                .map(o -> o.isEmpty() ? Answer.empty() : Answer.of(new ApiResponse(o.get())));
+                .map(o -> o.isEmpty() ? Answer.empty() : Answer.of(new ApiResponse<>(o.get())));
     }
 
     /**
@@ -87,7 +87,7 @@ public class WordService {
 
     private Uni<Answer> put(Word entry) {
         return codifierDao.update(entry)
-                .map(o -> o.isEmpty() ? Answer.empty() : Answer.of(new ApiResponse(o.get())));
+                .map(o -> o.isEmpty() ? Answer.empty() : Answer.of(new ApiResponse<>(o.get())));
     }
 
     /**
@@ -113,7 +113,7 @@ public class WordService {
 
     private Uni<Answer> delete(long id) {
         return codifierDao.delete(id)
-                .map(o -> o.isEmpty() ? Answer.empty() : Answer.of(new ApiResponse(o.get())));
+                .map(o -> o.isEmpty() ? Answer.empty() : Answer.of(new ApiResponse<>(o.get())));
     }
 
     /**

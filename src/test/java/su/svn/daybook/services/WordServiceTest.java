@@ -114,7 +114,7 @@ class WordServiceTest {
 
     @Test
     void testMethod_wordAdd() {
-        var expected = Answer.of(new ApiResponse(0L));
+        var expected = Answer.of(new ApiResponse<>(0L));
         Mockito.when(mock.insert(DataTest.OBJECT_Word_0)).thenReturn(optionalUniId);
         service.wordAdd(DataTest.OBJECT_Word_0)
                 .onItem()
@@ -136,7 +136,7 @@ class WordServiceTest {
     @Test
     void testMethod_wordPut() {
         Mockito.when(mock.update(DataTest.OBJECT_Word_0)).thenReturn(optionalUniId);
-        var expected = Answer.of(new ApiResponse(0L));
+        var expected = Answer.of(new ApiResponse<>(0L));
         service.wordPut(DataTest.OBJECT_Word_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
@@ -157,7 +157,7 @@ class WordServiceTest {
     @Test
     void testMethod_wordDelete() {
         Mockito.when(mock.delete(0L)).thenReturn(optionalUniId);
-        var expected = Answer.of(new ApiResponse(0L));
+        var expected = Answer.of(new ApiResponse<>(0L));
         service.wordDelete("0")
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))

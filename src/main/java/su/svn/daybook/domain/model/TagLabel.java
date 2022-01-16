@@ -8,6 +8,7 @@
 
 package su.svn.daybook.domain.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import io.vertx.mutiny.pgclient.PgPool;
@@ -19,6 +20,7 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class TagLabel implements Serializable {
 
     private static final long serialVersionUID = 7430969393917118489L;
@@ -124,7 +126,7 @@ public class TagLabel implements Serializable {
                 .transform(pgRowSet -> pgRowSet.iterator().next().getString("id"));
     }
 
-    public Uni<String> delete(PgPool client) {
+    public static Uni<String> delete(PgPool client, String id) {
         return client.preparedQuery(DELETE_FROM_DICTIONARY_TAG_LABEL_WHERE_ID_$1)
                 .execute(Tuple.of(id))
                 .onItem()

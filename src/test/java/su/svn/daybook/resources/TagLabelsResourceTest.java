@@ -18,7 +18,7 @@ class TagLabelsResourceTest {
 
     @BeforeEach
     void setUp() {
-        Multi<Answer> test = Multi.createFrom().item(Answer.of(DataTest.TEZD_TagLabel));
+        Multi<Answer> test = Multi.createFrom().item(Answer.of(DataTest.OBJECT_TagLabel_0));
         TagLabelService mock = Mockito.mock(TagLabelService.class);
         Mockito.when(mock.getAll()).thenReturn(test);
         QuarkusMock.installMockForType(mock, TagLabelService.class);
@@ -31,6 +31,6 @@ class TagLabelsResourceTest {
                 .get("/tags/all")
                 .then()
                 .statusCode(200)
-                .body(CoreMatchers.startsWith(DataTest.TEZD_TagLabel_JSON_ARRAY));
+                .body(CoreMatchers.startsWith(DataTest.JSON_ARRAY_TagLabel_0));
     }
 }

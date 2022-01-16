@@ -46,6 +46,10 @@ public enum EventAddress {
 
     public static final String TAG_GET = "tag_get";
 
+    public static final String TAG_PUT = "tag_put";
+
+    public static final String TAG_DEL = "tag_del";
+
     public static final String VOCABULARY_ADD = "vocabulary_add";
 
     public static final String VOCABULARY_GET = "vocabulary_get";
