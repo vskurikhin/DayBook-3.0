@@ -1,8 +1,8 @@
 /*
- * This file was last modified at 2022.01.11 17:59 by Victor N. Skurikhin.
+ * This file was last modified at 2022.01.16 10:47 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
- * CodifiersResourceTest.java
+ * VocabulariesResourceTest.java
  * $Id$
  */
 
@@ -17,28 +17,28 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import su.svn.daybook.DataTest;
 import su.svn.daybook.domain.messages.Answer;
-import su.svn.daybook.services.CodifierService;
+import su.svn.daybook.services.VocabularyService;
 
 import static io.restassured.RestAssured.given;
 
 @QuarkusTest
-class CodifiersResourceTest {
+class VocabulariesResourceTest {
 
     @BeforeEach
     void setUp() {
-        Multi<Answer> test = Multi.createFrom().item(Answer.of(DataTest.OBJECT_Codifier_0));
-        CodifierService mock = Mockito.mock(CodifierService.class);
+        Multi<Answer> test = Multi.createFrom().item(Answer.of(DataTest.OBJECT_Vocabulary_0));
+        VocabularyService mock = Mockito.mock(VocabularyService.class);
         Mockito.when(mock.getAll()).thenReturn(test);
-        QuarkusMock.installMockForType(mock, CodifierService.class);
+        QuarkusMock.installMockForType(mock, VocabularyService.class);
     }
 
     @Test
     void testEndpoint_all() {
         given()
                 .when()
-                .get("/codes/all")
+                .get("/vocabularies/all")
                 .then()
                 .statusCode(200)
-                .body(CoreMatchers.startsWith(DataTest.JSON_ARRAY_Codifier_0));
+                .body(CoreMatchers.startsWith(DataTest.JSON_ARRAY_Vocabulary_0));
     }
 }
