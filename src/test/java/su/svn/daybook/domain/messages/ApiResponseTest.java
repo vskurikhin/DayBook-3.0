@@ -15,12 +15,12 @@ class ApiResponseTest {
 
     @Test
     void constructors() {
-        ApiResponse test1 = new ApiResponse();
-        ApiResponse test2 = new ApiResponse((String)null);
+        ApiResponse<Object> test1 = new ApiResponse<>();
+        ApiResponse<Object> test2 = ApiResponse.message(null);
         Assertions.assertEquals(test1, test2);
 
-        ApiResponse test3 = new ApiResponse(0L);
-        ApiResponse test4 = new ApiResponse(0L, null);
+        ApiResponse<Long> test3 = new ApiResponse<Long>(0L);
+        ApiResponse<Long> test4 = new ApiResponse<Long>(0L, null);
         Assertions.assertEquals(test3, test4);
     }
 
@@ -28,13 +28,13 @@ class ApiResponseTest {
     void setters() {
         Object o = new Object();
 
-        ApiResponse test1 = new ApiResponse(0L, "");
-        ApiResponse test2 = new ApiResponse(0L, "", null, o);
+        ApiResponse<Long> test1 = new ApiResponse<Long>(0L, "");
+        ApiResponse<Long> test2 = new ApiResponse<Long>(0L, "", null, o);
         test1.setPayload(o);
         Assertions.assertEquals(test1, test2);
 
-        ApiResponse test3 = new ApiResponse(0L, "");
-        ApiResponse test4 = new ApiResponse(1L, "test", 1, o);
+        ApiResponse<Long> test3 = new ApiResponse<Long>(0L, "");
+        ApiResponse<Long> test4 = new ApiResponse<Long>(1L, "test", 1, o);
         test3.setId(1L);
         test3.setMessage("test");
         test3.setError(1);
@@ -47,7 +47,7 @@ class ApiResponseTest {
     @Test
     void testToString() {
         Object o = new Object();
-        ApiResponse test1 = new ApiResponse(0L, "");
+        ApiResponse<Long> test1 = new ApiResponse<Long>(0L, "");
         Assertions.assertTrue(test1.toString().length() > 0);
     }
 
@@ -55,14 +55,14 @@ class ApiResponseTest {
     void builder() {
         Object o = new Object();
 
-        ApiResponse.Builder builder = ApiResponse.builder()
+        ApiResponse.Builder<Long> builder = ApiResponse.<Long>builder()
                 .withId(1L)
                 .withError(1)
                 .withMessage("test")
                 .withPayload(o)
                 .but();
-        ApiResponse test1 = builder.build();
-        ApiResponse test2 = new ApiResponse(1L, "test", 1, o);
+        ApiResponse<Long> test1 = builder.build();
+        ApiResponse<Long> test2 = new ApiResponse<Long>(1L, "test", 1, o);
         Assertions.assertEquals(test1, test2);
     }
 }

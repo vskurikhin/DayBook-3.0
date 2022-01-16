@@ -106,7 +106,7 @@ class CodifierServiceTest {
 
     @Test
     void testMethod_codeAdd() {
-        var expected = Answer.of(new ApiResponse(0L));
+        var expected = Answer.of(new ApiResponse<>(0L));
         Mockito.when(mock.insert(DataTest.OBJECT_Codifier_0)).thenReturn(optionalUniId);
         service.codeAdd(DataTest.OBJECT_Codifier_0)
                 .onItem()
@@ -128,7 +128,7 @@ class CodifierServiceTest {
     @Test
     void testMethod_codePut() {
         Mockito.when(mock.update(DataTest.OBJECT_Codifier_0)).thenReturn(optionalUniId);
-        var expected = Answer.of(new ApiResponse(0L));
+        var expected = Answer.of(new ApiResponse<>(0L));
         service.codePut(DataTest.OBJECT_Codifier_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
@@ -149,7 +149,7 @@ class CodifierServiceTest {
     @Test
     void testMethod_codeDelete() {
         Mockito.when(mock.delete(0L)).thenReturn(optionalUniId);
-        var expected = Answer.of(new ApiResponse(0L));
+        var expected = Answer.of(new ApiResponse<>(0L));
         service.codeDelete("0")
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))

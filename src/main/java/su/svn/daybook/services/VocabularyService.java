@@ -70,7 +70,7 @@ public class VocabularyService {
 
     private Uni<Answer> add(Vocabulary entry) {
         return vocabularyDao.insert(entry)
-                .map(o -> o.isEmpty() ? Answer.empty() : Answer.of(new ApiResponse(o.get())));
+                .map(o -> o.isEmpty() ? Answer.empty() : Answer.of(new ApiResponse<>(o.get())));
     }
 
     /**
@@ -87,7 +87,7 @@ public class VocabularyService {
 
     private Uni<Answer> put(Vocabulary entry) {
         return vocabularyDao.update(entry)
-                .map(o -> o.isEmpty() ? Answer.empty() : Answer.of(new ApiResponse(o.get())));
+                .map(o -> o.isEmpty() ? Answer.empty() : Answer.of(new ApiResponse<>(o.get())));
     }
 
     /**
@@ -113,7 +113,7 @@ public class VocabularyService {
 
     private Uni<Answer> delete(long id) {
         return vocabularyDao.delete(id)
-                .map(o -> o.isEmpty() ? Answer.empty() : Answer.of(new ApiResponse(o.get())));
+                .map(o -> o.isEmpty() ? Answer.empty() : Answer.of(new ApiResponse<>(o.get())));
     }
 
     /**

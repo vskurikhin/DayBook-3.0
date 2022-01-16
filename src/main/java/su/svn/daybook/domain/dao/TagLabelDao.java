@@ -47,8 +47,8 @@ public class TagLabelDao {
                 .map(t -> t != null ? Optional.of(t) : Optional.empty());
     }
 
-    public Uni<Optional<String>> delete(TagLabel entry) {
-        return entry.delete(client)
+    public Uni<Optional<String>> delete(String id) {
+        return TagLabel.delete(client, id)
                 .map(t -> t != null ? Optional.of(t) : Optional.empty());
     }
 }

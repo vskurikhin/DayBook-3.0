@@ -24,7 +24,7 @@ class TagLabelResourceTest {
         Uni<Answer> tezd = Uni.createFrom()
                 .item(1)
                 .onItem()
-                .transform(i -> Answer.of(DataTest.TEZD_TagLabel));
+                .transform(i -> Answer.of(DataTest.OBJECT_TagLabel_0));
         Uni<Answer> empty = Uni.createFrom()
                 .item(Answer.empty());
         Uni<Answer> tezdString = Uni.createFrom().item(Answer.of("tezd"));
@@ -32,7 +32,7 @@ class TagLabelResourceTest {
         TagLabelService mock = Mockito.mock(TagLabelService.class);
         Mockito.when(mock.tagGet("none")).thenReturn(empty);
         Mockito.when(mock.tagGet("tezd")).thenReturn(tezd);
-        Mockito.when(mock.tagAdd(DataTest.TEZD_TagLabel)).thenReturn(tezdString);
+        Mockito.when(mock.tagAdd(DataTest.OBJECT_TagLabel_0)).thenReturn(tezdString);
         QuarkusMock.installMockForType(mock, TagLabelService.class);
     }
 
@@ -43,7 +43,7 @@ class TagLabelResourceTest {
                 .get("/tag/tezd")
                 .then()
                 .statusCode(200)
-                .body(CoreMatchers.startsWith(DataTest.TEZD_TagLabel_JSON));
+                .body(CoreMatchers.startsWith(DataTest.JSON_TagLabel_0));
     }
 
     @Test
@@ -59,7 +59,7 @@ class TagLabelResourceTest {
     void testAddEndpoint() {
         given()
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
-                .body(DataTest.TEZD_TagLabel_JSON)
+                .body(DataTest.JSON_TagLabel_0)
                 .when()
                 .post("/tag/add")
                 .then()
