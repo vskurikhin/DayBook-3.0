@@ -18,7 +18,8 @@ public enum ResourcePath {
     Put(ResourcePath.PUT),
     TagLabel(ResourcePath.TAG_LABEL),
     TagLabels(ResourcePath.TAG_LABELS),
-    Word(ResourcePath.WORD);
+    Word(ResourcePath.WORD),
+    Words(ResourcePath.WORDS);
 
     public static final String ADD = "/add";
 
@@ -39,6 +40,8 @@ public enum ResourcePath {
     public static final String TAG_LABELS = "/tags";
 
     public static final String WORD = "/word";
+
+    public static final String WORDS = "/words";
 
     public static final String VOCABULARY = "/vocabulary";
 
