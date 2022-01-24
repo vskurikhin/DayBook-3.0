@@ -43,16 +43,16 @@ public class WordResource {
     @Path(ResourcePath.ADD)
     @Consumes("application/json")
     @Produces("application/json")
-    public Uni<Response> add(Word Word) {
-        return request(EventAddress.WORD_ADD, Word);
+    public Uni<Response> add(Word word) {
+        return request(EventAddress.WORD_ADD, word);
     }
 
     @PUT
     @Path(ResourcePath.PUT)
     @Consumes("application/json")
     @Produces("application/json")
-    public Uni<Response> put(Word Word) {
-        return request(EventAddress.WORD_PUT, Word);
+    public Uni<Response> put(Word word) {
+        return request(EventAddress.WORD_PUT, word);
     }
 
     @DELETE

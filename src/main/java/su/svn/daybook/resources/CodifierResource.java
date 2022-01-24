@@ -43,16 +43,16 @@ public class CodifierResource {
     @Path(ResourcePath.ADD)
     @Consumes("application/json")
     @Produces("application/json")
-    public Uni<Response> add(Codifier Codifier) {
-        return request(EventAddress.CODE_ADD, Codifier);
+    public Uni<Response> add(Codifier codifier) {
+        return request(EventAddress.CODE_ADD, codifier);
     }
 
     @PUT
     @Path(ResourcePath.PUT)
     @Consumes("application/json")
     @Produces("application/json")
-    public Uni<Response> put(Codifier Codifier) {
-        return request(EventAddress.CODE_PUT, Codifier);
+    public Uni<Response> put(Codifier codifier) {
+        return request(EventAddress.CODE_PUT, codifier);
     }
 
     @DELETE
