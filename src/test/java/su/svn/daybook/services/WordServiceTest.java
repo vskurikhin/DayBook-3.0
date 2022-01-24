@@ -95,7 +95,7 @@ class WordServiceTest {
     }
 
     @Test
-    void testMethod_codeGet_whenNoNumberParameter() {
+    void testMethod_wordGet_whenNoNumberParameter() {
         service.wordGet("noNumber")
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(DataTest.errorNoNumber, actual))
@@ -104,7 +104,7 @@ class WordServiceTest {
     }
 
     @Test
-    void testMethod_codeGet_whenNullParameter() {
+    void testMethod_wordGet_whenNullParameter() {
         service.wordGet(null)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(Answer.empty(), actual))
@@ -124,7 +124,7 @@ class WordServiceTest {
     }
 
     @Test
-    void testMethod_codeAdd_whithEmptyResult() {
+    void testMethod_wordAdd_whithEmptyResult() {
         Mockito.when(mock.insert(DataTest.OBJECT_Word_0)).thenReturn(optionalUniEmptyId);
         service.wordAdd(DataTest.OBJECT_Word_0)
                 .onItem()
@@ -166,7 +166,7 @@ class WordServiceTest {
     }
 
     @Test
-    void testMethod_codeDelete_whenNoNumberParameter() {
+    void testMethod_wordDelete_whenNoNumberParameter() {
         service.wordDelete("noNumber")
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(DataTest.errorNoNumber, actual))
@@ -175,7 +175,7 @@ class WordServiceTest {
     }
 
     @Test
-    void testMethod_codeDelete_whenNullParameter() {
+    void testMethod_wordDelete_whenNullParameter() {
         service.wordDelete(null)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(Answer.empty(), actual))

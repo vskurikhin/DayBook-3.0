@@ -28,7 +28,7 @@ public class WordService {
     private static final Logger LOG = Logger.getLogger(WordService.class);
 
     @Inject
-    WordDao codifierDao;
+    WordDao wordDao;
 
     /**
      * This is method a Vertx message consumer and Word provider by id
@@ -52,7 +52,7 @@ public class WordService {
     }
 
     private Uni<Answer> get(Long id) {
-        return codifierDao.findById(id)
+        return wordDao.findById(id)
                 .map(t -> t.isEmpty() ? Answer.empty() : Answer.of(t));
     }
 
@@ -69,7 +69,7 @@ public class WordService {
     }
 
     private Uni<Answer> add(Word entry) {
-        return codifierDao.insert(entry)
+        return wordDao.insert(entry)
                 .map(o -> o.isEmpty() ? Answer.empty() : Answer.of(new ApiResponse<>(o.get())));
     }
 
@@ -86,7 +86,7 @@ public class WordService {
     }
 
     private Uni<Answer> put(Word entry) {
-        return codifierDao.update(entry)
+        return wordDao.update(entry)
                 .map(o -> o.isEmpty() ? Answer.empty() : Answer.of(new ApiResponse<>(o.get())));
     }
 
@@ -112,7 +112,7 @@ public class WordService {
     }
 
     private Uni<Answer> delete(long id) {
-        return codifierDao.delete(id)
+        return wordDao.delete(id)
                 .map(o -> o.isEmpty() ? Answer.empty() : Answer.of(new ApiResponse<>(o.get())));
     }
 
@@ -123,7 +123,7 @@ public class WordService {
      */
     public Multi<Answer> getAll() {
         LOG.trace("getAll");
-        return codifierDao.findAll()
+        return wordDao.findAll()
                 .onItem()
                 .transform(this::getAnswer);
     }

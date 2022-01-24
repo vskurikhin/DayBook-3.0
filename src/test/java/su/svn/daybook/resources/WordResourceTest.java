@@ -110,6 +110,6 @@ class WordResourceTest {
                 .delete("/word/0")
                 .then()
                 .statusCode(200)
-                .body(CoreMatchers.startsWith(DataTest.JSON_Codifier_0));
+                .body(CoreMatchers.startsWith(DataTest.JSON_Word_0));
     }
 }
