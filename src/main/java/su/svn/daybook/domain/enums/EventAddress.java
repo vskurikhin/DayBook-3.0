@@ -17,6 +17,10 @@ public enum EventAddress {
     I18nAdd(EventAddress.I18N_ADD),
     I18nGet(EventAddress.I18N_GET),
     I18nPut(EventAddress.I18N_PUT),
+    LanguageAdd(EventAddress.LANGUAGE_ADD),
+    LanguageDel(EventAddress.LANGUAGE_DEL),
+    LanguageGet(EventAddress.LANGUAGE_GET),
+    LanguagePut(EventAddress.LANGUAGE_PUT),
     TagAdd(EventAddress.TAG_ADD),
     TagGet(EventAddress.TAG_GET),
     VocabularyAdd(EventAddress.VOCABULARY_ADD),
@@ -41,6 +45,14 @@ public enum EventAddress {
     public static final String I18N_GET = "i18n_get";
 
     public static final String I18N_PUT = "i18n_put";
+
+    public static final String LANGUAGE_ADD = "language_add";
+
+    public static final String LANGUAGE_DEL = "language_del";
+
+    public static final String LANGUAGE_GET = "language_get";
+
+    public static final String LANGUAGE_PUT = "language_put";
 
     public static final String TAG_ADD = "tag_add";
 
