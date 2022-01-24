@@ -14,6 +14,8 @@ public enum ResourcePath {
     All(ResourcePath.ALL),
     Codifier(ResourcePath.CODIFIER),
     I18n(ResourcePath.I18N),
+    Language(ResourcePath.LANGUAGE),
+    Languages(ResourcePath.LANGUAGES),
     Id(ResourcePath.ID),
     Put(ResourcePath.PUT),
     TagLabel(ResourcePath.TAG_LABEL),
@@ -34,6 +36,10 @@ public enum ResourcePath {
     public static final String PUT = "/put";
 
     public static final String I18N = "/i18n";
+
+    public static final String LANGUAGE = "/lang";
+
+    public static final String LANGUAGES = "/langs";
 
     public static final String TAG_LABEL = "/tag";
 

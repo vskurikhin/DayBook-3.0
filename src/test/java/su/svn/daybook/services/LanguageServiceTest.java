@@ -1,8 +1,8 @@
 /*
- * This file was last modified at 2022.01.12 17:31 by Victor N. Skurikhin.
+ * This file was last modified at 2022.01.24 09:53 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
- * WordServiceTest.java
+ * LanguageServiceTest.java
  * $Id$
  */
 
@@ -17,10 +17,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import su.svn.daybook.DataTest;
-import su.svn.daybook.domain.dao.WordDao;
+import su.svn.daybook.domain.dao.LanguageDao;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.messages.ApiResponse;
-import su.svn.daybook.domain.model.Word;
+import su.svn.daybook.domain.model.Language;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -28,30 +28,30 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @QuarkusTest
-class WordServiceTest {
+class LanguageServiceTest {
 
     @Inject
-    WordService service;
+    LanguageService service;
 
-    static WordDao mock;
+    static LanguageDao mock;
 
-    static Uni<Optional<Word>> optionalUniTest = Uni.createFrom().item(Optional.of(DataTest.OBJECT_Word_0));
+    static Uni<Optional<Language>> optionalUniTest = Uni.createFrom().item(Optional.of(DataTest.OBJECT_Language_0));
 
     static Uni<Optional<Long>> optionalUniId = Uni.createFrom().item(Optional.of(0L));
 
     static Uni<Optional<Long>> optionalUniEmptyId = Uni.createFrom().item(Optional.empty());
 
-    static Multi<Word> multiTest = Multi.createFrom().item(DataTest.OBJECT_Word_0);
+    static Multi<Language> multiTest = Multi.createFrom().item(DataTest.OBJECT_Language_0);
 
-    static Multi<Word> multiEmpties = Multi.createFrom().empty();
+    static Multi<Language> multiEmpties = Multi.createFrom().empty();
 
-    static Multi<Word> multiWithNull = Multi.createFrom().item(() -> null);
+    static Multi<Language> multiWithNull = Multi.createFrom().item(() -> null);
 
     @BeforeEach
     void setUp() {
-        mock = Mockito.mock(WordDao.class);
+        mock = Mockito.mock(LanguageDao.class);
         Mockito.when(mock.findById(0L)).thenReturn(optionalUniTest);
-        QuarkusMock.installMockForType(mock, WordDao.class);
+        QuarkusMock.installMockForType(mock, LanguageDao.class);
     }
 
     @Test
@@ -60,7 +60,7 @@ class WordServiceTest {
         List<Answer> result = service.getAll()
                 .subscribe()
                 .asStream()
-                .peek(actual -> Assertions.assertEquals(Answer.of(DataTest.OBJECT_Word_0), actual))
+                .peek(actual -> Assertions.assertEquals(Answer.of(DataTest.OBJECT_Language_0), actual))
                 .collect(Collectors.toList());
         Assertions.assertTrue(result.size() > 0);
     }
@@ -86,17 +86,17 @@ class WordServiceTest {
     }
 
     @Test
-    void testMethod_wordGet() {
-        service.wordGet("0")
+    void testMethod_languageGet() {
+        service.languageGet("0")
                 .onItem()
-                .invoke(actual -> Assertions.assertEquals(Answer.of(Optional.of(DataTest.OBJECT_Word_0)), actual))
+                .invoke(actual -> Assertions.assertEquals(Answer.of(Optional.of(DataTest.OBJECT_Language_0)), actual))
                 .await()
                 .indefinitely();
     }
 
     @Test
-    void testMethod_wordGet_whenNoNumberParameter() {
-        service.wordGet("noNumber")
+    void testMethod_languageGet_whenNoNumberParameter() {
+        service.languageGet("noNumber")
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(DataTest.errorNoNumber, actual))
                 .await()
@@ -104,8 +104,8 @@ class WordServiceTest {
     }
 
     @Test
-    void testMethod_wordGet_whenNullParameter() {
-        service.wordGet(null)
+    void testMethod_languageGet_whenNullParameter() {
+        service.languageGet(null)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(Answer.empty(), actual))
                 .await()
@@ -113,10 +113,10 @@ class WordServiceTest {
     }
 
     @Test
-    void testMethod_wordAdd() {
+    void testMethod_languageAdd() {
         var expected = Answer.of(new ApiResponse<>(0L));
-        Mockito.when(mock.insert(DataTest.OBJECT_Word_0)).thenReturn(optionalUniId);
-        service.wordAdd(DataTest.OBJECT_Word_0)
+        Mockito.when(mock.insert(DataTest.OBJECT_Language_0)).thenReturn(optionalUniId);
+        service.languageAdd(DataTest.OBJECT_Language_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
                 .await()
@@ -124,20 +124,10 @@ class WordServiceTest {
     }
 
     @Test
-    void testMethod_wordAdd_whithEmptyResult() {
-        Mockito.when(mock.insert(DataTest.OBJECT_Word_0)).thenReturn(optionalUniEmptyId);
-        service.wordAdd(DataTest.OBJECT_Word_0)
-                .onItem()
-                .invoke(actual -> Assertions.assertEquals(Answer.empty(), actual))
-                .await()
-                .indefinitely();
-    }
-
-    @Test
-    void testMethod_wordPut() {
-        Mockito.when(mock.update(DataTest.OBJECT_Word_0)).thenReturn(optionalUniId);
+    void testMethod_languagePut() {
+        Mockito.when(mock.update(DataTest.OBJECT_Language_0)).thenReturn(optionalUniId);
         var expected = Answer.of(new ApiResponse<>(0L));
-        service.wordPut(DataTest.OBJECT_Word_0)
+        service.languagePut(DataTest.OBJECT_Language_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
                 .await()
@@ -145,20 +135,10 @@ class WordServiceTest {
     }
 
     @Test
-    void testMethod_codePut_whithEmptyResult() {
-        Mockito.when(mock.update(DataTest.OBJECT_Word_0)).thenReturn(optionalUniEmptyId);
-        service.wordPut(DataTest.OBJECT_Word_0)
-                .onItem()
-                .invoke(actual -> Assertions.assertEquals(Answer.empty(), actual))
-                .await()
-                .indefinitely();
-    }
-
-    @Test
-    void testMethod_wordDelete() {
+    void testMethod_languageDelete() {
         Mockito.when(mock.delete(0L)).thenReturn(optionalUniId);
         var expected = Answer.of(new ApiResponse<>(0L));
-        service.wordDelete("0")
+        service.languageDelete("0")
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
                 .await()
@@ -166,8 +146,8 @@ class WordServiceTest {
     }
 
     @Test
-    void testMethod_wordDelete_whenNoNumberParameter() {
-        service.wordDelete("noNumber")
+    void testMethod_languageDelete_whenNoNumberParameter() {
+        service.languageDelete("noNumber")
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(DataTest.errorNoNumber, actual))
                 .await()
@@ -175,8 +155,8 @@ class WordServiceTest {
     }
 
     @Test
-    void testMethod_wordDelete_whenNullParameter() {
-        service.wordDelete(null)
+    void testMethod_languageDelete_whenNullParameter() {
+        service.languageDelete(null)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(Answer.empty(), actual))
                 .await()

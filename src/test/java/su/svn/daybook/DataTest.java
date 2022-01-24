@@ -29,6 +29,13 @@ public class DataTest {
 
     public static final String JSON_ARRAY_Word_0 = "[{\"id\":0}]";
 
+    public static final Language OBJECT_Language_0 = new Language(
+            0L, null, null, null, null, null, null, null
+    );
+    public static final String JSON_Language_0 = "{\"id\":0}";
+
+    public static final String JSON_ARRAY_Language_0 = "[{\"id\":0}]";
+
     public static final Vocabulary OBJECT_Vocabulary_0 = new Vocabulary(
             0L, null, null, null, null, null, null, null, null
     );
