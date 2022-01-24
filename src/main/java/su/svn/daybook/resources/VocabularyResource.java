@@ -43,16 +43,16 @@ public class VocabularyResource {
     @Path(ResourcePath.ADD)
     @Consumes("application/json")
     @Produces("application/json")
-    public Uni<Response> add(Vocabulary Vocabulary) {
-        return request(EventAddress.VOCABULARY_ADD, Vocabulary);
+    public Uni<Response> add(Vocabulary vocabulary) {
+        return request(EventAddress.VOCABULARY_ADD, vocabulary);
     }
 
     @PUT
     @Path(ResourcePath.PUT)
     @Consumes("application/json")
     @Produces("application/json")
-    public Uni<Response> put(Vocabulary Vocabulary) {
-        return request(EventAddress.VOCABULARY_PUT, Vocabulary);
+    public Uni<Response> put(Vocabulary vocabulary) {
+        return request(EventAddress.VOCABULARY_PUT, vocabulary);
     }
 
     @DELETE
