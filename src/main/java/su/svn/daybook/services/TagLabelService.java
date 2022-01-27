@@ -29,6 +29,12 @@ public class TagLabelService {
     @Inject
     TagLabelDao tagLabelDao;
 
+    /**
+     * This is method a Vertx message consumer and TagLabel provider by id
+     *
+     * @param o - id of the TagLabel
+     * @return - a lazy asynchronous action with the Answer containing the TagLabel as payload or empty payload
+     */
     @ConsumeEvent(EventAddress.TAG_GET)
     public Uni<Answer> tagGet(Object o) {
         LOG.tracef("tagGet(%s)", o);
@@ -77,22 +83,16 @@ public class TagLabelService {
                 .map(o -> o.isEmpty() ? Answer.empty() : Answer.of(new ApiResponse<>(o.get())));
     }
 
+    /**
+     * The method provides the Answer's flow with all entries of TagLabel
+     *
+     * @return - the Answer's Multi-flow with all entries of TagLabel
+     */
     public Multi<Answer> getAll() {
         LOG.trace("getAll");
         return tagLabelDao.findAll()
                 .onItem()
-                .transform(this::getAnswer);
-    }
-
-    private Answer getAnswer(TagLabel tagLabel) {
-        LOG.infof("getAnswer %s", tagLabel);
-        if (tagLabel != null) {
-            LOG.tracef("getAnswer tagLabel: %s", tagLabel);
-            return Answer.of(tagLabel);
-        } else  {
-            LOG.trace("getAnswer tagLabel: is null");
-            return Answer.empty();
-        }
+                .transform(Answer::of);
     }
 
     /**
@@ -105,13 +105,7 @@ public class TagLabelService {
     public Uni<Answer> tagDelete(Object o) {
         var methodCall = String.format("wordDelete(%s)", o);
         if (o instanceof String) {
-            try {
-                return delete(o.toString());
-            } catch (NumberFormatException e) {
-                LOG.error(methodCall, e);
-                var numberError = new Answer(e.getMessage(), 404);
-                return Uni.createFrom().item(numberError);
-            }
+            return delete(o.toString());
         }
         return Uni.createFrom().item(Answer.empty());
     }

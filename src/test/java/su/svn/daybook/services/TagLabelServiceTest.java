@@ -5,11 +5,10 @@ import io.quarkus.test.junit.QuarkusTest;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import su.svn.daybook.DataTest;
-import su.svn.daybook.domain.dao.TagLabelDao;
 import su.svn.daybook.domain.dao.TagLabelDao;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.messages.ApiResponse;
@@ -34,16 +33,20 @@ class TagLabelServiceTest {
 
     static Uni<Optional<String>> optionalUniEmptyId = Uni.createFrom().item(Optional.empty());
 
+    static Uni<Optional<TagLabel>> optionalUniEmptyTagLabel = Uni.createFrom().item(Optional.empty());
+
     static Multi<TagLabel> multiTest = Multi.createFrom().item(DataTest.OBJECT_TagLabel_0);
 
     static Multi<TagLabel> multiEmpties = Multi.createFrom().empty();
 
     static Multi<TagLabel> multiWithNull = Multi.createFrom().item(() -> null);
 
-    @BeforeAll
-    public static void setup() {
+    @BeforeEach
+    void setUp() {
         mock = Mockito.mock(TagLabelDao.class);
         Mockito.when(mock.findById("test")).thenReturn(optionalUniTest);
+        Mockito.when(mock.delete("no")).thenReturn(optionalUniEmptyId);
+        Mockito.when(mock.findById("no")).thenReturn(optionalUniEmptyTagLabel);
         QuarkusMock.installMockForType(mock, TagLabelDao.class);
     }
 
@@ -57,7 +60,6 @@ class TagLabelServiceTest {
                 .collect(Collectors.toList());
         Assertions.assertTrue(result.size() > 0);
     }
-
 
     @Test
     void testMethod_getAll_whithEmptyResult() {
@@ -80,7 +82,7 @@ class TagLabelServiceTest {
     }
 
     @Test
-    void testMethod_tagGet() {
+    void testMethod_wordGet() {
         service.tagGet("test")
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(Answer.of(Optional.of(DataTest.OBJECT_TagLabel_0)), actual))
@@ -89,7 +91,16 @@ class TagLabelServiceTest {
     }
 
     @Test
-    void testMethod_tagGet_whenNullParameter() {
+    void testMethod_wordGet_whenNoNumberParameter() {
+        service.tagGet("no")
+                .onItem()
+                .invoke(actual -> Assertions.assertEquals(DataTest.errorEmpty, actual))
+                .await()
+                .indefinitely();
+    }
+
+    @Test
+    void testMethod_wordGet_whenNullParameter() {
         service.tagGet(null)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(Answer.empty(), actual))
@@ -98,7 +109,7 @@ class TagLabelServiceTest {
     }
 
     @Test
-    void testMethod_tagAdd() {
+    void testMethod_wordAdd() {
         var expected = Answer.of(new ApiResponse<>("test"));
         Mockito.when(mock.insert(DataTest.OBJECT_TagLabel_0)).thenReturn(optionalUniId);
         service.tagAdd(DataTest.OBJECT_TagLabel_0)
@@ -109,7 +120,7 @@ class TagLabelServiceTest {
     }
 
     @Test
-    void testMethod_tagAdd_whithEmptyResult() {
+    void testMethod_wordAdd_whithEmptyResult() {
         Mockito.when(mock.insert(DataTest.OBJECT_TagLabel_0)).thenReturn(optionalUniEmptyId);
         service.tagAdd(DataTest.OBJECT_TagLabel_0)
                 .onItem()
@@ -119,7 +130,7 @@ class TagLabelServiceTest {
     }
 
     @Test
-    void testMethod_tagPut() {
+    void testMethod_wordPut() {
         Mockito.when(mock.update(DataTest.OBJECT_TagLabel_0)).thenReturn(optionalUniId);
         var expected = Answer.of(new ApiResponse<>("test"));
         service.tagPut(DataTest.OBJECT_TagLabel_0)
@@ -130,7 +141,7 @@ class TagLabelServiceTest {
     }
 
     @Test
-    void testMethod_tagPut_whithEmptyResult() {
+    void testMethod_codePut_whithEmptyResult() {
         Mockito.when(mock.update(DataTest.OBJECT_TagLabel_0)).thenReturn(optionalUniEmptyId);
         service.tagPut(DataTest.OBJECT_TagLabel_0)
                 .onItem()
@@ -140,7 +151,7 @@ class TagLabelServiceTest {
     }
 
     @Test
-    void testMethod_tagDelete() {
+    void testMethod_wordDelete() {
         Mockito.when(mock.delete("test")).thenReturn(optionalUniId);
         var expected = Answer.of(new ApiResponse<>("test"));
         service.tagDelete("test")
@@ -151,7 +162,16 @@ class TagLabelServiceTest {
     }
 
     @Test
-    void testMethod_tagDelete_whenNullParameter() {
+    void testMethod_wordDelete_whenNoNumberParameter() {
+        service.tagDelete("no")
+                .onItem()
+                .invoke(actual -> Assertions.assertEquals(DataTest.errorEmpty, actual))
+                .await()
+                .indefinitely();
+    }
+
+    @Test
+    void testMethod_wordDelete_whenNullParameter() {
         service.tagDelete(null)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(Answer.empty(), actual))

@@ -15,6 +15,8 @@ public class DataTest {
 
     public static Answer errorNoNumber = new Answer("For input string: \"noNumber\"", 404);
 
+    public static Answer errorEmpty = new Answer("EMPTY", 404);
+
     public static final Codifier OBJECT_Codifier_0 = new Codifier(
             0L, null, null, null, null, null, null, null, null
     );
