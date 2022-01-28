@@ -12,6 +12,7 @@ import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import org.jboss.logging.Logger;
 import su.svn.daybook.domain.model.I18n;
+import su.svn.daybook.domain.model.Word;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -48,9 +49,8 @@ public class I18nDao {
                 .map(t -> t != null ? Optional.of(t) : Optional.empty());
     }
 
-    public Uni<Optional<Long>> delete(I18n entry) {
-        LOG.tracef("delete(%s)", entry);
-        return entry.delete(client)
+    public Uni<Optional<Long>> delete(Long id) {
+        return I18n.delete(client, id)
                 .map(t -> t != null ? Optional.of(t) : Optional.empty());
     }
 }
