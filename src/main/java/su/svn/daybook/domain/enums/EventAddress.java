@@ -15,7 +15,8 @@ public enum EventAddress {
     CodePut(EventAddress.CODE_PUT),
     CodeDel(EventAddress.CODE_DEL),
     I18nAdd(EventAddress.I18N_ADD),
-    I18nGet(EventAddress.I18N_GET),
+    I18nGet(EventAddress.I18N_DEL),
+    I18nDel(EventAddress.I18N_GET),
     I18nPut(EventAddress.I18N_PUT),
     LanguageAdd(EventAddress.LANGUAGE_ADD),
     LanguageDel(EventAddress.LANGUAGE_DEL),
@@ -41,6 +42,8 @@ public enum EventAddress {
     public static final String CODE_DEL = "code_del";
 
     public static final String I18N_ADD = "i18n_add";
+
+    public static final String I18N_DEL = "i18n_del";
 
     public static final String I18N_GET = "i18n_get";
 

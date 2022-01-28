@@ -8,6 +8,7 @@
 
 package su.svn.daybook.domain.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import io.vertx.mutiny.pgclient.PgPool;
@@ -19,6 +20,7 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class I18n implements Serializable {
 
     private static final long serialVersionUID = -1065369508632115811L;
@@ -117,7 +119,7 @@ public class I18n implements Serializable {
                 .transform(pgRowSet -> pgRowSet.iterator().next().getLong("id"));
     }
 
-    public Uni<Long> delete(PgPool client) {
+    public static Uni<Long> delete(PgPool client, Long id) {
         return client.preparedQuery(DELETE_FROM_DICTIONARY_I18N_WHERE_ID_$1)
                 .execute(Tuple.of(id))
                 .onItem()

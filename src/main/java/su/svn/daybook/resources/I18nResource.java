@@ -18,9 +18,13 @@ import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.model.I18n;
 
 import javax.inject.Inject;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 
 @Path(ResourcePath.I18N)
@@ -33,14 +37,32 @@ public class I18nResource {
 
     @GET
     @Path(ResourcePath.ID)
+    @Produces("application/json")
     public Uni<Response> get(String id) {
         return request(EventAddress.I18N_GET, id);
     }
 
     @POST
     @Path(ResourcePath.ADD)
-    public Uni<Response> add(I18n I18n) {
-        return request(EventAddress.I18N_ADD, I18n);
+    @Consumes("application/json")
+    @Produces("application/json")
+    public Uni<Response> add(I18n i18n) {
+        return request(EventAddress.I18N_ADD, i18n);
+    }
+
+    @PUT
+    @Path(ResourcePath.PUT)
+    @Consumes("application/json")
+    @Produces("application/json")
+    public Uni<Response> put(I18n i18n) {
+        return request(EventAddress.I18N_PUT, i18n);
+    }
+
+    @DELETE
+    @Path(ResourcePath.ID)
+    @Produces("application/json")
+    public Uni<Response> delete(String id) {
+        return request(EventAddress.I18N_DEL, id);
     }
 
     private Uni<Response> request(String address, Object o) {
