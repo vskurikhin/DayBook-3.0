@@ -15,13 +15,10 @@ import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.enums.ResourcePath;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.model.TagLabel;
+import su.svn.daybook.domain.model.TagLabel;
 
 import javax.inject.Inject;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 
 @Path(ResourcePath.TAG_LABEL)
@@ -32,18 +29,32 @@ public class TagLabelResource {
 
     @GET
     @Path(ResourcePath.ID)
-    @Consumes
-    @Produces
+    @Produces("application/json")
     public Uni<Response> get(String id) {
         return request(EventAddress.TAG_GET, id);
     }
 
     @POST
     @Path(ResourcePath.ADD)
-    @Consumes
-    @Produces
+    @Consumes("application/json")
+    @Produces("application/json")
     public Uni<Response> add(TagLabel tagLabel) {
         return request(EventAddress.TAG_ADD, tagLabel);
+    }
+
+    @PUT
+    @Path(ResourcePath.PUT)
+    @Consumes("application/json")
+    @Produces("application/json")
+    public Uni<Response> put(TagLabel tagLabel) {
+        return request(EventAddress.TAG_PUT, tagLabel);
+    }
+
+    @DELETE
+    @Path(ResourcePath.ID)
+    @Produces("application/json")
+    public Uni<Response> delete(String id) {
+        return request(EventAddress.TAG_DEL, id);
     }
 
     private Uni<Response> request(String address, Object o) {
@@ -55,6 +66,9 @@ public class TagLabelResource {
     }
 
     private Response.ResponseBuilder createResponseBuilder(Message<Answer> message) {
+        if (message.body() == null) {
+            return Response.status(406, "body is null");
+        }
         return message.body().getPayload() != null
                 ? Response.ok(message.body().getPayload())
                 : Response.status(message.body().getError(), message.body().getMessage());
