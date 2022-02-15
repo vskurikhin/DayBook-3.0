@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2022.02.15 17:44 by Victor N. Skurikhin.
+ * This file was last modified at 2022.02.15 17:45 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * CodifierService.java
@@ -21,7 +21,7 @@ import su.svn.daybook.domain.model.Codifier;
 import javax.annotation.Nonnull;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-//
+////
 @ApplicationScoped
 public class CodifierService {
 
