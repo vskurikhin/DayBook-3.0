@@ -1,10 +1,15 @@
 /*
- * This file was last modified at 2021.12.06 18:25 by Victor N. Skurikhin.
+ * This file was last modified at 2022.03.23 22:47 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * build.gradle
  * $Id$
  */
+
+import java.util.regex.Matcher
+import java.util.regex.Pattern
+
+
 //file:noinspection GradlePackageUpdate
 
 buildscript {
@@ -67,16 +72,21 @@ dependencies {
     testImplementation group: 'org.mockito', name: 'mockito-core', version: libVers.mockito_core
 }
 
+def schemaName = 'db'
 def db_url = getEnv('DBURL', DATABASE_URL)
 def db_username = getEnv('DBUSER', DATABASE_USERNAME)
 def db_password = getEnv('DBPASS', DATABASE_PASSWORD)
 def db_url_public = db_url + '?currentSchema=public'
 def run_list = project.properties['runList'] ?: 'db'
+def projectDir = project.projectDir.toString()
+def resourcesDb = 'src/main/resources/db'
+def resourcesDbPath = "${projectDir}/${resourcesDb}"
+def dbMigrationResourcesDbPath = "./${resourcesDb}"
 
 liquibase {
     activities {
         db {
-            changeLogFile "src/main/resources/db/changelog/db/Change-Log.xml"
+            changeLogFile "${dbMigrationResourcesDbPath}/changelog/db/Change-Log.xml"
             url db_url_public
             defaultSchemaName 'public'
             username db_username
@@ -108,5 +118,68 @@ quarkusBuild {
     nativeArgs {
         containerBuild = true
         buildImage = "quay.io/quarkus/ubi-quarkus-native-image:21.3.0-java11"
+    }
+}
+
+
+def getProjectProperty(key, defaultValue) {
+    return project.getProperties().get(key) ?: defaultValue
+}
+
+static String getLastVersion(String content) {
+    String regex = "--changeset[\\s]+[^\\s]+:(\\d+)";
+    Matcher matcher = Pattern.compile(regex).matcher(content);
+
+    while (matcher.find()) {
+        return Integer.valueOf(matcher.group(1)) + 1
+    }
+    return "1";
+}
+
+// номер changeset всегда должен быть уникальным!!!
+static def getLastVersionFile(String folder) {
+
+    def files = new File(folder).listFiles()?.sort { it.getName() }
+    def file = files.size() > 0 ? files?.last() : null
+    if (Objects.isNull(file)) {
+        return "1"
+    }
+
+    String fileContents = file.getText('UTF-8')
+    return getLastVersion(fileContents)
+}
+
+task generate() {
+    doLast {
+        println(resourcesDbPath)
+
+        def task = this.getProjectProperty('task', 'issue_1')
+        def desc = this.getProjectProperty('desc', 'migration')
+        def scriptName = "${task}_${desc}"
+
+        def folderPath = "${resourcesDbPath}/changelog/${schemaName}/Change-Sets"
+        def version = getLastVersionFile(folderPath + "/")
+        def date = new Date()
+        def formattedDate = date.format("yyyy_MM_dd")
+        def formattedTime = date.format("HH_mm_ss")
+        def fileName = "${version}_date_${formattedDate}_time_${formattedTime}_${scriptName}.sql"
+        def filePath = "${folderPath}/${fileName}"
+        def logicalFilePath = "${resourcesDb}/changelog/${schemaName}/Change-Sets/${fileName}"
+
+        def changeSetAuthor = java.util.Optional
+                .ofNullable(System.getProperty("username"))
+                .orElse(System.getenv("USER"))
+
+        List<String> sample = [
+                '--liquibase formatted sql', '--','', '--',
+                "--changeset ${changeSetAuthor}:${version} failOnError:true logicalFilePath:${logicalFilePath}",
+                '--', '', '--',
+                '-- << COMMAND HERE >>', '--', '',
+                '--', '--rollback',
+                ''] as String[]
+        // create the file and write text to it.
+        def file = new File(filePath)
+        file.text = sample.join("\n")
+        println "File created ${file.getAbsolutePath()}"
     }
 }
