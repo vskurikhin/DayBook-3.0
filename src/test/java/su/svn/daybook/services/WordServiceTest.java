@@ -37,9 +37,9 @@ class WordServiceTest {
 
     static Uni<Optional<Word>> optionalUniTest = Uni.createFrom().item(Optional.of(DataTest.OBJECT_Word_0));
 
-    static Uni<Optional<Long>> optionalUniId = Uni.createFrom().item(Optional.of(0L));
+    static Uni<Optional<String>> optionalUniId = Uni.createFrom().item(Optional.of("word"));
 
-    static Uni<Optional<Long>> optionalUniEmptyId = Uni.createFrom().item(Optional.empty());
+    static Uni<Optional<String>> optionalUniEmptyId = Uni.createFrom().item(Optional.empty());
 
     static Multi<Word> multiTest = Multi.createFrom().item(DataTest.OBJECT_Word_0);
 
@@ -50,7 +50,7 @@ class WordServiceTest {
     @BeforeEach
     void setUp() {
         mock = Mockito.mock(WordDao.class);
-        Mockito.when(mock.findById(0L)).thenReturn(optionalUniTest);
+        Mockito.when(mock.findByWord("word")).thenReturn(optionalUniTest);
         QuarkusMock.installMockForType(mock, WordDao.class);
     }
 
@@ -87,18 +87,9 @@ class WordServiceTest {
 
     @Test
     void testMethod_wordGet() {
-        service.wordGet("0")
+        service.wordGet("word")
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(Answer.of(Optional.of(DataTest.OBJECT_Word_0)), actual))
-                .await()
-                .indefinitely();
-    }
-
-    @Test
-    void testMethod_wordGet_whenNoNumberParameter() {
-        service.wordGet("noNumber")
-                .onItem()
-                .invoke(actual -> Assertions.assertEquals(DataTest.errorNoNumber, actual))
                 .await()
                 .indefinitely();
     }
@@ -114,7 +105,7 @@ class WordServiceTest {
 
     @Test
     void testMethod_wordAdd() {
-        var expected = Answer.of(new ApiResponse<>(0L));
+        var expected = Answer.of(new ApiResponse<>("word"));
         Mockito.when(mock.insert(DataTest.OBJECT_Word_0)).thenReturn(optionalUniId);
         service.wordAdd(DataTest.OBJECT_Word_0)
                 .onItem()
@@ -136,7 +127,7 @@ class WordServiceTest {
     @Test
     void testMethod_wordPut() {
         Mockito.when(mock.update(DataTest.OBJECT_Word_0)).thenReturn(optionalUniId);
-        var expected = Answer.of(new ApiResponse<>(0L));
+        var expected = Answer.of(new ApiResponse<>("word"));
         service.wordPut(DataTest.OBJECT_Word_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
@@ -156,20 +147,11 @@ class WordServiceTest {
 
     @Test
     void testMethod_wordDelete() {
-        Mockito.when(mock.delete(0L)).thenReturn(optionalUniId);
-        var expected = Answer.of(new ApiResponse<>(0L));
-        service.wordDelete("0")
+        Mockito.when(mock.delete("word")).thenReturn(optionalUniId);
+        var expected = Answer.of(new ApiResponse<>("word"));
+        service.wordDelete("word")
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
-                .await()
-                .indefinitely();
-    }
-
-    @Test
-    void testMethod_wordDelete_whenNoNumberParameter() {
-        service.wordDelete("noNumber")
-                .onItem()
-                .invoke(actual -> Assertions.assertEquals(DataTest.errorNoNumber, actual))
                 .await()
                 .indefinitely();
     }

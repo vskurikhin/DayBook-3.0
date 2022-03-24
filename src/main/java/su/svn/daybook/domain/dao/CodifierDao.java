@@ -32,23 +32,23 @@ public class CodifierDao {
         return Codifier.findAll(client);
     }
 
-    public Uni<Optional<Codifier>> findById(Long id) {
-        return Codifier.findById(client, id)
+    public Uni<Optional<Codifier>> findByCode(String code) {
+        return Codifier.findByCode(client, code)
                 .map(t -> t != null ? Optional.of(t) : Optional.empty());
     }
 
-    public Uni<Optional<Long>> insert(Codifier entry) {
+    public Uni<Optional<String>> insert(Codifier entry) {
         return entry.insert(client)
                 .map(t -> t != null ? Optional.of(t) : Optional.empty());
     }
 
-    public Uni<Optional<Long>> update(Codifier entry) {
+    public Uni<Optional<String>> update(Codifier entry) {
         return entry.update(client)
                 .map(t -> t != null ? Optional.of(t) : Optional.empty());
     }
 
-    public Uni<Optional<Long>> delete(Long id) {
-        return Codifier.delete(client, id)
+    public Uni<Optional<String>> delete(String code) {
+        return Codifier.delete(client, code)
                 .map(t -> t != null ? Optional.of(t) : Optional.empty());
     }
 }

@@ -15,14 +15,6 @@ import static org.junit.jupiter.api.Assertions.*;
 class CodifierTest {
 
     @Test
-    void getId() {
-    }
-
-    @Test
-    void setId() {
-    }
-
-    @Test
     void getCode() {
     }
 

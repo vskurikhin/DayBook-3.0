@@ -29,7 +29,7 @@ class CodifierResourceTest {
 
     static Uni<Answer> nullAnswer = Uni.createFrom().item(() -> null);
 
-    static Uni<Answer> tezdId = Uni.createFrom().item(Answer.of(new ApiResponse(0L)));
+    static Uni<Answer> tezdId = Uni.createFrom().item(Answer.of(new ApiResponse("0")));
 
     @BeforeAll
     public static void setup() {
@@ -50,25 +50,7 @@ class CodifierResourceTest {
                 .get("/code/0")
                 .then()
                 .statusCode(200)
-                .body(CoreMatchers.startsWith("{\"id\":0}"));
-    }
-
-    @Test
-    void testEndpoint_get_whenNone() {
-        given()
-                .when()
-                .get("/code/" + Integer.MAX_VALUE)
-                .then()
-                .statusCode(404);
-    }
-
-    @Test
-    void testEndpoint_get_whenNull() {
-        given()
-                .when()
-                .get("/code/" + Integer.MIN_VALUE)
-                .then()
-                .statusCode(406);
+                .body(CoreMatchers.startsWith("{\"id\":\"0\"}"));
     }
 
     @Test
@@ -80,7 +62,7 @@ class CodifierResourceTest {
                 .post("/code/add")
                 .then()
                 .statusCode(200)
-                .body(CoreMatchers.startsWith(DataTest.JSON_Codifier_0));
+                .body(CoreMatchers.startsWith("{\"id\":\"0\"}"));
     }
 
     @Test
@@ -92,7 +74,7 @@ class CodifierResourceTest {
                 .put("/code/put")
                 .then()
                 .statusCode(200)
-                .body(CoreMatchers.startsWith(DataTest.JSON_Codifier_0));
+                .body(CoreMatchers.startsWith("{\"id\":\"0\"}"));
     }
 
     @Test
@@ -102,6 +84,6 @@ class CodifierResourceTest {
                 .delete("/code/0")
                 .then()
                 .statusCode(200)
-                .body(CoreMatchers.startsWith(DataTest.JSON_Codifier_0));
+                .body(CoreMatchers.startsWith("{\"id\":\"0\"}"));
     }
 }

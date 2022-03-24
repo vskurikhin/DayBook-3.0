@@ -40,19 +40,13 @@ public class WordService {
     public Uni<Answer> wordGet(Object o) {
         var methodCall = String.format("wordGet(%s)", o);
         if (o instanceof String) {
-            try {
-                return get(Long.parseLong(o.toString()));
-            } catch (NumberFormatException e) {
-                LOG.error(methodCall, e);
-                var numberError = new Answer(e.getMessage(), 404);
-                return Uni.createFrom().item(numberError);
-            }
+            return get(o.toString());
         }
         return Uni.createFrom().item(Answer.empty());
     }
 
-    private Uni<Answer> get(Long id) {
-        return wordDao.findById(id)
+    private Uni<Answer> get(String word) {
+        return wordDao.findByWord(word)
                 .map(t -> t.isEmpty() ? Answer.empty() : Answer.of(t));
     }
 
@@ -100,19 +94,13 @@ public class WordService {
     public Uni<Answer> wordDelete(Object o) {
         var methodCall = String.format("wordDelete(%s)", o);
         if (o instanceof String) {
-            try {
-                return delete(Long.parseLong(o.toString()));
-            } catch (NumberFormatException e) {
-                LOG.error(methodCall, e);
-                var numberError = new Answer(e.getMessage(), 404);
-                return Uni.createFrom().item(numberError);
-            }
+            return delete(o.toString());
         }
         return Uni.createFrom().item(Answer.empty());
     }
 
-    private Uni<Answer> delete(long id) {
-        return wordDao.delete(id)
+    private Uni<Answer> delete(String word) {
+        return wordDao.delete(word)
                 .map(o -> o.isEmpty() ? Answer.empty() : Answer.of(new ApiResponse<>(o.get())));
     }
 

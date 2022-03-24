@@ -32,22 +32,22 @@ public class WordDao {
         return Word.findAll(client);
     }
 
-    public Uni<Optional<Word>> findById(Long id) {
-        return Word.findById(client, id)
+    public Uni<Optional<Word>> findByWord(String word) {
+        return Word.findByWord(client, word)
                 .map(t -> t != null ? Optional.of(t) : Optional.empty());
     }
 
-    public Uni<Optional<Long>> insert(Word entry) {
+    public Uni<Optional<String>> insert(Word entry) {
         return entry.insert(client)
                 .map(t -> t != null ? Optional.of(t) : Optional.empty());
     }
 
-    public Uni<Optional<Long>> update(Word entry) {
+    public Uni<Optional<String>> update(Word entry) {
         return entry.update(client)
                 .map(t -> t != null ? Optional.of(t) : Optional.empty());
     }
 
-    public Uni<Optional<Long>> delete(Long id) {
+    public Uni<Optional<String>> delete(String id) {
         return Word.delete(client, id)
                 .map(t -> t != null ? Optional.of(t) : Optional.empty());
     }

@@ -29,9 +29,9 @@ class CodifierServiceTest {
 
     static Uni<Optional<Codifier>> optionalUniTest = Uni.createFrom().item(Optional.of(DataTest.OBJECT_Codifier_0));
 
-    static Uni<Optional<Long>> optionalUniId = Uni.createFrom().item(Optional.of(0L));
+    static Uni<Optional<String>> optionalUniId = Uni.createFrom().item(Optional.of("0"));
 
-    static Uni<Optional<Long>> optionalUniEmptyId = Uni.createFrom().item(Optional.empty());
+    static Uni<Optional<String>> optionalUniEmptyId = Uni.createFrom().item(Optional.empty());
 
     static Multi<Codifier> multiTest = Multi.createFrom().item(DataTest.OBJECT_Codifier_0);
 
@@ -42,7 +42,7 @@ class CodifierServiceTest {
     @BeforeAll
     public static void setup() {
         mock = Mockito.mock(CodifierDao.class);
-        Mockito.when(mock.findById(0L)).thenReturn(optionalUniTest);
+        Mockito.when(mock.findByCode("0")).thenReturn(optionalUniTest);
         QuarkusMock.installMockForType(mock, CodifierDao.class);
     }
 
@@ -87,15 +87,6 @@ class CodifierServiceTest {
     }
 
     @Test
-    void testMethod_codeGet_whenNoNumberParameter() {
-        service.codeGet("noNumber")
-                .onItem()
-                .invoke(actual -> Assertions.assertEquals(DataTest.errorNoNumber, actual))
-                .await()
-                .indefinitely();
-    }
-
-    @Test
     void testMethod_codeGet_whenNullParameter() {
         service.codeGet(null)
                 .onItem()
@@ -106,7 +97,7 @@ class CodifierServiceTest {
 
     @Test
     void testMethod_codeAdd() {
-        var expected = Answer.of(new ApiResponse<>(0L));
+        var expected = Answer.of(new ApiResponse<>("0"));
         Mockito.when(mock.insert(DataTest.OBJECT_Codifier_0)).thenReturn(optionalUniId);
         service.codeAdd(DataTest.OBJECT_Codifier_0)
                 .onItem()
@@ -128,7 +119,7 @@ class CodifierServiceTest {
     @Test
     void testMethod_codePut() {
         Mockito.when(mock.update(DataTest.OBJECT_Codifier_0)).thenReturn(optionalUniId);
-        var expected = Answer.of(new ApiResponse<>(0L));
+        var expected = Answer.of(new ApiResponse<>("0"));
         service.codePut(DataTest.OBJECT_Codifier_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
@@ -148,20 +139,11 @@ class CodifierServiceTest {
 
     @Test
     void testMethod_codeDelete() {
-        Mockito.when(mock.delete(0L)).thenReturn(optionalUniId);
-        var expected = Answer.of(new ApiResponse<>(0L));
+        Mockito.when(mock.delete("0")).thenReturn(optionalUniId);
+        var expected = Answer.of(new ApiResponse<>("0"));
         service.codeDelete("0")
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
-                .await()
-                .indefinitely();
-    }
-
-    @Test
-    void testMethod_codeDelete_whenNoNumberParameter() {
-        service.codeDelete("noNumber")
-                .onItem()
-                .invoke(actual -> Assertions.assertEquals(DataTest.errorNoNumber, actual))
                 .await()
                 .indefinitely();
     }

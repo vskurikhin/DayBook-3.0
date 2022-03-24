@@ -18,18 +18,18 @@ public class DataTest {
     public static Answer errorEmpty = new Answer("EMPTY", 404);
 
     public static final Codifier OBJECT_Codifier_0 = new Codifier(
-            0L, null, null, null, null, null, null, null, null
+            "0", null, null, null, null, null, null, null
     );
-    public static final String JSON_Codifier_0 = "{\"id\":0}";
+    public static final String JSON_Codifier_0 = "{\"code\":\"0\"}";
 
-    public static final String JSON_ARRAY_Codifier_0 = "[{\"id\":0}]";
+    public static final String JSON_ARRAY_Codifier_0 = "[{\"code\":\"0\"}]";
 
     public static final Word OBJECT_Word_0 = new Word(
-            0L, null, null, null, null, null, null, null
+            "word", null, null, null, null, null, null
     );
-    public static final String JSON_Word_0 = "{\"id\":0}";
+    public static final String JSON_Word_0 = "{\"word\":\"word\"}";
 
-    public static final String JSON_ARRAY_Word_0 = "[{\"id\":0}]";
+    public static final String JSON_ARRAY_Word_0 = "[{\"word\":\"word\"}]";
 
     public static final Language OBJECT_Language_0 = new Language(
             0L, null, null, null, null, null, null, null

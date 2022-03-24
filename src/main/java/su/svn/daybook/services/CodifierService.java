@@ -40,19 +40,13 @@ public class CodifierService {
     public Uni<Answer> codeGet(Object o) {
         var methodCall = String.format("codeGet(%s)", o);
         if (o instanceof String) {
-            try {
-                return get(Long.parseLong(o.toString()));
-            } catch (NumberFormatException e) {
-                LOG.error(methodCall, e);
-                var numberError = new Answer(e.getMessage(), 404);
-                return Uni.createFrom().item(numberError);
-            }
+            return get(o.toString());
         }
         return Uni.createFrom().item(Answer.empty());
     }
 
-    private Uni<Answer> get(Long id) {
-        return codifierDao.findById(id)
+    private Uni<Answer> get(String code) {
+        return codifierDao.findByCode(code)
                 .map(t -> t.isEmpty() ? Answer.empty() : Answer.of(t));
     }
 
@@ -100,19 +94,13 @@ public class CodifierService {
     public Uni<Answer> codeDelete(Object o) {
         var methodCall = String.format("codeDelete(%s)", o);
         if (o instanceof String) {
-            try {
-                return delete(Long.parseLong(o.toString()));
-            } catch (NumberFormatException e) {
-                LOG.error(methodCall, e);
-                var numberError = new Answer(e.getMessage(), 404);
-                return Uni.createFrom().item(numberError);
-            }
+            return delete(o.toString());
         }
         return Uni.createFrom().item(Answer.empty());
     }
 
-    private Uni<Answer> delete(long id) {
-        return codifierDao.delete(id)
+    private Uni<Answer> delete(String code) {
+        return codifierDao.delete(code)
                 .map(o -> o.isEmpty() ? Answer.empty() : Answer.of(new ApiResponse<>(o.get())));
     }
 
