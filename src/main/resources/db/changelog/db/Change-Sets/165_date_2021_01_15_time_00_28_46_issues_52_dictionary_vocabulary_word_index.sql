@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2022.03.23 22:47 by Victor N. Skurikhin.
+ * This file was last modified at 2022.03.24 13:26 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * 165_date_2021_01_15_time_00_28_46_issues_52_dictionary_vocabulary_word_index.sql

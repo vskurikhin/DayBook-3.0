@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2021.12.06 19:31 by Victor N. Skurikhin.
+ * This file was last modified at 2022.03.24 13:26 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * CodifierTest.java
@@ -13,14 +13,6 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class CodifierTest {
-
-    @Test
-    void getId() {
-    }
-
-    @Test
-    void setId() {
-    }
 
     @Test
     void getCode() {

@@ -1,8 +1,8 @@
 /*
- * This file was last modified at 2021.12.06 19:31 by Victor N. Skurikhin.
+ * This file was last modified at 2022.03.24 13:26 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
- * Codifier.java
+ * Word.java
  * $Id$
  */
 
@@ -25,8 +25,6 @@ public class Word implements Serializable {
 
     private static final long serialVersionUID = 1026290511346629702L;
 
-    private Long id;
-
     private String word;
 
     private String userName;
@@ -41,44 +39,42 @@ public class Word implements Serializable {
 
     private Integer flags;
 
-    public static final String SELECT_FROM_DICTIONARY_WORD_WHERE_ID_$1
-            = "SELECT id, word, user_name, create_time, update_time, enabled, visible, flags "
+    public static final String SELECT_FROM_DICTIONARY_WORD_WHERE_WORD_$1
+            = "SELECT word, user_name, create_time, update_time, enabled, visible, flags "
             + "  FROM dictionary.word "
-            + " WHERE id = $1";
+            + " WHERE word = $1";
 
-    public static final String SELECT_ALL_FROM_DICTIONARY_WORD_ORDER_BY_ID_ASC
-            = "SELECT id, word, user_name, create_time, update_time, enabled, visible, flags "
+    public static final String SELECT_ALL_FROM_DICTIONARY_WORD_ORDER_BY_WORD_ASC
+            = "SELECT word, user_name, create_time, update_time, enabled, visible, flags "
             + "  FROM dictionary.word "
-            + " ORDER BY id ASC";
+            + " ORDER BY word ASC";
 
     public static final String INSERT_INTO_DICTIONARY_WORD
             = "INSERT INTO dictionary.word "
-            + " (id, word, user_name, create_time, update_time, enabled, visible, flags) "
+            + " (word, user_name, create_time, update_time, enabled, visible, flags) "
             + " VALUES "
-            + " ($1, $2, $3, $4, $5, $6, $7, $8) "
-            + " RETURNING id";
+            + " ($1, $2, $3, $4, $5, $6, $7) "
+            + " RETURNING word";
 
-    public static final String UPDATE_DICTIONARY_WORD_WHERE_ID_$1
+    public static final String UPDATE_DICTIONARY_WORD_WHERE_WORD_$1
             = "UPDATE dictionary.word "
             + " SET "
-            + "  word = $2,"
-            + "  user_name = $3, "
-            + "  create_time = $4, "
-            + "  update_time = $5,"
-            + "  enabled = $6, "
-            + "  visible = $7, "
-            + "  flags = $8 "
-            + " WHERE id = $1 "
-            + " RETURNING id";
+            + "  user_name = $2, "
+            + "  create_time = $3, "
+            + "  update_time = $4,"
+            + "  enabled = $5, "
+            + "  visible = $6, "
+            + "  flags = $7 "
+            + " WHERE word = $1 "
+            + " RETURNING word";
 
-    public static final String DELETE_FROM_DICTIONARY_WORD_WHERE_ID_$1
+    public static final String DELETE_FROM_DICTIONARY_WORD_WHERE_WORD_$1
             = "DELETE FROM dictionary.word "
-            + " WHERE id = $1 "
-            + " RETURNING id";
+            + " WHERE word = $1 "
+            + " RETURNING word";
 
     public static Word from(Row row) {
         return new Word(
-                row.getLong("id"),
                 row.getString("word"),
                 row.getString("user_name"),
                 row.getLocalDateTime("create_time"),
@@ -89,9 +85,9 @@ public class Word implements Serializable {
         );
     }
 
-    public static Uni<Word> findById(PgPool client, Long id) {
-        return client.preparedQuery(SELECT_FROM_DICTIONARY_WORD_WHERE_ID_$1)
-                .execute(Tuple.of(id))
+    public static Uni<Word> findByWord(PgPool client, String word) {
+        return client.preparedQuery(SELECT_FROM_DICTIONARY_WORD_WHERE_WORD_$1)
+                .execute(Tuple.of(word))
                 .onItem()
                 .transform(RowSet::iterator)
                 .onItem()
@@ -100,7 +96,7 @@ public class Word implements Serializable {
 
     public static Multi<Word> findAll(PgPool client) {
         return client
-                .query(SELECT_ALL_FROM_DICTIONARY_WORD_ORDER_BY_ID_ASC)
+                .query(SELECT_ALL_FROM_DICTIONARY_WORD_ORDER_BY_WORD_ASC)
                 .execute()
                 .onItem()
                 .transformToMulti(set -> Multi.createFrom().iterable(set))
@@ -109,38 +105,37 @@ public class Word implements Serializable {
 
     }
 
-    public Uni<Long> insert(PgPool client) {
+    public Uni<String> insert(PgPool client) {
         return client.preparedQuery(INSERT_INTO_DICTIONARY_WORD)
                 .execute(Tuple.of(listOf()))
                 .onItem()
                 .transform(RowSet::iterator)
                 .onItem()
-                .transform(iterator -> iterator.hasNext() ? iterator.next().getLong("id") : null);
+                .transform(iterator -> iterator.hasNext() ? iterator.next().getString("word") : null);
     }
 
-    public Uni<Long> update(PgPool client) {
+    public Uni<String> update(PgPool client) {
         updateTime = LocalDateTime.now();
-        return client.preparedQuery(UPDATE_DICTIONARY_WORD_WHERE_ID_$1)
+        return client.preparedQuery(UPDATE_DICTIONARY_WORD_WHERE_WORD_$1)
                 .execute(Tuple.of(listOf()))
                 .onItem()
-                .transform(pgRowSet -> pgRowSet.iterator().next().getLong("id"));
+                .transform(pgRowSet -> pgRowSet.iterator().next().getString("word"));
     }
 
-    public static Uni<Long> delete(PgPool client, Long id) {
-        return client.preparedQuery(DELETE_FROM_DICTIONARY_WORD_WHERE_ID_$1)
-                .execute(Tuple.of(id))
+    public static Uni<String> delete(PgPool client, String word) {
+        return client.preparedQuery(DELETE_FROM_DICTIONARY_WORD_WHERE_WORD_$1)
+                .execute(Tuple.of(word))
                 .onItem()
-                .transform(pgRowSet -> pgRowSet.iterator().next().getLong("id"));
+                .transform(pgRowSet -> pgRowSet.iterator().next().getString("word"));
     }
 
     private List<?> listOf() {
-        return List.of(id, word, userName, createTime, updateTime, enabled, visible, flags);
+        return List.of(word, userName, createTime, updateTime, enabled, visible, flags);
     }
 
     public Word() {}
 
     public Word(
-            Long id,
             String word,
             String userName,
             LocalDateTime createTime,
@@ -148,7 +143,6 @@ public class Word implements Serializable {
             Boolean enabled,
             Boolean visible,
             Integer flags) {
-        this.id = id;
         this.word = word;
         this.userName = userName;
         this.createTime = createTime;
@@ -156,14 +150,6 @@ public class Word implements Serializable {
         this.enabled = enabled;
         this.visible = visible;
         this.flags = flags;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getWord() {
@@ -229,7 +215,6 @@ public class Word implements Serializable {
 
         Word codifier = (Word) o;
 
-        if (id != null ? !id.equals(codifier.id) : codifier.id != null) return false;
         if (word != null ? !word.equals(codifier.word) : codifier.word != null) return false;
         if (userName != null ? !userName.equals(codifier.userName) : codifier.userName != null) return false;
         if (createTime != null ? !createTime.equals(codifier.createTime) : codifier.createTime != null) return false;
@@ -241,8 +226,7 @@ public class Word implements Serializable {
 
     @Override
     public int hashCode() {
-        int result = id != null ? id.hashCode() : 0;
-        result = 31 * result + (word != null ? word.hashCode() : 0);
+        int result = word != null ? word.hashCode() : 0;
         result = 31 * result + (userName != null ? userName.hashCode() : 0);
         result = 31 * result + (createTime != null ? createTime.hashCode() : 0);
         result = 31 * result + (updateTime != null ? updateTime.hashCode() : 0);
@@ -255,8 +239,7 @@ public class Word implements Serializable {
     @Override
     public String toString() {
         return "Codifier{" +
-                "id=" + id +
-                ", word='" + word + '\'' +
+                "word='" + word + '\'' +
                 ", userName='" + userName + '\'' +
                 ", createTime=" + createTime +
                 ", updateTime=" + updateTime +
@@ -271,7 +254,6 @@ public class Word implements Serializable {
     }
 
     public static final class Builder {
-        private Long id;
         private String word;
         private String userName;
         private LocalDateTime createTime;
@@ -281,11 +263,6 @@ public class Word implements Serializable {
         private Integer flags;
 
         private Builder() {
-        }
-
-        public Builder withId(Long id) {
-            this.id = id;
-            return this;
         }
 
         public Builder withWord(String word) {
@@ -325,7 +302,6 @@ public class Word implements Serializable {
 
         public Word build() {
             Word codifier = new Word();
-            codifier.setId(id);
             codifier.setWord(word);
             codifier.setUserName(userName);
             codifier.setCreateTime(createTime);

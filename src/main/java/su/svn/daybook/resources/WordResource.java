@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2022.01.15 20:59 by Victor N. Skurikhin.
+ * This file was last modified at 2022.03.24 13:26 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * WordResource.java
@@ -35,8 +35,8 @@ public class WordResource {
     @GET
     @Path(ResourcePath.ID)
     @Produces("application/json")
-    public Uni<Response> get(String id) {
-        return request(EventAddress.WORD_GET, id);
+    public Uni<Response> get(String word) {
+        return request(EventAddress.WORD_GET, word);
     }
 
     @POST

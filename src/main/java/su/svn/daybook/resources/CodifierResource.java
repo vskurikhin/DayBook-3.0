@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2022.01.11 17:44 by Victor N. Skurikhin.
+ * This file was last modified at 2022.03.24 13:26 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * CodifierResource.java
@@ -35,8 +35,8 @@ public class CodifierResource {
     @GET
     @Path(ResourcePath.ID)
     @Produces("application/json")
-    public Uni<Response> get(String id) {
-        return request(EventAddress.CODE_GET, id);
+    public Uni<Response> get(String code) {
+        return request(EventAddress.CODE_GET, code);
     }
 
     @POST
@@ -58,8 +58,8 @@ public class CodifierResource {
     @DELETE
     @Path(ResourcePath.ID)
     @Produces("application/json")
-    public Uni<Response> delete(String id) {
-        return request(EventAddress.CODE_DEL, id);
+    public Uni<Response> delete(String code) {
+        return request(EventAddress.CODE_DEL, code);
     }
 
     private Uni<Response> request(String address, Object o) {

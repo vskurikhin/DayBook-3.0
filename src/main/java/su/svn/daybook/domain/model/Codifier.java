@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2021.12.06 19:31 by Victor N. Skurikhin.
+ * This file was last modified at 2022.03.24 13:26 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * Codifier.java
@@ -25,8 +25,6 @@ public class Codifier implements Serializable {
 
     private static final long serialVersionUID = 1265480523704797546L;
 
-    private Long id;
-
     private String code;
 
     private String value;
@@ -44,43 +42,41 @@ public class Codifier implements Serializable {
     private Integer flags;
 
     public static final String SELECT_FROM_DICTIONARY_CODIFIER_WHERE_ID_$1
-            = "SELECT id, code, value, user_name, create_time, update_time, enabled, visible, flags "
+            = "SELECT code, value, user_name, create_time, update_time, enabled, visible, flags "
             + "  FROM dictionary.codifier "
-            + " WHERE id = $1";
+            + " WHERE code = $1";
 
     public static final String SELECT_ALL_FROM_DICTIONARY_CODIFIER_ORDER_BY_ID_ASC
-            = "SELECT id, code, value, user_name, create_time, update_time, enabled, visible, flags "
+            = "SELECT code, value, user_name, create_time, update_time, enabled, visible, flags "
             + "  FROM dictionary.codifier "
-            + " ORDER BY id ASC";
+            + " ORDER BY code ASC";
 
     public static final String INSERT_INTO_DICTIONARY_CODIFIER
             = "INSERT INTO dictionary.codifier "
-            + " (id, code, user_name, create_time, update_time, enabled, visible, flags) "
+            + " (code, user_name, create_time, update_time, enabled, visible, flags) "
             + " VALUES "
-            + " ($1, $2, $3, $4, $5, $6, $7, $8) "
-            + " RETURNING id";
+            + " ($1, $2, $3, $4, $5, $6, $7) "
+            + " RETURNING code";
 
     public static final String UPDATE_DICTIONARY_CODIFIER_WHERE_ID_$1
             = "UPDATE dictionary.codifier "
             + " SET "
-            + "  code = $2,"
-            + "  user_name = $3, "
-            + "  create_time = $4, "
-            + "  update_time = $5,"
-            + "  enabled = $6, "
-            + "  visible = $7, "
-            + "  flags = $8 "
-            + " WHERE id = $1 "
-            + " RETURNING id";
+            + "  user_name = $2, "
+            + "  create_time = $3, "
+            + "  update_time = $4,"
+            + "  enabled = $5, "
+            + "  visible = $6, "
+            + "  flags = $7 "
+            + " WHERE code = $1 "
+            + " RETURNING code";
 
     public static final String DELETE_FROM_DICTIONARY_CODIFIER_WHERE_ID_$1
             = "DELETE FROM dictionary.codifier "
-            + " WHERE id = $1 "
-            + " RETURNING id";
+            + " WHERE code = $1 "
+            + " RETURNING code";
 
     public static Codifier from(Row row) {
         return new Codifier(
-                row.getLong("id"),
                 row.getString("code"),
                 row.getString("value"),
                 row.getString("user_name"),
@@ -92,9 +88,9 @@ public class Codifier implements Serializable {
         );
     }
 
-    public static Uni<Codifier> findById(PgPool client, Long id) {
+    public static Uni<Codifier> findByCode(PgPool client, String code) {
         return client.preparedQuery(SELECT_FROM_DICTIONARY_CODIFIER_WHERE_ID_$1)
-                .execute(Tuple.of(id))
+                .execute(Tuple.of(code))
                 .onItem()
                 .transform(RowSet::iterator)
                 .onItem()
@@ -112,38 +108,37 @@ public class Codifier implements Serializable {
 
     }
 
-    public Uni<Long> insert(PgPool client) {
+    public Uni<String> insert(PgPool client) {
         return client.preparedQuery(INSERT_INTO_DICTIONARY_CODIFIER)
                 .execute(Tuple.of(listOf()))
                 .onItem()
                 .transform(RowSet::iterator)
                 .onItem()
-                .transform(iterator -> iterator.hasNext() ? iterator.next().getLong("id") : null);
+                .transform(iterator -> iterator.hasNext() ? iterator.next().getString("id") : null);
     }
 
-    public Uni<Long> update(PgPool client) {
+    public Uni<String> update(PgPool client) {
         updateTime = LocalDateTime.now();
         return client.preparedQuery(UPDATE_DICTIONARY_CODIFIER_WHERE_ID_$1)
                 .execute(Tuple.of(listOf()))
                 .onItem()
-                .transform(pgRowSet -> pgRowSet.iterator().next().getLong("id"));
+                .transform(pgRowSet -> pgRowSet.iterator().next().getString("id"));
     }
 
-    public static Uni<Long> delete(PgPool client, Long id) {
+    public static Uni<String> delete(PgPool client, String code) {
         return client.preparedQuery(DELETE_FROM_DICTIONARY_CODIFIER_WHERE_ID_$1)
-                .execute(Tuple.of(id))
+                .execute(Tuple.of(code))
                 .onItem()
-                .transform(pgRowSet -> pgRowSet.iterator().next().getLong("id"));
+                .transform(pgRowSet -> pgRowSet.iterator().next().getString("code"));
     }
 
     private List<?> listOf() {
-        return List.of(id, code, value, userName, createTime, updateTime, enabled, visible, flags);
+        return List.of(code, value, userName, createTime, updateTime, enabled, visible, flags);
     }
 
     public Codifier() {}
 
     public Codifier(
-            Long id,
             String code,
             String value,
             String userName,
@@ -152,7 +147,6 @@ public class Codifier implements Serializable {
             Boolean enabled,
             Boolean visible,
             Integer flags) {
-        this.id = id;
         this.code = code;
         this.value = value;
         this.userName = userName;
@@ -161,14 +155,6 @@ public class Codifier implements Serializable {
         this.enabled = enabled;
         this.visible = visible;
         this.flags = flags;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getCode() {
@@ -242,7 +228,6 @@ public class Codifier implements Serializable {
 
         Codifier codifier = (Codifier) o;
 
-        if (id != null ? !id.equals(codifier.id) : codifier.id != null) return false;
         if (code != null ? !code.equals(codifier.code) : codifier.code != null) return false;
         if (value != null ? !value.equals(codifier.value) : codifier.value != null) return false;
         if (userName != null ? !userName.equals(codifier.userName) : codifier.userName != null) return false;
@@ -255,8 +240,7 @@ public class Codifier implements Serializable {
 
     @Override
     public int hashCode() {
-        int result = id != null ? id.hashCode() : 0;
-        result = 31 * result + (code != null ? code.hashCode() : 0);
+        int result = code != null ? code.hashCode() : 0;
         result = 31 * result + (value != null ? value.hashCode() : 0);
         result = 31 * result + (userName != null ? userName.hashCode() : 0);
         result = 31 * result + (createTime != null ? createTime.hashCode() : 0);
@@ -270,8 +254,7 @@ public class Codifier implements Serializable {
     @Override
     public String toString() {
         return "Codifier{" +
-                "id=" + id +
-                ", code='" + code + '\'' +
+                "code='" + code + '\'' +
                 ", value='" + value + '\'' +
                 ", userName='" + userName + '\'' +
                 ", createTime=" + createTime +
@@ -287,7 +270,6 @@ public class Codifier implements Serializable {
     }
 
     public static final class Builder {
-        private Long id;
         private String code;
         private String value;
         private String userName;
@@ -298,11 +280,6 @@ public class Codifier implements Serializable {
         private Integer flags;
 
         private Builder() {
-        }
-
-        public Builder withId(Long id) {
-            this.id = id;
-            return this;
         }
 
         public Builder withCode(String code) {
@@ -347,7 +324,6 @@ public class Codifier implements Serializable {
 
         public Codifier build() {
             Codifier codifier = new Codifier();
-            codifier.setId(id);
             codifier.setCode(code);
             codifier.setValue(value);
             codifier.setUserName(userName);
