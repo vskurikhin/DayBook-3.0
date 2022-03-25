@@ -41,36 +41,37 @@ public class Codifier implements Serializable {
 
     private Integer flags;
 
-    public static final String SELECT_FROM_DICTIONARY_CODIFIER_WHERE_ID_$1
+    public static final String SELECT_FROM_DICTIONARY_CODIFIER_WHERE_CODE_$1
             = "SELECT code, value, user_name, create_time, update_time, enabled, visible, flags "
             + "  FROM dictionary.codifier "
             + " WHERE code = $1";
 
-    public static final String SELECT_ALL_FROM_DICTIONARY_CODIFIER_ORDER_BY_ID_ASC
+    public static final String SELECT_ALL_FROM_DICTIONARY_CODIFIER_ORDER_BY_CODE
             = "SELECT code, value, user_name, create_time, update_time, enabled, visible, flags "
             + "  FROM dictionary.codifier "
-            + " ORDER BY code ASC";
+            + " ORDER BY code";
 
     public static final String INSERT_INTO_DICTIONARY_CODIFIER
             = "INSERT INTO dictionary.codifier "
-            + " (code, user_name, create_time, update_time, enabled, visible, flags) "
+            + " (code, value, user_name, create_time, update_time, enabled, visible, flags) "
             + " VALUES "
-            + " ($1, $2, $3, $4, $5, $6, $7) "
+            + " ($1, $2, $3, $4, $5, $6, $7, $8) "
             + " RETURNING code";
 
-    public static final String UPDATE_DICTIONARY_CODIFIER_WHERE_ID_$1
+    public static final String UPDATE_DICTIONARY_CODIFIER_WHERE_CODE_$1
             = "UPDATE dictionary.codifier "
             + " SET "
-            + "  user_name = $2, "
-            + "  create_time = $3, "
-            + "  update_time = $4,"
-            + "  enabled = $5, "
-            + "  visible = $6, "
-            + "  flags = $7 "
+            + "  value = $2, "
+            + "  user_name = $3, "
+            + "  create_time = $4, "
+            + "  update_time = $5,"
+            + "  enabled = $6, "
+            + "  visible = $7, "
+            + "  flags = $8 "
             + " WHERE code = $1 "
             + " RETURNING code";
 
-    public static final String DELETE_FROM_DICTIONARY_CODIFIER_WHERE_ID_$1
+    public static final String DELETE_FROM_DICTIONARY_CODIFIER_WHERE_CODE_$1
             = "DELETE FROM dictionary.codifier "
             + " WHERE code = $1 "
             + " RETURNING code";
@@ -89,7 +90,7 @@ public class Codifier implements Serializable {
     }
 
     public static Uni<Codifier> findByCode(PgPool client, String code) {
-        return client.preparedQuery(SELECT_FROM_DICTIONARY_CODIFIER_WHERE_ID_$1)
+        return client.preparedQuery(SELECT_FROM_DICTIONARY_CODIFIER_WHERE_CODE_$1)
                 .execute(Tuple.of(code))
                 .onItem()
                 .transform(RowSet::iterator)
@@ -99,7 +100,7 @@ public class Codifier implements Serializable {
 
     public static Multi<Codifier> findAll(PgPool client) {
         return client
-                .query(SELECT_ALL_FROM_DICTIONARY_CODIFIER_ORDER_BY_ID_ASC)
+                .query(SELECT_ALL_FROM_DICTIONARY_CODIFIER_ORDER_BY_CODE)
                 .execute()
                 .onItem()
                 .transformToMulti(set -> Multi.createFrom().iterable(set))
@@ -114,19 +115,21 @@ public class Codifier implements Serializable {
                 .onItem()
                 .transform(RowSet::iterator)
                 .onItem()
-                .transform(iterator -> iterator.hasNext() ? iterator.next().getString("id") : null);
+                .transform(iterator -> iterator.hasNext() ? iterator.next().getString("code") : null);
     }
 
     public Uni<String> update(PgPool client) {
         updateTime = LocalDateTime.now();
-        return client.preparedQuery(UPDATE_DICTIONARY_CODIFIER_WHERE_ID_$1)
+        return client.preparedQuery(UPDATE_DICTIONARY_CODIFIER_WHERE_CODE_$1)
                 .execute(Tuple.of(listOf()))
                 .onItem()
-                .transform(pgRowSet -> pgRowSet.iterator().next().getString("id"));
+                .transform(RowSet::iterator)
+                .onItem()
+                .transform(iterator -> iterator.hasNext() ? iterator.next().getString("code") : null);
     }
 
     public static Uni<String> delete(PgPool client, String code) {
-        return client.preparedQuery(DELETE_FROM_DICTIONARY_CODIFIER_WHERE_ID_$1)
+        return client.preparedQuery(DELETE_FROM_DICTIONARY_CODIFIER_WHERE_CODE_$1)
                 .execute(Tuple.of(code))
                 .onItem()
                 .transform(pgRowSet -> pgRowSet.iterator().next().getString("code"));

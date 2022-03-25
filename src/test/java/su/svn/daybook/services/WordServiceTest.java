@@ -19,7 +19,7 @@ import org.mockito.Mockito;
 import su.svn.daybook.DataTest;
 import su.svn.daybook.domain.dao.WordDao;
 import su.svn.daybook.domain.messages.Answer;
-import su.svn.daybook.domain.messages.ApiResponse;
+import su.svn.daybook.domain.messages.DictionaryResponse;
 import su.svn.daybook.domain.model.Word;
 
 import javax.inject.Inject;
@@ -89,7 +89,7 @@ class WordServiceTest {
     void testMethod_wordGet() {
         service.wordGet("word")
                 .onItem()
-                .invoke(actual -> Assertions.assertEquals(Answer.of(Optional.of(DataTest.OBJECT_Word_0)), actual))
+                .invoke(actual -> Assertions.assertEquals(Answer.of(DataTest.OBJECT_Word_0), actual))
                 .await()
                 .indefinitely();
     }
@@ -105,7 +105,7 @@ class WordServiceTest {
 
     @Test
     void testMethod_wordAdd() {
-        var expected = Answer.of(new ApiResponse<>("word"));
+        var expected = Answer.of(DictionaryResponse.word("word"));
         Mockito.when(mock.insert(DataTest.OBJECT_Word_0)).thenReturn(optionalUniId);
         service.wordAdd(DataTest.OBJECT_Word_0)
                 .onItem()
@@ -127,7 +127,7 @@ class WordServiceTest {
     @Test
     void testMethod_wordPut() {
         Mockito.when(mock.update(DataTest.OBJECT_Word_0)).thenReturn(optionalUniId);
-        var expected = Answer.of(new ApiResponse<>("word"));
+        var expected = Answer.of(DictionaryResponse.word("word"));
         service.wordPut(DataTest.OBJECT_Word_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
@@ -148,7 +148,7 @@ class WordServiceTest {
     @Test
     void testMethod_wordDelete() {
         Mockito.when(mock.delete("word")).thenReturn(optionalUniId);
-        var expected = Answer.of(new ApiResponse<>("word"));
+        var expected = Answer.of(DictionaryResponse.word("word"));
         service.wordDelete("word")
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))

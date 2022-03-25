@@ -33,6 +33,8 @@ public enum ResourcePath {
 
     public static final String ID = "/{id}";
 
+    public static final String CODE = "/{code}";
+
     public static final String PUT = "/put";
 
     public static final String I18N = "/i18n";

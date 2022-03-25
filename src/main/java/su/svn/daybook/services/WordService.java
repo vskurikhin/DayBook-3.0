@@ -16,6 +16,7 @@ import su.svn.daybook.domain.dao.WordDao;
 import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.messages.ApiResponse;
+import su.svn.daybook.domain.messages.DictionaryResponse;
 import su.svn.daybook.domain.model.Word;
 
 import javax.annotation.Nonnull;
@@ -47,7 +48,7 @@ public class WordService {
 
     private Uni<Answer> get(String word) {
         return wordDao.findByWord(word)
-                .map(t -> t.isEmpty() ? Answer.empty() : Answer.of(t));
+                .map(t -> t.isEmpty() ? Answer.empty() : Answer.of(t.get()));
     }
 
     /**
@@ -64,7 +65,7 @@ public class WordService {
 
     private Uni<Answer> add(Word entry) {
         return wordDao.insert(entry)
-                .map(o -> o.isEmpty() ? Answer.empty() : Answer.of(new ApiResponse<>(o.get())));
+                .map(o -> o.isEmpty() ? Answer.empty() : Answer.of(DictionaryResponse.word(o.get())));
     }
 
     /**
@@ -81,7 +82,7 @@ public class WordService {
 
     private Uni<Answer> put(Word entry) {
         return wordDao.update(entry)
-                .map(o -> o.isEmpty() ? Answer.empty() : Answer.of(new ApiResponse<>(o.get())));
+                .map(o -> o.isEmpty() ? Answer.empty() : Answer.of(DictionaryResponse.word(o.get())));
     }
 
     /**
@@ -101,7 +102,7 @@ public class WordService {
 
     private Uni<Answer> delete(String word) {
         return wordDao.delete(word)
-                .map(o -> o.isEmpty() ? Answer.empty() : Answer.of(new ApiResponse<>(o.get())));
+                .map(o -> o.isEmpty() ? Answer.empty() : Answer.of(DictionaryResponse.word(o.get())));
     }
 
     /**

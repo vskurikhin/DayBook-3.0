@@ -15,12 +15,13 @@ import org.jboss.logging.Logger;
 import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.dao.CodifierDao;
 import su.svn.daybook.domain.messages.Answer;
-import su.svn.daybook.domain.messages.ApiResponse;
+import su.svn.daybook.domain.messages.DictionaryResponse;
 import su.svn.daybook.domain.model.Codifier;
 
 import javax.annotation.Nonnull;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.util.function.Consumer;
 
 @ApplicationScoped
 public class CodifierService {
@@ -40,14 +41,15 @@ public class CodifierService {
     public Uni<Answer> codeGet(Object o) {
         var methodCall = String.format("codeGet(%s)", o);
         if (o instanceof String) {
-            return get(o.toString());
+            String code = (String) o;
+            return get(code);
         }
         return Uni.createFrom().item(Answer.empty());
     }
 
     private Uni<Answer> get(String code) {
         return codifierDao.findByCode(code)
-                .map(t -> t.isEmpty() ? Answer.empty() : Answer.of(t));
+                .map(t -> t.isEmpty() ? Answer.empty() : Answer.of(t.get()));
     }
 
     /**
@@ -64,7 +66,7 @@ public class CodifierService {
 
     private Uni<Answer> add(Codifier entry) {
         return codifierDao.insert(entry)
-                .map(o -> o.isEmpty() ? Answer.empty() : Answer.of(new ApiResponse<>(o.get())));
+                .map(o -> o.isEmpty() ? Answer.empty() : Answer.of(DictionaryResponse.code(o.get())));
     }
 
     /**
@@ -75,13 +77,13 @@ public class CodifierService {
      */
     @ConsumeEvent(EventAddress.CODE_PUT)
     public Uni<Answer> codePut(Codifier o) {
-        LOG.tracef("codePut(%s)", o);
+        LOG.infof("codePut(%s)", o);
         return put(o);
     }
 
     private Uni<Answer> put(Codifier entry) {
         return codifierDao.update(entry)
-                .map(o -> o.isEmpty() ? Answer.empty() : Answer.of(new ApiResponse<>(o.get())));
+                .map(o -> o.isEmpty() ? Answer.empty() : Answer.of(DictionaryResponse.code(o.get())));
     }
 
     /**
@@ -94,14 +96,15 @@ public class CodifierService {
     public Uni<Answer> codeDelete(Object o) {
         var methodCall = String.format("codeDelete(%s)", o);
         if (o instanceof String) {
-            return delete(o.toString());
+            String code = (String) o;
+            return delete(code);
         }
         return Uni.createFrom().item(Answer.empty());
     }
 
     private Uni<Answer> delete(String code) {
         return codifierDao.delete(code)
-                .map(o -> o.isEmpty() ? Answer.empty() : Answer.of(new ApiResponse<>(o.get())));
+                .map(o -> o.isEmpty() ? Answer.empty() : Answer.of(DictionaryResponse.code(o.get())));
     }
 
     /**

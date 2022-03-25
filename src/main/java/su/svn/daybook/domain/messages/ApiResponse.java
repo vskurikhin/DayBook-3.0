@@ -11,72 +11,55 @@ package su.svn.daybook.domain.messages;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ApiResponse<I> {
+public final class ApiResponse<I> {
 
-    private I id;
+    private final I id;
 
-    private String message;
+    private final String message;
 
-    private Integer error;
+    private final Integer error;
 
-    private Object payload;
+    private final Object payload;
 
-    private Class<?> payloadClass;
+    private final Class<?> payloadClass;
 
-    public ApiResponse() {}
+    private final int hashCode;
+
+    private ApiResponse() {
+        this(null, null, null, null);
+    }
 
     public ApiResponse(I id) {
-        this.id = id;
+        this(id, null, null, null);
     }
 
-    public ApiResponse(I id, String message) {
-        this.id = id;
-        this.message = message;
-    }
-
-    public <T> ApiResponse(I id, String message, Integer error, T payload) {
+    private ApiResponse(I id, String message, Integer error, Object payload) {
         this.id = id;
         this.message = message;
         this.error = error;
         this.payload = payload;
-        this.payloadClass = payload.getClass();
+        this.payloadClass = payload != null ? payload.getClass() : null;
+        this.hashCode = hashCodeInt();
     }
 
     public static ApiResponse<Object> message(String message) {
-        return new ApiResponse<>(null, message);
+        return new ApiResponse<>(null, message, null, null);
     }
 
     public I getId() {
         return id;
     }
 
-    public void setId(I id) {
-        this.id = id;
-    }
-
     public String getMessage() {
         return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
     }
 
     public Integer getError() {
         return error;
     }
 
-    public void setError(Integer error) {
-        this.error = error;
-    }
-
     public Object getPayload() {
         return payload;
-    }
-
-    public void setPayload(Object payload) {
-        this.payload = payload;
-        this.payloadClass = payload.getClass();
     }
 
     public Class<?> getPayloadClass() {
@@ -99,6 +82,11 @@ public class ApiResponse<I> {
 
     @Override
     public int hashCode() {
+        return this.hashCode;
+    }
+
+
+    private int hashCodeInt() {
         int result = id != null ? id.hashCode() : 0;
         result = 31 * result + (message != null ? message.hashCode() : 0);
         result = 31 * result + (error != null ? error.hashCode() : 0);
@@ -160,12 +148,7 @@ public class ApiResponse<I> {
         }
 
         public ApiResponse<J> build() {
-            ApiResponse<J> apiResponse = new ApiResponse<J>();
-            apiResponse.setId(id);
-            apiResponse.setMessage(message);
-            apiResponse.setError(error);
-            apiResponse.setPayload(payload);
-            return apiResponse;
+            return new ApiResponse<>(id, message, error, payload);
         }
     }
 }

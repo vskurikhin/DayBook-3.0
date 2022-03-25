@@ -35,8 +35,8 @@ public class WordResource {
     @GET
     @Path(ResourcePath.ID)
     @Produces("application/json")
-    public Uni<Response> get(String word) {
-        return request(EventAddress.WORD_GET, word);
+    public Uni<Response> get(String id) {
+        return request(EventAddress.WORD_GET, id);
     }
 
     @POST

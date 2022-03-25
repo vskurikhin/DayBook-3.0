@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import su.svn.daybook.DataTest;
 import su.svn.daybook.domain.messages.Answer;
-import su.svn.daybook.domain.messages.ApiResponse;
+import su.svn.daybook.domain.messages.DictionaryResponse;
 import su.svn.daybook.services.CodifierService;
 
 import javax.ws.rs.core.HttpHeaders;
@@ -29,17 +29,17 @@ class CodifierResourceTest {
 
     static Uni<Answer> nullAnswer = Uni.createFrom().item(() -> null);
 
-    static Uni<Answer> tezdId = Uni.createFrom().item(Answer.of(new ApiResponse("0")));
+    static Uni<Answer> tezdId = Uni.createFrom().item(Answer.of(DictionaryResponse.code("code")));
 
     @BeforeAll
     public static void setup() {
         CodifierService mock = Mockito.mock(CodifierService.class);
-        Mockito.when(mock.codeGet("0")).thenReturn(tezd);
+        Mockito.when(mock.codeGet("code")).thenReturn(tezd);
         Mockito.when(mock.codeGet(Integer.toString(Integer.MAX_VALUE))).thenReturn(empty);
         Mockito.when(mock.codeGet(Integer.toString(Integer.MIN_VALUE))).thenReturn(nullAnswer);
         Mockito.when(mock.codeAdd(DataTest.OBJECT_Codifier_0)).thenReturn(tezdId);
         Mockito.when(mock.codePut(DataTest.OBJECT_Codifier_0)).thenReturn(tezdId);
-        Mockito.when(mock.codeDelete("0")).thenReturn(tezdId);
+        Mockito.when(mock.codeDelete("code")).thenReturn(tezdId);
         QuarkusMock.installMockForType(mock, CodifierService.class);
     }
 
@@ -47,10 +47,10 @@ class CodifierResourceTest {
     void testEndpoint_get() {
         given()
                 .when()
-                .get("/code/0")
+                .get("/code/code")
                 .then()
                 .statusCode(200)
-                .body(CoreMatchers.startsWith("{\"id\":\"0\"}"));
+                .body(CoreMatchers.startsWith("{\"code\":\"code\"}"));
     }
 
     @Test
@@ -62,7 +62,7 @@ class CodifierResourceTest {
                 .post("/code/add")
                 .then()
                 .statusCode(200)
-                .body(CoreMatchers.startsWith("{\"id\":\"0\"}"));
+                .body(CoreMatchers.startsWith("{\"code\":\"code\"}"));
     }
 
     @Test
@@ -74,16 +74,16 @@ class CodifierResourceTest {
                 .put("/code/put")
                 .then()
                 .statusCode(200)
-                .body(CoreMatchers.startsWith("{\"id\":\"0\"}"));
+                .body(CoreMatchers.startsWith("{\"code\":\"code\"}"));
     }
 
     @Test
     void testEndpoint_delete() {
         given()
                 .when()
-                .delete("/code/0")
+                .delete("/code/code")
                 .then()
                 .statusCode(200)
-                .body(CoreMatchers.startsWith("{\"id\":\"0\"}"));
+                .body(CoreMatchers.startsWith("{\"code\":\"code\"}"));
     }
 }

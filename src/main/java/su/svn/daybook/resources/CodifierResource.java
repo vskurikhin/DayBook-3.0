@@ -35,8 +35,8 @@ public class CodifierResource {
     @GET
     @Path(ResourcePath.ID)
     @Produces("application/json")
-    public Uni<Response> get(String code) {
-        return request(EventAddress.CODE_GET, code);
+    public Uni<Response> get(String id) {
+        return request(EventAddress.CODE_GET, id);
     }
 
     @POST
@@ -58,8 +58,8 @@ public class CodifierResource {
     @DELETE
     @Path(ResourcePath.ID)
     @Produces("application/json")
-    public Uni<Response> delete(String code) {
-        return request(EventAddress.CODE_DEL, code);
+    public Uni<Response> delete(String id) {
+        return request(EventAddress.CODE_DEL, id);
     }
 
     private Uni<Response> request(String address, Object o) {

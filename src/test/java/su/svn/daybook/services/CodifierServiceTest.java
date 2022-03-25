@@ -11,7 +11,7 @@ import org.mockito.Mockito;
 import su.svn.daybook.DataTest;
 import su.svn.daybook.domain.dao.CodifierDao;
 import su.svn.daybook.domain.messages.Answer;
-import su.svn.daybook.domain.messages.ApiResponse;
+import su.svn.daybook.domain.messages.DictionaryResponse;
 import su.svn.daybook.domain.model.Codifier;
 
 import javax.inject.Inject;
@@ -29,7 +29,7 @@ class CodifierServiceTest {
 
     static Uni<Optional<Codifier>> optionalUniTest = Uni.createFrom().item(Optional.of(DataTest.OBJECT_Codifier_0));
 
-    static Uni<Optional<String>> optionalUniId = Uni.createFrom().item(Optional.of("0"));
+    static Uni<Optional<String>> optionalUniId = Uni.createFrom().item(Optional.of("code"));
 
     static Uni<Optional<String>> optionalUniEmptyId = Uni.createFrom().item(Optional.empty());
 
@@ -42,7 +42,7 @@ class CodifierServiceTest {
     @BeforeAll
     public static void setup() {
         mock = Mockito.mock(CodifierDao.class);
-        Mockito.when(mock.findByCode("0")).thenReturn(optionalUniTest);
+        Mockito.when(mock.findByCode("code")).thenReturn(optionalUniTest);
         QuarkusMock.installMockForType(mock, CodifierDao.class);
     }
 
@@ -79,9 +79,9 @@ class CodifierServiceTest {
 
     @Test
     void testMethod_codeGet() {
-        service.codeGet("0")
+        service.codeGet("code")
                 .onItem()
-                .invoke(actual -> Assertions.assertEquals(Answer.of(Optional.of(DataTest.OBJECT_Codifier_0)), actual))
+                .invoke(actual -> Assertions.assertEquals(Answer.of(DataTest.OBJECT_Codifier_0), actual))
                 .await()
                 .indefinitely();
     }
@@ -97,7 +97,7 @@ class CodifierServiceTest {
 
     @Test
     void testMethod_codeAdd() {
-        var expected = Answer.of(new ApiResponse<>("0"));
+        var expected = Answer.of(DictionaryResponse.code("code"));
         Mockito.when(mock.insert(DataTest.OBJECT_Codifier_0)).thenReturn(optionalUniId);
         service.codeAdd(DataTest.OBJECT_Codifier_0)
                 .onItem()
@@ -119,7 +119,7 @@ class CodifierServiceTest {
     @Test
     void testMethod_codePut() {
         Mockito.when(mock.update(DataTest.OBJECT_Codifier_0)).thenReturn(optionalUniId);
-        var expected = Answer.of(new ApiResponse<>("0"));
+        var expected = Answer.of(DictionaryResponse.code("code"));
         service.codePut(DataTest.OBJECT_Codifier_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
@@ -139,9 +139,9 @@ class CodifierServiceTest {
 
     @Test
     void testMethod_codeDelete() {
-        Mockito.when(mock.delete("0")).thenReturn(optionalUniId);
-        var expected = Answer.of(new ApiResponse<>("0"));
-        service.codeDelete("0")
+        Mockito.when(mock.delete("code")).thenReturn(optionalUniId);
+        var expected = Answer.of(DictionaryResponse.code("code"));
+        service.codeDelete("code")
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
                 .await()

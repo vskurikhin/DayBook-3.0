@@ -2,7 +2,7 @@
  * This file was last modified at 2021.12.06 19:31 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
- * Codifier.java
+ * Word.java
  * $Id$
  */
 
@@ -238,7 +238,7 @@ public class Word implements Serializable {
 
     @Override
     public String toString() {
-        return "Codifier{" +
+        return "Word{" +
                 "word='" + word + '\'' +
                 ", userName='" + userName + '\'' +
                 ", createTime=" + createTime +

@@ -18,11 +18,11 @@ public class DataTest {
     public static Answer errorEmpty = new Answer("EMPTY", 404);
 
     public static final Codifier OBJECT_Codifier_0 = new Codifier(
-            "0", null, null, null, null, null, null, null
+            "code", null, null, null, null, null, null, null
     );
-    public static final String JSON_Codifier_0 = "{\"code\":\"0\"}";
+    public static final String JSON_Codifier_0 = "{\"code\":\"code\"}";
 
-    public static final String JSON_ARRAY_Codifier_0 = "[{\"code\":\"0\"}]";
+    public static final String JSON_ARRAY_Codifier_0 = "[{\"code\":\"code\"}]";
 
     public static final Word OBJECT_Word_0 = new Word(
             "word", null, null, null, null, null, null
