@@ -1,13 +1,8 @@
 --liquibase formatted sql
 --
 
--- This file was last modified at 2022.03.23 22:47 by Victor N. Skurikhin.
--- This is free and unencumbered software released into the public domain.
--- For more information, please refer to <http://unlicense.org>
--- 140_date_2021_01_15_time_00_10_10_issue_52_dictionary_codifier.sql
-
 --
---changeset a18578179:140 failOnError:true logicalFilePath:src/main/resources/db/changelog/db/Change-Sets/140_date_2021_01_15_time_00_10_10_issue_52_dictionary_codifier.sql
+--changeset a18578179:11002 failOnError:true logicalFilePath:src/main/resources/db/changelog/db/Change-Sets/11002_date_2021_01_15_time_00_10_10_issue_52_dictionary_codifier.sql
 --
 
 --
@@ -20,12 +15,15 @@ CREATE TABLE IF NOT EXISTS dictionary.codifier (
                 REFERENCES  security.user_name (user_name)
                 ON DELETE CASCADE ON UPDATE CASCADE,
   create_time   TIMESTAMP WITHOUT TIME ZONE NOT NULL    DEFAULT now(),
-  update_time   TIMESTAMP WITHOUT TIME ZONE NOT NULL    DEFAULT now(),
+  update_time   TIMESTAMP WITHOUT TIME ZONE             DEFAULT now(),
   enabled       BOOLEAN                                 DEFAULT false,
   visible       BOOLEAN                                 DEFAULT true,
   flags         INT
 );
---
+
+CREATE INDEX IF NOT EXISTS IDX_dictionary_codifier_user_name
+    ON dictionary.codifier (user_name);
 
 --
---rollback DROP TABLE IF EXISTS dictionary.codifier;
+--rollback DROP INDEX IF EXISTS dictionary.IDX_dictionary_codifier_user_name; DROP TABLE IF EXISTS dictionary.codifier;
+

@@ -168,7 +168,7 @@ task generate() {
 
         List<String> sample = [
                 '--liquibase formatted sql', '--', '', '--',
-                "--changeset ${changeSetAuthor}:${version} failOnError:true logicalFilePath:${logicalFilePath}",
+                "--changeset ${changeSetAuthor}:${version} endDelimiter:; failOnError:true logicalFilePath:${logicalFilePath}",
                 '--', '', '--',
                 '-- << COMMAND HERE >>', '--', '',
                 '--', '--rollback',

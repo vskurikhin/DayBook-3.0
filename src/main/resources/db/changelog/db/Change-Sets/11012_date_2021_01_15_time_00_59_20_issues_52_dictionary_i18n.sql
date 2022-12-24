@@ -1,13 +1,8 @@
 --liquibase formatted sql
 --
 
--- This file was last modified at 2022.03.23 22:47 by Victor N. Skurikhin.
--- This is free and unencumbered software released into the public domain.
--- For more information, please refer to <http://unlicense.org>
--- 190_date_2021_01_15_time_00_59_20_issues_52_dictionary_i18n.sql
-
 --
---changeset a18578179:190 failOnError:true logicalFilePath:src/main/resources/db/changelog/db/Change-Sets/190_date_2021_01_15_time_00_59_20_issues_52_dictionary_i18n.sql
+--changeset a18578179:11012 failOnError:true logicalFilePath:src/main/resources/db/changelog/db/Change-Sets/11012_date_2021_01_15_time_00_59_20_issues_52_dictionary_i18n.sql
 --
 
 --
@@ -28,12 +23,17 @@ CREATE TABLE IF NOT EXISTS dictionary.i18n (
                 REFERENCES  security.user_name (user_name)
                 ON DELETE CASCADE ON UPDATE CASCADE,
   create_time   TIMESTAMP WITHOUT TIME ZONE  NOT NULL   DEFAULT now(),
-  update_time   TIMESTAMP WITHOUT TIME ZONE  NOT NULL   DEFAULT now(),
+  update_time   TIMESTAMP WITHOUT TIME ZONE             DEFAULT now(),
   enabled       BOOLEAN                                 DEFAULT true,
   visible       BOOLEAN                                 DEFAULT true,
   flags         INT
 );
---
+
+CREATE INDEX IF NOT EXISTS IDX_dictionary_i18n_language_id
+    ON dictionary.i18n (language_id);
+
+CREATE INDEX IF NOT EXISTS IDX_dictionary_i18n_user_name
+    ON dictionary.i18n (user_name);
 
 --
---rollback DROP TABLE IF EXISTS dictionary.i18n; DROP SEQUENCE IF EXISTS dictionary.i18n_seq;
+--rollback DROP INDEX IF EXISTS dictionary.IDX_dictionary_i18n_user_name; DROP INDEX IF EXISTS dictionary.IDX_dictionary_i18n_language_id; DROP TABLE IF EXISTS dictionary.i18n; DROP SEQUENCE IF EXISTS dictionary.i18n_seq;
