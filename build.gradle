@@ -9,25 +9,14 @@
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
-
 //file:noinspection GradlePackageUpdate
-
-buildscript {
-    def liquibase_gradle_plugin = System.getProperty('VERSION_LIQUIBASE_GRADLE_PLUGIN') ?: VERSION_LIQUIBASE_GRADLE_PLUGIN
-    def liquibase = System.getProperty('VERSION_ORG_LIQUIBASE') ?: VERSION_ORG_LIQUIBASE
-    dependencies {
-        classpath("org.liquibase:liquibase-gradle-plugin:${liquibase_gradle_plugin}") {
-            exclude(module: 'liquibase-core')
-        }
-        classpath "org.liquibase:liquibase-core:${liquibase}"
-    }
-}
 
 plugins {
     id 'io.quarkus'
     id 'java'
-    id 'org.liquibase.gradle' version '2.1.0'
+    id 'org.liquibase.gradle' version '2.0.4'
 }
+
 
 repositories {
     mavenCentral()
@@ -39,14 +28,13 @@ static def getEnv(key, defaultValue) {
 }
 
 ext.libVers = [
-        drv_org_postgresql          : getEnv('VERSION_DRV_ORG_POSTGRESQL', VERSION_DRV_ORG_POSTGRESQL),
-        liquibase                   : getEnv('VERSION_ORG_LIQUIBASE', VERSION_ORG_LIQUIBASE),
-        liquibase_gradle_plugin     : getEnv('VERSION_LIQUIBASE_GRADLE_PLUGIN', VERSION_LIQUIBASE_GRADLE_PLUGIN),
-        liquibase_groovy_dsl        : getEnv('VERSION_LIQUIBASE_GROOVY_DSL', VERSION_LIQUIBASE_GROOVY_DSL),
-        slf4j                       : getEnv('VERSION_ORG_SLF4J_VERSION', VERSION_ORG_SLF4J_VERSION),
-        google_collections          : '1.0',
-        jsr305                      : '1.3.9',
-        mockito_core                : '3.2.4',
+        drv_org_postgresql     : getEnv('VERSION_DRV_ORG_POSTGRESQL', VERSION_DRV_ORG_POSTGRESQL),
+        liquibase              : getEnv('VERSION_ORG_LIQUIBASE', VERSION_ORG_LIQUIBASE),
+        liquibase_gradle_plugin: getEnv('VERSION_LIQUIBASE_GRADLE_PLUGIN', VERSION_LIQUIBASE_GRADLE_PLUGIN),
+        slf4j                  : getEnv('VERSION_ORG_SLF4J_VERSION', VERSION_ORG_SLF4J_VERSION),
+        google_collections     : '1.0',
+        jsr305                 : '1.3.9',
+        mockito_core           : '3.2.4',
 ]
 
 dependencies {
@@ -56,7 +44,7 @@ dependencies {
     implementation 'io.quarkus:quarkus-vertx'
     implementation enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}")
     implementation 'io.quarkus:quarkus-arc'
-    implementation "io.netty:netty-transport-native-epoll:4.1.69.Final:linux-x86_64"
+    implementation "io.netty:netty-transport-native-epoll:4.1.86.Final:linux-x86_64"
     implementation "io.netty:netty-transport-native-kqueue:4.1.69.Final:osx-x86_64"
     implementation "com.google.code.findbugs:jsr305:$libVers.jsr305"
     implementation "com.google.collections:google-collections:$libVers.google_collections"
@@ -101,8 +89,8 @@ group 'su.svn'
 version '3.0'
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_11
-    targetCompatibility = JavaVersion.VERSION_11
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 }
 
 compileJava {
@@ -171,7 +159,7 @@ task generate() {
                 .orElse(System.getenv("USER"))
 
         List<String> sample = [
-                '--liquibase formatted sql', '--','', '--',
+                '--liquibase formatted sql', '--', '', '--',
                 "--changeset ${changeSetAuthor}:${version} failOnError:true logicalFilePath:${logicalFilePath}",
                 '--', '', '--',
                 '-- << COMMAND HERE >>', '--', '',
