@@ -37,12 +37,12 @@ public class CodifiersResource {
                 .onItem()
                 .invoke(counter::incrementAndGet)
                 .onItem()
-                .transform(this::extractTagLabel)
+                .transform(this::extract)
                 .onTermination()
                 .invoke(() -> LOG.debugf("all counter %s", counter.get()));
     }
 
-    private Codifier extractTagLabel(Answer answer) {
+    private Codifier extract(Answer answer) {
         return (Codifier)(answer.getPayload() != null ? answer.getPayload() : new Codifier());
     }
 }

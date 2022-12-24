@@ -19,7 +19,7 @@ import java.util.concurrent.ExecutionException;
 
 @QuarkusTest
 @QuarkusTestResource(PostgresDatabaseTestResource.class)
-public class DatabaseIT {
+public class DataBaseIT {
 
     @Inject
     io.vertx.mutiny.pgclient.PgPool client;

@@ -37,12 +37,12 @@ public class VocabulariesResource {
                 .onItem()
                 .invoke(counter::incrementAndGet)
                 .onItem()
-                .transform(this::extractTagLabel)
+                .transform(this::extract)
                 .onTermination()
                 .invoke(() -> LOG.debugf("all counter %s", counter.get()));
     }
 
-    private Vocabulary extractTagLabel(Answer answer) {
+    private Vocabulary extract(Answer answer) {
         return (Vocabulary)(answer.getPayload() != null ? answer.getPayload() : new Vocabulary());
     }
 }
