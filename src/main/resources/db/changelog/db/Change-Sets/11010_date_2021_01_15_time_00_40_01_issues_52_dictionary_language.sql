@@ -1,13 +1,8 @@
 --liquibase formatted sql
 --
 
--- This file was last modified at 2022.03.23 22:47 by Victor N. Skurikhin.
--- This is free and unencumbered software released into the public domain.
--- For more information, please refer to <http://unlicense.org>
--- 180_date_2021_01_15_time_00_40_01_issues_52_dictionary_language.sql
-
 --
---changeset a18578179:180 failOnError:true logicalFilePath:src/main/resources/db/changelog/db/Change-Sets/180_date_2021_01_15_time_00_40_01_issues_52_dictionary_language.sql
+--changeset a18578179:11010 failOnError:true logicalFilePath:src/main/resources/db/changelog/db/Change-Sets/11010_date_2021_01_15_time_00_40_01_issues_52_dictionary_language.sql
 --
 
 --
@@ -22,12 +17,14 @@ CREATE TABLE IF NOT EXISTS dictionary.language (
                 REFERENCES  security.user_name (user_name)
                 ON DELETE CASCADE ON UPDATE CASCADE,
   create_time   TIMESTAMP WITHOUT TIME ZONE  NOT NULL   DEFAULT now(),
-  update_time   TIMESTAMP WITHOUT TIME ZONE  NOT NULL   DEFAULT now(),
+  update_time   TIMESTAMP WITHOUT TIME ZONE             DEFAULT now(),
   enabled       BOOLEAN                                 DEFAULT true,
   visible       BOOLEAN                                 DEFAULT true,
   flags         INT
 );
---
+
+CREATE INDEX IF NOT EXISTS IDX_dictionary_language_user_name
+    ON dictionary.language (user_name);
 
 --
---rollback DROP TABLE IF EXISTS dictionary.language; DROP SEQUENCE IF EXISTS dictionary.language_seq;
+--rollback DROP INDEX IF EXISTS dictionary.IDX_dictionary_language_user_name; DROP TABLE IF EXISTS dictionary.language; DROP SEQUENCE IF EXISTS dictionary.language_seq;
