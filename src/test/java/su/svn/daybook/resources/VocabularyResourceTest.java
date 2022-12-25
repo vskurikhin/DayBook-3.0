@@ -60,7 +60,7 @@ class VocabularyResourceTest {
                 .get("/vocabulary/0")
                 .then()
                 .statusCode(200)
-                .body(CoreMatchers.startsWith("{\"id\":0}"));
+                .body(CoreMatchers.startsWith(DataTest.JSON_Vocabulary_0));
     }
 
     @Test
@@ -90,7 +90,7 @@ class VocabularyResourceTest {
                 .post("/vocabulary/add")
                 .then()
                 .statusCode(200)
-                .body(CoreMatchers.startsWith(DataTest.JSON_Vocabulary_0));
+                .body(CoreMatchers.startsWith("{\"id\":0"));
     }
 
     @Test
@@ -102,7 +102,7 @@ class VocabularyResourceTest {
                 .put("/vocabulary/put")
                 .then()
                 .statusCode(200)
-                .body(CoreMatchers.startsWith(DataTest.JSON_Vocabulary_0));
+                .body(CoreMatchers.startsWith("{\"id\":0"));
     }
 
     @Test
@@ -112,6 +112,6 @@ class VocabularyResourceTest {
                 .delete("/vocabulary/0")
                 .then()
                 .statusCode(200)
-                .body(CoreMatchers.startsWith(DataTest.JSON_Vocabulary_0));
+                .body(CoreMatchers.startsWith("{\"id\":0"));
     }
 }

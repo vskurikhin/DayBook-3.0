@@ -16,9 +16,9 @@ CREATE TABLE IF NOT EXISTS dictionary.codifier (
                 ON DELETE CASCADE ON UPDATE CASCADE,
   create_time   TIMESTAMP WITHOUT TIME ZONE NOT NULL    DEFAULT now(),
   update_time   TIMESTAMP WITHOUT TIME ZONE             DEFAULT now(),
-  enabled       BOOLEAN                                 DEFAULT false,
-  visible       BOOLEAN                                 DEFAULT true,
-  flags         INT
+  enabled       BOOLEAN                     NOT NULL    DEFAULT false,
+  visible       BOOLEAN                     NOT NULL    DEFAULT true,
+  flags         INT                         NOT NULL    DEFAULT 0
 );
 
 CREATE INDEX IF NOT EXISTS IDX_dictionary_codifier_user_name

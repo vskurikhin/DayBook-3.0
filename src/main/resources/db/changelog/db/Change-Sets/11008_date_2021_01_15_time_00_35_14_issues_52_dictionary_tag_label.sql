@@ -21,11 +21,11 @@ CREATE TABLE dictionary.tag_label (
                 FOREIGN KEY (user_name)
                 REFERENCES  security.user_name (user_name)
                 ON DELETE CASCADE ON UPDATE CASCADE,
-  create_time   TIMESTAMP WITHOUT TIME ZONE  NOT NULL   DEFAULT now(),
+  create_time   TIMESTAMP WITHOUT TIME ZONE NOT NULL    DEFAULT now(),
   update_time   TIMESTAMP WITHOUT TIME ZONE             DEFAULT now(),
-  enabled       BOOLEAN                                 DEFAULT true,
-  visible       BOOLEAN                                 DEFAULT true,
-  flags         INT
+  enabled       BOOLEAN                     NOT NULL    DEFAULT false,
+  visible       BOOLEAN                     NOT NULL    DEFAULT true,
+  flags         INT                         NOT NULL    DEFAULT 0
 );
 
 CREATE INDEX IF NOT EXISTS IDX_dictionary_tag_label_user_name

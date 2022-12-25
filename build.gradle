@@ -8,6 +8,7 @@
 
 import java.util.regex.Matcher
 import java.util.regex.Pattern
+import org.apache.tools.ant.filters.ReplaceTokens
 
 //file:noinspection GradlePackageUpdate
 
@@ -17,25 +18,22 @@ plugins {
     id 'org.liquibase.gradle' version '2.0.4'
 }
 
-
 repositories {
     mavenCentral()
     mavenLocal()
 }
 
-static def getEnv(key, defaultValue) {
-    return System.getenv(key) ?: defaultValue
-}
-
 ext.libVers = [
-        drv_org_postgresql          : getEnv('VERSION_DRV_ORG_POSTGRESQL', VERSION_DRV_ORG_POSTGRESQL),
-        liquibase                   : getEnv('VERSION_ORG_LIQUIBASE', VERSION_ORG_LIQUIBASE),
-        liquibase_gradle_plugin     : getEnv('VERSION_LIQUIBASE_GRADLE_PLUGIN', VERSION_LIQUIBASE_GRADLE_PLUGIN),
-        slf4j                       : getEnv('VERSION_ORG_SLF4J_VERSION', VERSION_ORG_SLF4J_VERSION),
-        embedded_postgres           : '2.0.2',
-        google_collections          : '1.0',
-        jsr305                      : '3.0.2',
-        mockito_core                : '3.2.4',
+        drv_org_postgresql     : getEnv('VERSION_DRV_ORG_POSTGRESQL', VERSION_DRV_ORG_POSTGRESQL),
+        liquibase              : getEnv('VERSION_ORG_LIQUIBASE', VERSION_ORG_LIQUIBASE),
+        liquibase_gradle_plugin: getEnv('VERSION_LIQUIBASE_GRADLE_PLUGIN', VERSION_LIQUIBASE_GRADLE_PLUGIN),
+        netty_transport_native : getEnv('VERSION_NETTY_TRANSPORT_NATIVE', VERSION_NETTY_TRANSPORT_NATIVE),
+        slf4j                  : getEnv('VERSION_ORG_SLF4J_VERSION', VERSION_ORG_SLF4J_VERSION),
+        embedded_postgres      : '2.0.2',
+        equalsverifier         : '3.12.3',
+        google_collections     : '1.0',
+        jsr305                 : '3.0.2',
+        mockito_core           : '3.2.4',
 ]
 
 dependencies {
@@ -45,8 +43,8 @@ dependencies {
     implementation "io.quarkus:quarkus-vertx"
     implementation enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}")
     implementation "io.quarkus:quarkus-arc"
-    implementation "io.netty:netty-transport-native-epoll:4.1.86.Final:linux-x86_64"
-    implementation "io.netty:netty-transport-native-kqueue:4.1.86.Final:osx-x86_64"
+    implementation "io.netty:netty-transport-native-epoll:$libVers.netty_transport_native:linux-x86_64"
+    implementation "io.netty:netty-transport-native-kqueue:$libVers.netty_transport_native:osx-x86_64"
     implementation "com.google.code.findbugs:jsr305:$libVers.jsr305"
     implementation "com.google.collections:google-collections:$libVers.google_collections"
 
@@ -59,8 +57,9 @@ dependencies {
     testImplementation "io.quarkus:quarkus-junit5"
     testImplementation "io.rest-assured:rest-assured"
     testImplementation "io.zonky.test:embedded-postgres:$libVers.embedded_postgres"
-    testImplementation group: 'org.mockito', name: 'mockito-core', version: libVers.mockito_core
-    testImplementation group: 'org.liquibase', name: 'liquibase-core', version: libVers.liquibase
+    testImplementation "nl.jqno.equalsverifier:equalsverifier:$libVers.equalsverifier"
+    testImplementation "org.liquibase:liquibase-core:$libVers.liquibase"
+    testImplementation "org.mockito:mockito-core:$libVers.mockito_core"
 }
 
 def schemaName = 'db'
@@ -118,8 +117,17 @@ test {
     environment "LC_ALL", "en_US.UTF-8"
 }
 
-def getProjectProperty(key, defaultValue) {
-    return project.getProperties().get(key) ?: defaultValue
+static def getEnv(key, defaultValue) {
+    return System.getenv(key) ?: defaultValue
+}
+
+static String toCamelCase(String text, boolean capitalized = false) {
+    text = text.replaceAll("(_)([A-Za-z0-9])", { Object[] it -> it[2].toUpperCase() })
+    return capitalized ? text.capitalize() : text
+}
+
+static String toSnakeCase(String text) {
+    text.replaceAll(/([A-Z])/, /_$1/).toLowerCase().replaceAll(/^_/, '')
 }
 
 static String getLastVersion(String content) {
@@ -127,38 +135,120 @@ static String getLastVersion(String content) {
     Matcher matcher = Pattern.compile(regex).matcher(content);
 
     while (matcher.find()) {
-        return Integer.valueOf(matcher.group(1)) + 1
+        return Integer.valueOf(matcher.group(1)) + 4
     }
     return "1";
 }
 
 // номер changeset всегда должен быть уникальным!!!
 static def getLastVersionFile(String folder) {
-
     def files = new File(folder).listFiles()?.sort { it.getName() }
     def file = files.size() > 0 ? files?.last() : null
     if (Objects.isNull(file)) {
         return "1"
     }
-
     String fileContents = file.getText('UTF-8')
     return getLastVersion(fileContents)
 }
 
+static String getChangeSetFileName(String scriptName, String version) {
+    def date = new Date()
+    def formattedDate = date.format("yyyy_MM_dd")
+    def formattedTime = date.format("HH_mm_ss")
+    return "${version}_date_${formattedDate}_time_${formattedTime}_${scriptName}.sql"
+}
+
+static String getChangeSetFolderPath(String resourcesDbPath, String dbName) { return "${resourcesDbPath}/changelog/${dbName}/Change-Sets" }
+
+def getProjectProperty(key, defaultValue) {
+    return project.getProperties().get(key) ?: defaultValue
+}
+
+private void genModel(template, projectDir, to, thisIsTest = false) {
+    def templateFileName = template.toPath().fileName.toString()
+    def name = this.getProjectProperty('table', 'value_type').toString()
+    def schema = this.getProjectProperty('schema', 'dictionary').toString()
+    def key = this.getProjectProperty('key', 'key').toString()
+    def value = this.getProjectProperty('value', 'value').toString()
+    copy {
+        from template
+        filter ReplaceTokens, tokens: [
+                serialVersionUID: new Random().nextLong().toString(),
+                schema          : schema,
+                SCHEMA          : schema.toUpperCase(),
+                Name            : toCamelCase(name, true),
+                table           : name,
+                TABLE           : name.toUpperCase(),
+                key             : key,
+                Key             : key.capitalize(),
+                value           : value,
+                Value           : value.capitalize()
+        ]
+        into projectDir + '/' + to
+        rename { filename ->
+            filename.replace templateFileName, toCamelCase(name, true) + (thisIsTest ? "Test" : "") + '.java'
+        }
+    }
+}
+
+private void genSql(File template, resourcesDb, resourcesDbPath, dbName, prefix = 'create') {
+    def templateFileName = template.toPath().fileName.toString()
+    def task = this.getProjectProperty('task', 'issue_1')
+    def name = this.getProjectProperty('table', 'value_type').toString()
+    def schema = this.getProjectProperty('schema', 'dictionary').toString()
+
+    def desc = prefix + '_' + name
+    def scriptName = "${task}_${desc}"
+    def folderPath = getChangeSetFolderPath(resourcesDbPath, dbName)
+    def version = getLastVersionFile(folderPath + "/")
+    def fileName = getChangeSetFileName(scriptName, version)
+    def logicalFilePath = "${resourcesDb}/changelog/${dbName}/Change-Sets/${fileName}"
+
+    def changeSetAuthor = java.util.Optional
+            .ofNullable(System.getProperty("username"))
+            .orElse(System.getenv("USER"))
+
+    copy {
+        from template
+        filter ReplaceTokens, tokens: [
+                schema          : schema,
+                table           : name,
+                key             : 'key',
+                value           : 'value',
+                version         : version,
+                rnd             : (1000 + new Random().nextInt(8999)).toString(),
+                logicalFilePath : logicalFilePath.toString(),
+                changeSetAuthor : changeSetAuthor
+        ]
+        into folderPath
+        rename { filename ->
+            filename.replace templateFileName, fileName
+        }
+    }
+}
+
+task generator() {
+    def model = new File("src/templates/Model.java")
+    def test = new File("src/templates/ModelTest.java")
+    def createTable = new File("src/templates/create_table.sql")
+    def tableTriggers = new File("src/templates/table_triggers.sql")
+    doLast {
+        genModel(model, projectDir, "src/main/java/su/svn/daybook/domain/model")
+        genModel(test, projectDir, "src/test/java/su/svn/daybook/domain/model", true)
+        genSql(createTable, resourcesDb, resourcesDbPath, schemaName)
+        genSql(tableTriggers, resourcesDb, resourcesDbPath, schemaName, 'triggers')
+    }
+}
+
 task generate() {
     doLast {
-        println(resourcesDbPath)
-
         def task = this.getProjectProperty('task', 'issue_1')
         def desc = this.getProjectProperty('desc', 'migration')
         def scriptName = "${task}_${desc}"
-
-        def folderPath = "${resourcesDbPath}/changelog/${schemaName}/Change-Sets"
         def version = getLastVersionFile(folderPath + "/")
-        def date = new Date()
-        def formattedDate = date.format("yyyy_MM_dd")
-        def formattedTime = date.format("HH_mm_ss")
-        def fileName = "${version}_date_${formattedDate}_time_${formattedTime}_${scriptName}.sql"
+
+        def folderPath = getChangeSetFolderPath(resourcesDbPath, schemaName)
+        def fileName = getChangeSetFileName(scriptName, version)
         def filePath = "${folderPath}/${fileName}"
         def logicalFilePath = "${resourcesDb}/changelog/${schemaName}/Change-Sets/${fileName}"
 

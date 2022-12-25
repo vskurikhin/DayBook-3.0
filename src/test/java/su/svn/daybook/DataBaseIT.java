@@ -10,12 +10,17 @@ package su.svn.daybook;
 
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
+import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import su.svn.daybook.resources.PostgresDatabaseTestResource;
 
 import javax.inject.Inject;
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MediaType;
 import java.util.concurrent.ExecutionException;
+
+import static io.restassured.RestAssured.given;
 
 @QuarkusTest
 @QuarkusTestResource(PostgresDatabaseTestResource.class)

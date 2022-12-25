@@ -14,9 +14,9 @@ CREATE TABLE IF NOT EXISTS security.user_name
     password    VARCHAR(1024)               NOT NULL,
     create_time TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT now(),
     update_time TIMESTAMP WITHOUT TIME ZONE          DEFAULT now(),
-    enabled     BOOLEAN                              DEFAULT true,
-    visible     BOOLEAN                              DEFAULT true,
-    flags       INT
+    enabled     BOOLEAN                     NOT NULL DEFAULT false,
+    visible     BOOLEAN                     NOT NULL DEFAULT true,
+    flags       INT                         NOT NULL DEFAULT 0
 );
 
 

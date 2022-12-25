@@ -2,7 +2,7 @@
  * This file was last modified at 2022.01.12 22:58 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
- * Vocabulary.java
+ * @Name@.java
  * $Id$
  */
 
@@ -25,17 +25,18 @@ import java.util.List;
 import java.util.Objects;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public final class Vocabulary implements LongIdentification, Marked, Owned, TimeUpdated, Serializable {
+public final class @Name@ implements LongIdentification, Marked, Owned, TimeUpdated, Serializable {
 
     @Serial
-    private static final long serialVersionUID = -71735002217330331L;
-    public static final String NONE = "__NONE__";
+    private static final long serialVersionUID = @serialVersionUID@L;
+
+    public static final String NONE = "_/NONE\\_";
 
     private final Long id;
 
-    private final String word;
+    private final String @key@;
 
-    private final String value;
+    private final String @value@;
 
     private final String userName;
 
@@ -49,49 +50,49 @@ public final class Vocabulary implements LongIdentification, Marked, Owned, Time
 
     private final int flags;
 
-    public static final String SELECT_FROM_DICTIONARY_VOCABULARY_WHERE_ID_$1 = """
-            SELECT id, word, value, user_name, create_time, update_time, enabled, visible, flags
-              FROM dictionary.vocabulary
+    public static final String SELECT_FROM_@SCHEMA@_@TABLE@_WHERE_ID_$1 = """
+            SELECT id, @key@, @value@, user_name, create_time, update_time, enabled, visible, flags
+              FROM @schema@.@table@
              WHERE id = $1
             """;
 
-    public static final String SELECT_ALL_FROM_DICTIONARY_VOCABULARY_ORDER_BY_ID_ASC = """
-            SELECT id, word, value, user_name, create_time, update_time, enabled, visible, flags
-              FROM dictionary.vocabulary
+    public static final String SELECT_ALL_FROM_@SCHEMA@_@TABLE@_ORDER_BY_ID_ASC = """
+            SELECT id, @key@, @value@, user_name, create_time, update_time, enabled, visible, flags
+              FROM @schema@.@table@
              ORDER BY id ASC
             """;
 
-    public static final String INSERT_INTO_DICTIONARY_VOCABULARY = """
-            INSERT INTO dictionary.vocabulary
-             (id, word, value, user_name, enabled, visible, flags)
+    public static final String INSERT_INTO_@SCHEMA@_@TABLE@ = """
+            INSERT INTO @schema@.@table@
+             (id, @key@, @value@, user_name, enabled, visible, flags)
              VALUES
              (DEFAULT, $1, $2, $3, $4, $5, $6, $7)
              RETURNING id
             """;
 
-    public static final String UPDATE_DICTIONARY_VOCABULARY_WHERE_ID_$1 = """
-            UPDATE dictionary.vocabulary SET
-              word = $2,
+    public static final String UPDATE_@SCHEMA@_@TABLE@_WHERE_ID_$1 = """
+            UPDATE @schema@.@table@ SET
+              @key@ = $2,
               user_name = $3,
               enabled = $4,
               visible = $5,
               flags = $6,
-              value = $7
+              @value@ = $7
              WHERE id = $1
              RETURNING id
             """;
 
-    public static final String DELETE_FROM_DICTIONARY_VOCABULARY_WHERE_ID_$1 = """
-            DELETE FROM dictionary.vocabulary
+    public static final String DELETE_FROM_@SCHEMA@_@TABLE@_WHERE_ID_$1 = """
+            DELETE FROM @schema@.@table@
              WHERE id = $1
              RETURNING id
             """;
 
-    public static Vocabulary from(Row row) {
-        return new Vocabulary(
+    public static @Name@ from(Row row) {
+        return new @Name@(
                 row.getLong("id"),
-                row.getString("word"),
-                row.getString("value"),
+                row.getString("@key@"),
+                row.getString("@value@"),
                 row.getString("user_name"),
                 row.getLocalDateTime("create_time"),
                 row.getLocalDateTime("update_time"),
@@ -101,29 +102,29 @@ public final class Vocabulary implements LongIdentification, Marked, Owned, Time
         );
     }
 
-    public static Uni<Vocabulary> findById(PgPool client, Long id) {
-        return client.preparedQuery(SELECT_FROM_DICTIONARY_VOCABULARY_WHERE_ID_$1)
+    public static Uni<@Name@> findById(PgPool client, Long id) {
+        return client.preparedQuery(SELECT_FROM_@SCHEMA@_@TABLE@_WHERE_ID_$1)
                 .execute(Tuple.of(id))
                 .onItem()
                 .transform(RowSet::iterator)
                 .onItem()
-                .transform(iterator -> iterator.hasNext() ? Vocabulary.from(iterator.next()) : null);
+                .transform(iterator -> iterator.hasNext() ? @Name@.from(iterator.next()) : null);
     }
 
-    public static Multi<Vocabulary> findAll(PgPool client) {
+    public static Multi<@Name@> findAll(PgPool client) {
         return client
-                .query(SELECT_ALL_FROM_DICTIONARY_VOCABULARY_ORDER_BY_ID_ASC)
+                .query(SELECT_ALL_FROM_@SCHEMA@_@TABLE@_ORDER_BY_ID_ASC)
                 .execute()
                 .onItem()
                 .transformToMulti(set -> Multi.createFrom().iterable(set))
                 .onItem()
-                .transform(Vocabulary::from);
+                .transform(@Name@::from);
 
     }
 
     public Uni<Long> insert(PgPool client) {
-        return client.preparedQuery(INSERT_INTO_DICTIONARY_VOCABULARY)
-                .execute(Tuple.of(word, value, userName, enabled, visible, flags))
+        return client.preparedQuery(INSERT_INTO_@SCHEMA@_@TABLE@)
+                .execute(Tuple.of(@key@, @value@, userName, enabled, visible, flags))
                 .onItem()
                 .transform(RowSet::iterator)
                 .onItem()
@@ -131,27 +132,27 @@ public final class Vocabulary implements LongIdentification, Marked, Owned, Time
     }
 
     public Uni<Long> update(PgPool client) {
-        return client.preparedQuery(UPDATE_DICTIONARY_VOCABULARY_WHERE_ID_$1)
+        return client.preparedQuery(UPDATE_@SCHEMA@_@TABLE@_WHERE_ID_$1)
                 .execute(Tuple.of(listOf()))
                 .onItem()
                 .transform(pgRowSet -> pgRowSet.iterator().next().getLong("id"));
     }
 
     public static Uni<Long> delete(PgPool client, Long id) {
-        return client.preparedQuery(DELETE_FROM_DICTIONARY_VOCABULARY_WHERE_ID_$1)
+        return client.preparedQuery(DELETE_FROM_@SCHEMA@_@TABLE@_WHERE_ID_$1)
                 .execute(Tuple.of(id))
                 .onItem()
                 .transform(pgRowSet -> pgRowSet.iterator().next().getLong("id"));
     }
 
     private List<?> listOf() {
-        return Arrays.asList(id, word, userName, enabled, visible, flags, value);
+        return Arrays.asList(id, @key@, userName, enabled, visible, flags, @value@);
     }
 
-    public Vocabulary() {
+    public @Name@() {
         this.id = null;
-        this.word = NONE;
-        this.value = null;
+        this.@key@ = NONE;
+        this.@value@ = null;
         this.userName = null;
         this.createTime = null;
         this.updateTime = null;
@@ -160,10 +161,10 @@ public final class Vocabulary implements LongIdentification, Marked, Owned, Time
         this.flags = 0;
     }
 
-    public Vocabulary(
+    public @Name@(
             Long id,
-            @Nonnull String word,
-            String value,
+            @Nonnull String @key@,
+            String @value@,
             String userName,
             LocalDateTime createTime,
             LocalDateTime updateTime,
@@ -171,8 +172,8 @@ public final class Vocabulary implements LongIdentification, Marked, Owned, Time
             boolean visible,
             int flags) {
         this.id = id;
-        this.word = word;
-        this.value = value;
+        this.@key@ = @key@;
+        this.@value@ = @value@;
         this.userName = userName;
         this.createTime = createTime;
         this.updateTime = updateTime;
@@ -185,12 +186,12 @@ public final class Vocabulary implements LongIdentification, Marked, Owned, Time
         return id;
     }
 
-    public String getWord() {
-        return word;
+    public String get@Key@() {
+        return @key@;
     }
 
-    public String getValue() {
-        return value;
+    public String get@Value@() {
+        return @value@;
     }
 
     public String getUserName() {
@@ -221,27 +222,27 @@ public final class Vocabulary implements LongIdentification, Marked, Owned, Time
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Vocabulary that = (Vocabulary) o;
+        @Name@ that = (@Name@) o;
         return enabled == that.enabled
                 && visible == that.visible
                 && flags == that.flags
                 && Objects.equals(id, that.id)
-                && Objects.equals(word, that.word)
-                && Objects.equals(value, that.value)
+                && Objects.equals(@key@, that.@key@)
+                && Objects.equals(@value@, that.@value@)
                 && Objects.equals(userName, that.userName);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, word, value, userName, enabled, visible, flags);
+        return Objects.hash(id, @key@, @value@, userName, enabled, visible, flags);
     }
 
     @Override
     public String toString() {
-        return "Vocabulary{" +
+        return "@Name@{" +
                 "id=" + id +
-                ", word='" + word + '\'' +
-                ", value='" + value + '\'' +
+                ", @key@='" + @key@ + '\'' +
+                ", @value@='" + @value@ + '\'' +
                 ", userName='" + userName + '\'' +
                 ", createTime=" + createTime +
                 ", updateTime=" + updateTime +
@@ -251,14 +252,14 @@ public final class Vocabulary implements LongIdentification, Marked, Owned, Time
                 '}';
     }
 
-    public static Vocabulary.Builder builder() {
-        return new Vocabulary.Builder();
+    public static @Name@.Builder builder() {
+        return new @Name@.Builder();
     }
 
     public static final class Builder {
         private Long id;
-        private String word;
-        private String value;
+        private String @key@;
+        private String @value@;
         private String userName;
         private LocalDateTime createTime;
         private LocalDateTime updateTime;
@@ -274,13 +275,13 @@ public final class Vocabulary implements LongIdentification, Marked, Owned, Time
             return this;
         }
 
-        public Builder withWord(@Nonnull String word) {
-            this.word = word;
+        public Builder with@Key@(@Nonnull String @key@) {
+            this.@key@ = @key@;
             return this;
         }
 
-        public Builder withValue(String value) {
-            this.value = value;
+        public Builder with@Value@(String @value@) {
+            this.@value@ = @value@;
             return this;
         }
 
@@ -314,9 +315,9 @@ public final class Vocabulary implements LongIdentification, Marked, Owned, Time
             return this;
         }
 
-        public Vocabulary build() {
-            return new Vocabulary(
-                    id, word, value, userName, createTime, updateTime, enabled, visible, flags
+        public @Name@ build() {
+            return new @Name@(
+                    id, @key@, @value@, userName, createTime, updateTime, enabled, visible, flags
             );
         }
     }
