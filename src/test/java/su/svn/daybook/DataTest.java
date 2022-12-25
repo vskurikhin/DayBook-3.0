@@ -11,6 +11,8 @@ package su.svn.daybook;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.model.*;
 
+import static su.svn.daybook.domain.model.Vocabulary.NONE;
+
 public class DataTest {
 
     public static Answer errorNoNumber = new Answer("For input string: \"noNumber\"", 404);
@@ -39,11 +41,11 @@ public class DataTest {
     public static final String JSON_ARRAY_Language_0 = "[{\"id\":0}]";
 
     public static final Vocabulary OBJECT_Vocabulary_0 = new Vocabulary(
-            0L, null, null, null, null, null, null, null, null
+            0L, NONE, null, null, null, null, false, true, 0
     );
-    public static final String JSON_Vocabulary_0 = "{\"id\":0}";
+    public static final String JSON_Vocabulary_0 = "{\"id\":0,\"word\":\"" + NONE + "\",\"enabled\":false,\"visible\":true,\"flags\":0}";
 
-    public static final String JSON_ARRAY_Vocabulary_0 = "[{\"id\":0}]";
+    public static final String JSON_ARRAY_Vocabulary_0 = "[" + JSON_Vocabulary_0 + "]";
 
     public static final I18n OBJECT_I18n_0 = new I18n(
             0L, null, null, null, null, null, null, null, null, null
