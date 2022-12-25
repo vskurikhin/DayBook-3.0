@@ -25,7 +25,9 @@ class UserNameTest {
         Assertions.assertDoesNotThrow(entry::getCreateTime);
         Assertions.assertDoesNotThrow(entry::getUpdateTime);
         Assertions.assertDoesNotThrow(entry::getEnabled);
+        Assertions.assertDoesNotThrow(entry::isEnabled);
         Assertions.assertDoesNotThrow(entry::getVisible);
+        Assertions.assertDoesNotThrow(entry::isVisible);
         Assertions.assertDoesNotThrow(entry::getFlags);
     }
 

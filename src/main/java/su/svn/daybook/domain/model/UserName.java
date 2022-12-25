@@ -94,7 +94,7 @@ public final class UserName implements UUIDIdentification, Marked, Owned, TimeUp
         );
     }
 
-    public static Uni<UserName> findById(PgPool client, Long id) {
+    public static Uni<UserName> findById(PgPool client, UUID id) {
         return client.preparedQuery(SELECT_FROM_SECURITY_USER_NAME_WHERE_ID_$1)
                 .execute(Tuple.of(id))
                 .onItem()
@@ -114,31 +114,27 @@ public final class UserName implements UUIDIdentification, Marked, Owned, TimeUp
 
     }
 
-    public Uni<Long> insert(PgPool client) {
+    public Uni<UUID> insert(PgPool client) {
         return client.preparedQuery(INSERT_INTO_SECURITY_USER_NAME)
                 .execute(Tuple.of(id, userName, password, enabled, visible, flags))
                 .onItem()
                 .transform(RowSet::iterator)
                 .onItem()
-                .transform(iterator -> iterator.hasNext() ? iterator.next().getLong("id") : null);
+                .transform(iterator -> iterator.hasNext() ? iterator.next().getUUID("id") : null);
     }
 
-    public Uni<Long> update(PgPool client) {
+    public Uni<UUID> update(PgPool client) {
         return client.preparedQuery(UPDATE_SECURITY_USER_NAME_WHERE_ID_$1)
-                .execute(Tuple.of(listOf()))
+                .execute(Tuple.of(id, userName, password, enabled, visible, flags))
                 .onItem()
-                .transform(pgRowSet -> pgRowSet.iterator().next().getLong("id"));
+                .transform(pgRowSet -> pgRowSet.iterator().next().getUUID("id"));
     }
 
-    public static Uni<Long> delete(PgPool client, Long id) {
+    public static Uni<UUID> delete(PgPool client, UUID id) {
         return client.preparedQuery(DELETE_FROM_SECURITY_USER_NAME_WHERE_ID_$1)
                 .execute(Tuple.of(id))
                 .onItem()
-                .transform(pgRowSet -> pgRowSet.iterator().next().getLong("id"));
-    }
-
-    private List<?> listOf() {
-        return Arrays.asList(id, userName, password, enabled, visible, flags);
+                .transform(pgRowSet -> pgRowSet.iterator().next().getUUID("id"));
     }
 
     public UserName() {

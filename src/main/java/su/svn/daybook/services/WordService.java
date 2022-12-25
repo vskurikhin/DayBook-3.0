@@ -15,7 +15,6 @@ import org.jboss.logging.Logger;
 import su.svn.daybook.domain.dao.WordDao;
 import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.messages.Answer;
-import su.svn.daybook.domain.messages.ApiResponse;
 import su.svn.daybook.domain.messages.DictionaryResponse;
 import su.svn.daybook.domain.model.Word;
 
