@@ -11,6 +11,8 @@ package su.svn.daybook;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.model.*;
 
+import java.util.UUID;
+
 import static su.svn.daybook.domain.model.Vocabulary.NONE;
 
 public class DataTest {
@@ -43,7 +45,11 @@ public class DataTest {
     public static final Vocabulary OBJECT_Vocabulary_0 = new Vocabulary(
             0L, NONE, null, null, null, null, false, true, 0
     );
-    public static final String JSON_Vocabulary_0 = "{\"id\":0,\"word\":\"" + NONE + "\",\"enabled\":false,\"visible\":true,\"flags\":0}";
+    public static final String JSON_Vocabulary_0 = """
+            {"id":0,"word":"\
+            """ + NONE + """
+            ","enabled":false,"visible":true,"flags":0}\
+            """;
 
     public static final String JSON_ARRAY_Vocabulary_0 = "[" + JSON_Vocabulary_0 + "]";
 
@@ -61,4 +67,14 @@ public class DataTest {
 
     public static final String JSON_ARRAY_TagLabel_0
             = "[{\"id\":\"test\"}]";
+
+    public static final UserName OBJECT_UserName_0 = new UserName(
+            new UUID(0, 0), "root", "password", null, null, false, true, 0
+    );
+
+    public static final String JSON_UserName_0 = """
+            {"id":"00000000-0000-0000-0000-000000000000","userName":"root","password":"password","enabled":false,"visible":true,"flags":0}\
+            """;
+
+    public static final String JSON_ARRAY_UserName_0 = "[" + JSON_UserName_0 + "]";
 }

@@ -8,27 +8,300 @@
 
 package su.svn.daybook.domain.model;
 
+import io.smallrye.mutiny.Multi;
+import io.smallrye.mutiny.Uni;
+import io.vertx.mutiny.pgclient.PgPool;
+import io.vertx.mutiny.sqlclient.Row;
+import io.vertx.mutiny.sqlclient.RowSet;
+import io.vertx.mutiny.sqlclient.Tuple;
+
+import javax.annotation.Nonnull;
+import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
-public class UserName implements Serializable {
+public final class UserName implements UUIDIdentification, Marked, Owned, TimeUpdated, Serializable {
 
+    @Serial
     private static final long serialVersionUID = 3526532892030791269L;
 
-    private UUID id;
+    private final UUID id;
 
-    private String userName;
+    private final String userName;
 
-    private String password;
+    private final String password;
 
-    private LocalDateTime createTime;
+    private final LocalDateTime createTime;
 
-    private LocalDateTime updateTime;
+    private final LocalDateTime updateTime;
 
-    private Boolean enabled;
+    private final boolean enabled;
 
-    private Boolean visible;
+    private final boolean visible;
 
-    private Integer flags;
+    private final int flags;
+    public static final String SELECT_FROM_SECURITY_USER_NAME_WHERE_ID_$1 = """
+            SELECT id, user_name, password, create_time, update_time, enabled, visible, flags
+              FROM security.user_name
+             WHERE id = $1
+            """;
+
+    public static final String SELECT_ALL_FROM_SECURITY_USER_NAME_ORDER_BY_ID_ASC = """
+            SELECT id, user_name, password, create_time, update_time, enabled, visible, flags
+              FROM security.user_name
+             ORDER BY id ASC
+            """;
+
+    public static final String INSERT_INTO_SECURITY_USER_NAME = """
+            INSERT INTO security.user_name
+             (id, user_name, password, enabled, visible, flags)
+             VALUES
+             ($1, $2, $3, $4, $5, $6)
+             RETURNING id
+            """;
+
+    public static final String UPDATE_SECURITY_USER_NAME_WHERE_ID_$1 = """
+            UPDATE security.user_name SET
+              user_name = $2,
+              password = $3,
+              enabled = $4,
+              visible = $5,
+              flags = $6
+             WHERE id = $1
+             RETURNING id
+            """;
+
+    public static final String DELETE_FROM_SECURITY_USER_NAME_WHERE_ID_$1 = """
+            DELETE FROM security.user_name
+             WHERE id = $1
+             RETURNING id
+            """;
+
+    public static UserName from(Row row) {
+        return new UserName(
+                row.getUUID("id"),
+                row.getString("user_name"),
+                row.getString("password"),
+                row.getLocalDateTime("create_time"),
+                row.getLocalDateTime("update_time"),
+                row.getBoolean("enabled"),
+                row.getBoolean("visible"),
+                row.getInteger("flags")
+        );
+    }
+
+    public static Uni<UserName> findById(PgPool client, Long id) {
+        return client.preparedQuery(SELECT_FROM_SECURITY_USER_NAME_WHERE_ID_$1)
+                .execute(Tuple.of(id))
+                .onItem()
+                .transform(RowSet::iterator)
+                .onItem()
+                .transform(iterator -> iterator.hasNext() ? UserName.from(iterator.next()) : null);
+    }
+
+    public static Multi<UserName> findAll(PgPool client) {
+        return client
+                .query(SELECT_ALL_FROM_SECURITY_USER_NAME_ORDER_BY_ID_ASC)
+                .execute()
+                .onItem()
+                .transformToMulti(set -> Multi.createFrom().iterable(set))
+                .onItem()
+                .transform(UserName::from);
+
+    }
+
+    public Uni<Long> insert(PgPool client) {
+        return client.preparedQuery(INSERT_INTO_SECURITY_USER_NAME)
+                .execute(Tuple.of(id, userName, password, enabled, visible, flags))
+                .onItem()
+                .transform(RowSet::iterator)
+                .onItem()
+                .transform(iterator -> iterator.hasNext() ? iterator.next().getLong("id") : null);
+    }
+
+    public Uni<Long> update(PgPool client) {
+        return client.preparedQuery(UPDATE_SECURITY_USER_NAME_WHERE_ID_$1)
+                .execute(Tuple.of(listOf()))
+                .onItem()
+                .transform(pgRowSet -> pgRowSet.iterator().next().getLong("id"));
+    }
+
+    public static Uni<Long> delete(PgPool client, Long id) {
+        return client.preparedQuery(DELETE_FROM_SECURITY_USER_NAME_WHERE_ID_$1)
+                .execute(Tuple.of(id))
+                .onItem()
+                .transform(pgRowSet -> pgRowSet.iterator().next().getLong("id"));
+    }
+
+    private List<?> listOf() {
+        return Arrays.asList(id, userName, password, enabled, visible, flags);
+    }
+
+    public UserName() {
+        this.id = UUID.randomUUID();
+        this.userName = "root";
+        this.password = "password";
+        this.createTime = LocalDateTime.now();
+        this.updateTime = null;
+        this.enabled = false;
+        this.visible = true;
+        this.flags = 0;
+    }
+
+    public UserName(
+            @Nonnull UUID id,
+            @Nonnull String userName,
+            @Nonnull String password,
+            LocalDateTime createTime,
+            LocalDateTime updateTime,
+            boolean enabled,
+            boolean visible,
+            int flags) {
+        this.id = id;
+        this.userName = userName;
+        this.password = password;
+        this.createTime = createTime;
+        this.updateTime = updateTime;
+        this.enabled = enabled;
+        this.visible = visible;
+        this.flags = flags;
+    }
+
+    public UUID getId() {
+        return id;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public LocalDateTime getCreateTime() {
+        return createTime;
+    }
+
+    public LocalDateTime getUpdateTime() {
+        return updateTime;
+    }
+
+    public boolean getEnabled() {
+        return enabled;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public boolean getVisible() {
+        return visible;
+    }
+
+    public boolean isVisible() {
+        return visible;
+    }
+
+    public int getFlags() {
+        return flags;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        UserName userName1 = (UserName) o;
+        return enabled == userName1.enabled
+                && visible == userName1.visible
+                && flags == userName1.flags
+                && Objects.equals(id, userName1.id)
+                && Objects.equals(userName, userName1.userName)
+                && Objects.equals(password, userName1.password);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, userName, password, enabled, visible, flags);
+    }
+
+    @Override
+    public String toString() {
+        return "UserName{" +
+                "id=" + id +
+                ", userName='" + userName + '\'' +
+                ", password='" + password + '\'' +
+                ", createTime=" + createTime +
+                ", updateTime=" + updateTime +
+                ", enabled=" + enabled +
+                ", visible=" + visible +
+                ", flags=" + flags +
+                '}';
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static final class Builder {
+        private UUID id;
+        private String userName;
+        private String password;
+        private LocalDateTime createTime;
+        private LocalDateTime updateTime;
+        private boolean enabled;
+        private boolean visible;
+        private int flags;
+
+        private Builder() {
+        }
+
+        public Builder withId(@Nonnull UUID id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder withUserName(@Nonnull String userName) {
+            this.userName = userName;
+            return this;
+        }
+
+        public Builder withPassword(@Nonnull String password) {
+            this.password = password;
+            return this;
+        }
+
+        public Builder withCreateTime(LocalDateTime createTime) {
+            this.createTime = createTime;
+            return this;
+        }
+
+        public Builder withUpdateTime(LocalDateTime updateTime) {
+            this.updateTime = updateTime;
+            return this;
+        }
+
+        public Builder withEnabled(boolean enabled) {
+            this.enabled = enabled;
+            return this;
+        }
+
+        public Builder withVisible(boolean visible) {
+            this.visible = visible;
+            return this;
+        }
+
+        public Builder withFlags(int flags) {
+            this.flags = flags;
+            return this;
+        }
+
+        public UserName build() {
+            return new UserName(id, userName, password, createTime, updateTime, enabled, visible, flags);
+        }
+    }
 }
