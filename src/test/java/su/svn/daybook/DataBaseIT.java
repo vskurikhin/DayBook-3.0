@@ -12,7 +12,9 @@ import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
 import org.junit.jupiter.api.*;
 import su.svn.daybook.domain.dao.UserNameDao;
+import su.svn.daybook.domain.dao.WordDao;
 import su.svn.daybook.domain.model.UserName;
+import su.svn.daybook.domain.model.Word;
 import su.svn.daybook.resources.PostgresDatabaseTestResource;
 
 import javax.inject.Inject;
@@ -25,6 +27,9 @@ public class DataBaseIT {
 
     @Inject
     UserNameDao userNameDao;
+
+    @Inject
+    WordDao wordDao;
 
     @Nested
     @DisplayName("UserNameDao")
@@ -110,6 +115,99 @@ public class DataBaseIT {
             Assertions.assertDoesNotThrow(
                     () -> {
                         var test = userNameDao.findAll()
+                                .collect()
+                                .asList()
+                                .subscribeAsCompletionStage()
+                                .get();
+                        Assertions.assertNotNull(test);
+                        Assertions.assertFalse(test.isEmpty());
+                        Assertions.assertEquals(1, test.size());
+                    }
+            );
+        }
+    }
+
+
+    @Nested
+    @DisplayName("WordDao")
+    class WordDaoTest {
+
+        String veryLongWordIdForTest = "veryLongWordIdForTest";
+
+        Word word1;
+
+        @BeforeEach
+        void setUp() throws ExecutionException, InterruptedException {
+            word1 = Word.builder()
+                    .withWord(veryLongWordIdForTest)
+                    .build();
+            Assertions.assertDoesNotThrow(
+                    () -> Assertions.assertEquals(
+                            veryLongWordIdForTest, wordDao.insert(word1)
+                                    .subscribeAsCompletionStage()
+                                    .get()
+                                    .orElse(null)
+                    )
+            );
+        }
+
+        @AfterEach
+        void tearDown() {
+            Assertions.assertDoesNotThrow(
+                    () -> Assertions.assertEquals(
+                            veryLongWordIdForTest, wordDao.delete(veryLongWordIdForTest)
+                                    .subscribeAsCompletionStage()
+                                    .get()
+                                    .orElse(null)
+                    )
+            );
+        }
+
+        @Test
+        void test() throws ExecutionException, InterruptedException {
+            var expected1 = Word.builder()
+                    .withWord(veryLongWordIdForTest)
+                    .build();
+            Assertions.assertDoesNotThrow(
+                    () -> {
+                        var test = wordDao.findByWord(veryLongWordIdForTest)
+                                .subscribeAsCompletionStage()
+                                .get()
+                                .orElse(null);
+                        Assertions.assertNotNull(test);
+                        Assertions.assertEquals(expected1, test);
+                        Assertions.assertNotNull(test.getCreateTime());
+                        Assertions.assertNull(test.getUpdateTime());
+                    }
+            );
+            var expected2 = Word.builder()
+                    .withWord(veryLongWordIdForTest)
+                    .withEnabled(true)
+                    .withVisible(true)
+                    .build();
+            Assertions.assertDoesNotThrow(
+                    () -> Assertions.assertEquals(
+                            veryLongWordIdForTest, wordDao.update(expected2)
+                                    .subscribeAsCompletionStage()
+                                    .get()
+                                    .orElse(null)
+                    )
+            );
+            Assertions.assertDoesNotThrow(
+                    () -> {
+                        var test = wordDao.findByWord(veryLongWordIdForTest)
+                                .subscribeAsCompletionStage()
+                                .get()
+                                .orElse(null);
+                        Assertions.assertNotNull(test);
+                        Assertions.assertEquals(expected2, test);
+                        Assertions.assertNotNull(test.getCreateTime());
+                        Assertions.assertNotNull(test.getUpdateTime());
+                    }
+            );
+            Assertions.assertDoesNotThrow(
+                    () -> {
+                        var test = wordDao.findAll()
                                 .collect()
                                 .asList()
                                 .subscribeAsCompletionStage()
