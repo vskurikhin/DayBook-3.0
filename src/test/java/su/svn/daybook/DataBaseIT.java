@@ -11,18 +11,13 @@ package su.svn.daybook;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
 import org.junit.jupiter.api.*;
-import su.svn.daybook.domain.dao.CodifierDao;
-import su.svn.daybook.domain.dao.UserNameDao;
-import su.svn.daybook.domain.dao.VocabularyDao;
-import su.svn.daybook.domain.dao.WordDao;
-import su.svn.daybook.domain.model.Codifier;
-import su.svn.daybook.domain.model.UserName;
-import su.svn.daybook.domain.model.Vocabulary;
-import su.svn.daybook.domain.model.Word;
+import su.svn.daybook.domain.dao.*;
+import su.svn.daybook.domain.model.*;
 import su.svn.daybook.resources.PostgresDatabaseTestResource;
 
 import javax.inject.Inject;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 
 @QuarkusTest
 @QuarkusTestResource(PostgresDatabaseTestResource.class)
@@ -36,6 +31,9 @@ public class DataBaseIT {
     UserNameDao userNameDao;
 
     @Inject
+    TagLabelDao tagLabelDao;
+
+    @Inject
     VocabularyDao vocabularyDao;
 
     @Inject
@@ -45,22 +43,25 @@ public class DataBaseIT {
     @DisplayName("UserNameDao")
     class CodifierDaoTest {
 
-        String code = "code";
+        String id;
 
-        Codifier codifier;
+        String str = "str";
+
+        Codifier entry;
 
         @BeforeEach
         void setUp() {
-            codifier = Codifier.builder()
-                    .withCode(code)
+            entry = Codifier.builder()
+                    .code(str)
                     .build();
             Assertions.assertDoesNotThrow(
-                    () -> Assertions.assertEquals(
-                            code, codifierDao.insert(codifier)
-                                    .subscribeAsCompletionStage()
-                                    .get()
-                                    .orElse(null)
-                    )
+                    () -> {
+                        id = codifierDao.insert(entry)
+                                .subscribeAsCompletionStage()
+                                .get()
+                                .orElse(null);
+                        Assertions.assertEquals(str, id);
+                    }
             );
         }
 
@@ -68,7 +69,7 @@ public class DataBaseIT {
         void tearDown() {
             Assertions.assertDoesNotThrow(
                     () -> Assertions.assertEquals(
-                            code, codifierDao.delete(code)
+                            id, codifierDao.delete(id)
                                     .subscribeAsCompletionStage()
                                     .get()
                                     .orElse(null)
@@ -87,11 +88,11 @@ public class DataBaseIT {
         @Test
         void test() {
             var expected1 = Codifier.builder()
-                    .withCode(code)
+                    .code(id)
                     .build();
             Assertions.assertDoesNotThrow(
                     () -> {
-                        var test = codifierDao.findByCode(code)
+                        var test = codifierDao.findByCode(id)
                                 .subscribeAsCompletionStage()
                                 .get()
                                 .orElse(null);
@@ -102,12 +103,12 @@ public class DataBaseIT {
                     }
             );
             var expected2 = Codifier.builder()
-                    .withCode(code)
-                    .withValue("value")
+                    .code(id)
+                    .value("value")
                     .build();
             Assertions.assertDoesNotThrow(
                     () -> Assertions.assertEquals(
-                            code, codifierDao.update(expected2)
+                            id, codifierDao.update(expected2)
                                     .subscribeAsCompletionStage()
                                     .get()
                                     .orElse(null)
@@ -115,7 +116,7 @@ public class DataBaseIT {
             );
             Assertions.assertDoesNotThrow(
                     () -> {
-                        var test = codifierDao.findByCode(code)
+                        var test = codifierDao.findByCode(id)
                                 .subscribeAsCompletionStage()
                                 .get()
                                 .orElse(null);
@@ -141,23 +142,144 @@ public class DataBaseIT {
     }
 
     @Nested
-    @DisplayName("UserNameDao")
-    class UserNameDaoTest {
+    @DisplayName("TagLabelDao")
+    class TagLabelDaoTest {
 
-        UUID uuid1 = new UUID(0, 1);
+        String id;
 
-        UserName userName1;
+        String str = "str";
+
+        TagLabel entry;
 
         @BeforeEach
         void setUp() {
-            userName1 = UserName.builder()
-                    .withId(uuid1)
-                    .withUserName("user")
-                    .withPassword("password")
+            entry = TagLabel.builder()
+                    .id(str)
+                    .label(str)
+                    .build();
+            Assertions.assertDoesNotThrow(
+                    () -> {
+                        id = tagLabelDao.insert(entry)
+                                .subscribeAsCompletionStage()
+                                .get()
+                                .orElse(null);
+                    }
+            );
+        }
+
+        @AfterEach
+        void tearDown() {
+            Assertions.assertDoesNotThrow(
+                    () -> Assertions.assertEquals(
+                            id, tagLabelDao.delete(id)
+                                    .subscribeAsCompletionStage()
+                                    .get()
+                                    .orElse(null)
+                    )
+            );
+            Assertions.assertDoesNotThrow(
+                    () -> Assertions.assertEquals(
+                            0, tagLabelDao.count()
+                                    .subscribeAsCompletionStage()
+                                    .get()
+                                    .orElse(null)
+                    )
+            );
+        }
+
+        @Test
+        void test() {
+            var expected1 = TagLabel.builder()
+                    .id(id)
+                    .label(str)
+                    .build();
+            Assertions.assertDoesNotThrow(
+                    () -> {
+                        var test = tagLabelDao.findById(id)
+                                .subscribeAsCompletionStage()
+                                .get()
+                                .orElse(null);
+                        Assertions.assertNotNull(test);
+                        Assertions.assertEquals(expected1, test);
+                        Assertions.assertNotNull(test.getCreateTime());
+                        Assertions.assertNull(test.getUpdateTime());
+                    }
+            );
+            var expected2 = TagLabel.builder()
+                    .id(id)
+                    .label("value")
                     .build();
             Assertions.assertDoesNotThrow(
                     () -> Assertions.assertEquals(
-                            uuid1, userNameDao.insert(userName1)
+                            id, tagLabelDao.update(expected2)
+                                    .subscribeAsCompletionStage()
+                                    .get()
+                                    .orElse(null)
+                    )
+            );
+            Assertions.assertDoesNotThrow(
+                    () -> {
+                        var test = tagLabelDao.findById(id)
+                                .subscribeAsCompletionStage()
+                                .get()
+                                .orElse(null);
+                        Assertions.assertNotNull(test);
+                        Assertions.assertEquals(expected2, test);
+                        Assertions.assertNotNull(test.getCreateTime());
+                        Assertions.assertNotNull(test.getUpdateTime());
+                    }
+            );
+            Assertions.assertDoesNotThrow(
+                    () -> {
+                        var test = tagLabelDao.findAll()
+                                .collect()
+                                .asList()
+                                .subscribeAsCompletionStage()
+                                .get();
+                        Assertions.assertNotNull(test);
+                        Assertions.assertFalse(test.isEmpty());
+                        Assertions.assertEquals(1, test.size());
+                    }
+            );
+            var test = TagLabel.builder()
+                    .label("label")
+                    .build();
+            var strId = new AtomicReference<String>();
+            Assertions.assertDoesNotThrow(
+                    () -> strId.set(tagLabelDao.insert(test)
+                            .subscribeAsCompletionStage()
+                            .get()
+                            .orElse(null))
+            );
+            Assertions.assertDoesNotThrow(
+                    () -> Assertions.assertEquals(
+                            strId.get(), tagLabelDao.delete(strId.get())
+                                    .subscribeAsCompletionStage()
+                                    .get()
+                                    .orElse(null)
+                    )
+            );
+        }
+    }
+
+    @Nested
+    @DisplayName("UserNameDao")
+    class UserNameDaoTest {
+
+        UUID id = new UUID(0, 1);
+
+        UserName entry;
+
+        @BeforeEach
+        void setUp() {
+            entry = UserName.builder()
+                    .id(id)
+                    .userName("user")
+                    .password("password")
+                    .build();
+            Assertions.assertDoesNotThrow(
+                    () -> Assertions.assertEquals(
+                            id, userNameDao.insert(entry)
                                     .subscribeAsCompletionStage()
                                     .get()
                                     .orElse(null)
@@ -169,7 +291,7 @@ public class DataBaseIT {
         void tearDown() {
             Assertions.assertDoesNotThrow(
                     () -> Assertions.assertEquals(
-                            uuid1, userNameDao.delete(uuid1)
+                            id, userNameDao.delete(id)
                                     .subscribeAsCompletionStage()
                                     .get()
                                     .orElse(null)
@@ -188,13 +310,13 @@ public class DataBaseIT {
         @Test
         void test() {
             var expected1 = UserName.builder()
-                    .withId(uuid1)
-                    .withUserName("user")
-                    .withPassword("password")
+                    .id(id)
+                    .userName("user")
+                    .password("password")
                     .build();
             Assertions.assertDoesNotThrow(
                     () -> {
-                        var test = userNameDao.findById(uuid1)
+                        var test = userNameDao.findById(id)
                                 .subscribeAsCompletionStage()
                                 .get()
                                 .orElse(null);
@@ -205,13 +327,13 @@ public class DataBaseIT {
                     }
             );
             var expected2 = UserName.builder()
-                    .withId(uuid1)
-                    .withUserName("none")
-                    .withPassword("oops")
+                    .id(id)
+                    .userName("none")
+                    .password("oops")
                     .build();
             Assertions.assertDoesNotThrow(
                     () -> Assertions.assertEquals(
-                            uuid1, userNameDao.update(expected2)
+                            id, userNameDao.update(expected2)
                                     .subscribeAsCompletionStage()
                                     .get()
                                     .orElse(null)
@@ -219,7 +341,7 @@ public class DataBaseIT {
             );
             Assertions.assertDoesNotThrow(
                     () -> {
-                        var test = userNameDao.findById(uuid1)
+                        var test = userNameDao.findById(id)
                                 .subscribeAsCompletionStage()
                                 .get()
                                 .orElse(null);
@@ -260,10 +382,10 @@ public class DataBaseIT {
         @BeforeEach
         void setUp() {
             vocabulary = Vocabulary.builder()
-                    .withWord(veryLongWordIdForTest)
+                    .word(veryLongWordIdForTest)
                     .build();
             word = Word.builder()
-                    .withWord(veryLongWordIdForTest)
+                    .word(veryLongWordIdForTest)
                     .build();
             Assertions.assertDoesNotThrow(
                     () -> Assertions.assertEquals(
@@ -321,7 +443,7 @@ public class DataBaseIT {
         @Test
         void testWordDao() {
             var expected1 = Word.builder()
-                    .withWord(veryLongWordIdForTest)
+                    .word(veryLongWordIdForTest)
                     .build();
             Assertions.assertDoesNotThrow(
                     () -> {
@@ -336,9 +458,9 @@ public class DataBaseIT {
                     }
             );
             var expected2 = Word.builder()
-                    .withWord(veryLongWordIdForTest)
-                    .withEnabled(true)
-                    .withVisible(true)
+                    .word(veryLongWordIdForTest)
+                    .enabled(true)
+                    .visible(true)
                     .build();
             Assertions.assertDoesNotThrow(
                     () -> Assertions.assertEquals(
@@ -377,8 +499,8 @@ public class DataBaseIT {
         @Test
         void testVocabularyDao() {
             var expected1 = Vocabulary.builder()
-                    .withId(1L)
-                    .withWord(veryLongWordIdForTest)
+                    .id(1L)
+                    .word(veryLongWordIdForTest)
                     .build();
             Assertions.assertDoesNotThrow(
                     () -> {
@@ -393,11 +515,11 @@ public class DataBaseIT {
                     }
             );
             var expected2 = Vocabulary.builder()
-                    .withId(1L)
-                    .withWord(veryLongWordIdForTest)
-                    .withValue("value")
-                    .withEnabled(true)
-                    .withVisible(true)
+                    .id(1L)
+                    .word(veryLongWordIdForTest)
+                    .value("value")
+                    .enabled(true)
+                    .visible(true)
                     .build();
             Assertions.assertDoesNotThrow(
                     () -> Assertions.assertEquals(

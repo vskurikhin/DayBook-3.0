@@ -49,13 +49,13 @@ class WordTest {
     @Test
     void testBuilder() {
         Assertions.assertDoesNotThrow(() -> Assertions.assertNotNull(Word.builder()
-                .withWord(NONE)
-                .withUserName(null)
-                .withCreateTime(null)
-                .withUpdateTime(null)
-                .withEnabled(false)
-                .withVisible(true)
-                .withFlags(0)
+                .word(NONE)
+                .userName(null)
+                .createTime(null)
+                .updateTime(null)
+                .enabled(false)
+                .visible(true)
+                .flags(0)
                 .build()));
     }
 }

@@ -48,15 +48,15 @@ class VocabularyTest {
     @Test
     void testBuilder() {
         Assertions.assertDoesNotThrow(() -> Assertions.assertNotNull(Vocabulary.builder()
-                .withId(null)
-                .withWord(NONE)
-                .withValue(null)
-                .withUserName(null)
-                .withCreateTime(null)
-                .withUpdateTime(null)
-                .withEnabled(false)
-                .withVisible(true)
-                .withFlags(0)
+                .id(null)
+                .word(NONE)
+                .value(null)
+                .userName(null)
+                .createTime(null)
+                .updateTime(null)
+                .enabled(false)
+                .visible(true)
+                .flags(0)
                 .build()));
     }
 }
