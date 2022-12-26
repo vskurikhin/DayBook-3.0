@@ -19,43 +19,21 @@ import javax.annotation.Nonnull;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
 public final class UserName implements UUIDIdentification, Marked, Owned, TimeUpdated, Serializable {
 
-    @Serial
-    private static final long serialVersionUID = 3526532892030791269L;
-
-    private final UUID id;
-
-    private final String userName;
-
-    private final String password;
-
-    private final LocalDateTime createTime;
-
-    private final LocalDateTime updateTime;
-
-    private final boolean enabled;
-
-    private final boolean visible;
-
-    private final int flags;
     public static final String SELECT_FROM_SECURITY_USER_NAME_WHERE_ID_$1 = """
             SELECT id, user_name, password, create_time, update_time, enabled, visible, flags
               FROM security.user_name
              WHERE id = $1
             """;
-
     public static final String SELECT_ALL_FROM_SECURITY_USER_NAME_ORDER_BY_ID_ASC = """
             SELECT id, user_name, password, create_time, update_time, enabled, visible, flags
               FROM security.user_name
              ORDER BY id ASC
             """;
-
     public static final String INSERT_INTO_SECURITY_USER_NAME = """
             INSERT INTO security.user_name
              (id, user_name, password, enabled, visible, flags)
@@ -63,7 +41,6 @@ public final class UserName implements UUIDIdentification, Marked, Owned, TimeUp
              ($1, $2, $3, $4, $5, $6)
              RETURNING id
             """;
-
     public static final String UPDATE_SECURITY_USER_NAME_WHERE_ID_$1 = """
             UPDATE security.user_name SET
               user_name = $2,
@@ -74,12 +51,52 @@ public final class UserName implements UUIDIdentification, Marked, Owned, TimeUp
              WHERE id = $1
              RETURNING id
             """;
-
     public static final String DELETE_FROM_SECURITY_USER_NAME_WHERE_ID_$1 = """
             DELETE FROM security.user_name
              WHERE id = $1
              RETURNING id
             """;
+    public static final String COUNT_SECURITY_USER_NAME = "SELECT count(*) FROM security.user_name";
+    @Serial
+    private static final long serialVersionUID = 3526532892030791269L;
+    private final UUID id;
+    private final String userName;
+    private final String password;
+    private final LocalDateTime createTime;
+    private final LocalDateTime updateTime;
+    private final boolean enabled;
+    private final boolean visible;
+    private final int flags;
+
+    public UserName() {
+        this.id = UUID.randomUUID();
+        this.userName = "root";
+        this.password = "password";
+        this.createTime = LocalDateTime.now();
+        this.updateTime = null;
+        this.enabled = false;
+        this.visible = true;
+        this.flags = 0;
+    }
+
+    public UserName(
+            @Nonnull UUID id,
+            @Nonnull String userName,
+            @Nonnull String password,
+            LocalDateTime createTime,
+            LocalDateTime updateTime,
+            boolean enabled,
+            boolean visible,
+            int flags) {
+        this.id = id;
+        this.userName = userName;
+        this.password = password;
+        this.createTime = createTime;
+        this.updateTime = updateTime;
+        this.enabled = enabled;
+        this.visible = visible;
+        this.flags = flags;
+    }
 
     public static UserName from(Row row) {
         return new UserName(
@@ -114,6 +131,24 @@ public final class UserName implements UUIDIdentification, Marked, Owned, TimeUp
 
     }
 
+    public static Uni<UUID> delete(PgPool client, UUID id) {
+        return client.preparedQuery(DELETE_FROM_SECURITY_USER_NAME_WHERE_ID_$1)
+                .execute(Tuple.of(id))
+                .onItem()
+                .transform(pgRowSet -> pgRowSet.iterator().next().getUUID("id"));
+    }
+
+    public static Uni<Long> count(PgPool client) {
+        return client.preparedQuery(COUNT_SECURITY_USER_NAME)
+                .execute()
+                .onItem()
+                .transform(pgRowSet -> pgRowSet.iterator().next().getLong("count"));
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
     public Uni<UUID> insert(PgPool client) {
         return client.preparedQuery(INSERT_INTO_SECURITY_USER_NAME)
                 .execute(Tuple.of(id, userName, password, enabled, visible, flags))
@@ -128,43 +163,6 @@ public final class UserName implements UUIDIdentification, Marked, Owned, TimeUp
                 .execute(Tuple.of(id, userName, password, enabled, visible, flags))
                 .onItem()
                 .transform(pgRowSet -> pgRowSet.iterator().next().getUUID("id"));
-    }
-
-    public static Uni<UUID> delete(PgPool client, UUID id) {
-        return client.preparedQuery(DELETE_FROM_SECURITY_USER_NAME_WHERE_ID_$1)
-                .execute(Tuple.of(id))
-                .onItem()
-                .transform(pgRowSet -> pgRowSet.iterator().next().getUUID("id"));
-    }
-
-    public UserName() {
-        this.id = UUID.randomUUID();
-        this.userName = "root";
-        this.password = "password";
-        this.createTime = LocalDateTime.now();
-        this.updateTime = null;
-        this.enabled = false;
-        this.visible = true;
-        this.flags = 0;
-    }
-
-    public UserName(
-            @Nonnull UUID id,
-            @Nonnull String userName,
-            @Nonnull String password,
-            LocalDateTime createTime,
-            LocalDateTime updateTime,
-            boolean enabled,
-            boolean visible,
-            int flags) {
-        this.id = id;
-        this.userName = userName;
-        this.password = password;
-        this.createTime = createTime;
-        this.updateTime = updateTime;
-        this.enabled = enabled;
-        this.visible = visible;
-        this.flags = flags;
     }
 
     public UUID getId() {
@@ -237,10 +235,6 @@ public final class UserName implements UUIDIdentification, Marked, Owned, TimeUp
                 ", visible=" + visible +
                 ", flags=" + flags +
                 '}';
-    }
-
-    public static Builder builder() {
-        return new Builder();
     }
 
     public static final class Builder {

@@ -27,8 +27,6 @@ public class WordDao {
 
     public Multi<Word> findAll() {
         LOG.trace("findAll");
-        Multi<Word> result = Word.findAll(client);
-        LOG.tracef("findAll result: %s", result);
         return Word.findAll(client);
     }
 
@@ -49,6 +47,11 @@ public class WordDao {
 
     public Uni<Optional<String>> delete(String id) {
         return Word.delete(client, id)
+                .map(Optional::ofNullable);
+    }
+
+    public Uni<Optional<Long>> count() {
+        return Word.count(client)
                 .map(Optional::ofNullable);
     }
 }

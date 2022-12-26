@@ -27,37 +27,17 @@ import java.util.Objects;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public final class Word implements StringIdentification, Marked, Owned, TimeUpdated, Serializable {
 
-    @Serial
-    private static final long serialVersionUID = 1026290511346629702L;
-
     public static final String NONE = "__NONE__";
-
-    private final String word;
-
-    private final String userName;
-
-    private final LocalDateTime createTime;
-
-    private final LocalDateTime updateTime;
-
-    private final boolean enabled;
-
-    private final boolean visible;
-
-    private final int flags;
-
     public static final String SELECT_FROM_DICTIONARY_WORD_WHERE_WORD_$1 = """
             SELECT word, user_name, create_time, update_time, enabled, visible, flags
               FROM dictionary.word
              WHERE word = $1
             """;
-
     public static final String SELECT_ALL_FROM_DICTIONARY_WORD_ORDER_BY_WORD_ASC = """
             SELECT word, user_name, create_time, update_time, enabled, visible, flags
               FROM dictionary.word
              ORDER BY word ASC
             """;
-
     public static final String INSERT_INTO_DICTIONARY_WORD = """
             INSERT INTO dictionary.word
              (word, user_name, create_time, update_time, enabled, visible, flags)
@@ -65,24 +45,59 @@ public final class Word implements StringIdentification, Marked, Owned, TimeUpda
              ($1, $2, $3, $4, $5, $6, $7)
              RETURNING word
             """;
-
     public static final String UPDATE_DICTIONARY_WORD_WHERE_WORD_$1 = """
-           UPDATE dictionary.word SET
-             user_name = $2,
-             create_time = $3,
-             update_time = $4,
-             enabled = $5,
-             visible = $6,
-             flags = $7
-            WHERE word = $1
-            RETURNING word
-           """;
-
+            UPDATE dictionary.word SET
+              user_name = $2,
+              create_time = $3,
+              update_time = $4,
+              enabled = $5,
+              visible = $6,
+              flags = $7
+             WHERE word = $1
+             RETURNING word
+            """;
     public static final String DELETE_FROM_DICTIONARY_WORD_WHERE_WORD_$1 = """
             DELETE FROM dictionary.word
              WHERE word = $1
              RETURNING word
             """;
+    public static final String COUNT_DICTIONARY_WORD = "SELECT count(*) FROM dictionary.word";
+    @Serial
+    private static final long serialVersionUID = 1026290511346629702L;
+    private final String word;
+    private final String userName;
+    private final LocalDateTime createTime;
+    private final LocalDateTime updateTime;
+    private final boolean enabled;
+    private final boolean visible;
+    private final int flags;
+
+    public Word() {
+        this.word = NONE;
+        this.userName = null;
+        this.createTime = null;
+        this.updateTime = null;
+        this.enabled = false;
+        this.visible = true;
+        this.flags = 0;
+    }
+
+    public Word(
+            @Nonnull String word,
+            String userName,
+            LocalDateTime createTime,
+            LocalDateTime updateTime,
+            boolean enabled,
+            boolean visible,
+            int flags) {
+        this.word = word;
+        this.userName = userName;
+        this.createTime = createTime;
+        this.updateTime = updateTime;
+        this.enabled = enabled;
+        this.visible = visible;
+        this.flags = flags;
+    }
 
     public static Word from(Row row) {
         return new Word(
@@ -116,6 +131,24 @@ public final class Word implements StringIdentification, Marked, Owned, TimeUpda
 
     }
 
+    public static Uni<String> delete(PgPool client, String word) {
+        return client.preparedQuery(DELETE_FROM_DICTIONARY_WORD_WHERE_WORD_$1)
+                .execute(Tuple.of(word))
+                .onItem()
+                .transform(pgRowSet -> pgRowSet.iterator().next().getString("word"));
+    }
+
+    public static Uni<Long> count(PgPool client) {
+        return client.preparedQuery(COUNT_DICTIONARY_WORD)
+                .execute()
+                .onItem()
+                .transform(pgRowSet -> pgRowSet.iterator().next().getLong("count"));
+    }
+
+    public static Word.Builder builder() {
+        return new Word.Builder();
+    }
+
     public Uni<String> insert(PgPool client) {
         return client.preparedQuery(INSERT_INTO_DICTIONARY_WORD)
                 .execute(Tuple.tuple(listOf()))
@@ -132,42 +165,8 @@ public final class Word implements StringIdentification, Marked, Owned, TimeUpda
                 .transform(pgRowSet -> pgRowSet.iterator().next().getString("word"));
     }
 
-    public static Uni<String> delete(PgPool client, String word) {
-        return client.preparedQuery(DELETE_FROM_DICTIONARY_WORD_WHERE_WORD_$1)
-                .execute(Tuple.of(word))
-                .onItem()
-                .transform(pgRowSet -> pgRowSet.iterator().next().getString("word"));
-    }
-
     private List<Object> listOf() {
         return Arrays.asList(word, userName, createTime, updateTime, enabled, visible, flags);
-    }
-
-    public Word() {
-        this.word = NONE;
-        this.userName = null;
-        this.createTime = null;
-        this.updateTime = null;
-        this.enabled = false;
-        this.visible = true;
-        this.flags = 0;
-    }
-
-    public Word(
-            @Nonnull String word,
-            String userName,
-            LocalDateTime createTime,
-            LocalDateTime updateTime,
-            boolean enabled,
-            boolean visible,
-            int flags) {
-        this.word = word;
-        this.userName = userName;
-        this.createTime = createTime;
-        this.updateTime = updateTime;
-        this.enabled = enabled;
-        this.visible = visible;
-        this.flags = flags;
     }
 
     public String getId() {
@@ -238,10 +237,6 @@ public final class Word implements StringIdentification, Marked, Owned, TimeUpda
                 ", visible=" + visible +
                 ", flags=" + flags +
                 '}';
-    }
-
-    public static Word.Builder builder() {
-        return new Word.Builder();
     }
 
     public static final class Builder {

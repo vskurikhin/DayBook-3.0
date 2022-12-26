@@ -27,40 +27,17 @@ import java.util.Objects;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public final class Vocabulary implements LongIdentification, Marked, Owned, TimeUpdated, Serializable {
 
-    @Serial
-    private static final long serialVersionUID = -71735002217330331L;
     public static final String NONE = "__NONE__";
-
-    private final Long id;
-
-    private final String word;
-
-    private final String value;
-
-    private final String userName;
-
-    private final LocalDateTime createTime;
-
-    private final LocalDateTime updateTime;
-
-    private final boolean enabled;
-
-    private final boolean visible;
-
-    private final int flags;
-
     public static final String SELECT_FROM_DICTIONARY_VOCABULARY_WHERE_ID_$1 = """
             SELECT id, word, value, user_name, create_time, update_time, enabled, visible, flags
               FROM dictionary.vocabulary
              WHERE id = $1
             """;
-
     public static final String SELECT_ALL_FROM_DICTIONARY_VOCABULARY_ORDER_BY_ID_ASC = """
             SELECT id, word, value, user_name, create_time, update_time, enabled, visible, flags
               FROM dictionary.vocabulary
              ORDER BY id ASC
             """;
-
     public static final String INSERT_INTO_DICTIONARY_VOCABULARY = """
             INSERT INTO dictionary.vocabulary
              (id, word, value, user_name, enabled, visible, flags)
@@ -68,7 +45,6 @@ public final class Vocabulary implements LongIdentification, Marked, Owned, Time
              (DEFAULT, $1, $2, $3, $4, $5, $6)
              RETURNING id
             """;
-
     public static final String UPDATE_DICTIONARY_VOCABULARY_WHERE_ID_$1 = """
             UPDATE dictionary.vocabulary SET
               word = $2,
@@ -80,12 +56,56 @@ public final class Vocabulary implements LongIdentification, Marked, Owned, Time
              WHERE id = $1
              RETURNING id
             """;
-
     public static final String DELETE_FROM_DICTIONARY_VOCABULARY_WHERE_ID_$1 = """
             DELETE FROM dictionary.vocabulary
              WHERE id = $1
              RETURNING id
             """;
+    public static final String COUNT_DICTIONARY_VOCABULARY = "SELECT count(*) FROM dictionary.vocabulary";
+    @Serial
+    private static final long serialVersionUID = -71735002217330331L;
+    private final Long id;
+    private final String word;
+    private final String value;
+    private final String userName;
+    private final LocalDateTime createTime;
+    private final LocalDateTime updateTime;
+    private final boolean enabled;
+    private final boolean visible;
+    private final int flags;
+
+    public Vocabulary() {
+        this.id = null;
+        this.word = NONE;
+        this.value = null;
+        this.userName = null;
+        this.createTime = null;
+        this.updateTime = null;
+        this.enabled = false;
+        this.visible = true;
+        this.flags = 0;
+    }
+
+    public Vocabulary(
+            Long id,
+            @Nonnull String word,
+            String value,
+            String userName,
+            LocalDateTime createTime,
+            LocalDateTime updateTime,
+            boolean enabled,
+            boolean visible,
+            int flags) {
+        this.id = id;
+        this.word = word;
+        this.value = value;
+        this.userName = userName;
+        this.createTime = createTime;
+        this.updateTime = updateTime;
+        this.enabled = enabled;
+        this.visible = visible;
+        this.flags = flags;
+    }
 
     public static Vocabulary from(Row row) {
         return new Vocabulary(
@@ -121,6 +141,24 @@ public final class Vocabulary implements LongIdentification, Marked, Owned, Time
 
     }
 
+    public static Uni<Long> delete(PgPool client, Long id) {
+        return client.preparedQuery(DELETE_FROM_DICTIONARY_VOCABULARY_WHERE_ID_$1)
+                .execute(Tuple.of(id))
+                .onItem()
+                .transform(pgRowSet -> pgRowSet.iterator().next().getLong("id"));
+    }
+
+    public static Uni<Long> count(PgPool client) {
+        return client.preparedQuery(COUNT_DICTIONARY_VOCABULARY)
+                .execute()
+                .onItem()
+                .transform(pgRowSet -> pgRowSet.iterator().next().getLong("count"));
+    }
+
+    public static Vocabulary.Builder builder() {
+        return new Vocabulary.Builder();
+    }
+
     public Uni<Long> insert(PgPool client) {
         return client.preparedQuery(INSERT_INTO_DICTIONARY_VOCABULARY)
                 .execute(Tuple.of(word, value, userName, enabled, visible, flags))
@@ -137,48 +175,8 @@ public final class Vocabulary implements LongIdentification, Marked, Owned, Time
                 .transform(pgRowSet -> pgRowSet.iterator().next().getLong("id"));
     }
 
-    public static Uni<Long> delete(PgPool client, Long id) {
-        return client.preparedQuery(DELETE_FROM_DICTIONARY_VOCABULARY_WHERE_ID_$1)
-                .execute(Tuple.of(id))
-                .onItem()
-                .transform(pgRowSet -> pgRowSet.iterator().next().getLong("id"));
-    }
-
     private List<Object> listOf() {
         return Arrays.asList(id, word, userName, enabled, visible, flags, value);
-    }
-
-    public Vocabulary() {
-        this.id = null;
-        this.word = NONE;
-        this.value = null;
-        this.userName = null;
-        this.createTime = null;
-        this.updateTime = null;
-        this.enabled = false;
-        this.visible = true;
-        this.flags = 0;
-    }
-
-    public Vocabulary(
-            Long id,
-            @Nonnull String word,
-            String value,
-            String userName,
-            LocalDateTime createTime,
-            LocalDateTime updateTime,
-            boolean enabled,
-            boolean visible,
-            int flags) {
-        this.id = id;
-        this.word = word;
-        this.value = value;
-        this.userName = userName;
-        this.createTime = createTime;
-        this.updateTime = updateTime;
-        this.enabled = enabled;
-        this.visible = visible;
-        this.flags = flags;
     }
 
     public Long getId() {
@@ -249,10 +247,6 @@ public final class Vocabulary implements LongIdentification, Marked, Owned, Time
                 ", visible=" + visible +
                 ", flags=" + flags +
                 '}';
-    }
-
-    public static Vocabulary.Builder builder() {
-        return new Vocabulary.Builder();
     }
 
     public static final class Builder {
