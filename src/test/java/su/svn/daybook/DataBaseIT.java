@@ -11,9 +11,11 @@ package su.svn.daybook;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
 import org.junit.jupiter.api.*;
+import su.svn.daybook.domain.dao.CodifierDao;
 import su.svn.daybook.domain.dao.UserNameDao;
 import su.svn.daybook.domain.dao.VocabularyDao;
 import su.svn.daybook.domain.dao.WordDao;
+import su.svn.daybook.domain.model.Codifier;
 import su.svn.daybook.domain.model.UserName;
 import su.svn.daybook.domain.model.Vocabulary;
 import su.svn.daybook.domain.model.Word;
@@ -21,11 +23,14 @@ import su.svn.daybook.resources.PostgresDatabaseTestResource;
 
 import javax.inject.Inject;
 import java.util.UUID;
-import java.util.concurrent.ExecutionException;
 
 @QuarkusTest
 @QuarkusTestResource(PostgresDatabaseTestResource.class)
 public class DataBaseIT {
+
+
+    @Inject
+    CodifierDao codifierDao;
 
     @Inject
     UserNameDao userNameDao;
@@ -38,6 +43,105 @@ public class DataBaseIT {
 
     @Nested
     @DisplayName("UserNameDao")
+    class CodifierDaoTest {
+
+        String code = "code";
+
+        Codifier codifier;
+
+        @BeforeEach
+        void setUp() {
+            codifier = Codifier.builder()
+                    .withCode(code)
+                    .build();
+            Assertions.assertDoesNotThrow(
+                    () -> Assertions.assertEquals(
+                            code, codifierDao.insert(codifier)
+                                    .subscribeAsCompletionStage()
+                                    .get()
+                                    .orElse(null)
+                    )
+            );
+        }
+
+        @AfterEach
+        void tearDown() {
+            Assertions.assertDoesNotThrow(
+                    () -> Assertions.assertEquals(
+                            code, codifierDao.delete(code)
+                                    .subscribeAsCompletionStage()
+                                    .get()
+                                    .orElse(null)
+                    )
+            );
+            Assertions.assertDoesNotThrow(
+                    () -> Assertions.assertEquals(
+                            0, codifierDao.count()
+                                    .subscribeAsCompletionStage()
+                                    .get()
+                                    .orElse(null)
+                    )
+            );
+        }
+
+        @Test
+        void test() {
+            var expected1 = Codifier.builder()
+                    .withCode(code)
+                    .build();
+            Assertions.assertDoesNotThrow(
+                    () -> {
+                        var test = codifierDao.findByCode(code)
+                                .subscribeAsCompletionStage()
+                                .get()
+                                .orElse(null);
+                        Assertions.assertNotNull(test);
+                        Assertions.assertEquals(expected1, test);
+                        Assertions.assertNotNull(test.getCreateTime());
+                        Assertions.assertNull(test.getUpdateTime());
+                    }
+            );
+            var expected2 = Codifier.builder()
+                    .withCode(code)
+                    .withValue("value")
+                    .build();
+            Assertions.assertDoesNotThrow(
+                    () -> Assertions.assertEquals(
+                            code, codifierDao.update(expected2)
+                                    .subscribeAsCompletionStage()
+                                    .get()
+                                    .orElse(null)
+                    )
+            );
+            Assertions.assertDoesNotThrow(
+                    () -> {
+                        var test = codifierDao.findByCode(code)
+                                .subscribeAsCompletionStage()
+                                .get()
+                                .orElse(null);
+                        Assertions.assertNotNull(test);
+                        Assertions.assertEquals(expected2, test);
+                        Assertions.assertNotNull(test.getCreateTime());
+                        Assertions.assertNotNull(test.getUpdateTime());
+                    }
+            );
+            Assertions.assertDoesNotThrow(
+                    () -> {
+                        var test = codifierDao.findAll()
+                                .collect()
+                                .asList()
+                                .subscribeAsCompletionStage()
+                                .get();
+                        Assertions.assertNotNull(test);
+                        Assertions.assertFalse(test.isEmpty());
+                        Assertions.assertEquals(1, test.size());
+                    }
+            );
+        }
+    }
+
+    @Nested
+    @DisplayName("UserNameDao")
     class UserNameDaoTest {
 
         UUID uuid1 = new UUID(0, 1);
@@ -45,7 +149,7 @@ public class DataBaseIT {
         UserName userName1;
 
         @BeforeEach
-        void setUp() throws ExecutionException, InterruptedException {
+        void setUp() {
             userName1 = UserName.builder()
                     .withId(uuid1)
                     .withUserName("user")
@@ -71,10 +175,18 @@ public class DataBaseIT {
                                     .orElse(null)
                     )
             );
+            Assertions.assertDoesNotThrow(
+                    () -> Assertions.assertEquals(
+                            0, userNameDao.count()
+                                    .subscribeAsCompletionStage()
+                                    .get()
+                                    .orElse(null)
+                    )
+            );
         }
 
         @Test
-        void test() throws ExecutionException, InterruptedException {
+        void test() {
             var expected1 = UserName.builder()
                     .withId(uuid1)
                     .withUserName("user")
@@ -146,7 +258,7 @@ public class DataBaseIT {
         Word word;
 
         @BeforeEach
-        void setUp() throws ExecutionException, InterruptedException {
+        void setUp() {
             vocabulary = Vocabulary.builder()
                     .withWord(veryLongWordIdForTest)
                     .build();
@@ -182,7 +294,23 @@ public class DataBaseIT {
             );
             Assertions.assertDoesNotThrow(
                     () -> Assertions.assertEquals(
+                            0, vocabularyDao.count()
+                                    .subscribeAsCompletionStage()
+                                    .get()
+                                    .orElse(null)
+                    )
+            );
+            Assertions.assertDoesNotThrow(
+                    () -> Assertions.assertEquals(
                             veryLongWordIdForTest, wordDao.delete(veryLongWordIdForTest)
+                                    .subscribeAsCompletionStage()
+                                    .get()
+                                    .orElse(null)
+                    )
+            );
+            Assertions.assertDoesNotThrow(
+                    () -> Assertions.assertEquals(
+                            0, wordDao.count()
                                     .subscribeAsCompletionStage()
                                     .get()
                                     .orElse(null)
@@ -191,7 +319,7 @@ public class DataBaseIT {
         }
 
         @Test
-        void testWordDao() throws ExecutionException, InterruptedException {
+        void testWordDao() {
             var expected1 = Word.builder()
                     .withWord(veryLongWordIdForTest)
                     .build();
@@ -247,7 +375,7 @@ public class DataBaseIT {
         }
 
         @Test
-        void testVocabularyDao() throws ExecutionException, InterruptedException {
+        void testVocabularyDao() {
             var expected1 = Vocabulary.builder()
                     .withId(1L)
                     .withWord(veryLongWordIdForTest)
@@ -264,7 +392,6 @@ public class DataBaseIT {
                         Assertions.assertNull(test.getUpdateTime());
                     }
             );
-            Thread.sleep(20_000);
             var expected2 = Vocabulary.builder()
                     .withId(1L)
                     .withWord(veryLongWordIdForTest)
@@ -304,7 +431,6 @@ public class DataBaseIT {
                         Assertions.assertEquals(1, test.size());
                     }
             );
-            Thread.sleep(10_000);
         }
     }
 }

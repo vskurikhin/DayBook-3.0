@@ -8,85 +8,64 @@
 
 package su.svn.daybook.domain.model;
 
+import nl.jqno.equalsverifier.EqualsVerifier;
+import nl.jqno.equalsverifier.Warning;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static su.svn.daybook.domain.model.Codifier.NONE;
 
 class CodifierTest {
 
     @Test
-    void getCode() {
+    void testConstructors() {
+        Assertions.assertDoesNotThrow(() -> new Codifier());
+        Assertions.assertDoesNotThrow(() -> new Codifier(
+                NONE, null, null, null, null, false, true, 0
+        ));
+    }
+    @Test
+    void testGetters(){
+        var entry = new Codifier();
+        Assertions.assertDoesNotThrow(entry::getId);
+        Assertions.assertDoesNotThrow(entry::getCode);
+        Assertions.assertDoesNotThrow(entry::getValue);
+        Assertions.assertDoesNotThrow(entry::getUserName);
+        Assertions.assertDoesNotThrow(entry::getCreateTime);
+        Assertions.assertDoesNotThrow(entry::getUpdateTime);
+        Assertions.assertDoesNotThrow(entry::getEnabled);
+        Assertions.assertDoesNotThrow(entry::isEnabled);
+        Assertions.assertDoesNotThrow(entry::getVisible);
+        Assertions.assertDoesNotThrow(entry::isVisible);
+        Assertions.assertDoesNotThrow(entry::getFlags);
     }
 
     @Test
-    void setCode() {
-    }
-
-    @Test
-    void getValue() {
-    }
-
-    @Test
-    void setValue() {
-    }
-
-    @Test
-    void getUserName() {
-    }
-
-    @Test
-    void setUserName() {
-    }
-
-    @Test
-    void getCreateTime() {
-    }
-
-    @Test
-    void setCreateTime() {
-    }
-
-    @Test
-    void getUpdateTime() {
-    }
-
-    @Test
-    void setUpdateTime() {
-    }
-
-    @Test
-    void getEnabled() {
-    }
-
-    @Test
-    void setEnabled() {
-    }
-
-    @Test
-    void getVisible() {
-    }
-
-    @Test
-    void setVisible() {
-    }
-
-    @Test
-    void getFlags() {
-    }
-
-    @Test
-    void setFlags() {
-    }
-
-    @Test
-    void testEquals() {
-    }
-
-    @Test
-    void testHashCode() {
+    void testEqualsVerifier() {
+        EqualsVerifier.forClass(Codifier.class)
+                .suppress(Warning.NONFINAL_FIELDS)
+                .withIgnoredFields("createTime")
+                .withIgnoredFields("updateTime")
+                .verify();
     }
 
     @Test
     void testToString() {
+        var entry = new Codifier();
+        Assertions.assertDoesNotThrow(() -> Assertions.assertNotNull(entry.toString()));
+    }
+
+    @Test
+    void testBuilder() {
+        Assertions.assertDoesNotThrow(() -> Assertions.assertNotNull(Codifier.builder()
+                .withCode(NONE)
+                .withValue(null)
+                .withUserName(null)
+                .withCreateTime(null)
+                .withUpdateTime(null)
+                .withEnabled(false)
+                .withVisible(true)
+                .withFlags(0)
+                .build()));
     }
 }

@@ -11,6 +11,7 @@ package su.svn.daybook.domain.dao;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import org.jboss.logging.Logger;
+import su.svn.daybook.domain.model.Codifier;
 import su.svn.daybook.domain.model.UserName;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -50,6 +51,11 @@ public class UserNameDao {
 
     public Uni<Optional<UUID>> delete(UUID id) {
         return UserName.delete(client, id)
+                .map(Optional::ofNullable);
+    }
+
+    public Uni<Optional<Long>> count() {
+        return UserName.count(client)
                 .map(Optional::ofNullable);
     }
 }

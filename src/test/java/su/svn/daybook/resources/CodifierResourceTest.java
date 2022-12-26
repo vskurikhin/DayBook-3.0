@@ -10,6 +10,7 @@ import org.mockito.Mockito;
 import su.svn.daybook.DataTest;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.messages.DictionaryResponse;
+import su.svn.daybook.domain.model.Codifier;
 import su.svn.daybook.services.CodifierService;
 
 import javax.ws.rs.core.HttpHeaders;
@@ -29,7 +30,7 @@ class CodifierResourceTest {
 
     static Uni<Answer> nullAnswer = Uni.createFrom().item(() -> null);
 
-    static Uni<Answer> tezdId = Uni.createFrom().item(Answer.of(DictionaryResponse.code("code")));
+    static Uni<Answer> tezdId = Uni.createFrom().item(Answer.of(DictionaryResponse.code(Codifier.NONE)));
 
     @BeforeAll
     public static void setup() {
@@ -44,17 +45,17 @@ class CodifierResourceTest {
     }
 
     @Test
-    void testEndpoint_get() {
+    void testEndpointGet() {
         given()
                 .when()
                 .get("/code/code")
                 .then()
                 .statusCode(200)
-                .body(CoreMatchers.startsWith("{\"code\":\"code\"}"));
+                .body(CoreMatchers.startsWith(DataTest.JSON_Codifier_0));
     }
 
     @Test
-    void testEndpoint_add() {
+    void testEndpointAdd() {
         given()
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                 .body(DataTest.JSON_Codifier_0)
@@ -62,11 +63,11 @@ class CodifierResourceTest {
                 .post("/code/add")
                 .then()
                 .statusCode(200)
-                .body(CoreMatchers.startsWith("{\"code\":\"code\"}"));
+                .body(CoreMatchers.startsWith(DataTest.JSON_Codifier_Id_0));
     }
 
     @Test
-    void testEndpoint_put() {
+    void testEndpointPut() {
         given()
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                 .body(DataTest.JSON_Codifier_0)
@@ -74,16 +75,16 @@ class CodifierResourceTest {
                 .put("/code/put")
                 .then()
                 .statusCode(200)
-                .body(CoreMatchers.startsWith("{\"code\":\"code\"}"));
+                .body(CoreMatchers.startsWith(DataTest.JSON_Codifier_Id_0));
     }
 
     @Test
-    void testEndpoint_delete() {
+    void testEndpointDelete() {
         given()
                 .when()
                 .delete("/code/code")
                 .then()
                 .statusCode(200)
-                .body(CoreMatchers.startsWith("{\"code\":\"code\"}"));
+                .body(CoreMatchers.startsWith(DataTest.JSON_Codifier_Id_0));
     }
 }

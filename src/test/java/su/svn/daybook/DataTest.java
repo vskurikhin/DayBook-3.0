@@ -20,11 +20,16 @@ public class DataTest {
     public static Answer errorEmpty = new Answer("EMPTY", 404);
 
     public static final Codifier OBJECT_Codifier_0 = new Codifier(
-            "code", null, null, null, null, null, null, null
+            Codifier.NONE, null, null, null, null, false, true, 0
     );
-    public static final String JSON_Codifier_0 = "{\"code\":\"code\"}";
+    public static final String JSON_Codifier_0 = """
+            {"code":"\
+            """ + Codifier.NONE + """
+            ","enabled":false,"visible":true,"flags":0,"id":"\
+            """ + Codifier.NONE + "\"}";
+    public static final String JSON_Codifier_Id_0 = "{\"code\":\"" + Codifier.NONE + "\"}";
 
-    public static final String JSON_ARRAY_Codifier_0 = "[{\"code\":\"code\"}]";
+    public static final String JSON_ARRAY_Codifier_0 = "[" + JSON_Codifier_0 + "]";
 
     public static final Word OBJECT_Word_0 = new Word(
             Word.NONE, null, null, null, false, true, 0

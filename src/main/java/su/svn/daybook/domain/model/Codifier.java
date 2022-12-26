@@ -16,65 +16,95 @@ import io.vertx.mutiny.sqlclient.Row;
 import io.vertx.mutiny.sqlclient.RowSet;
 import io.vertx.mutiny.sqlclient.Tuple;
 
+import javax.annotation.Nonnull;
+import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class Codifier implements Serializable {
+public final class Codifier implements StringIdentification, Marked, Owned, TimeUpdated, Serializable {
 
+    public static final String NONE = "__NONE__";
+    public static final String SELECT_FROM_DICTIONARY_CODIFIER_WHERE_CODE_$1 = """
+            SELECT code, value, user_name, create_time, update_time, enabled, visible, flags
+              FROM dictionary.codifier
+             WHERE code = $1
+            """;
+    public static final String SELECT_ALL_FROM_DICTIONARY_CODIFIER_ORDER_BY_CODE = """
+            SELECT code, value, user_name, create_time, update_time, enabled, visible, flags
+              FROM dictionary.codifier
+             ORDER BY code
+            """;
+    public static final String INSERT_INTO_DICTIONARY_CODIFIER = """
+            INSERT INTO dictionary.codifier
+             (code, value, user_name, create_time, update_time, enabled, visible, flags)
+             VALUES
+             ($1, $2, $3, $4, $5, $6, $7, $8)
+             RETURNING code
+            """;
+    public static final String UPDATE_DICTIONARY_CODIFIER_WHERE_CODE_$1 = """
+            UPDATE dictionary.codifier SET
+              value = $2,
+              user_name = $3,
+              create_time = $4,
+              update_time = $5,
+              enabled = $6,
+              visible = $7,
+              flags = $8
+             WHERE code = $1
+             RETURNING code
+            """;
+    public static final String DELETE_FROM_DICTIONARY_CODIFIER_WHERE_CODE_$1 = """
+            DELETE FROM dictionary.codifier
+             WHERE code = $1
+             RETURNING code
+            """;
+    public static final String COUNT_DICTIONARY_CODIFIER = "SELECT count(*) FROM dictionary.codifier";
+    @Serial
     private static final long serialVersionUID = 1265480523704797546L;
+    @Nonnull
+    private final String code;
+    private final String value;
+    private final String userName;
+    private final LocalDateTime createTime;
+    private final LocalDateTime updateTime;
+    private final boolean enabled;
+    private final boolean visible;
+    private final int flags;
 
-    private String code;
+    public Codifier() {
+        this.code = NONE;
+        this.value = null;
+        this.userName = null;
+        this.createTime = null;
+        this.updateTime = null;
+        this.enabled = false;
+        this.visible = true;
+        this.flags = 0;
+    }
 
-    private String value;
-
-    private String userName;
-
-    private LocalDateTime createTime;
-
-    private LocalDateTime updateTime;
-
-    private Boolean enabled;
-
-    private Boolean visible;
-
-    private Integer flags;
-
-    public static final String SELECT_FROM_DICTIONARY_CODIFIER_WHERE_CODE_$1
-            = "SELECT code, value, user_name, create_time, update_time, enabled, visible, flags "
-            + "  FROM dictionary.codifier "
-            + " WHERE code = $1";
-
-    public static final String SELECT_ALL_FROM_DICTIONARY_CODIFIER_ORDER_BY_CODE
-            = "SELECT code, value, user_name, create_time, update_time, enabled, visible, flags "
-            + "  FROM dictionary.codifier "
-            + " ORDER BY code";
-
-    public static final String INSERT_INTO_DICTIONARY_CODIFIER
-            = "INSERT INTO dictionary.codifier "
-            + " (code, value, user_name, create_time, update_time, enabled, visible, flags) "
-            + " VALUES "
-            + " ($1, $2, $3, $4, $5, $6, $7, $8) "
-            + " RETURNING code";
-
-    public static final String UPDATE_DICTIONARY_CODIFIER_WHERE_CODE_$1
-            = "UPDATE dictionary.codifier "
-            + " SET "
-            + "  value = $2, "
-            + "  user_name = $3, "
-            + "  create_time = $4, "
-            + "  update_time = $5,"
-            + "  enabled = $6, "
-            + "  visible = $7, "
-            + "  flags = $8 "
-            + " WHERE code = $1 "
-            + " RETURNING code";
-
-    public static final String DELETE_FROM_DICTIONARY_CODIFIER_WHERE_CODE_$1
-            = "DELETE FROM dictionary.codifier "
-            + " WHERE code = $1 "
-            + " RETURNING code";
+    public Codifier(
+            @Nonnull
+            String code,
+            String value,
+            String userName,
+            LocalDateTime createTime,
+            LocalDateTime updateTime,
+            boolean enabled,
+            boolean visible,
+            int flags) {
+        this.code = code;
+        this.value = value;
+        this.userName = userName;
+        this.createTime = createTime;
+        this.updateTime = updateTime;
+        this.enabled = enabled;
+        this.visible = visible;
+        this.flags = flags;
+    }
 
     public static Codifier from(Row row) {
         return new Codifier(
@@ -109,25 +139,6 @@ public class Codifier implements Serializable {
 
     }
 
-    public Uni<String> insert(PgPool client) {
-        return client.preparedQuery(INSERT_INTO_DICTIONARY_CODIFIER)
-                .execute(Tuple.of(listOf()))
-                .onItem()
-                .transform(RowSet::iterator)
-                .onItem()
-                .transform(iterator -> iterator.hasNext() ? iterator.next().getString("code") : null);
-    }
-
-    public Uni<String> update(PgPool client) {
-        updateTime = LocalDateTime.now();
-        return client.preparedQuery(UPDATE_DICTIONARY_CODIFIER_WHERE_CODE_$1)
-                .execute(Tuple.of(listOf()))
-                .onItem()
-                .transform(RowSet::iterator)
-                .onItem()
-                .transform(iterator -> iterator.hasNext() ? iterator.next().getString("code") : null);
-    }
-
     public static Uni<String> delete(PgPool client, String code) {
         return client.preparedQuery(DELETE_FROM_DICTIONARY_CODIFIER_WHERE_CODE_$1)
                 .execute(Tuple.of(code))
@@ -135,123 +146,99 @@ public class Codifier implements Serializable {
                 .transform(pgRowSet -> pgRowSet.iterator().next().getString("code"));
     }
 
-    private List<?> listOf() {
-        return List.of(code, value, userName, createTime, updateTime, enabled, visible, flags);
+    public static Uni<Long> count(PgPool client) {
+        return client.preparedQuery(COUNT_DICTIONARY_CODIFIER)
+                .execute()
+                .onItem()
+                .transform(pgRowSet -> pgRowSet.iterator().next().getLong("count"));
     }
 
-    public Codifier() {}
+    public static Codifier.Builder builder() {
+        return new Codifier.Builder();
+    }
 
-    public Codifier(
-            String code,
-            String value,
-            String userName,
-            LocalDateTime createTime,
-            LocalDateTime updateTime,
-            Boolean enabled,
-            Boolean visible,
-            Integer flags) {
-        this.code = code;
-        this.value = value;
-        this.userName = userName;
-        this.createTime = createTime;
-        this.updateTime = updateTime;
-        this.enabled = enabled;
-        this.visible = visible;
-        this.flags = flags;
+    public Uni<String> insert(PgPool client) {
+        return client.preparedQuery(INSERT_INTO_DICTIONARY_CODIFIER)
+                .execute(Tuple.tuple(listOf()))
+                .onItem()
+                .transform(RowSet::iterator)
+                .onItem()
+                .transform(iterator -> iterator.hasNext() ? iterator.next().getString("code") : null);
+    }
+
+    public Uni<String> update(PgPool client) {
+        return client.preparedQuery(UPDATE_DICTIONARY_CODIFIER_WHERE_CODE_$1)
+                .execute(Tuple.tuple(listOf()))
+                .onItem()
+                .transform(RowSet::iterator)
+                .onItem()
+                .transform(iterator -> iterator.hasNext() ? iterator.next().getString("code") : null);
+    }
+
+    private List<Object> listOf() {
+        return Arrays.asList(code, value, userName, createTime, updateTime, enabled, visible, flags);
+    }
+
+    public String getId() {
+        return code;
     }
 
     public String getCode() {
         return code;
     }
 
-    public void setCode(String code) {
-        this.code = code;
-    }
-
     public String getValue() {
         return value;
-    }
-
-    public void setValue(String value) {
-        this.value = value;
     }
 
     public String getUserName() {
         return userName;
     }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
-    }
-
     public LocalDateTime getCreateTime() {
         return createTime;
-    }
-
-    public void setCreateTime(LocalDateTime createTime) {
-        this.createTime = createTime;
     }
 
     public LocalDateTime getUpdateTime() {
         return updateTime;
     }
 
-    public void setUpdateTime(LocalDateTime updateTime) {
-        this.updateTime = updateTime;
-    }
-
-    public Boolean getEnabled() {
+    public boolean getEnabled() {
         return enabled;
     }
 
-    public void setEnabled(Boolean enabled) {
-        this.enabled = enabled;
+    public boolean isEnabled() {
+        return enabled;
     }
 
-    public Boolean getVisible() {
+    public boolean getVisible() {
         return visible;
     }
 
-    public void setVisible(Boolean visible) {
-        this.visible = visible;
+    public boolean isVisible() {
+        return visible;
     }
 
-    public Integer getFlags() {
+    public int getFlags() {
         return flags;
-    }
-
-    public void setFlags(Integer flags) {
-        this.flags = flags;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Codifier)) return false;
-
+        if (o == null || getClass() != o.getClass()) return false;
         Codifier codifier = (Codifier) o;
-
-        if (code != null ? !code.equals(codifier.code) : codifier.code != null) return false;
-        if (value != null ? !value.equals(codifier.value) : codifier.value != null) return false;
-        if (userName != null ? !userName.equals(codifier.userName) : codifier.userName != null) return false;
-        if (createTime != null ? !createTime.equals(codifier.createTime) : codifier.createTime != null) return false;
-        if (updateTime != null ? !updateTime.equals(codifier.updateTime) : codifier.updateTime != null) return false;
-        if (enabled != null ? !enabled.equals(codifier.enabled) : codifier.enabled != null) return false;
-        if (visible != null ? !visible.equals(codifier.visible) : codifier.visible != null) return false;
-        return flags != null ? flags.equals(codifier.flags) : codifier.flags == null;
+        return enabled == codifier.enabled
+                && visible == codifier.visible
+                && flags == codifier.flags
+                && Objects.equals(code, codifier.code)
+                && Objects.equals(value, codifier.value)
+                && Objects.equals(userName, codifier.userName);
     }
 
     @Override
     public int hashCode() {
-        int result = code != null ? code.hashCode() : 0;
-        result = 31 * result + (value != null ? value.hashCode() : 0);
-        result = 31 * result + (userName != null ? userName.hashCode() : 0);
-        result = 31 * result + (createTime != null ? createTime.hashCode() : 0);
-        result = 31 * result + (updateTime != null ? updateTime.hashCode() : 0);
-        result = 31 * result + (enabled != null ? enabled.hashCode() : 0);
-        result = 31 * result + (visible != null ? visible.hashCode() : 0);
-        result = 31 * result + (flags != null ? flags.hashCode() : 0);
-        return result;
+        return Objects.hash(code, value, userName, enabled, visible, flags);
     }
 
     @Override
@@ -268,24 +255,20 @@ public class Codifier implements Serializable {
                 '}';
     }
 
-    public static Codifier.Builder builder() {
-        return new Codifier.Builder();
-    }
-
     public static final class Builder {
         private String code;
         private String value;
         private String userName;
         private LocalDateTime createTime;
         private LocalDateTime updateTime;
-        private Boolean enabled;
-        private Boolean visible;
-        private Integer flags;
+        private boolean enabled;
+        private boolean visible;
+        private int flags;
 
         private Builder() {
         }
 
-        public Builder withCode(String code) {
+        public Builder withCode(@Nonnull String code) {
             this.code = code;
             return this;
         }
@@ -310,32 +293,23 @@ public class Codifier implements Serializable {
             return this;
         }
 
-        public Builder withEnabled(Boolean enabled) {
+        public Builder withEnabled(boolean enabled) {
             this.enabled = enabled;
             return this;
         }
 
-        public Builder withVisible(Boolean visible) {
+        public Builder withVisible(boolean visible) {
             this.visible = visible;
             return this;
         }
 
-        public Builder withFlags(Integer flags) {
+        public Builder withFlags(int flags) {
             this.flags = flags;
             return this;
         }
 
         public Codifier build() {
-            Codifier codifier = new Codifier();
-            codifier.setCode(code);
-            codifier.setValue(value);
-            codifier.setUserName(userName);
-            codifier.setCreateTime(createTime);
-            codifier.setUpdateTime(updateTime);
-            codifier.setEnabled(enabled);
-            codifier.setVisible(visible);
-            codifier.setFlags(flags);
-            return codifier;
+            return new Codifier(code, value, userName, createTime, updateTime, enabled, visible, flags);
         }
     }
 }

@@ -49,4 +49,9 @@ public class VocabularyDao {
         return Vocabulary.delete(client, id)
                 .map(Optional::ofNullable);
     }
+
+    public Uni<Optional<Long>> count() {
+        return Vocabulary.count(client)
+                .map(Optional::ofNullable);
+    }
 }

@@ -6,14 +6,14 @@
 --
 
 --
-DROP TRIGGER IF EXISTS update_update_time_dictionary_codifier ON dictionary.codifier;
+DROP TRIGGER IF EXISTS update_create_time_dictionary_codifier ON dictionary.codifier;
 CREATE TRIGGER update_create_time_dictionary_codifier
     BEFORE INSERT
     ON dictionary.codifier
     FOR EACH ROW
 EXECUTE FUNCTION dictionary.update_create_time();
 
-DROP TRIGGER IF EXISTS update_create_time_dictionary_codifier ON dictionary.codifier;
+DROP TRIGGER IF EXISTS update_update_time_dictionary_codifier ON dictionary.codifier;
 CREATE TRIGGER update_update_time_dictionary_codifier
     BEFORE UPDATE
     ON dictionary.codifier
