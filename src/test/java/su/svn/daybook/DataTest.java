@@ -29,11 +29,19 @@ public class DataTest {
     public static final String JSON_ARRAY_Codifier_0 = "[{\"code\":\"code\"}]";
 
     public static final Word OBJECT_Word_0 = new Word(
-            "word", null, null, null, null, null, null
+            Word.NONE, null, null, null, false, true, 0
     );
-    public static final String JSON_Word_0 = "{\"word\":\"word\"}";
 
-    public static final String JSON_ARRAY_Word_0 = "[{\"word\":\"word\"}]";
+    public static final String JSON_Word_0 = """
+            {"word":"\
+            """ + Word.NONE + """
+            ","enabled":false,"visible":true,"flags":0,"id":"__NONE__"}\
+            """;
+
+
+    public static final String JSON_Word_Id_0 = "{\"word\":\"" + Word.NONE + "\"}";
+
+    public static final String JSON_ARRAY_Word_0 = "[" + JSON_Word_0 + "]";
 
     public static final Language OBJECT_Language_0 = new Language(
             0L, null, null, null, null, null, null, null
@@ -43,11 +51,11 @@ public class DataTest {
     public static final String JSON_ARRAY_Language_0 = "[{\"id\":0}]";
 
     public static final Vocabulary OBJECT_Vocabulary_0 = new Vocabulary(
-            0L, NONE, null, null, null, null, false, true, 0
+            0L, Vocabulary.NONE, null, null, null, null, false, true, 0
     );
     public static final String JSON_Vocabulary_0 = """
             {"id":0,"word":"\
-            """ + NONE + """
+            """ + Vocabulary.NONE + """
             ","enabled":false,"visible":true,"flags":0}\
             """;
 

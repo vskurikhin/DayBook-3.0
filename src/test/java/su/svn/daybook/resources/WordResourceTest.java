@@ -19,6 +19,7 @@ import su.svn.daybook.DataTest;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.messages.ApiResponse;
 import su.svn.daybook.domain.messages.DictionaryResponse;
+import su.svn.daybook.domain.model.Word;
 import su.svn.daybook.services.WordService;
 
 import javax.ws.rs.core.HttpHeaders;
@@ -38,7 +39,7 @@ class WordResourceTest {
 
     static Uni<Answer> nullAnswer = Uni.createFrom().item(() -> null);
 
-    static Uni<Answer> tezdId = Uni.createFrom().item(Answer.of(DictionaryResponse.word("word")));
+    static Uni<Answer> tezdId = Uni.createFrom().item(Answer.of(DictionaryResponse.word(Word.NONE)));
 
     @BeforeEach
     void setUp() {
@@ -53,7 +54,7 @@ class WordResourceTest {
     }
 
     @Test
-    void testEndpoint_get() {
+    void testEndpointGet() {
         given()
                 .when()
                 .get("/word/word")
@@ -63,7 +64,7 @@ class WordResourceTest {
     }
 
     @Test
-    void testEndpoint_get_whenNone() {
+    void testEndpointGetWhenNone() {
         given()
                 .when()
                 .get("/word/" + Integer.MAX_VALUE)
@@ -72,7 +73,7 @@ class WordResourceTest {
     }
 
     @Test
-    void testEndpoint_get_whenNull() {
+    void testEndpointGetWhenNull() {
         given()
                 .when()
                 .get("/word/" + Integer.MIN_VALUE)
@@ -81,7 +82,7 @@ class WordResourceTest {
     }
 
     @Test
-    void testEndpoint_add() {
+    void testEndpointAdd() {
         given()
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                 .body(DataTest.JSON_Word_0)
@@ -89,11 +90,11 @@ class WordResourceTest {
                 .post("/word/add")
                 .then()
                 .statusCode(200)
-                .body(CoreMatchers.startsWith(DataTest.JSON_Word_0));
+                .body(CoreMatchers.startsWith(DataTest.JSON_Word_Id_0));
     }
 
     @Test
-    void testEndpoint_put() {
+    void testEndpointPut() {
         given()
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                 .body(DataTest.JSON_Word_0)
@@ -101,16 +102,16 @@ class WordResourceTest {
                 .put("/word/put")
                 .then()
                 .statusCode(200)
-                .body(CoreMatchers.startsWith(DataTest.JSON_Word_0));
+                .body(CoreMatchers.startsWith(DataTest.JSON_Word_Id_0));
     }
 
     @Test
-    void testEndpoint_delete() {
+    void testEndpointDelete() {
         given()
                 .when()
                 .delete("/word/word")
                 .then()
                 .statusCode(200)
-                .body(CoreMatchers.startsWith(DataTest.JSON_Word_0));
+                .body(CoreMatchers.startsWith(DataTest.JSON_Word_Id_0));
     }
 }

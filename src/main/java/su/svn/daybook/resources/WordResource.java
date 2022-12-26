@@ -11,6 +11,7 @@ package su.svn.daybook.resources;
 import io.smallrye.mutiny.Uni;
 import io.vertx.mutiny.core.eventbus.EventBus;
 import io.vertx.mutiny.core.eventbus.Message;
+import org.jboss.logging.Logger;
 import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.enums.ResourcePath;
 import su.svn.daybook.domain.messages.Answer;
@@ -28,6 +29,8 @@ import javax.ws.rs.core.Response;
 
 @Path(ResourcePath.WORD)
 public class WordResource {
+
+    private static final Logger LOG = Logger.getLogger(WordResource.class);
 
     @Inject
     EventBus bus;
@@ -71,6 +74,7 @@ public class WordResource {
     }
 
     private Response.ResponseBuilder createResponseBuilder(Message<Answer> message) {
+        LOG.debugf("createResponseBuilder(Message<%s>)", message.body());
         if (message.body() == null) {
             return Response.status(406, "body is null");
         }
