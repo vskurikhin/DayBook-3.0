@@ -16,7 +16,6 @@ class @Name@Test {
                 null, NONE, null, null, null, null, false, true, 0
         ));
     }
-
     @Test
     void testGetters(){
         var entry = new @Name@();
@@ -27,7 +26,9 @@ class @Name@Test {
         Assertions.assertDoesNotThrow(entry::getCreateTime);
         Assertions.assertDoesNotThrow(entry::getUpdateTime);
         Assertions.assertDoesNotThrow(entry::getEnabled);
+        Assertions.assertDoesNotThrow(entry::isEnabled);
         Assertions.assertDoesNotThrow(entry::getVisible);
+        Assertions.assertDoesNotThrow(entry::isVisible);
         Assertions.assertDoesNotThrow(entry::getFlags);
     }
 
@@ -49,15 +50,15 @@ class @Name@Test {
     @Test
     void testBuilder() {
         Assertions.assertDoesNotThrow(() -> Assertions.assertNotNull(@Name@.builder()
-                .withId(null)
-                .with@Key@(NONE)
-                .with@Value@(null)
-                .withUserName(null)
-                .withCreateTime(null)
-                .withUpdateTime(null)
-                .withEnabled(false)
-                .withVisible(true)
-                .withFlags(0)
+                .id(null)
+                .@key@(NONE)
+                .@value@(null)
+                .userName(null)
+                .createTime(null)
+                .updateTime(null)
+                .enabled(false)
+                .visible(true)
+                .flags(0)
                 .build()));
     }
 }

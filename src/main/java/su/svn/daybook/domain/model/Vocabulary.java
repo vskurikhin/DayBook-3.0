@@ -207,7 +207,15 @@ public final class Vocabulary implements LongIdentification, Marked, Owned, Time
         return enabled;
     }
 
+    public boolean isEnabled() {
+        return enabled;
+    }
+
     public boolean getVisible() {
+        return visible;
+    }
+
+    public boolean isVisible() {
         return visible;
     }
 
