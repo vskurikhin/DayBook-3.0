@@ -263,55 +263,53 @@ public final class Vocabulary implements LongIdentification, Marked, Owned, Time
         private Builder() {
         }
 
-        public Builder withId(Long id) {
+        public Builder id(Long id) {
             this.id = id;
             return this;
         }
 
-        public Builder withWord(@Nonnull String word) {
+        public Builder word(String word) {
             this.word = word;
             return this;
         }
 
-        public Builder withValue(String value) {
+        public Builder value(String value) {
             this.value = value;
             return this;
         }
 
-        public Builder withUserName(String userName) {
+        public Builder userName(String userName) {
             this.userName = userName;
             return this;
         }
 
-        public Builder withCreateTime(LocalDateTime createTime) {
+        public Builder createTime(LocalDateTime createTime) {
             this.createTime = createTime;
             return this;
         }
 
-        public Builder withUpdateTime(LocalDateTime updateTime) {
+        public Builder updateTime(LocalDateTime updateTime) {
             this.updateTime = updateTime;
             return this;
         }
 
-        public Builder withEnabled(boolean enabled) {
+        public Builder enabled(boolean enabled) {
             this.enabled = enabled;
             return this;
         }
 
-        public Builder withVisible(boolean visible) {
+        public Builder visible(boolean visible) {
             this.visible = visible;
             return this;
         }
 
-        public Builder withFlags(int flags) {
+        public Builder flags(int flags) {
             this.flags = flags;
             return this;
         }
 
         public Vocabulary build() {
-            return new Vocabulary(
-                    id, word, value, userName, createTime, updateTime, enabled, visible, flags
-            );
+            return new Vocabulary(id, word, value, userName, createTime, updateTime, enabled, visible, flags);
         }
     }
 }

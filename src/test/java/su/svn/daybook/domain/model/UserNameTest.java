@@ -49,14 +49,14 @@ class UserNameTest {
     @Test
     void testBuilder() {
         Assertions.assertDoesNotThrow(() -> Assertions.assertNotNull(UserName.builder()
-                .withId(UUID.randomUUID())
-                .withUserName("root")
-                .withPassword("password")
-                .withCreateTime(null)
-                .withUpdateTime(null)
-                .withEnabled(false)
-                .withVisible(true)
-                .withFlags(0)
+                .id(UUID.randomUUID())
+                .userName("root")
+                .password("password")
+                .createTime(null)
+                .updateTime(null)
+                .enabled(false)
+                .visible(true)
+                .flags(0)
                 .build()));
     }
 }

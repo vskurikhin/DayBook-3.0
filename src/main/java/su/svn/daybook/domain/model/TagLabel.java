@@ -16,65 +16,96 @@ import io.vertx.mutiny.sqlclient.Row;
 import io.vertx.mutiny.sqlclient.RowSet;
 import io.vertx.mutiny.sqlclient.Tuple;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class TagLabel implements Serializable {
+public final class TagLabel implements StringIdentification, Marked, Owned, TimeUpdated, Serializable {
 
+    public static final String SELECT_FROM_DICTIONARY_TAG_LABEL_WHERE_ID_$1 = """
+            SELECT id, label, user_name, create_time, update_time, enabled, visible, flags
+              FROM dictionary.tag_label
+             WHERE id = $1
+            """;
+    public static final String SELECT_ALL_FROM_DICTIONARY_TAG_LABEL_ORDER_BY_ID_ASC = """
+            SELECT id, label, user_name, create_time, update_time, enabled, visible, flags
+              FROM dictionary.tag_label
+             ORDER BY id ASC
+            """;
+    public static final String INSERT_INTO_DICTIONARY_TAG_LABEL = """
+            INSERT INTO dictionary.tag_label
+             (id, label, user_name, enabled, visible, flags)
+             VALUES
+             ($1, $2, $3, $4, $5, $6)
+             RETURNING id
+            """;
+    public static final String INSERT_INTO_DICTIONARY_TAG_LABEL_WITH_DEFAULT_ID = """
+            INSERT INTO dictionary.tag_label
+             (id, label, user_name, enabled, visible, flags)
+             VALUES
+             (DEFAULT, $1, $2, $3, $4, $5)
+             RETURNING id
+            """;
+    public static final String UPDATE_DICTIONARY_TAG_LABEL_WHERE_ID_$1 = """
+            UPDATE dictionary.tag_label SET
+              label = $2,
+              user_name = $3,
+              enabled = $4,
+              visible = $5,
+              flags = $6
+             WHERE id = $1
+             RETURNING id
+            """;
+    public static final String DELETE_FROM_DICTIONARY_TAG_LABEL_WHERE_ID_$1 = """
+            DELETE FROM dictionary.tag_label
+             WHERE id = $1
+             RETURNING id
+            """;
+    public static final String COUNT_DICTIONARY_TAG_LABE = "SELECT count(*) FROM dictionary.tag_label";
+    @Serial
     private static final long serialVersionUID = 7430969393917118489L;
+    private final String id;
+    private final String label;
+    private final String userName;
+    private final LocalDateTime createTime;
+    private final LocalDateTime updateTime;
+    private final boolean enabled;
+    private final boolean visible;
+    private final int flags;
 
-    private String id;
+    public TagLabel() {
+        this.id = null;
+        this.label = null;
+        this.userName = null;
+        this.createTime = null;
+        this.updateTime = null;
+        this.enabled = false;
+        this.visible = true;
+        this.flags = 0;
+    }
 
-    private String label;
-
-    private String userName;
-
-    private LocalDateTime createTime;
-
-    private LocalDateTime updateTime;
-
-    private Boolean enabled;
-
-    private Boolean visible;
-
-    private Integer flags;
-
-    public static final String SELECT_FROM_DICTIONARY_TAG_LABEL_WHERE_ID_$1
-            = "SELECT id, label, user_name, create_time, update_time, enabled, visible, flags "
-            + "  FROM dictionary.tag_label "
-            + " WHERE id = $1";
-
-    public static final String SELECT_ALL_FROM_DICTIONARY_TAG_LABEL_ORDER_BY_ID_ASC
-            = "SELECT id, label, user_name, create_time, update_time, enabled, visible, flags "
-            + "  FROM dictionary.tag_label "
-            + " ORDER BY id ASC";
-
-    public static final String INSERT_INTO_DICTIONARY_TAG_LABEL
-            = "INSERT INTO dictionary.tag_label "
-            + " (id, label, user_name, create_time, update_time, enabled, visible, flags) "
-            + " VALUES "
-            + " ($1, $2, $3, now(), now(), $4, $5, $6) "
-            + " RETURNING id";
-
-    public static final String UPDATE_DICTIONARY_TAG_LABEL_WHERE_ID_$1
-            = "UPDATE dictionary.tag_label "
-            + " SET "
-            + "  label = $2,"
-            + "  user_name = $3, "
-            + "  create_time = $4, "
-            + "  update_time = $5,"
-            + "  enabled = $6, "
-            + "  visible = $7, "
-            + "  flags = $8 "
-            + " WHERE id = $1 "
-            + " RETURNING id";
-
-    public static final String DELETE_FROM_DICTIONARY_TAG_LABEL_WHERE_ID_$1
-            = "DELETE FROM dictionary.tag_label "
-            + " WHERE id = $1 "
-            + " RETURNING id";
+    public TagLabel(
+            String id,
+            String label,
+            String userName,
+            LocalDateTime createTime,
+            LocalDateTime updateTime,
+            boolean enabled,
+            boolean visible,
+            int flags) {
+        this.id = id;
+        this.label = label;
+        this.userName = userName;
+        this.createTime = createTime;
+        this.updateTime = updateTime;
+        this.enabled = enabled;
+        this.visible = visible;
+        this.flags = flags;
+    }
 
     public static TagLabel from(Row row) {
         return new TagLabel(
@@ -109,23 +140,6 @@ public class TagLabel implements Serializable {
 
     }
 
-    public Uni<String> insert(PgPool client) {
-        return client.preparedQuery(INSERT_INTO_DICTIONARY_TAG_LABEL)
-                .execute(Tuple.of(id, label, userName, enabled, visible, flags))
-                .onItem()
-                .transform(RowSet::iterator)
-                .onItem()
-                .transform(iterator -> iterator.hasNext() ? iterator.next().getString("id") : null);
-    }
-
-    public Uni<String> update(PgPool client) {
-        updateTime = LocalDateTime.now();
-        return client.preparedQuery(UPDATE_DICTIONARY_TAG_LABEL_WHERE_ID_$1)
-                .execute(Tuple.of(List.of(id, label, userName, createTime, updateTime, enabled, visible, flags)))
-                .onItem()
-                .transform(pgRowSet -> pgRowSet.iterator().next().getString("id"));
-    }
-
     public static Uni<String> delete(PgPool client, String id) {
         return client.preparedQuery(DELETE_FROM_DICTIONARY_TAG_LABEL_WHERE_ID_$1)
                 .execute(Tuple.of(id))
@@ -133,119 +147,99 @@ public class TagLabel implements Serializable {
                 .transform(pgRowSet -> pgRowSet.iterator().next().getString("id"));
     }
 
-    public TagLabel() {}
+    public static Uni<Long> count(PgPool client) {
+        return client.preparedQuery(COUNT_DICTIONARY_TAG_LABE)
+                .execute()
+                .onItem()
+                .transform(pgRowSet -> pgRowSet.iterator().next().getLong("count"));
+    }
 
-    public TagLabel(
-            String id,
-            String label,
-            String userName,
-            LocalDateTime createTime,
-            LocalDateTime updateTime,
-            Boolean enabled,
-            Boolean visible,
-            Integer flags) {
-        this.id = id;
-        this.label = label;
-        this.userName = userName;
-        this.createTime = createTime;
-        this.updateTime = updateTime;
-        this.enabled = enabled;
-        this.visible = visible;
-        this.flags = flags;
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public Uni<String> insert(PgPool client) {
+        var sql = id == null
+                ? INSERT_INTO_DICTIONARY_TAG_LABEL_WITH_DEFAULT_ID
+                : INSERT_INTO_DICTIONARY_TAG_LABEL;
+        var tuple = id == null
+                ? Tuple.of(label, userName, enabled, visible, flags)
+                : Tuple.tuple(listOf());
+        return client.preparedQuery(sql)
+                .execute(tuple)
+                .onItem()
+                .transform(RowSet::iterator)
+                .onItem()
+                .transform(iterator -> iterator.hasNext() ? iterator.next().getString("id") : null);
+    }
+
+    public Uni<String> update(PgPool client) {
+        return client.preparedQuery(UPDATE_DICTIONARY_TAG_LABEL_WHERE_ID_$1)
+                .execute(Tuple.tuple(listOf()))
+                .onItem()
+                .transform(pgRowSet -> pgRowSet.iterator().next().getString("id"));
+    }
+
+    private List<Object> listOf() {
+        return Arrays.asList(id, label, userName, enabled, visible, flags);
     }
 
     public String getId() {
         return id;
     }
 
-    public void setId(String id) {
-        this.id = id;
-    }
-
     public String getLabel() {
         return label;
-    }
-
-    public void setLabel(String label) {
-        this.label = label;
     }
 
     public String getUserName() {
         return userName;
     }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
-    }
-
     public LocalDateTime getCreateTime() {
         return createTime;
-    }
-
-    public void setCreateTime(LocalDateTime createTime) {
-        this.createTime = createTime;
     }
 
     public LocalDateTime getUpdateTime() {
         return updateTime;
     }
 
-    public void setUpdateTime(LocalDateTime updateTime) {
-        this.updateTime = updateTime;
-    }
-
-    public Boolean getEnabled() {
+    public boolean getEnabled() {
         return enabled;
     }
 
-    public void setEnabled(Boolean enabled) {
-        this.enabled = enabled;
+    public boolean isEnabled() {
+        return enabled;
     }
 
-    public Boolean getVisible() {
+    public boolean getVisible() {
         return visible;
     }
 
-    public void setVisible(Boolean visible) {
-        this.visible = visible;
+    public boolean isVisible() {
+        return visible;
     }
 
-    public Integer getFlags() {
+    public int getFlags() {
         return flags;
-    }
-
-    public void setFlags(Integer flags) {
-        this.flags = flags;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof TagLabel)) return false;
-
+        if (o == null || getClass() != o.getClass()) return false;
         TagLabel tagLabel = (TagLabel) o;
-
-        if (id != null ? !id.equals(tagLabel.id) : tagLabel.id != null) return false;
-        if (label != null ? !label.equals(tagLabel.label) : tagLabel.label != null) return false;
-        if (userName != null ? !userName.equals(tagLabel.userName) : tagLabel.userName != null) return false;
-        if (createTime != null ? !createTime.equals(tagLabel.createTime) : tagLabel.createTime != null) return false;
-        if (updateTime != null ? !updateTime.equals(tagLabel.updateTime) : tagLabel.updateTime != null) return false;
-        if (enabled != null ? !enabled.equals(tagLabel.enabled) : tagLabel.enabled != null) return false;
-        if (visible != null ? !visible.equals(tagLabel.visible) : tagLabel.visible != null) return false;
-        return flags != null ? flags.equals(tagLabel.flags) : tagLabel.flags == null;
+        return enabled == tagLabel.enabled
+                && visible == tagLabel.visible
+                && flags == tagLabel.flags
+                && Objects.equals(id, tagLabel.id)
+                && Objects.equals(label, tagLabel.label)
+                && Objects.equals(userName, tagLabel.userName);
     }
 
     @Override
     public int hashCode() {
-        int result = id != null ? id.hashCode() : 0;
-        result = 31 * result + (label != null ? label.hashCode() : 0);
-        result = 31 * result + (userName != null ? userName.hashCode() : 0);
-        result = 31 * result + (createTime != null ? createTime.hashCode() : 0);
-        result = 31 * result + (updateTime != null ? updateTime.hashCode() : 0);
-        result = 31 * result + (enabled != null ? enabled.hashCode() : 0);
-        result = 31 * result + (visible != null ? visible.hashCode() : 0);
-        result = 31 * result + (flags != null ? flags.hashCode() : 0);
-        return result;
+        return Objects.hash(id, label, userName, enabled, visible, flags);
     }
 
     @Override
@@ -260,5 +254,63 @@ public class TagLabel implements Serializable {
                 ", visible=" + visible +
                 ", flags=" + flags +
                 '}';
+    }
+
+    public static final class Builder {
+        private String id;
+        private String label;
+        private String userName;
+        private LocalDateTime createTime;
+        private LocalDateTime updateTime;
+        private boolean enabled;
+        private boolean visible;
+        private int flags;
+
+        private Builder() {
+        }
+
+        public Builder id(String id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder label(String label) {
+            this.label = label;
+            return this;
+        }
+
+        public Builder userName(String userName) {
+            this.userName = userName;
+            return this;
+        }
+
+        public Builder createTime(LocalDateTime createTime) {
+            this.createTime = createTime;
+            return this;
+        }
+
+        public Builder updateTime(LocalDateTime updateTime) {
+            this.updateTime = updateTime;
+            return this;
+        }
+
+        public Builder enabled(boolean enabled) {
+            this.enabled = enabled;
+            return this;
+        }
+
+        public Builder visible(boolean visible) {
+            this.visible = visible;
+            return this;
+        }
+
+        public Builder flags(int flags) {
+            this.flags = flags;
+            return this;
+        }
+
+        public TagLabel build() {
+            return new TagLabel(id, label, userName, createTime, updateTime, enabled, visible, flags);
+        }
     }
 }

@@ -250,42 +250,42 @@ public final class UserName implements UUIDIdentification, Marked, Owned, TimeUp
         private Builder() {
         }
 
-        public Builder withId(@Nonnull UUID id) {
+        public Builder id(UUID id) {
             this.id = id;
             return this;
         }
 
-        public Builder withUserName(@Nonnull String userName) {
+        public Builder userName(String userName) {
             this.userName = userName;
             return this;
         }
 
-        public Builder withPassword(@Nonnull String password) {
+        public Builder password(String password) {
             this.password = password;
             return this;
         }
 
-        public Builder withCreateTime(LocalDateTime createTime) {
+        public Builder createTime(LocalDateTime createTime) {
             this.createTime = createTime;
             return this;
         }
 
-        public Builder withUpdateTime(LocalDateTime updateTime) {
+        public Builder updateTime(LocalDateTime updateTime) {
             this.updateTime = updateTime;
             return this;
         }
 
-        public Builder withEnabled(boolean enabled) {
+        public Builder enabled(boolean enabled) {
             this.enabled = enabled;
             return this;
         }
 
-        public Builder withVisible(boolean visible) {
+        public Builder visible(boolean visible) {
             this.visible = visible;
             return this;
         }
 
-        public Builder withFlags(int flags) {
+        public Builder flags(int flags) {
             this.flags = flags;
             return this;
         }

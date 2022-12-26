@@ -41,7 +41,6 @@ public class DataTest {
             ","enabled":false,"visible":true,"flags":0,"id":"__NONE__"}\
             """;
 
-
     public static final String JSON_Word_Id_0 = "{\"word\":\"" + Word.NONE + "\"}";
 
     public static final String JSON_ARRAY_Word_0 = "[" + JSON_Word_0 + "]";
@@ -70,14 +69,15 @@ public class DataTest {
     public static final String JSON_I18n_0 = "{\"id\":0}";
 
     public static final TagLabel OBJECT_TagLabel_0 = new TagLabel(
-            "test", null, null, null, null, null, null, null
+            "test", null, null, null, null, false, true, 0
     );
 
-    public static final String JSON_TagLabel_0
-            = "{\"id\":\"test\"}";
+    public static final String JSON_TagLabel_0 = """
+            {"id":"test","enabled":false,"visible":true,"flags":0}\
+            """;
 
     public static final String JSON_ARRAY_TagLabel_0
-            = "[{\"id\":\"test\"}]";
+            = "[" + JSON_TagLabel_0 + "]";
 
     public static final UserName OBJECT_UserName_0 = new UserName(
             new UUID(0, 0), "root", "password", null, null, false, true, 0
