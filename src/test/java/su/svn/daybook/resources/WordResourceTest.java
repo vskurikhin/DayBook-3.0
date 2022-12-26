@@ -17,7 +17,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import su.svn.daybook.DataTest;
 import su.svn.daybook.domain.messages.Answer;
-import su.svn.daybook.domain.messages.ApiResponse;
 import su.svn.daybook.domain.messages.DictionaryResponse;
 import su.svn.daybook.domain.model.Word;
 import su.svn.daybook.services.WordService;
