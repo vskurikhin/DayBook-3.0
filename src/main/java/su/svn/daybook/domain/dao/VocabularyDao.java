@@ -27,28 +27,26 @@ public class VocabularyDao {
 
     public Multi<Vocabulary> findAll() {
         LOG.trace("findAll");
-        Multi<Vocabulary> result = Vocabulary.findAll(client);
-        LOG.tracef("findAll result: %s", result);
         return Vocabulary.findAll(client);
     }
 
     public Uni<Optional<Vocabulary>> findById(Long id) {
         return Vocabulary.findById(client, id)
-                .map(t -> t != null ? Optional.of(t) : Optional.empty());
+                .map(Optional::ofNullable);
     }
 
     public Uni<Optional<Long>> insert(Vocabulary entry) {
         return entry.insert(client)
-                .map(t -> t != null ? Optional.of(t) : Optional.empty());
+                .map(Optional::ofNullable);
     }
 
     public Uni<Optional<Long>> update(Vocabulary entry) {
         return entry.update(client)
-                .map(t -> t != null ? Optional.of(t) : Optional.empty());
+                .map(Optional::ofNullable);
     }
 
     public Uni<Optional<Long>> delete(Long id) {
         return Vocabulary.delete(client, id)
-                .map(t -> t != null ? Optional.of(t) : Optional.empty());
+                .map(Optional::ofNullable);
     }
 }

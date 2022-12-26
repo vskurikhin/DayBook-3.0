@@ -12,8 +12,10 @@ import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
 import org.junit.jupiter.api.*;
 import su.svn.daybook.domain.dao.UserNameDao;
+import su.svn.daybook.domain.dao.VocabularyDao;
 import su.svn.daybook.domain.dao.WordDao;
 import su.svn.daybook.domain.model.UserName;
+import su.svn.daybook.domain.model.Vocabulary;
 import su.svn.daybook.domain.model.Word;
 import su.svn.daybook.resources.PostgresDatabaseTestResource;
 
@@ -27,6 +29,9 @@ public class DataBaseIT {
 
     @Inject
     UserNameDao userNameDao;
+
+    @Inject
+    VocabularyDao vocabularyDao;
 
     @Inject
     WordDao wordDao;
@@ -129,30 +134,52 @@ public class DataBaseIT {
 
 
     @Nested
-    @DisplayName("WordDao")
-    class WordDaoTest {
+    @DisplayName("VocabularyDao")
+    class VocabularyDaoAndWordDaoTest {
 
         String veryLongWordIdForTest = "veryLongWordIdForTest";
 
-        Word word1;
+        Long vocabularyId;
+
+        Vocabulary vocabulary;
+
+        Word word;
 
         @BeforeEach
         void setUp() throws ExecutionException, InterruptedException {
-            word1 = Word.builder()
+            vocabulary = Vocabulary.builder()
+                    .withWord(veryLongWordIdForTest)
+                    .build();
+            word = Word.builder()
                     .withWord(veryLongWordIdForTest)
                     .build();
             Assertions.assertDoesNotThrow(
                     () -> Assertions.assertEquals(
-                            veryLongWordIdForTest, wordDao.insert(word1)
+                            veryLongWordIdForTest, wordDao.insert(word)
                                     .subscribeAsCompletionStage()
                                     .get()
                                     .orElse(null)
                     )
             );
+
+            Assertions.assertDoesNotThrow(
+                    () -> vocabularyId = vocabularyDao.insert(vocabulary)
+                            .subscribeAsCompletionStage()
+                            .get()
+                            .orElse(null)
+            );
         }
 
         @AfterEach
         void tearDown() {
+            Assertions.assertDoesNotThrow(
+                    () -> Assertions.assertEquals(
+                            vocabularyId, vocabularyDao.delete(vocabularyId.longValue())
+                                    .subscribeAsCompletionStage()
+                                    .get()
+                                    .orElse(null)
+                    )
+            );
             Assertions.assertDoesNotThrow(
                     () -> Assertions.assertEquals(
                             veryLongWordIdForTest, wordDao.delete(veryLongWordIdForTest)
@@ -164,7 +191,7 @@ public class DataBaseIT {
         }
 
         @Test
-        void test() throws ExecutionException, InterruptedException {
+        void testWordDao() throws ExecutionException, InterruptedException {
             var expected1 = Word.builder()
                     .withWord(veryLongWordIdForTest)
                     .build();
@@ -217,6 +244,67 @@ public class DataBaseIT {
                         Assertions.assertEquals(1, test.size());
                     }
             );
+        }
+
+        @Test
+        void testVocabularyDao() throws ExecutionException, InterruptedException {
+            var expected1 = Vocabulary.builder()
+                    .withId(1L)
+                    .withWord(veryLongWordIdForTest)
+                    .build();
+            Assertions.assertDoesNotThrow(
+                    () -> {
+                        var test = vocabularyDao.findById(vocabularyId)
+                                .subscribeAsCompletionStage()
+                                .get()
+                                .orElse(null);
+                        Assertions.assertNotNull(test);
+                        Assertions.assertEquals(expected1, test);
+                        Assertions.assertNotNull(test.getCreateTime());
+                        Assertions.assertNull(test.getUpdateTime());
+                    }
+            );
+            Thread.sleep(20_000);
+            var expected2 = Vocabulary.builder()
+                    .withId(1L)
+                    .withWord(veryLongWordIdForTest)
+                    .withValue("value")
+                    .withEnabled(true)
+                    .withVisible(true)
+                    .build();
+            Assertions.assertDoesNotThrow(
+                    () -> Assertions.assertEquals(
+                            vocabularyId, vocabularyDao.update(expected2)
+                                    .subscribeAsCompletionStage()
+                                    .get()
+                                    .orElse(null)
+                    )
+            );
+            Assertions.assertDoesNotThrow(
+                    () -> {
+                        var test = vocabularyDao.findById(vocabularyId)
+                                .subscribeAsCompletionStage()
+                                .get()
+                                .orElse(null);
+                        Assertions.assertNotNull(test);
+                        Assertions.assertEquals(expected2, test);
+                        Assertions.assertNotNull(test.getCreateTime());
+                        Assertions.assertNotNull(test.getUpdateTime());
+                    }
+            );
+            Assertions.assertDoesNotThrow(
+                    () -> {
+                        var test = vocabularyDao.findAll()
+                                .collect()
+                                .asList()
+                                .subscribeAsCompletionStage()
+                                .get();
+                        Assertions.assertNotNull(test);
+                        Assertions.assertFalse(test.isEmpty());
+                        Assertions.assertEquals(1, test.size());
+                    }
+            );
+            Thread.sleep(10_000);
         }
     }
 }

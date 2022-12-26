@@ -65,7 +65,7 @@ public final class Vocabulary implements LongIdentification, Marked, Owned, Time
             INSERT INTO dictionary.vocabulary
              (id, word, value, user_name, enabled, visible, flags)
              VALUES
-             (DEFAULT, $1, $2, $3, $4, $5, $6, $7)
+             (DEFAULT, $1, $2, $3, $4, $5, $6)
              RETURNING id
             """;
 
@@ -132,7 +132,7 @@ public final class Vocabulary implements LongIdentification, Marked, Owned, Time
 
     public Uni<Long> update(PgPool client) {
         return client.preparedQuery(UPDATE_DICTIONARY_VOCABULARY_WHERE_ID_$1)
-                .execute(Tuple.of(listOf()))
+                .execute(Tuple.tuple(listOf()))
                 .onItem()
                 .transform(pgRowSet -> pgRowSet.iterator().next().getLong("id"));
     }
@@ -144,7 +144,7 @@ public final class Vocabulary implements LongIdentification, Marked, Owned, Time
                 .transform(pgRowSet -> pgRowSet.iterator().next().getLong("id"));
     }
 
-    private List<?> listOf() {
+    private List<Object> listOf() {
         return Arrays.asList(id, word, userName, enabled, visible, flags, value);
     }
 

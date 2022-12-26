@@ -13,8 +13,6 @@ import su.svn.daybook.domain.model.*;
 
 import java.util.UUID;
 
-import static su.svn.daybook.domain.model.Vocabulary.NONE;
-
 public class DataTest {
 
     public static Answer errorNoNumber = new Answer("For input string: \"noNumber\"", 404);
