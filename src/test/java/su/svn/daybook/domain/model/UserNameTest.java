@@ -13,7 +13,7 @@ class UserNameTest {
     void testConstructors() {
         Assertions.assertDoesNotThrow(() -> new UserName());
         Assertions.assertDoesNotThrow(() -> new UserName(
-                UUID.randomUUID(), "root", "password",null, null, false, true, 0
+                UUID.randomUUID(), "guest", "password",null, null, false, true, 0
         ));
     }
     @Test
@@ -34,9 +34,9 @@ class UserNameTest {
     @Test
     void testEqualsVerifier() {
         EqualsVerifier.forClass(UserName.class)
-                .suppress(Warning.NONFINAL_FIELDS)
-                .withIgnoredFields("createTime")
-                .withIgnoredFields("updateTime")
+                .withCachedHashCode("hash", "calculateHashCode", null)
+                .withIgnoredFields("createTime", "updateTime", "hash", "hashIsZero")
+                .suppress(Warning.NO_EXAMPLE_FOR_CACHED_HASHCODE)
                 .verify();
     }
 

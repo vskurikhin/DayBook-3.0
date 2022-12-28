@@ -19,8 +19,6 @@ import su.svn.daybook.domain.model.UserName;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.UUID;
 
 @ApplicationScoped
@@ -93,20 +91,13 @@ public class UserNameService extends AbstractService<UUID, UserName> {
 
     private Uni<Answer> putEntry(UserName entry) {
         return userNameDao.update(entry)
-                .flatMap(id -> this.getAnswerForPut(id, entry))
+                .flatMap(this::getAnswerForPut)
                 .onFailure(onFailureDuplicatePredicate())
                 .recoverWithUni(this::toDuplicateKeyValueAnswer)
                 .onFailure(onFailurePredicate())
                 .recoverWithUni(get(entry.getId()))
                 .onFailure(onFailureNoSuchElementPredicate())
                 .recoverWithUni(this::toNoSuchElementAnswer);
-    }
-
-    private Uni<Answer> getAnswerForPut(Optional<UUID> o, UserName entry) {
-        if (o.isEmpty()) {
-            throw new NoSuchElementException();
-        }
-        return Uni.createFrom().item(getAnswerApiResponseWithKey(202, o));
     }
 
     /**

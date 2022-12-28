@@ -15,15 +15,14 @@ import org.jboss.logging.Logger;
 import su.svn.daybook.domain.dao.VocabularyDao;
 import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.messages.Answer;
-import su.svn.daybook.domain.messages.ApiResponse;
 import su.svn.daybook.domain.model.Vocabulary;
 
-import javax.annotation.Nonnull;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.util.NoSuchElementException;
 
 @ApplicationScoped
-public class VocabularyService {
+public class VocabularyService extends AbstractService<Long, Vocabulary> {
 
     private static final Logger LOG = Logger.getLogger(VocabularyService.class);
 
@@ -37,23 +36,27 @@ public class VocabularyService {
      * @return - a lazy asynchronous action with the Answer containing the Vocabulary as payload or empty payload
      */
     @ConsumeEvent(EventAddress.VOCABULARY_GET)
-    public Uni<Answer> vocabularyGet(Object o) {
-        var methodCall = String.format("vocabularyGet(%s)", o);
-        if (o instanceof String) {
-            try {
-                return get(Long.parseLong(o.toString()));
-            } catch (NumberFormatException e) {
-                LOG.error(methodCall, e);
-                var numberError = new Answer(e.getMessage(), 404);
-                return Uni.createFrom().item(numberError);
-            }
+    public Uni<Answer> get(Object o) {
+        LOG.tracef("get(%s)", o);
+        try {
+            return getEntry(getId(o));
+        } catch (NumberFormatException e) {
+            LOG.errorf("get(%s)", o, e);
+            var numberError = new Answer(e.getMessage(), 404);
+            return Uni.createFrom().item(numberError);
+        } catch (NoSuchElementException e) {
+            LOG.errorf("get(%s)", o, e);
+            return Uni.createFrom().item(Answer.empty());
         }
-        return Uni.createFrom().item(Answer.empty());
     }
 
-    private Uni<Answer> get(Long id) {
+    private Uni<Answer> getEntry(long id) {
         return vocabularyDao.findById(id)
-                .map(t -> t.isEmpty() ? Answer.empty() : Answer.of(t));
+                .map(this::getAnswerApiResponseWithValue)
+                .onFailure(onFailureNoSuchElementPredicate())
+                .recoverWithUni(this::toNoSuchElementAnswer)
+                .onFailure(onFailurePredicate())
+                .recoverWithItem(new Answer("bad request", 400));
     }
 
     /**
@@ -63,14 +66,18 @@ public class VocabularyService {
      * @return - a lazy asynchronous action (LAA) with the Answer containing the Vocabulary id as payload or empty payload
      */
     @ConsumeEvent(EventAddress.VOCABULARY_ADD)
-    public Uni<Answer> vocabularyAdd(Vocabulary o) {
-        LOG.tracef("vocabularyAdd(%s)", o);
-        return add(o);
+    public Uni<Answer> add(Vocabulary o) {
+        LOG.tracef("add(%s)", o);
+        return addEntry(o);
     }
 
-    private Uni<Answer> add(Vocabulary entry) {
+    private Uni<Answer> addEntry(Vocabulary entry) {
         return vocabularyDao.insert(entry)
-                .map(o -> o.isEmpty() ? Answer.empty() : Answer.of(new ApiResponse<>(o.get())));
+                .map(o -> getAnswerApiResponseWithKey(201, o))
+                .onFailure(onFailureDuplicatePredicate())
+                .recoverWithUni(this::toDuplicateKeyValueAnswer)
+                .onFailure(onFailurePredicate())
+                .recoverWithUni(get(entry.getId()));
     }
 
     /**
@@ -80,14 +87,20 @@ public class VocabularyService {
      * @return - a LAA with the Answer containing Vocabulary id as payload or empty payload
      */
     @ConsumeEvent(EventAddress.VOCABULARY_PUT)
-    public Uni<Answer> vocabularyPut(Vocabulary o) {
-        LOG.tracef("vocabularyPut(%s)", o);
-        return put(o);
+    public Uni<Answer> put(Vocabulary o) {
+        LOG.tracef("put(%s)", o);
+        return putEntry(o);
     }
 
-    private Uni<Answer> put(Vocabulary entry) {
+    private Uni<Answer> putEntry(Vocabulary entry) {
         return vocabularyDao.update(entry)
-                .map(o -> o.isEmpty() ? Answer.empty() : Answer.of(new ApiResponse<>(o.get())));
+                .flatMap(this::getAnswerForPut)
+                .onFailure(onFailureDuplicatePredicate())
+                .recoverWithUni(this::toDuplicateKeyValueAnswer)
+                .onFailure(onFailurePredicate())
+                .recoverWithUni(get(entry.getId()))
+                .onFailure(onFailureNoSuchElementPredicate())
+                .recoverWithUni(this::toNoSuchElementAnswer);
     }
 
     /**
@@ -97,23 +110,27 @@ public class VocabularyService {
      * @return - a LAA with the Answer containing Vocabulary id as payload or empty payload
      */
     @ConsumeEvent(EventAddress.VOCABULARY_DEL)
-    public Uni<Answer> vocabularyDelete(Object o) {
-        var methodCall = String.format("vocabularyDelete(%s)", o);
-        if (o instanceof String) {
-            try {
-                return delete(Long.parseLong(o.toString()));
-            } catch (NumberFormatException e) {
-                LOG.error(methodCall, e);
-                var numberError = new Answer(e.getMessage(), 404);
-                return Uni.createFrom().item(numberError);
-            }
+    public Uni<Answer> delete(Object o) {
+        LOG.tracef("delete(%s)", o);
+        try {
+            return deleteEntry(getId(o));
+        } catch (NumberFormatException e) {
+            LOG.errorf("delete(%s)", o, e);
+            var numberError = new Answer(e.getMessage(), 404);
+            return Uni.createFrom().item(numberError);
+        } catch (NoSuchElementException e) {
+            LOG.errorf("delete(%s)", o, e);
+            return Uni.createFrom().item(Answer.empty());
         }
-        return Uni.createFrom().item(Answer.empty());
     }
 
-    private Uni<Answer> delete(long id) {
+    private Uni<Answer> deleteEntry(long id) {
         return vocabularyDao.delete(id)
-                .map(o -> o.isEmpty() ? Answer.empty() : Answer.of(new ApiResponse<>(o.get())));
+                .map(this::getAnswerApiResponseWithKey)
+                .onFailure(onFailureNoSuchElementPredicate())
+                .recoverWithUni(this::toNoSuchElementAnswer)
+                .onFailure(onFailurePredicate())
+                .recoverWithItem(new Answer("bad request", 400));
     }
 
     /**
@@ -126,10 +143,5 @@ public class VocabularyService {
         return vocabularyDao.findAll()
                 .onItem()
                 .transform(this::getAnswer);
-    }
-
-    private Answer getAnswer(@Nonnull Vocabulary Vocabulary) {
-        LOG.tracef("getAnswer Vocabulary: %s", Vocabulary);
-        return Answer.of(Vocabulary);
     }
 }

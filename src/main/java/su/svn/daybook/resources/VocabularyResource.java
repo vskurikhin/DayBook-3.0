@@ -8,13 +8,15 @@
 
 package su.svn.daybook.resources;
 
+import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
-import io.vertx.mutiny.core.eventbus.EventBus;
-import io.vertx.mutiny.core.eventbus.Message;
+import org.jboss.resteasy.reactive.RestResponse;
+import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
 import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.enums.ResourcePath;
-import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.model.Vocabulary;
+import su.svn.daybook.services.AbstractService;
+import su.svn.daybook.services.VocabularyService;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -24,58 +26,59 @@ import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 
 @Path(ResourcePath.VOCABULARY)
-public class VocabularyResource {
+public class VocabularyResource extends AbstractResource implements Resources<Long, Vocabulary> {
 
     @Inject
-    EventBus bus;
+    VocabularyService service;
+
+    @GET
+    @Path(ResourcePath.ALL)
+    @Produces("application/json")
+    public Multi<Vocabulary> all() {
+        return getAll();
+    }
 
     @GET
     @Path(ResourcePath.ID)
     @Produces("application/json")
-    public Uni<Response> get(String id) {
-        return request(EventAddress.VOCABULARY_GET, id);
+    public Uni<Response> get(String id, @Context UriInfo uriInfo) {
+        return request(EventAddress.VOCABULARY_GET, id, uriInfo);
     }
 
     @POST
-    @Path(ResourcePath.ADD)
     @Consumes("application/json")
     @Produces("application/json")
-    public Uni<Response> add(Vocabulary vocabulary) {
-        return request(EventAddress.VOCABULARY_ADD, vocabulary);
+    public Uni<Response> post(Vocabulary entry, @Context UriInfo uriInfo) {
+        return request(EventAddress.VOCABULARY_ADD, entry, uriInfo);
     }
 
+
     @PUT
-    @Path(ResourcePath.PUT)
     @Consumes("application/json")
     @Produces("application/json")
-    public Uni<Response> put(Vocabulary vocabulary) {
-        return request(EventAddress.VOCABULARY_PUT, vocabulary);
+    public Uni<Response> put(Vocabulary entry, @Context UriInfo uriInfo) {
+        return request(EventAddress.VOCABULARY_PUT, entry, uriInfo);
     }
 
     @DELETE
     @Path(ResourcePath.ID)
     @Produces("application/json")
-    public Uni<Response> delete(String id) {
-        return request(EventAddress.VOCABULARY_DEL, id);
+    public Uni<Response> delete(String id, @Context UriInfo uriInfo) {
+        return request(EventAddress.VOCABULARY_DEL, id, uriInfo);
     }
 
-    private Uni<Response> request(String address, Object o) {
-        return bus.<Answer>request(address, o)
-                .onItem()
-                .transform(this::createResponseBuilder)
-                .onItem()
-                .transform(Response.ResponseBuilder::build);
+    @ServerExceptionMapper
+    public RestResponse<String> exception(Throwable x) {
+        return badRequest(x);
     }
 
-    private Response.ResponseBuilder createResponseBuilder(Message<Answer> message) {
-        if (message.body() == null) {
-            return Response.status(406, "body is null");
-        }
-        return message.body().getPayload() != null
-                ? Response.ok(message.body().getPayload())
-                : Response.status(message.body().getError(), message.body().getMessage());
+    @Override
+    public AbstractService<Long, Vocabulary> getService() {
+        return service;
     }
 }

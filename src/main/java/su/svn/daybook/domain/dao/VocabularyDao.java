@@ -26,31 +26,36 @@ public class VocabularyDao {
     io.vertx.mutiny.pgclient.PgPool client;
 
     public Multi<Vocabulary> findAll() {
-        LOG.trace("findAll");
+        LOG.trace("findAll()");
         return Vocabulary.findAll(client);
     }
 
     public Uni<Optional<Vocabulary>> findById(Long id) {
+        LOG.tracef("findById(%s)", id);
         return Vocabulary.findById(client, id)
                 .map(Optional::ofNullable);
     }
 
     public Uni<Optional<Long>> insert(Vocabulary entry) {
+        LOG.tracef("insert(%s)", entry);
         return entry.insert(client)
                 .map(Optional::ofNullable);
     }
 
     public Uni<Optional<Long>> update(Vocabulary entry) {
+        LOG.tracef("update(%s)", entry);
         return entry.update(client)
                 .map(Optional::ofNullable);
     }
 
     public Uni<Optional<Long>> delete(Long id) {
+        LOG.tracef("delete(%s)", id);
         return Vocabulary.delete(client, id)
                 .map(Optional::ofNullable);
     }
 
     public Uni<Optional<Long>> count() {
+        LOG.trace("count()");
         return Vocabulary.count(client)
                 .map(Optional::ofNullable);
     }

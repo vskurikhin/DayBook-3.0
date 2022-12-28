@@ -61,6 +61,8 @@ public final class UserName implements UUIDIdentification, Marked, Owned, TimeUp
     public static final String COUNT_SECURITY_USER_NAME = "SELECT count(*) FROM security.user_name";
     @Serial
     private static final long serialVersionUID = 3526532892030791269L;
+    public static final String ID = "id";
+    public static final String COUNT = "count";
     private final UUID id;
     private final String userName;
     private final String password;
@@ -70,9 +72,13 @@ public final class UserName implements UUIDIdentification, Marked, Owned, TimeUp
     private final boolean visible;
     private final int flags;
 
+    private transient volatile int hash;
+
+    private transient volatile boolean hashIsZero;
+
     public UserName() {
         this.id = UUID.randomUUID();
-        this.userName = "root";
+        this.userName = "guest";
         this.password = "password";
         this.createTime = LocalDateTime.now();
         this.updateTime = null;
@@ -102,7 +108,7 @@ public final class UserName implements UUIDIdentification, Marked, Owned, TimeUp
 
     public static UserName from(Row row) {
         return new UserName(
-                row.getUUID("id"),
+                row.getUUID(ID),
                 row.getString("user_name"),
                 row.getString("password"),
                 row.getLocalDateTime("create_time"),
@@ -114,7 +120,8 @@ public final class UserName implements UUIDIdentification, Marked, Owned, TimeUp
     }
 
     public static Uni<UserName> findById(PgPool client, UUID id) {
-        return client.preparedQuery(SELECT_FROM_SECURITY_USER_NAME_WHERE_ID_$1)
+        return client
+                .preparedQuery(SELECT_FROM_SECURITY_USER_NAME_WHERE_ID_$1)
                 .execute(Tuple.of(id))
                 .onItem()
                 .transform(RowSet::iterator)
@@ -134,17 +141,19 @@ public final class UserName implements UUIDIdentification, Marked, Owned, TimeUp
     }
 
     public static Uni<UUID> delete(PgPool client, UUID id) {
-        return client.withTransaction(sqlConnection -> sqlConnection.preparedQuery(DELETE_FROM_SECURITY_USER_NAME_WHERE_ID_$1)
+        return client.withTransaction(
+                connection -> connection.preparedQuery(DELETE_FROM_SECURITY_USER_NAME_WHERE_ID_$1)
                 .execute(Tuple.of(id))
                 .onItem()
-                .transform(pgRowSet -> pgRowSet.iterator().next().getUUID("id")));
+                .transform(pgRowSet -> pgRowSet.iterator().next().getUUID(ID)));
     }
 
     public static Uni<Long> count(PgPool client) {
-        return client.preparedQuery(COUNT_SECURITY_USER_NAME)
+        return client
+                .preparedQuery(COUNT_SECURITY_USER_NAME)
                 .execute()
                 .onItem()
-                .transform(pgRowSet -> pgRowSet.iterator().next().getLong("count"));
+                .transform(pgRowSet -> pgRowSet.iterator().next().getLong(COUNT));
     }
 
     public static Builder builder() {
@@ -152,19 +161,21 @@ public final class UserName implements UUIDIdentification, Marked, Owned, TimeUp
     }
 
     public Uni<UUID> insert(PgPool client) {
-        return client.withTransaction(sqlConnection -> sqlConnection.preparedQuery(INSERT_INTO_SECURITY_USER_NAME)
+        return client.withTransaction(
+                connection -> connection.preparedQuery(INSERT_INTO_SECURITY_USER_NAME)
                 .execute(Tuple.of(id, userName, password, enabled, visible, flags))
                 .onItem()
                 .transform(RowSet::iterator)
                 .onItem()
-                .transform(iterator -> iterator.hasNext() ? iterator.next().getUUID("id") : null));
+                .transform(iterator -> iterator.hasNext() ? iterator.next().getUUID(ID) : null));
     }
 
     public Uni<UUID> update(PgPool client) {
-        return client.withTransaction(sqlConnection -> sqlConnection.preparedQuery(UPDATE_SECURITY_USER_NAME_WHERE_ID_$1)
+        return client.withTransaction(
+                connection -> connection.preparedQuery(UPDATE_SECURITY_USER_NAME_WHERE_ID_$1)
                 .execute(Tuple.of(id, userName, password, enabled, visible, flags))
                 .onItem()
-                .transform(pgRowSet -> pgRowSet.iterator().next().getUUID("id")));
+                .transform(pgRowSet -> pgRowSet.iterator().next().getUUID(ID)));
     }
 
     public UUID getId() {
@@ -222,6 +233,19 @@ public final class UserName implements UUIDIdentification, Marked, Owned, TimeUp
 
     @Override
     public int hashCode() {
+        int h = hash;
+        if (h == 0 && !hashIsZero) {
+            h = calculateHashCode();
+            if (h == 0) {
+                hashIsZero = true;
+            } else {
+                hash = h;
+            }
+        }
+        return h;
+    }
+
+    private int calculateHashCode() {
         return Objects.hash(id, userName, password, enabled, visible, flags);
     }
 

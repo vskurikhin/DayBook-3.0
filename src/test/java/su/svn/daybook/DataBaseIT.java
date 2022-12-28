@@ -23,7 +23,6 @@ import java.util.concurrent.atomic.AtomicReference;
 @QuarkusTestResource(PostgresDatabaseTestResource.class)
 public class DataBaseIT {
 
-
     @Inject
     CodifierDao codifierDao;
 
@@ -408,7 +407,7 @@ public class DataBaseIT {
         void tearDown() {
             Assertions.assertDoesNotThrow(
                     () -> Assertions.assertEquals(
-                            vocabularyId, vocabularyDao.delete(vocabularyId.longValue())
+                            vocabularyId, vocabularyDao.delete(vocabularyId)
                                     .subscribeAsCompletionStage()
                                     .get()
                                     .orElse(null)
