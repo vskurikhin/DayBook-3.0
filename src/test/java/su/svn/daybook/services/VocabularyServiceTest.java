@@ -10,6 +10,7 @@ package su.svn.daybook.services;
 
 import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
+import io.smallrye.mutiny.CompositeException;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import org.junit.jupiter.api.Assertions;
@@ -25,7 +26,6 @@ import su.svn.daybook.domain.model.Vocabulary;
 import javax.inject.Inject;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @QuarkusTest
 class VocabularyServiceTest {
@@ -35,68 +35,63 @@ class VocabularyServiceTest {
 
     static VocabularyDao mock;
 
-    static Uni<Optional<Vocabulary>> optionalUniTest = Uni.createFrom().item(Optional.of(DataTest.OBJECT_Vocabulary_0));
+    static final Uni<Optional<Vocabulary>> UNI_OPTIONAL_TEST = Uni.createFrom().item(Optional.of(DataTest.OBJECT_Vocabulary_0));
 
-    static Uni<Optional<Long>> optionalUniId = Uni.createFrom().item(Optional.of(0L));
+    static final Multi<Vocabulary> MULTI_TEST = Multi.createFrom().item(DataTest.OBJECT_Vocabulary_0);
 
-    static Uni<Optional<Long>> optionalUniEmptyId = Uni.createFrom().item(Optional.empty());
+    static final Multi<Vocabulary> MULTI_WITH_NULL = DataTest.createMultiWithNull(Vocabulary.class);
 
-    static Multi<Vocabulary> multiTest = Multi.createFrom().item(DataTest.OBJECT_Vocabulary_0);
-
-    static Multi<Vocabulary> multiEmpties = Multi.createFrom().empty();
-
-    static Multi<Vocabulary> multiWithNull = Multi.createFrom().item(() -> null);
+    static final Multi<Vocabulary> MULTI_EMPTIES = DataTest.createMultiEmpties(Vocabulary.class);
 
     @BeforeEach
     void setUp() {
         mock = Mockito.mock(VocabularyDao.class);
-        Mockito.when(mock.findById(0L)).thenReturn(optionalUniTest);
+        Mockito.when(mock.findById(0L)).thenReturn(UNI_OPTIONAL_TEST);
         QuarkusMock.installMockForType(mock, VocabularyDao.class);
     }
 
     @Test
-    void testMethod_getAll() {
-        Mockito.when(mock.findAll()).thenReturn(multiTest);
+    void testWhenGetAllThenSingletonList() {
+        Mockito.when(mock.findAll()).thenReturn(MULTI_TEST);
         List<Answer> result = service.getAll()
                 .subscribe()
                 .asStream()
-                .peek(actual -> Assertions.assertEquals(Answer.of(DataTest.OBJECT_Vocabulary_0), actual))
-                .collect(Collectors.toList());
+                .peek(actual -> Assertions.assertEquals(Answer.of(DataTest.OBJECT_Vocabulary_0), actual)).toList();
         Assertions.assertTrue(result.size() > 0);
     }
 
     @Test
-    void testMethod_getAll_whithEmptyResult() {
-        Mockito.when(mock.findAll()).thenReturn(multiEmpties);
+    void testWhenGetAllThenEmpty() {
+        Mockito.when(mock.findAll()).thenReturn(MULTI_EMPTIES);
         List<Answer> result = service.getAll()
                 .subscribe()
                 .asStream()
-                .collect(Collectors.toList());
+                .toList();
         Assertions.assertEquals(0, result.size());
     }
 
     @Test
-    void testMethod_getAll_whithNullResult() {
-        Mockito.when(mock.findAll()).thenReturn(multiWithNull);
+    void testWhenGetAllThenNull() {
+        Mockito.when(mock.findAll()).thenReturn(MULTI_WITH_NULL);
         List<Answer> result = service.getAll()
                 .subscribe()
                 .asStream()
-                .collect(Collectors.toList());
+                .toList();
         Assertions.assertEquals(0, result.size());
     }
 
     @Test
-    void testMethod_vocabularyGet() {
-        service.vocabularyGet("0")
+    void testWhenGetThenEntry() {
+        service.get("0")
                 .onItem()
-                .invoke(actual -> Assertions.assertEquals(Answer.of(Optional.of(DataTest.OBJECT_Vocabulary_0)), actual))
+                .invoke(actual -> Assertions.assertEquals(Answer.of(DataTest.OBJECT_Vocabulary_0), actual))
                 .await()
                 .indefinitely();
     }
 
     @Test
-    void testMethod_codeGet_whenNoNumberParameter() {
-        service.vocabularyGet("noNumber")
+    void testWhenGetThenNoNumberParameter() {
+        service.get("noNumber")
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(DataTest.ANSWER_ERROR_NoNumber, actual))
                 .await()
@@ -104,8 +99,8 @@ class VocabularyServiceTest {
     }
 
     @Test
-    void testMethod_codeGet_whenNullParameter() {
-        service.vocabularyGet(null)
+    void testWhenGetThenNullParameter() {
+        service.get(null)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(Answer.empty(), actual))
                 .await()
@@ -113,10 +108,13 @@ class VocabularyServiceTest {
     }
 
     @Test
-    void testMethod_vocabularyAdd() {
-        var expected = Answer.of(new ApiResponse<>(0L));
-        Mockito.when(mock.insert(DataTest.OBJECT_Vocabulary_0)).thenReturn(optionalUniId);
-        service.vocabularyAdd(DataTest.OBJECT_Vocabulary_0)
+    void testWhenAddThenId() {
+        var expected = Answer.builder()
+                .error(201)
+                .payload(new ApiResponse<>(0L))
+                .build();
+        Mockito.when(mock.insert(DataTest.OBJECT_Vocabulary_0)).thenReturn(DataTest.UNI_OPTIONAL_ZERO_LONG);
+        service.add(DataTest.OBJECT_Vocabulary_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
                 .await()
@@ -124,9 +122,9 @@ class VocabularyServiceTest {
     }
 
     @Test
-    void testMethod_codeAdd_whithEmptyResult() {
-        Mockito.when(mock.insert(DataTest.OBJECT_Vocabulary_0)).thenReturn(optionalUniEmptyId);
-        service.vocabularyAdd(DataTest.OBJECT_Vocabulary_0)
+    void testWhenAddThenEmpty() {
+        Mockito.when(mock.insert(DataTest.OBJECT_Vocabulary_0)).thenReturn(DataTest.UNI_OPTIONAL_EMPTY_LONG);
+        service.add(DataTest.OBJECT_Vocabulary_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(Answer.empty(), actual))
                 .await()
@@ -134,10 +132,13 @@ class VocabularyServiceTest {
     }
 
     @Test
-    void testMethod_vocabularyPut() {
-        Mockito.when(mock.update(DataTest.OBJECT_Vocabulary_0)).thenReturn(optionalUniId);
-        var expected = Answer.of(new ApiResponse<>(0L));
-        service.vocabularyPut(DataTest.OBJECT_Vocabulary_0)
+    void testWhenPutThenId() {
+        var expected = Answer.builder()
+                .error(202)
+                .payload(new ApiResponse<>(0L))
+                .build();
+        Mockito.when(mock.update(DataTest.OBJECT_Vocabulary_0)).thenReturn(DataTest.UNI_OPTIONAL_ZERO_LONG);
+        service.put(DataTest.OBJECT_Vocabulary_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
                 .await()
@@ -145,20 +146,20 @@ class VocabularyServiceTest {
     }
 
     @Test
-    void testMethod_codePut_whithEmptyResult() {
-        Mockito.when(mock.update(DataTest.OBJECT_Vocabulary_0)).thenReturn(optionalUniEmptyId);
-        service.vocabularyPut(DataTest.OBJECT_Vocabulary_0)
+    void testWhenPutThenEmpty() {
+        Mockito.when(mock.update(DataTest.OBJECT_Vocabulary_0)).thenReturn(DataTest.UNI_OPTIONAL_EMPTY_LONG);
+        Assertions.assertThrows(CompositeException.class, () -> service.put(DataTest.OBJECT_Vocabulary_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(Answer.empty(), actual))
                 .await()
-                .indefinitely();
+                .indefinitely());
     }
 
     @Test
-    void testMethod_vocabularyDelete() {
-        Mockito.when(mock.delete(0L)).thenReturn(optionalUniId);
+    void testWhenDeleteThenId() {
+        Mockito.when(mock.delete(0L)).thenReturn(DataTest.UNI_OPTIONAL_ZERO_LONG);
         var expected = Answer.of(new ApiResponse<>(0L));
-        service.vocabularyDelete("0")
+        service.delete("0")
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
                 .await()
@@ -166,8 +167,8 @@ class VocabularyServiceTest {
     }
 
     @Test
-    void testMethod_codeDelete_whenNoNumberParameter() {
-        service.vocabularyDelete("noNumber")
+    void testWhenDeleteWithNullIdThenEmpty() {
+        service.delete("noNumber")
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(DataTest.ANSWER_ERROR_NoNumber, actual))
                 .await()
@@ -175,8 +176,8 @@ class VocabularyServiceTest {
     }
 
     @Test
-    void testMethod_codeDelete_whenNullParameter() {
-        service.vocabularyDelete(null)
+    void testWhenDeleteThenNullParameter() {
+        service.delete(null)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(Answer.empty(), actual))
                 .await()

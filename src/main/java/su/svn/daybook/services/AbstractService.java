@@ -10,6 +10,7 @@ import su.svn.daybook.domain.model.Identification;
 import javax.annotation.Nonnull;
 import javax.ws.rs.core.Response;
 import java.io.Serializable;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.function.Predicate;
 
@@ -40,6 +41,13 @@ public abstract class AbstractService<K extends Comparable<? extends Serializabl
 
     protected Answer getAnswerApiResponseWithValue(Optional<V> o) {
         return o.isEmpty() ? Answer.empty() : Answer.of(o.get());
+    }
+
+    protected Uni<Answer> getAnswerForPut(Optional<K> o) {
+        if (o.isEmpty()) {
+            throw new NoSuchElementException();
+        }
+        return Uni.createFrom().item(getAnswerApiResponseWithKey(202, o));
     }
 
     protected Predicate<Throwable> onFailurePredicate() {
@@ -96,5 +104,15 @@ public abstract class AbstractService<K extends Comparable<? extends Serializabl
                         .payload(String.valueOf(throwable.getMessage()))
                         .build()
         );
+    }
+
+    public long getId(Object o) {
+        if (o instanceof Long id) {
+            return id;
+        }
+        if (o instanceof String s) {
+            return Long.parseLong(s);
+        }
+        throw new NoSuchElementException();
     }
 }

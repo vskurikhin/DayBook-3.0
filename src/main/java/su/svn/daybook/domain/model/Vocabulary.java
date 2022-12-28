@@ -27,7 +27,7 @@ import java.util.Objects;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public final class Vocabulary implements LongIdentification, Marked, Owned, TimeUpdated, Serializable {
 
-    public static final String NONE = "__NONE__";
+    public static final String NONE = "5f8c1804-5c59-43b6-9099-c1820cffc001";
     public static final String SELECT_FROM_DICTIONARY_VOCABULARY_WHERE_ID_$1 = """
             SELECT id, word, value, user_name, create_time, update_time, enabled, visible, flags
               FROM dictionary.vocabulary
@@ -64,6 +64,7 @@ public final class Vocabulary implements LongIdentification, Marked, Owned, Time
     public static final String COUNT_DICTIONARY_VOCABULARY = "SELECT count(*) FROM dictionary.vocabulary";
     @Serial
     private static final long serialVersionUID = -71735002217330331L;
+    public static final String ID = "id";
     private final Long id;
     private final String word;
     private final String value;
@@ -73,6 +74,10 @@ public final class Vocabulary implements LongIdentification, Marked, Owned, Time
     private final boolean enabled;
     private final boolean visible;
     private final int flags;
+
+    private transient volatile int hash;
+
+    private transient volatile boolean hashIsZero;
 
     public Vocabulary() {
         this.id = null;
@@ -109,7 +114,7 @@ public final class Vocabulary implements LongIdentification, Marked, Owned, Time
 
     public static Vocabulary from(Row row) {
         return new Vocabulary(
-                row.getLong("id"),
+                row.getLong(ID),
                 row.getString("word"),
                 row.getString("value"),
                 row.getString("user_name"),
@@ -122,7 +127,8 @@ public final class Vocabulary implements LongIdentification, Marked, Owned, Time
     }
 
     public static Uni<Vocabulary> findById(PgPool client, Long id) {
-        return client.preparedQuery(SELECT_FROM_DICTIONARY_VOCABULARY_WHERE_ID_$1)
+        return client
+                .preparedQuery(SELECT_FROM_DICTIONARY_VOCABULARY_WHERE_ID_$1)
                 .execute(Tuple.of(id))
                 .onItem()
                 .transform(RowSet::iterator)
@@ -142,14 +148,16 @@ public final class Vocabulary implements LongIdentification, Marked, Owned, Time
     }
 
     public static Uni<Long> delete(PgPool client, Long id) {
-        return client.preparedQuery(DELETE_FROM_DICTIONARY_VOCABULARY_WHERE_ID_$1)
+        return client.withTransaction(
+                connection -> connection.preparedQuery(DELETE_FROM_DICTIONARY_VOCABULARY_WHERE_ID_$1)
                 .execute(Tuple.of(id))
                 .onItem()
-                .transform(pgRowSet -> pgRowSet.iterator().next().getLong("id"));
+                .transform(pgRowSet -> pgRowSet.iterator().next().getLong(ID)));
     }
 
     public static Uni<Long> count(PgPool client) {
-        return client.preparedQuery(COUNT_DICTIONARY_VOCABULARY)
+        return client
+                .preparedQuery(COUNT_DICTIONARY_VOCABULARY)
                 .execute()
                 .onItem()
                 .transform(pgRowSet -> pgRowSet.iterator().next().getLong("count"));
@@ -160,19 +168,21 @@ public final class Vocabulary implements LongIdentification, Marked, Owned, Time
     }
 
     public Uni<Long> insert(PgPool client) {
-        return client.preparedQuery(INSERT_INTO_DICTIONARY_VOCABULARY)
-                .execute(Tuple.of(word, value, userName, enabled, visible, flags))
-                .onItem()
-                .transform(RowSet::iterator)
-                .onItem()
-                .transform(iterator -> iterator.hasNext() ? iterator.next().getLong("id") : null);
+        return client.withTransaction(
+                connection -> connection.preparedQuery(INSERT_INTO_DICTIONARY_VOCABULARY)
+                        .execute(Tuple.of(word, value, userName, enabled, visible, flags))
+                        .onItem()
+                        .transform(RowSet::iterator)
+                        .onItem()
+                        .transform(iterator -> iterator.hasNext() ? iterator.next().getLong(ID) : null));
     }
 
     public Uni<Long> update(PgPool client) {
-        return client.preparedQuery(UPDATE_DICTIONARY_VOCABULARY_WHERE_ID_$1)
-                .execute(Tuple.tuple(listOf()))
-                .onItem()
-                .transform(pgRowSet -> pgRowSet.iterator().next().getLong("id"));
+        return client.withTransaction(
+                connection -> connection.preparedQuery(UPDATE_DICTIONARY_VOCABULARY_WHERE_ID_$1)
+                        .execute(Tuple.tuple(listOf()))
+                        .onItem()
+                        .transform(pgRowSet -> pgRowSet.iterator().next().getLong(ID)));
     }
 
     private List<Object> listOf() {
@@ -239,6 +249,19 @@ public final class Vocabulary implements LongIdentification, Marked, Owned, Time
 
     @Override
     public int hashCode() {
+        int h = hash;
+        if (h == 0 && !hashIsZero) {
+            h = calculateHashCode();
+            if (h == 0) {
+                hashIsZero = true;
+            } else {
+                hash = h;
+            }
+        }
+        return h;
+    }
+
+    private int calculateHashCode() {
         return Objects.hash(id, word, value, userName, enabled, visible, flags);
     }
 

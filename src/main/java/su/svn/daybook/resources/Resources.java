@@ -9,7 +9,6 @@ import su.svn.daybook.services.AbstractService;
 import java.io.Serializable;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Consumer;
 
 public interface Resources<K extends Comparable<? extends Serializable>, V extends Identification<K>> {
 
@@ -21,12 +20,6 @@ public interface Resources<K extends Comparable<? extends Serializable>, V exten
         final AtomicInteger counter = new AtomicInteger();
         LOG.trace("getAll()");
         return getService().getAll()
-                .invoke(new Consumer<Object>() {
-                    @Override
-                    public void accept(Object answer) {
-                        LOG.errorf("HA-HA-HA %s", answer);
-                    }
-                })
                 .filter(Objects::nonNull)
                 .onItem()
                 .transform(this::extract)

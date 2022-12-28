@@ -35,9 +35,9 @@ class VocabularyTest {
     @Test
     void testEqualsVerifier() {
         EqualsVerifier.forClass(Vocabulary.class)
-                .suppress(Warning.NONFINAL_FIELDS)
-                .withIgnoredFields("createTime")
-                .withIgnoredFields("updateTime")
+                .withCachedHashCode("hash", "calculateHashCode", null)
+                .withIgnoredFields("createTime", "updateTime", "hash", "hashIsZero")
+                .suppress(Warning.NO_EXAMPLE_FOR_CACHED_HASHCODE)
                 .verify();
     }
 

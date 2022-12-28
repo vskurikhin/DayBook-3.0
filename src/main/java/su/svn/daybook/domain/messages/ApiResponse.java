@@ -26,9 +26,9 @@ public final class ApiResponse<I extends Comparable<? extends Serializable>> {
 
     private transient final Class<?> payloadClass;
 
-    private transient int hash;
+    private transient volatile int hash;
 
-    private transient boolean hashIsZero;
+    private transient volatile boolean hashIsZero;
 
     private ApiResponse() {
         this(null, null, null, null);

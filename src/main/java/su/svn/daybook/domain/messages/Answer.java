@@ -38,9 +38,9 @@ public class Answer implements Serializable {
     @JsonIgnore
     private transient Class<?> payloadClass;
 
-    private transient int hash;
+    private transient volatile int hash;
 
-    private transient boolean hashIsZero;
+    private transient volatile boolean hashIsZero;
 
     public Answer(@Nonnull String message) {
         this(message, 0, null);
