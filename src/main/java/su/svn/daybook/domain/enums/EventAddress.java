@@ -26,6 +26,10 @@ public enum EventAddress {
     TagDel(EventAddress.TAG_DEL),
     TagGet(EventAddress.TAG_GET),
     TagPut(EventAddress.TAG_PUT),
+    UserAdd(EventAddress.USER_ADD),
+    UserGet(EventAddress.USER_GET),
+    UserPut(EventAddress.USER_PUT),
+    UserDel(EventAddress.USER_DEL),
     VocabularyAdd(EventAddress.VOCABULARY_ADD),
     VocabularyGet(EventAddress.VOCABULARY_GET),
     VocabularyPut(EventAddress.VOCABULARY_PUT),
@@ -36,65 +40,38 @@ public enum EventAddress {
     WordDel(EventAddress.WORD_DEL);
 
     public static final String CODE_ADD = "code_add";
-
     public static final String CODE_GET = "code_get";
-
     public static final String CODE_PUT = "code_put";
-
     public static final String CODE_DEL = "code_del";
-
     public static final String I18N_ADD = "i18n_add";
-
     public static final String I18N_DEL = "i18n_del";
-
     public static final String I18N_GET = "i18n_get";
-
     public static final String I18N_PUT = "i18n_put";
-
     public static final String LANGUAGE_ADD = "language_add";
-
     public static final String LANGUAGE_DEL = "language_del";
-
     public static final String LANGUAGE_GET = "language_get";
-
     public static final String LANGUAGE_PUT = "language_put";
-
     public static final String TAG_ADD = "tag_add";
-
     public static final String TAG_GET = "tag_get";
-
     public static final String TAG_PUT = "tag_put";
-
     public static final String TAG_DEL = "tag_del";
-
+    public static final String USER_ADD = "user_add";
+    public static final String USER_GET = "user_get";
+    public static final String USER_PUT = "user_put";
+    public static final String USER_DEL = "user_del";
     public static final String VOCABULARY_ADD = "vocabulary_add";
-
     public static final String VOCABULARY_GET = "vocabulary_get";
-
     public static final String VOCABULARY_PUT = "vocabulary_put";
-
     public static final String VOCABULARY_DEL = "vocabulary_del";
-
     public static final String WORD_ADD = "word_add";
-
     public static final String WORD_GET = "word_get";
-
     public static final String WORD_PUT = "word_put";
-
     public static final String WORD_DEL = "word_del";
 
     private final String value;
 
     EventAddress(String value) {
         this.value = value;
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    public boolean stringEquals(String other) {
-        return this.value != null && this.value.equals(other) || other == null;
     }
 
     public static EventAddress lookup(String key) {
@@ -109,5 +86,13 @@ public enum EventAddress {
             }
         }
         return null;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public boolean stringEquals(String other) {
+        return this.value != null && this.value.equals(other) || other == null;
     }
 }

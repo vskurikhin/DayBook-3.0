@@ -8,61 +8,70 @@
 
 package su.svn.daybook.domain.messages;
 
+import liquibase.structure.core.Data;
+import nl.jqno.equalsverifier.EqualsVerifier;
+import nl.jqno.equalsverifier.Warning;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import su.svn.daybook.DataTest;
+
+import java.io.Serializable;
 
 class ApiResponseTest {
-//
-//    @Test
-//    void constructors() {
-//        ApiResponse<Object> test1 = new ApiResponse<>();
-//        ApiResponse<Object> test2 = ApiResponse.message(null);
-//        Assertions.assertEquals(test1, test2);
-//
-//        ApiResponse<Long> test3 = new ApiResponse<Long>(0L);
-//        ApiResponse<Long> test4 = new ApiResponse<Long>(0L, null);
-//        Assertions.assertEquals(test3, test4);
-//    }
-//
-//    @Test
-//    void setters() {
-//        Object o = new Object();
-//
-//        ApiResponse<Long> test1 = new ApiResponse<Long>(0L, "");
-//        ApiResponse<Long> test2 = new ApiResponse<Long>(0L, "", null, o);
-//        test1.setPayload(o);
-//        Assertions.assertEquals(test1, test2);
-//
-//        ApiResponse<Long> test3 = new ApiResponse<Long>(0L, "");
-//        ApiResponse<Long> test4 = new ApiResponse<Long>(1L, "test", 1, o);
-//        test3.setId(1L);
-//        test3.setMessage("test");
-//        test3.setError(1);
-//        test3.setPayload(o);
-//        Assertions.assertEquals(test3, test4);
-//        Assertions.assertEquals(test3.hashCode(), test4.hashCode());
-//    }
-//
-//
-//    @Test
-//    void testToString() {
-//        Object o = new Object();
-//        ApiResponse<Long> test1 = new ApiResponse<Long>(0L, "");
-//        Assertions.assertTrue(test1.toString().length() > 0);
-//    }
-//
-//    @Test
-//    void builder() {
-//        Object o = new Object();
-//
-//        ApiResponse.Builder<Long> builder = ApiResponse.<Long>builder()
-//                .withId(1L)
-//                .withError(1)
-//                .withMessage("test")
-//                .withPayload(o)
-//                .but();
-//        ApiResponse<Long> test1 = builder.build();
-//        ApiResponse<Long> test2 = new ApiResponse<Long>(1L, "test", 1, o);
-//        Assertions.assertEquals(test1, test2);
-//    }
+
+    @Test
+    void testConstructors() {
+        Assertions.assertDoesNotThrow(() -> new ApiResponse<>(
+                DataTest.ZERO_UUID, new Object()
+        ));
+        Assertions.assertDoesNotThrow(() -> ApiResponse.message(null));
+    }
+
+    @Test
+    void testGetters(){
+        var entry = new ApiResponse<>(DataTest.ZERO_UUID);
+        Assertions.assertDoesNotThrow(entry::getId);
+        Assertions.assertDoesNotThrow(entry::getError);
+        Assertions.assertDoesNotThrow(entry::getMessage);
+        Assertions.assertDoesNotThrow(entry::getPayload);
+        Assertions.assertDoesNotThrow(entry::getPayloadClass);
+    }
+
+    @Test
+    void testEqualsVerifier() {
+        EqualsVerifier.forClass(ApiResponse.class)
+                .withCachedHashCode("hash", "calculateHashCode", null)
+                .suppress(Warning.NO_EXAMPLE_FOR_CACHED_HASHCODE)
+                .verify();
+        Assertions.assertEquals(0, (new ApiResponse<>(new ForHashCode())).hashCode());
+        Assertions.assertNotEquals(0, (new ApiResponse<>(DataTest.ZERO_UUID)).hashCode());
+    }
+
+    @Test
+    void testToString() {
+        var entry = new ApiResponse<>(DataTest.STRING_ZERO_UUID);
+        Assertions.assertDoesNotThrow(() -> Assertions.assertNotNull(entry.toString()));
+    }
+
+    @Test
+    void testBuilder() {
+        Assertions.assertDoesNotThrow(() -> Assertions.assertNotNull(ApiResponse.builder()
+                .id(DataTest.ZERO_UUID)
+                .error(0)
+                .message(null)
+                .payload(new Object())
+                .build()));
+    }
+
+    static class ForHashCode implements Comparable<ForHashCode>, Serializable {
+
+        @Override
+        public int compareTo(ForHashCode o) {
+            return 0;
+        }
+
+        public int hashCode() {
+            return -31;
+        }
+    }
 }

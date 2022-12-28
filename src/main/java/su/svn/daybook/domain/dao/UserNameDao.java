@@ -29,8 +29,6 @@ public class UserNameDao {
 
     public Multi<UserName> findAll() {
         LOG.trace("findAll");
-        Multi<UserName> result = UserName.findAll(client);
-        LOG.tracef("findAll result: %s", result);
         return UserName.findAll(client);
     }
 

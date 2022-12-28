@@ -8,45 +8,57 @@
 
 package su.svn.daybook.domain.messages;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.io.Serial;
 import java.io.Serializable;
+import java.util.Objects;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Answer implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 4530969986917184578L;
 
     public static final String DEFAULT_MESSAGE = "ANSWER";
 
     public static final String EMPTY = "EMPTY";
 
-    private final String message;
+    public static final String NO_SUCH_ELEMENT = "no such element";
 
     private final int error;
 
+    private final String message;
+
     private Object payload;
 
-    private Class<?> payloadClass;
+    @JsonIgnore
+    private transient Class<?> payloadClass;
+
+    private transient int hash;
+
+    private transient boolean hashIsZero;
 
     public Answer(@Nonnull String message) {
-        this.message = message;
-        this.error = 0;
+        this(message, 0, null);
     }
 
     public Answer(@Nonnull String message, int error) {
-        this.message = message;
-        this.error = error;
+        this(message, error, null);
     }
 
-    private Answer(String message, int error, Object payload, Class<?> payloadClass) {
-        this.message = message;
+    private Answer(String message, int error, Object payload) {
         this.error = error;
+        this.message = message;
         this.payload = payload;
-        this.payloadClass = payloadClass;
+        this.payloadClass = payload != null ? payload.getClass() : null;
     }
 
     public static Answer empty() {
-        return new Answer(EMPTY, 404);
+        return new Answer(NO_SUCH_ELEMENT, 404, EMPTY);
     }
 
     public static <T> Answer of(@Nonnull T o) {
@@ -54,7 +66,7 @@ public class Answer implements Serializable {
     }
 
     public static Answer create(@Nonnull String message, @Nonnull Object o) {
-        return new Answer(message, 0, o, o.getClass());
+        return new Answer(message, 200, o);
     }
 
     @Nonnull
@@ -84,22 +96,29 @@ public class Answer implements Serializable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-
         Answer answer = (Answer) o;
-
-        if (error != answer.error) return false;
-        if (!message.equals(answer.message)) return false;
-        if (payload != null ? !payload.equals(answer.payload) : answer.payload != null) return false;
-        return payloadClass != null ? payloadClass.equals(answer.payloadClass) : answer.payloadClass == null;
+        return error == answer.error
+                && Objects.equals(message, answer.message)
+                && Objects.equals(payload, answer.payload)
+                && Objects.equals(payloadClass, answer.payloadClass);
     }
 
     @Override
     public int hashCode() {
-        int result = message.hashCode();
-        result = 31 * result + error;
-        result = 31 * result + (payload != null ? payload.hashCode() : 0);
-        result = 31 * result + (payloadClass != null ? payloadClass.hashCode() : 0);
-        return result;
+        int h = hash;
+        if (h == 0 && !hashIsZero) {
+            h = calculateHashCode();
+            if (h == 0) {
+                hashIsZero = true;
+            } else {
+                hash = h;
+            }
+        }
+        return h;
+    }
+
+    private int calculateHashCode() {
+        return Objects.hash(message, error, payload, payloadClass);
     }
 
     @Override
@@ -124,26 +143,26 @@ public class Answer implements Serializable {
         private Builder() {
         }
 
-        public Builder withMessage(String message) {
+        public Builder message(String message) {
             this.message = message;
             return this;
         }
 
-        public Builder withError(int error) {
+        public Builder error(int error) {
             this.error = error;
             return this;
         }
 
-        public Builder withPayload(@Nonnull Object payload) {
+        public Builder payload(@Nonnull Object payload) {
             this.payload = payload;
             return this;
         }
 
         public Builder but() {
             return Answer.builder()
-                    .withMessage(message)
-                    .withError(error)
-                    .withPayload(payload);
+                    .message(message)
+                    .error(error)
+                    .payload(payload);
         }
 
         public Answer build() {

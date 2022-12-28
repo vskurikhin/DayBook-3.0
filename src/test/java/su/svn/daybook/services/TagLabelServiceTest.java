@@ -94,7 +94,7 @@ class TagLabelServiceTest {
     void testMethod_wordGet_whenNoNumberParameter() {
         service.tagGet("no")
                 .onItem()
-                .invoke(actual -> Assertions.assertEquals(DataTest.errorEmpty, actual))
+                .invoke(actual -> Assertions.assertEquals(DataTest.ANSWER_ERROR_EMPTY, actual))
                 .await()
                 .indefinitely();
     }
@@ -165,7 +165,7 @@ class TagLabelServiceTest {
     void testMethod_wordDelete_whenNoNumberParameter() {
         service.tagDelete("no")
                 .onItem()
-                .invoke(actual -> Assertions.assertEquals(DataTest.errorEmpty, actual))
+                .invoke(actual -> Assertions.assertEquals(DataTest.ANSWER_ERROR_EMPTY, actual))
                 .await()
                 .indefinitely();
     }

@@ -98,7 +98,7 @@ class VocabularyServiceTest {
     void testMethod_codeGet_whenNoNumberParameter() {
         service.vocabularyGet("noNumber")
                 .onItem()
-                .invoke(actual -> Assertions.assertEquals(DataTest.errorNoNumber, actual))
+                .invoke(actual -> Assertions.assertEquals(DataTest.ANSWER_ERROR_NoNumber, actual))
                 .await()
                 .indefinitely();
     }
@@ -169,7 +169,7 @@ class VocabularyServiceTest {
     void testMethod_codeDelete_whenNoNumberParameter() {
         service.vocabularyDelete("noNumber")
                 .onItem()
-                .invoke(actual -> Assertions.assertEquals(DataTest.errorNoNumber, actual))
+                .invoke(actual -> Assertions.assertEquals(DataTest.ANSWER_ERROR_NoNumber, actual))
                 .await()
                 .indefinitely();
     }

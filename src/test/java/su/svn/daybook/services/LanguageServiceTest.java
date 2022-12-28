@@ -98,7 +98,7 @@ class LanguageServiceTest {
     void testMethod_languageGet_whenNoNumberParameter() {
         service.languageGet("noNumber")
                 .onItem()
-                .invoke(actual -> Assertions.assertEquals(DataTest.errorNoNumber, actual))
+                .invoke(actual -> Assertions.assertEquals(DataTest.ANSWER_ERROR_NoNumber, actual))
                 .await()
                 .indefinitely();
     }
@@ -149,7 +149,7 @@ class LanguageServiceTest {
     void testMethod_languageDelete_whenNoNumberParameter() {
         service.languageDelete("noNumber")
                 .onItem()
-                .invoke(actual -> Assertions.assertEquals(DataTest.errorNoNumber, actual))
+                .invoke(actual -> Assertions.assertEquals(DataTest.ANSWER_ERROR_NoNumber, actual))
                 .await()
                 .indefinitely();
     }

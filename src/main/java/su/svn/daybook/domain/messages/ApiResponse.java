@@ -10,20 +10,25 @@ package su.svn.daybook.domain.messages;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+import java.io.Serializable;
+import java.util.Objects;
+
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public final class ApiResponse<I> {
+public final class ApiResponse<I extends Comparable<? extends Serializable>> {
 
     private final I id;
 
-    private final String message;
-
     private final Integer error;
+
+    private final String message;
 
     private final Object payload;
 
-    private final Class<?> payloadClass;
+    private transient final Class<?> payloadClass;
 
-    private final int hashCode;
+    private transient int hash;
+
+    private transient boolean hashIsZero;
 
     private ApiResponse() {
         this(null, null, null, null);
@@ -33,29 +38,36 @@ public final class ApiResponse<I> {
         this(id, null, null, null);
     }
 
+    public ApiResponse(I id, Object payload) {
+        this(id, null, null, payload);
+    }
+
     private ApiResponse(I id, String message, Integer error, Object payload) {
         this.id = id;
         this.message = message;
         this.error = error;
         this.payload = payload;
         this.payloadClass = payload != null ? payload.getClass() : null;
-        this.hashCode = hashCodeInt();
     }
 
-    public static ApiResponse<Object> message(String message) {
+    public static ApiResponse<String> message(String message) {
         return new ApiResponse<>(null, message, null, null);
+    }
+
+    public static <T extends Comparable<? extends Serializable>> ApiResponse.Builder<T> builder() {
+        return new ApiResponse.Builder<>();
     }
 
     public I getId() {
         return id;
     }
 
-    public String getMessage() {
-        return message;
-    }
-
     public Integer getError() {
         return error;
+    }
+
+    public String getMessage() {
+        return message;
     }
 
     public Object getPayload() {
@@ -70,29 +82,29 @@ public final class ApiResponse<I> {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-
         ApiResponse<?> that = (ApiResponse<?>) o;
-
-        if (id != null ? !id.equals(that.id) : that.id != null) return false;
-        if (message != null ? !message.equals(that.message) : that.message != null) return false;
-        if (error != null ? !error.equals(that.error) : that.error != null) return false;
-        if (payload != null ? !payload.equals(that.payload) : that.payload != null) return false;
-        return payloadClass != null ? payloadClass.equals(that.payloadClass) : that.payloadClass == null;
+        return Objects.equals(id, that.id)
+                && Objects.equals(message, that.message)
+                && Objects.equals(error, that.error)
+                && Objects.equals(payload, that.payload);
     }
 
     @Override
     public int hashCode() {
-        return this.hashCode;
+        int h = hash;
+        if (h == 0 && !hashIsZero) {
+            h = calculateHashCode();
+            if (h == 0) {
+                hashIsZero = true;
+            } else {
+                hash = h;
+            }
+        }
+        return h;
     }
 
-
-    private int hashCodeInt() {
-        int result = id != null ? id.hashCode() : 0;
-        result = 31 * result + (message != null ? message.hashCode() : 0);
-        result = 31 * result + (error != null ? error.hashCode() : 0);
-        result = 31 * result + (payload != null ? payload.hashCode() : 0);
-        result = 31 * result + (payloadClass != null ? payloadClass.hashCode() : 0);
-        return result;
+    private int calculateHashCode() {
+        return Objects.hash(id, message, error, payload);
     }
 
     @Override
@@ -106,45 +118,33 @@ public final class ApiResponse<I> {
                 '}';
     }
 
-    public static <T> ApiResponse.Builder<T> builder() {
-        return new ApiResponse.Builder<>();
-    }
-
-    public static final class Builder<J> {
+    public static final class Builder<J extends Comparable<? extends Serializable>> {
         private J id;
-        private String message;
         private Integer error;
+        private String message;
         private Object payload;
 
         private Builder() {
         }
 
-        public Builder<J> withId(J id) {
+        public Builder<J> id(J id) {
             this.id = id;
             return this;
         }
 
-        public Builder<J> withMessage(String message) {
+        public Builder<J> message(String message) {
             this.message = message;
             return this;
         }
 
-        public Builder<J> withError(Integer error) {
+        public Builder<J> error(Integer error) {
             this.error = error;
             return this;
         }
 
-        public Builder<J> withPayload(Object payload) {
+        public Builder<J> payload(Object payload) {
             this.payload = payload;
             return this;
-        }
-
-        public ApiResponse.Builder<J> but() {
-            return ApiResponse.<J>builder()
-                    .withId(id)
-                    .withMessage(message)
-                    .withError(error)
-                    .withPayload(payload);
         }
 
         public ApiResponse<J> build() {

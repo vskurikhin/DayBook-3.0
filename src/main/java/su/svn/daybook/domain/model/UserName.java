@@ -8,6 +8,7 @@
 
 package su.svn.daybook.domain.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import io.vertx.mutiny.pgclient.PgPool;
@@ -22,6 +23,7 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public final class UserName implements UUIDIdentification, Marked, Owned, TimeUpdated, Serializable {
 
     public static final String SELECT_FROM_SECURITY_USER_NAME_WHERE_ID_$1 = """
@@ -132,10 +134,10 @@ public final class UserName implements UUIDIdentification, Marked, Owned, TimeUp
     }
 
     public static Uni<UUID> delete(PgPool client, UUID id) {
-        return client.preparedQuery(DELETE_FROM_SECURITY_USER_NAME_WHERE_ID_$1)
+        return client.withTransaction(sqlConnection -> sqlConnection.preparedQuery(DELETE_FROM_SECURITY_USER_NAME_WHERE_ID_$1)
                 .execute(Tuple.of(id))
                 .onItem()
-                .transform(pgRowSet -> pgRowSet.iterator().next().getUUID("id"));
+                .transform(pgRowSet -> pgRowSet.iterator().next().getUUID("id")));
     }
 
     public static Uni<Long> count(PgPool client) {
@@ -150,19 +152,19 @@ public final class UserName implements UUIDIdentification, Marked, Owned, TimeUp
     }
 
     public Uni<UUID> insert(PgPool client) {
-        return client.preparedQuery(INSERT_INTO_SECURITY_USER_NAME)
+        return client.withTransaction(sqlConnection -> sqlConnection.preparedQuery(INSERT_INTO_SECURITY_USER_NAME)
                 .execute(Tuple.of(id, userName, password, enabled, visible, flags))
                 .onItem()
                 .transform(RowSet::iterator)
                 .onItem()
-                .transform(iterator -> iterator.hasNext() ? iterator.next().getUUID("id") : null);
+                .transform(iterator -> iterator.hasNext() ? iterator.next().getUUID("id") : null));
     }
 
     public Uni<UUID> update(PgPool client) {
-        return client.preparedQuery(UPDATE_SECURITY_USER_NAME_WHERE_ID_$1)
+        return client.withTransaction(sqlConnection -> sqlConnection.preparedQuery(UPDATE_SECURITY_USER_NAME_WHERE_ID_$1)
                 .execute(Tuple.of(id, userName, password, enabled, visible, flags))
                 .onItem()
-                .transform(pgRowSet -> pgRowSet.iterator().next().getUUID("id"));
+                .transform(pgRowSet -> pgRowSet.iterator().next().getUUID("id")));
     }
 
     public UUID getId() {
