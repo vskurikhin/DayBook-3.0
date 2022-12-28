@@ -21,13 +21,13 @@ class EventAddressTest {
     @Test
     void testMethod_stringEquals() {
         Assertions.assertTrue(EventAddress.Null.stringEquals(null));
-        Assertions.assertTrue(EventAddress.CodeAdd.stringEquals("code_add"));
+        Assertions.assertTrue(EventAddress.CodifierAdd.stringEquals("code_add"));
     }
 
     @Test
     void testMethod_lookup() {
         Assertions.assertEquals(EventAddress.Null, EventAddress.lookup(null));
-        Assertions.assertEquals(EventAddress.CodeAdd, EventAddress.lookup("code_add"));
+        Assertions.assertEquals(EventAddress.CodifierAdd, EventAddress.lookup("code_add"));
         Assertions.assertNull(EventAddress.lookup("0MxliRx4k+YSk/V4dJFSmqqZgl+L65nL+hoxJb4Cl1Y97dLrIUJR9jBBRytbK7Qzd"));
     }
 }

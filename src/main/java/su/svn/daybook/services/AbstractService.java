@@ -12,6 +12,7 @@ import javax.ws.rs.core.Response;
 import java.io.Serializable;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Predicate;
 
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
@@ -112,6 +113,23 @@ public abstract class AbstractService<K extends Comparable<? extends Serializabl
         }
         if (o instanceof String s) {
             return Long.parseLong(s);
+        }
+        throw new NoSuchElementException();
+    }
+
+    public String getIdString(Object o) {
+        if (o instanceof String s) {
+            return s;
+        }
+        throw new NoSuchElementException();
+    }
+
+    public UUID getIdUUID(Object o) {
+        if (o instanceof UUID id) {
+            return id;
+        }
+        if (o instanceof String s) {
+            return UUID.fromString(s);
         }
         throw new NoSuchElementException();
     }

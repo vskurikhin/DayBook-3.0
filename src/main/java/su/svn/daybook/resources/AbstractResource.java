@@ -5,7 +5,6 @@ import io.vertx.mutiny.core.eventbus.EventBus;
 import io.vertx.mutiny.core.eventbus.Message;
 import org.jboss.logging.Logger;
 import org.jboss.resteasy.reactive.RestResponse;
-import su.svn.daybook.domain.enums.ResourcePath;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.messages.ApiResponse;
 import su.svn.daybook.domain.model.Identification;
@@ -15,10 +14,13 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.net.URI;
 import java.util.Collections;
+import java.util.regex.Pattern;
 
 abstract class AbstractResource {
 
     private static final Logger LOG = Logger.getLogger(AbstractResource.class);
+
+    private static final Pattern PATH_PATTERN = Pattern.compile("^(/?.*[-a-zA-Z\\d]+)/*$");
 
     @Inject
     protected EventBus bus;
@@ -63,14 +65,17 @@ abstract class AbstractResource {
     }
 
     private URI createUri(UriInfo uriInfo, Object payload) {
+        var matcher = PATH_PATTERN.matcher(uriInfo.getPath());
+        var path = matcher.matches() ? matcher.group(1) : uriInfo.getPath();
+        LOG.tracef("path: %s, count: %d, m.group(1): %s", path, matcher.groupCount(), matcher.group(1));
         if (payload instanceof ApiResponse<?> api) {
             var builder = uriInfo.getRequestUriBuilder();
-            return builder.replacePath(ResourcePath.USER + "/" + api.getId().toString())
+            return builder.replacePath(path+ "/" + api.getId().toString())
                     .buildFromMap(Collections.emptyMap());
         }
         if (payload instanceof Identification<?> entry) {
             var builder = uriInfo.getRequestUriBuilder();
-            return builder.replacePath(ResourcePath.USER + "/" + entry.getId().toString())
+            return builder.replacePath(path + "/" + entry.getId().toString())
                     .buildFromMap(Collections.emptyMap());
         }
         return uriInfo.getRequestUri();

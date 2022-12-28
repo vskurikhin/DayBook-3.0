@@ -91,6 +91,18 @@ public class DataBaseIT {
                     .build();
             Assertions.assertDoesNotThrow(
                     () -> {
+                        var test = codifierDao.findById(id)
+                                .subscribeAsCompletionStage()
+                                .get()
+                                .orElse(null);
+                        Assertions.assertNotNull(test);
+                        Assertions.assertEquals(expected1, test);
+                        Assertions.assertNotNull(test.getCreateTime());
+                        Assertions.assertNull(test.getUpdateTime());
+                    }
+            );
+            Assertions.assertDoesNotThrow(
+                    () -> {
                         var test = codifierDao.findByCode(id)
                                 .subscribeAsCompletionStage()
                                 .get()
@@ -115,7 +127,7 @@ public class DataBaseIT {
             );
             Assertions.assertDoesNotThrow(
                     () -> {
-                        var test = codifierDao.findByCode(id)
+                        var test = codifierDao.findById(id)
                                 .subscribeAsCompletionStage()
                                 .get()
                                 .orElse(null);

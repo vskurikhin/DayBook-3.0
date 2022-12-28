@@ -2,7 +2,7 @@
  * This file was last modified at 2022.01.11 17:44 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
- * CodifierResource.java
+ * @Name@Resource.java
  * $Id$
  */
 
@@ -14,9 +14,9 @@ import org.jboss.resteasy.reactive.RestResponse;
 import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
 import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.enums.ResourcePath;
-import su.svn.daybook.domain.model.Codifier;
+import su.svn.daybook.domain.model.@Name@;
 import su.svn.daybook.services.AbstractService;
-import su.svn.daybook.services.CodifierService;
+import su.svn.daybook.services.@Name@Service;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -30,46 +30,46 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
-@Path(ResourcePath.CODIFIER)
-public class CodifierResource extends AbstractResource implements Resources<String, Codifier> {
+@Path(ResourcePath.@TABLE@)
+public class @Name@Resource extends AbstractResource implements Resources<@IdType@, @Name@> {
 
     @Inject
-    CodifierService service;
+    @Name@Service service;
 
     @GET
     @Path(ResourcePath.ALL)
     @Produces("application/json")
-    public Multi<Codifier> all() {
+    public Multi<@Name@> all() {
         return getAll();
     }
 
     @GET
     @Path(ResourcePath.ID)
     @Produces("application/json")
-    public Uni<Response> get(String id, @Context UriInfo uriInfo) {
-        return request(EventAddress.CODIFIER_GET, id, uriInfo);
+    public Uni<Response> get(@IdType id, @Context UriInfo uriInfo) {
+        return request(EventAddress.@TABLE@_GET, id, uriInfo);
     }
 
     @POST
     @Consumes("application/json")
     @Produces("application/json")
-    public Uni<Response> post(Codifier entry, @Context UriInfo uriInfo) {
-        return request(EventAddress.CODIFIER_ADD, entry, uriInfo);
+    public Uni<Response> post(@Name@ entry, @Context UriInfo uriInfo) {
+        return request(EventAddress.@TABLE@_ADD, entry, uriInfo);
     }
 
 
     @PUT
     @Consumes("application/json")
     @Produces("application/json")
-    public Uni<Response> put(Codifier entry, @Context UriInfo uriInfo) {
-        return request(EventAddress.CODIFIER_PUT, entry, uriInfo);
+    public Uni<Response> put(@Name@ entry, @Context UriInfo uriInfo) {
+        return request(EventAddress.@TABLE@_PUT, entry, uriInfo);
     }
 
     @DELETE
     @Path(ResourcePath.ID)
     @Produces("application/json")
-    public Uni<Response> delete(String id, @Context UriInfo uriInfo) {
-        return request(EventAddress.CODIFIER_DEL, id, uriInfo);
+    public Uni<Response> delete(@IdType id, @Context UriInfo uriInfo) {
+        return request(EventAddress.@TABLE@_DEL, id, uriInfo);
     }
 
     @ServerExceptionMapper
@@ -78,7 +78,7 @@ public class CodifierResource extends AbstractResource implements Resources<Stri
     }
 
     @Override
-    public AbstractService<String, Codifier> getService() {
+    public AbstractService<@IdType@, @Name@> getService() {
         return service;
     }
 }

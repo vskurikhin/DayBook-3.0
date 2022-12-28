@@ -1,11 +1,3 @@
-/*
- * This file was last modified at 2021.12.06 19:31 by Victor N. Skurikhin.
- * This is free and unencumbered software released into the public domain.
- * For more information, please refer to <http://unlicense.org>
- * CodifierTest.java
- * $Id$
- */
-
 package su.svn.daybook.domain.model;
 
 import nl.jqno.equalsverifier.EqualsVerifier;
@@ -43,9 +35,9 @@ class CodifierTest {
     @Test
     void testEqualsVerifier() {
         EqualsVerifier.forClass(Codifier.class)
-                .suppress(Warning.NONFINAL_FIELDS)
-                .withIgnoredFields("createTime")
-                .withIgnoredFields("updateTime")
+                .withCachedHashCode("hash", "calculateHashCode", null)
+                .withIgnoredFields("createTime", "updateTime", "hash", "hashIsZero")
+                .suppress(Warning.NO_EXAMPLE_FOR_CACHED_HASHCODE)
                 .verify();
     }
 
@@ -58,6 +50,7 @@ class CodifierTest {
     @Test
     void testBuilder() {
         Assertions.assertDoesNotThrow(() -> Assertions.assertNotNull(Codifier.builder()
+                .id(NONE)
                 .code(NONE)
                 .value(null)
                 .userName(null)

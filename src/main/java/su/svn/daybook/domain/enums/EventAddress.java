@@ -10,10 +10,10 @@ package su.svn.daybook.domain.enums;
 
 public enum EventAddress {
     Null(null),
-    CodeAdd(EventAddress.CODE_ADD),
-    CodeGet(EventAddress.CODE_GET),
-    CodePut(EventAddress.CODE_PUT),
-    CodeDel(EventAddress.CODE_DEL),
+    CodifierAdd(EventAddress.CODIFIER_ADD),
+    CodifierGet(EventAddress.CODIFIER_GET),
+    CodifierPut(EventAddress.CODIFIER_PUT),
+    CodifierDel(EventAddress.CODIFIER_DEL),
     I18nAdd(EventAddress.I18N_ADD),
     I18nGet(EventAddress.I18N_DEL),
     I18nDel(EventAddress.I18N_GET),
@@ -43,10 +43,10 @@ public enum EventAddress {
     WordPut(EventAddress.WORD_PUT),
     WordDel(EventAddress.WORD_DEL);
 
-    public static final String CODE_ADD = "code_add";
-    public static final String CODE_GET = "code_get";
-    public static final String CODE_PUT = "code_put";
-    public static final String CODE_DEL = "code_del";
+    public static final String CODIFIER_ADD = "code_add";
+    public static final String CODIFIER_GET = "code_get";
+    public static final String CODIFIER_PUT = "code_put";
+    public static final String CODIFIER_DEL = "code_del";
     public static final String I18N_ADD = "i18n_add";
     public static final String I18N_DEL = "i18n_del";
     public static final String I18N_GET = "i18n_get";
