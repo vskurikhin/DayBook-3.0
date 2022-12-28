@@ -106,7 +106,7 @@ public abstract class AbstractService<K extends Comparable<? extends Serializabl
         );
     }
 
-    public long getId(Object o) {
+    public long getIdLong(Object o) {
         if (o instanceof Long id) {
             return id;
         }

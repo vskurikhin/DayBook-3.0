@@ -30,6 +30,10 @@ public enum EventAddress {
     UserGet(EventAddress.USER_GET),
     UserPut(EventAddress.USER_PUT),
     UserDel(EventAddress.USER_DEL),
+    ValueTypeAdd(EventAddress.VALUE_TYPE_ADD),
+    ValueTypeGet(EventAddress.VALUE_TYPE_GET),
+    ValueTypePut(EventAddress.VALUE_TYPE_PUT),
+    ValueTypeDel(EventAddress.VALUE_TYPE_DEL),
     VocabularyAdd(EventAddress.VOCABULARY_ADD),
     VocabularyGet(EventAddress.VOCABULARY_GET),
     VocabularyPut(EventAddress.VOCABULARY_PUT),
@@ -59,6 +63,10 @@ public enum EventAddress {
     public static final String USER_GET = "user_get";
     public static final String USER_PUT = "user_put";
     public static final String USER_DEL = "user_del";
+    public static final String VALUE_TYPE_ADD = "value_type_add";
+    public static final String VALUE_TYPE_GET = "value_type_get";
+    public static final String VALUE_TYPE_PUT = "value_type_put";
+    public static final String VALUE_TYPE_DEL = "value_type_del";
     public static final String VOCABULARY_ADD = "vocabulary_add";
     public static final String VOCABULARY_GET = "vocabulary_get";
     public static final String VOCABULARY_PUT = "vocabulary_put";

@@ -2,7 +2,7 @@
  * This file was last modified at 2022.01.12 22:58 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
- * VocabularyService.java
+ * @Name@Service.java
  * $Id$
  */
 
@@ -12,30 +12,30 @@ import io.quarkus.vertx.ConsumeEvent;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import org.jboss.logging.Logger;
-import su.svn.daybook.domain.dao.VocabularyDao;
+import su.svn.daybook.domain.dao.@Name@Dao;
 import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.messages.Answer;
-import su.svn.daybook.domain.model.Vocabulary;
+import su.svn.daybook.domain.model.@Name@;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.util.NoSuchElementException;
 
 @ApplicationScoped
-public class VocabularyService extends AbstractService<Long, Vocabulary> {
+public class @Name@Service extends AbstractService<Long, @Name@> {
 
-    private static final Logger LOG = Logger.getLogger(VocabularyService.class);
+    private static final Logger LOG = Logger.getLogger(@Name@Service.class);
 
     @Inject
-    VocabularyDao vocabularyDao;
+    @Name@Dao vocabularyDao;
 
     /**
-     * This is method a Vertx message consumer and Vocabulary provider by id
+     * This is method a Vertx message consumer and @Name@ provider by id
      *
-     * @param o - id of the Vocabulary
-     * @return - a lazy asynchronous action with the Answer containing the Vocabulary as payload or empty payload
+     * @param o - id of the @Name@
+     * @return - a lazy asynchronous action with the Answer containing the @Name@ as payload or empty payload
      */
-    @ConsumeEvent(EventAddress.VOCABULARY_GET)
+    @ConsumeEvent(EventAddress.@TABLE@_GET)
     public Uni<Answer> get(Object o) {
         LOG.tracef("get(%s)", o);
         try {
@@ -50,7 +50,7 @@ public class VocabularyService extends AbstractService<Long, Vocabulary> {
         }
     }
 
-    private Uni<Answer> getEntry(long id) {
+    private Uni<Answer> getEntry(@IdType@ id) {
         return vocabularyDao.findById(id)
                 .map(this::getAnswerApiResponseWithValue)
                 .onFailure(onFailureNoSuchElementPredicate())
@@ -60,18 +60,18 @@ public class VocabularyService extends AbstractService<Long, Vocabulary> {
     }
 
     /**
-     * This is method a Vertx message consumer and Vocabulary creater
+     * This is method a Vertx message consumer and @Name@ creater
      *
-     * @param o - Vocabulary
-     * @return - a lazy asynchronous action (LAA) with the Answer containing the Vocabulary id as payload or empty payload
+     * @param o - @Name@
+     * @return - a lazy asynchronous action (LAA) with the Answer containing the @Name@ id as payload or empty payload
      */
-    @ConsumeEvent(EventAddress.VOCABULARY_ADD)
-    public Uni<Answer> add(Vocabulary o) {
+    @ConsumeEvent(EventAddress.@TABLE@_ADD)
+    public Uni<Answer> add(@Name@ o) {
         LOG.tracef("add(%s)", o);
         return addEntry(o);
     }
 
-    private Uni<Answer> addEntry(Vocabulary entry) {
+    private Uni<Answer> addEntry(@Name@ entry) {
         return vocabularyDao.insert(entry)
                 .map(o -> getAnswerApiResponseWithKey(201, o))
                 .onFailure(onFailureDuplicatePredicate())
@@ -81,18 +81,18 @@ public class VocabularyService extends AbstractService<Long, Vocabulary> {
     }
 
     /**
-     * This is method a Vertx message consumer and Vocabulary updater
+     * This is method a Vertx message consumer and @Name@ updater
      *
-     * @param o - Vocabulary
-     * @return - a LAA with the Answer containing Vocabulary id as payload or empty payload
+     * @param o - @Name@
+     * @return - a LAA with the Answer containing @Name@ id as payload or empty payload
      */
-    @ConsumeEvent(EventAddress.VOCABULARY_PUT)
-    public Uni<Answer> put(Vocabulary o) {
+    @ConsumeEvent(EventAddress.@TABLE@_PUT)
+    public Uni<Answer> put(@Name@ o) {
         LOG.tracef("put(%s)", o);
         return putEntry(o);
     }
 
-    private Uni<Answer> putEntry(Vocabulary entry) {
+    private Uni<Answer> putEntry(@Name@ entry) {
         return vocabularyDao.update(entry)
                 .flatMap(this::getAnswerForPut)
                 .onFailure(onFailureDuplicatePredicate())
@@ -104,12 +104,12 @@ public class VocabularyService extends AbstractService<Long, Vocabulary> {
     }
 
     /**
-     * This is method a Vertx message consumer and Vocabulary deleter
+     * This is method a Vertx message consumer and @Name@ deleter
      *
-     * @param o - id of the Vocabulary
-     * @return - a LAA with the Answer containing Vocabulary id as payload or empty payload
+     * @param o - id of the @Name@
+     * @return - a LAA with the Answer containing @Name@ id as payload or empty payload
      */
-    @ConsumeEvent(EventAddress.VOCABULARY_DEL)
+    @ConsumeEvent(EventAddress.@TABLE@_DEL)
     public Uni<Answer> delete(Object o) {
         LOG.tracef("delete(%s)", o);
         try {
@@ -124,7 +124,7 @@ public class VocabularyService extends AbstractService<Long, Vocabulary> {
         }
     }
 
-    private Uni<Answer> deleteEntry(long id) {
+    private Uni<Answer> deleteEntry(@IdType@ id) {
         return vocabularyDao.delete(id)
                 .map(this::getAnswerApiResponseWithKey)
                 .onFailure(onFailureNoSuchElementPredicate())
@@ -134,9 +134,9 @@ public class VocabularyService extends AbstractService<Long, Vocabulary> {
     }
 
     /**
-     * The method provides the Answer's flow with all entries of Vocabulary
+     * The method provides the Answer's flow with all entries of @Name@
      *
-     * @return - the Answer's Multi-flow with all entries of Vocabulary
+     * @return - the Answer's Multi-flow with all entries of @Name@
      */
     public Multi<Answer> getAll() {
         LOG.trace("getAll");

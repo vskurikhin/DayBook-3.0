@@ -26,31 +26,36 @@ public class @Name@Dao {
     io.vertx.mutiny.pgclient.PgPool client;
 
     public Multi<@Name@> findAll() {
-        LOG.trace("findAll");
+        LOG.trace("findAll()");
         return @Name@.findAll(client);
     }
 
-    public Uni<Optional<@Name@>> findById(Long id) {
+    public Uni<Optional<@Name@>> findById(@IdType@ id) {
+        LOG.tracef("findById(%s)", id);
         return @Name@.findById(client, id)
                 .map(Optional::ofNullable);
     }
 
-    public Uni<Optional<Long>> insert(@Name@ entry) {
+    public Uni<Optional<@IdType@>> insert(@Name@ entry) {
+        LOG.tracef("insert(%s)", entry);
         return entry.insert(client)
                 .map(Optional::ofNullable);
     }
 
-    public Uni<Optional<Long>> update(@Name@ entry) {
+    public Uni<Optional<@IdType@>> update(@Name@ entry) {
+        LOG.tracef("update(%s)", entry);
         return entry.update(client)
                 .map(Optional::ofNullable);
     }
 
-    public Uni<Optional<Long>> delete(Long id) {
+    public Uni<Optional<@IdType@>> delete(@IdType@ id) {
+        LOG.tracef("delete(%s)", id);
         return @Name@.delete(client, id)
                 .map(Optional::ofNullable);
     }
 
-    public Uni<Optional<Long>> count() {
+    public Uni<Optional<@IdType@>> count() {
+        LOG.trace("count()");
         return @Name@.count(client)
                 .map(Optional::ofNullable);
     }
