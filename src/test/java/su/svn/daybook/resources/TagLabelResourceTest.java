@@ -52,7 +52,7 @@ class TagLabelResourceTest {
                 .when()
                 .get("/tag/none")
                 .then()
-                .statusCode(404);
+                .statusCode(200);
     }
 
     @Test

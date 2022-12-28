@@ -8,16 +8,35 @@
 
 package su.svn.daybook;
 
+import io.smallrye.mutiny.Uni;
 import su.svn.daybook.domain.messages.Answer;
+import su.svn.daybook.domain.messages.ApiResponse;
 import su.svn.daybook.domain.model.*;
 
+import java.util.Optional;
 import java.util.UUID;
 
 public class DataTest {
 
-    public static Answer errorNoNumber = new Answer("For input string: \"noNumber\"", 404);
+    public static final String STRING_ZERO_UUID = "00000000-0000-0000-0000-000000000000";
 
-    public static Answer errorEmpty = new Answer("EMPTY", 404);
+    public static final String NO_SUCH_ELEMENT = "no such element";
+
+    public static final UUID ZERO_UUID = new UUID(0, 0);
+    public static Uni<Answer> UNI_ANSWER_API_RESPONSE_ZERO_UUID = Uni.createFrom().item(Answer.of(new ApiResponse<>(ZERO_UUID)));
+
+    public static final UUID ONE_UUID = new UUID(0, 1);
+    public static final UUID RANDOM1_UUID = UUID.randomUUID();
+    public static final UUID RANDOM2_UUID = UUID.randomUUID();
+
+    public static Uni<Optional<UUID>> UNI_OPTIONAL_ZERO_UUID = Uni.createFrom().item(Optional.of(ZERO_UUID));
+    public static Uni<Optional<UUID>> UNI_OPTIONAL_EMPTY_UUID = Uni.createFrom().item(Optional.empty());
+
+    public static Answer ANSWER_ERROR_NoNumber = new Answer("For input string: \"noNumber\"", 404);
+    public static Answer ANSWER_ERROR_EMPTY = Answer.empty();
+
+    public static Uni<Answer> UNI_ANSWER_EMPTY = Uni.createFrom().item(Answer.empty());
+    public static Uni<Answer> UNI_ANSWER_NULL = Uni.createFrom().item(() -> null);
 
     public static final Codifier OBJECT_Codifier_0 = new Codifier(
             Codifier.NONE, null, null, null, null, false, true, 0
@@ -80,11 +99,15 @@ public class DataTest {
             = "[" + JSON_TagLabel_0 + "]";
 
     public static final UserName OBJECT_UserName_0 = new UserName(
-            new UUID(0, 0), "root", "password", null, null, false, true, 0
+            ZERO_UUID, "root", "password", null, null, false, true, 0
     );
 
     public static final String JSON_UserName_0 = """
             {"id":"00000000-0000-0000-0000-000000000000","userName":"root","password":"password","enabled":false,"visible":true,"flags":0}\
+            """;
+
+    public static final String JSON_UserName_Id_0 = """
+            {"id":"00000000-0000-0000-0000-000000000000"}\
             """;
 
     public static final String JSON_ARRAY_UserName_0 = "[" + JSON_UserName_0 + "]";

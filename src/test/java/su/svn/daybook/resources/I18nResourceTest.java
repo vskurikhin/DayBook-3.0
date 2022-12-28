@@ -67,7 +67,7 @@ class I18nResourceTest {
                 .when()
                 .get("/i18n/" + Integer.MAX_VALUE)
                 .then()
-                .statusCode(404);
+                .statusCode(200);
     }
 
     @Test

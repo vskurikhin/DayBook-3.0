@@ -98,7 +98,7 @@ class I18nServiceTest {
     void testMethod_i18nGet_whenNoNumberParameter() {
         service.i18nGet("noNumber")
                 .onItem()
-                .invoke(actual -> Assertions.assertEquals(DataTest.errorNoNumber, actual))
+                .invoke(actual -> Assertions.assertEquals(DataTest.ANSWER_ERROR_NoNumber, actual))
                 .await()
                 .indefinitely();
     }
@@ -169,7 +169,7 @@ class I18nServiceTest {
     void testMethod_i18nDelete_whenNoNumberParameter() {
         service.i18nDelete("noNumber")
                 .onItem()
-                .invoke(actual -> Assertions.assertEquals(DataTest.errorNoNumber, actual))
+                .invoke(actual -> Assertions.assertEquals(DataTest.ANSWER_ERROR_NoNumber, actual))
                 .await()
                 .indefinitely();
     }
