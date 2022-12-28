@@ -8,6 +8,7 @@
 
 package su.svn.daybook.domain.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
@@ -25,9 +26,9 @@ import java.util.List;
 import java.util.Objects;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public final class @Name@ implements LongIdentification, Marked, Owned, TimeUpdated, Serializable {
+public final class @Name@ implements @IdType@Identification, Marked, Owned, TimeUpdated, Serializable {
 
-    public static final String NONE = "__NONE__";
+    public static final String NONE = "5f8c1804-5c59-43b6-9099-c1820cffc001";
     public static final String SELECT_FROM_@SCHEMA@_@TABLE@_WHERE_ID_$1 = """
             SELECT id, @key@, @value@, user_name, create_time, update_time, enabled, visible, flags
               FROM @schema@.@table@
@@ -64,15 +65,22 @@ public final class @Name@ implements LongIdentification, Marked, Owned, TimeUpda
     public static final String COUNT_@SCHEMA@_@TABLE@ = "SELECT count(*) FROM @schema@.@table@";
     @Serial
     private static final long serialVersionUID = @serialVersionUID@L;
-    private final Long id;
-    private final String @key@;
-    private final String @value@;
+    public static final String ID = "id";
+    private final @IdType@ id;
+    private final @KType@ @key@;
+    private final @VType@ @value@;
     private final String userName;
     private final LocalDateTime createTime;
     private final LocalDateTime updateTime;
     private final boolean enabled;
     private final boolean visible;
     private final int flags;
+
+    @JsonIgnore
+    private transient volatile int hash;
+
+    @JsonIgnore
+    private transient volatile boolean hashIsZero;
 
     public @Name@() {
         this.id = null;
@@ -87,9 +95,9 @@ public final class @Name@ implements LongIdentification, Marked, Owned, TimeUpda
     }
 
     public @Name@(
-            Long id,
-            @Nonnull String @key@,
-            String @value@,
+            @IdType@ id,
+            @Nonnull @KType@ @key@,
+            @VType@ @value@,
             String userName,
             LocalDateTime createTime,
             LocalDateTime updateTime,
@@ -109,9 +117,9 @@ public final class @Name@ implements LongIdentification, Marked, Owned, TimeUpda
 
     public static @Name@ from(Row row) {
         return new @Name@(
-                row.getLong("id"),
-                row.getString("@key@"),
-                row.getString("@value@"),
+                row.get@IdType@(ID),
+                row.get@KType@("@key@"),
+                row.get@VType@("@value@"),
                 row.getString("user_name"),
                 row.getLocalDateTime("create_time"),
                 row.getLocalDateTime("update_time"),
@@ -121,8 +129,9 @@ public final class @Name@ implements LongIdentification, Marked, Owned, TimeUpda
         );
     }
 
-    public static Uni<@Name@> findById(PgPool client, Long id) {
-        return client.preparedQuery(SELECT_FROM_@SCHEMA@_@TABLE@_WHERE_ID_$1)
+    public static Uni<@Name@> findById(PgPool client, @IdType@ id) {
+        return client
+                .preparedQuery(SELECT_FROM_@SCHEMA@_@TABLE@_WHERE_ID_$1)
                 .execute(Tuple.of(id))
                 .onItem()
                 .transform(RowSet::iterator)
@@ -141,15 +150,17 @@ public final class @Name@ implements LongIdentification, Marked, Owned, TimeUpda
 
     }
 
-    public static Uni<Long> delete(PgPool client, Long id) {
-        return client.preparedQuery(DELETE_FROM_@SCHEMA@_@TABLE@_WHERE_ID_$1)
+    public static Uni<@IdType@> delete(PgPool client, @IdType@ id) {
+        return client.withTransaction(
+                connection -> connection.preparedQuery(DELETE_FROM_@SCHEMA@_@TABLE@_WHERE_ID_$1)
                 .execute(Tuple.of(id))
                 .onItem()
-                .transform(pgRowSet -> pgRowSet.iterator().next().getLong("id"));
+                .transform(pgRowSet -> pgRowSet.iterator().next().get@IdType@(ID)));
     }
 
     public static Uni<Long> count(PgPool client) {
-        return client.preparedQuery(COUNT_@SCHEMA@_@TABLE@)
+        return client
+                .preparedQuery(COUNT_@SCHEMA@_@TABLE@)
                 .execute()
                 .onItem()
                 .transform(pgRowSet -> pgRowSet.iterator().next().getLong("count"));
@@ -159,35 +170,37 @@ public final class @Name@ implements LongIdentification, Marked, Owned, TimeUpda
         return new @Name@.Builder();
     }
 
-    public Uni<Long> insert(PgPool client) {
-        return client.preparedQuery(INSERT_INTO_@SCHEMA@_@TABLE@)
-                .execute(Tuple.of(@key@, @value@, userName, enabled, visible, flags))
-                .onItem()
-                .transform(RowSet::iterator)
-                .onItem()
-                .transform(iterator -> iterator.hasNext() ? iterator.next().getLong("id") : null);
+    public Uni<@IdType@> insert(PgPool client) {
+        return client.withTransaction(
+                connection -> connection.preparedQuery(INSERT_INTO_@SCHEMA@_@TABLE@)
+                        .execute(Tuple.of(@key@, @value@, userName, enabled, visible, flags))
+                        .onItem()
+                        .transform(RowSet::iterator)
+                        .onItem()
+                        .transform(iterator -> iterator.hasNext() ? iterator.next().get@IdType@(ID) : null));
     }
 
-    public Uni<Long> update(PgPool client) {
-        return client.preparedQuery(UPDATE_@SCHEMA@_@TABLE@_WHERE_ID_$1)
-                .execute(Tuple.tuple(listOf()))
-                .onItem()
-                .transform(pgRowSet -> pgRowSet.iterator().next().getLong("id"));
+    public Uni<@IdType@> update(PgPool client) {
+        return client.withTransaction(
+                connection -> connection.preparedQuery(UPDATE_@SCHEMA@_@TABLE@_WHERE_ID_$1)
+                        .execute(Tuple.tuple(listOf()))
+                        .onItem()
+                        .transform(pgRowSet -> pgRowSet.iterator().next().get@IdType@(ID)));
     }
 
     private List<Object> listOf() {
         return Arrays.asList(id, @key@, userName, enabled, visible, flags, @value@);
     }
 
-    public Long getId() {
+    public @IdType@ getId() {
         return id;
     }
 
-    public String get@Key@() {
+    public @KType@ get@Key@() {
         return @key@;
     }
 
-    public String get@Value@() {
+    public @VType@ get@Value@() {
         return @value@;
     }
 
@@ -239,6 +252,19 @@ public final class @Name@ implements LongIdentification, Marked, Owned, TimeUpda
 
     @Override
     public int hashCode() {
+        int h = hash;
+        if (h == 0 && !hashIsZero) {
+            h = calculateHashCode();
+            if (h == 0) {
+                hashIsZero = true;
+            } else {
+                hash = h;
+            }
+        }
+        return h;
+    }
+
+    private int calculateHashCode() {
         return Objects.hash(id, @key@, @value@, userName, enabled, visible, flags);
     }
 
@@ -258,9 +284,9 @@ public final class @Name@ implements LongIdentification, Marked, Owned, TimeUpda
     }
 
     public static final class Builder {
-        private Long id;
-        private String @key@;
-        private String @value@;
+        private @IdType@ id;
+        private @KType@ @key@;
+        private @VType@ @value@;
         private String userName;
         private LocalDateTime createTime;
         private LocalDateTime updateTime;
@@ -271,17 +297,17 @@ public final class @Name@ implements LongIdentification, Marked, Owned, TimeUpda
         private Builder() {
         }
 
-        public Builder id(Long id) {
+        public Builder id(@IdType@ id) {
             this.id = id;
             return this;
         }
 
-        public Builder @key@(String @key@) {
+        public Builder @key@(@KType@ @key@) {
             this.@key@ = @key@;
             return this;
         }
 
-        public Builder @value@(String @value@) {
+        public Builder @value@(@VType@ @value@) {
             this.@value@ = @value@;
             return this;
         }

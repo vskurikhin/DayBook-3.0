@@ -38,8 +38,10 @@ public class Answer implements Serializable {
     @JsonIgnore
     private transient Class<?> payloadClass;
 
+    @JsonIgnore
     private transient volatile int hash;
 
+    @JsonIgnore
     private transient volatile boolean hashIsZero;
 
     public Answer(@Nonnull String message) {
