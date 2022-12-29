@@ -186,6 +186,7 @@ public final class Codifier implements StringIdentification, Marked, Owned, Time
         return Arrays.asList(code, userName, enabled, visible, flags, value);
     }
 
+    @JsonIgnore
     public String getId() {
         return code;
     }

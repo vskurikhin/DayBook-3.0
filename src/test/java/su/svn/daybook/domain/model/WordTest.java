@@ -34,9 +34,9 @@ class WordTest {
     @Test
     void testEqualsVerifier() {
         EqualsVerifier.forClass(Word.class)
-                .suppress(Warning.NONFINAL_FIELDS)
-                .withIgnoredFields("createTime")
-                .withIgnoredFields("updateTime")
+                .withCachedHashCode("hash", "calculateHashCode", null)
+                .withIgnoredFields("createTime", "updateTime", "hash", "hashIsZero")
+                .suppress(Warning.NO_EXAMPLE_FOR_CACHED_HASHCODE)
                 .verify();
     }
 
@@ -49,6 +49,7 @@ class WordTest {
     @Test
     void testBuilder() {
         Assertions.assertDoesNotThrow(() -> Assertions.assertNotNull(Word.builder()
+                .id(NONE)
                 .word(NONE)
                 .userName(null)
                 .createTime(null)

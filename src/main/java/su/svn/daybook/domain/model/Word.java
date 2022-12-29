@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2021.12.06 19:31 by Victor N. Skurikhin.
+ * This file was last modified at 2022.01.12 22:58 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * Word.java
@@ -8,6 +8,7 @@
 
 package su.svn.daybook.domain.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
@@ -27,43 +28,42 @@ import java.util.Objects;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public final class Word implements StringIdentification, Marked, Owned, TimeUpdated, Serializable {
 
-    public static final String NONE = "__NONE__";
-    public static final String SELECT_FROM_DICTIONARY_WORD_WHERE_WORD_$1 = """
+    public static final String NONE = "9e9574c8-990d-490a-be46-748e3160dbe1";
+    public static final String SELECT_FROM_DICTIONARY_WORD_WHERE_ID_$1 = """
             SELECT word, user_name, create_time, update_time, enabled, visible, flags
               FROM dictionary.word
              WHERE word = $1
             """;
-    public static final String SELECT_ALL_FROM_DICTIONARY_WORD_ORDER_BY_WORD_ASC = """
+    public static final String SELECT_ALL_FROM_DICTIONARY_WORD_ORDER_BY_ID_ASC = """
             SELECT word, user_name, create_time, update_time, enabled, visible, flags
               FROM dictionary.word
              ORDER BY word ASC
             """;
     public static final String INSERT_INTO_DICTIONARY_WORD = """
             INSERT INTO dictionary.word
-             (word, user_name, create_time, update_time, enabled, visible, flags)
+             (word, user_name, enabled, visible, flags)
              VALUES
-             ($1, $2, $3, $4, $5, $6, $7)
+             ($1, $2, $3, $4, $5)
              RETURNING word
             """;
-    public static final String UPDATE_DICTIONARY_WORD_WHERE_WORD_$1 = """
+    public static final String UPDATE_DICTIONARY_WORD_WHERE_ID_$1 = """
             UPDATE dictionary.word SET
               user_name = $2,
-              create_time = $3,
-              update_time = $4,
-              enabled = $5,
-              visible = $6,
-              flags = $7
+              enabled = $3,
+              visible = $4,
+              flags = $5
              WHERE word = $1
              RETURNING word
             """;
-    public static final String DELETE_FROM_DICTIONARY_WORD_WHERE_WORD_$1 = """
+    public static final String DELETE_FROM_DICTIONARY_WORD_WHERE_ID_$1 = """
             DELETE FROM dictionary.word
              WHERE word = $1
              RETURNING word
             """;
     public static final String COUNT_DICTIONARY_WORD = "SELECT count(*) FROM dictionary.word";
     @Serial
-    private static final long serialVersionUID = 1026290511346629702L;
+    private static final long serialVersionUID = 5605080331607472920L;
+    public static final String ID = "word";
     private final String word;
     private final String userName;
     private final LocalDateTime createTime;
@@ -71,6 +71,12 @@ public final class Word implements StringIdentification, Marked, Owned, TimeUpda
     private final boolean enabled;
     private final boolean visible;
     private final int flags;
+
+    @JsonIgnore
+    private transient volatile int hash;
+
+    @JsonIgnore
+    private transient volatile boolean hashIsZero;
 
     public Word() {
         this.word = NONE;
@@ -101,7 +107,7 @@ public final class Word implements StringIdentification, Marked, Owned, TimeUpda
 
     public static Word from(Row row) {
         return new Word(
-                row.getString("word"),
+                row.getString(ID),
                 row.getString("user_name"),
                 row.getLocalDateTime("create_time"),
                 row.getLocalDateTime("update_time"),
@@ -111,9 +117,10 @@ public final class Word implements StringIdentification, Marked, Owned, TimeUpda
         );
     }
 
-    public static Uni<Word> findByWord(PgPool client, String word) {
-        return client.preparedQuery(SELECT_FROM_DICTIONARY_WORD_WHERE_WORD_$1)
-                .execute(Tuple.of(word))
+    public static Uni<Word> findById(PgPool client, String id) {
+        return client
+                .preparedQuery(SELECT_FROM_DICTIONARY_WORD_WHERE_ID_$1)
+                .execute(Tuple.of(id))
                 .onItem()
                 .transform(RowSet::iterator)
                 .onItem()
@@ -122,7 +129,7 @@ public final class Word implements StringIdentification, Marked, Owned, TimeUpda
 
     public static Multi<Word> findAll(PgPool client) {
         return client
-                .query(SELECT_ALL_FROM_DICTIONARY_WORD_ORDER_BY_WORD_ASC)
+                .query(SELECT_ALL_FROM_DICTIONARY_WORD_ORDER_BY_ID_ASC)
                 .execute()
                 .onItem()
                 .transformToMulti(set -> Multi.createFrom().iterable(set))
@@ -131,15 +138,17 @@ public final class Word implements StringIdentification, Marked, Owned, TimeUpda
 
     }
 
-    public static Uni<String> delete(PgPool client, String word) {
-        return client.preparedQuery(DELETE_FROM_DICTIONARY_WORD_WHERE_WORD_$1)
-                .execute(Tuple.of(word))
+    public static Uni<String> delete(PgPool client, String id) {
+        return client.withTransaction(
+                connection -> connection.preparedQuery(DELETE_FROM_DICTIONARY_WORD_WHERE_ID_$1)
+                .execute(Tuple.of(id))
                 .onItem()
-                .transform(pgRowSet -> pgRowSet.iterator().next().getString("word"));
+                .transform(pgRowSet -> pgRowSet.iterator().next().getString(ID)));
     }
 
     public static Uni<Long> count(PgPool client) {
-        return client.preparedQuery(COUNT_DICTIONARY_WORD)
+        return client
+                .preparedQuery(COUNT_DICTIONARY_WORD)
                 .execute()
                 .onItem()
                 .transform(pgRowSet -> pgRowSet.iterator().next().getLong("count"));
@@ -150,25 +159,28 @@ public final class Word implements StringIdentification, Marked, Owned, TimeUpda
     }
 
     public Uni<String> insert(PgPool client) {
-        return client.preparedQuery(INSERT_INTO_DICTIONARY_WORD)
-                .execute(Tuple.tuple(listOf()))
-                .onItem()
-                .transform(RowSet::iterator)
-                .onItem()
-                .transform(iterator -> iterator.hasNext() ? iterator.next().getString("word") : null);
+        return client.withTransaction(
+                connection -> connection.preparedQuery(INSERT_INTO_DICTIONARY_WORD)
+                        .execute(Tuple.tuple(listOf()))
+                        .onItem()
+                        .transform(RowSet::iterator)
+                        .onItem()
+                        .transform(iterator -> iterator.hasNext() ? iterator.next().getString(ID) : null));
     }
 
     public Uni<String> update(PgPool client) {
-        return client.preparedQuery(UPDATE_DICTIONARY_WORD_WHERE_WORD_$1)
-                .execute(Tuple.tuple(listOf()))
-                .onItem()
-                .transform(pgRowSet -> pgRowSet.iterator().next().getString("word"));
+        return client.withTransaction(
+                connection -> connection.preparedQuery(UPDATE_DICTIONARY_WORD_WHERE_ID_$1)
+                        .execute(Tuple.tuple(listOf()))
+                        .onItem()
+                        .transform(pgRowSet -> pgRowSet.iterator().next().getString(ID)));
     }
 
     private List<Object> listOf() {
-        return Arrays.asList(word, userName, createTime, updateTime, enabled, visible, flags);
+        return Arrays.asList(word, userName, enabled, visible, flags);
     }
 
+    @JsonIgnore
     public String getId() {
         return word;
     }
@@ -213,16 +225,29 @@ public final class Word implements StringIdentification, Marked, Owned, TimeUpda
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Word word1 = (Word) o;
-        return enabled == word1.enabled
-                && visible == word1.visible
-                && flags == word1.flags
-                && Objects.equals(word, word1.word)
-                && Objects.equals(userName, word1.userName);
+        var that = (Word) o;
+        return enabled == that.enabled
+                && visible == that.visible
+                && flags == that.flags
+                && Objects.equals(word, that.word)
+                && Objects.equals(userName, that.userName);
     }
 
     @Override
     public int hashCode() {
+        int h = hash;
+        if (h == 0 && !hashIsZero) {
+            h = calculateHashCode();
+            if (h == 0) {
+                hashIsZero = true;
+            } else {
+                hash = h;
+            }
+        }
+        return h;
+    }
+
+    private int calculateHashCode() {
         return Objects.hash(word, userName, enabled, visible, flags);
     }
 
@@ -251,7 +276,12 @@ public final class Word implements StringIdentification, Marked, Owned, TimeUpda
         private Builder() {
         }
 
-        public Builder word(String word) {
+        public Builder id(@Nonnull String id) {
+            this.word = id;
+            return this;
+        }
+
+        public Builder word(@Nonnull String word) {
             this.word = word;
             return this;
         }

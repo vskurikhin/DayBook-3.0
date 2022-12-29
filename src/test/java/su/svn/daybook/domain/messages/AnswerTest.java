@@ -2,14 +2,19 @@ package su.svn.daybook.domain.messages;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import su.svn.daybook.DataTest;
+import su.svn.daybook.TestData;
 
 class AnswerTest {
 
     @Test
+    void testConstructors() {
+        Assertions.assertDoesNotThrow(() -> new Answer());
+    }
+
+    @Test
     void empty() {
         Answer test = Answer.empty();
-        Assertions.assertEquals(DataTest.NO_SUCH_ELEMENT, test.getMessage());
+        Assertions.assertEquals(TestData.NO_SUCH_ELEMENT, test.getMessage());
         Assertions.assertEquals(404, test.getError());
         Assertions.assertEquals(Answer.EMPTY, test.getPayload());
     }
@@ -51,7 +56,7 @@ class AnswerTest {
         Object o = new Object();
         Answer test1 = new Answer("test");
         Answer test2 = new Answer("test");
-        Assertions.assertTrue(test1.equals(test2));
+        Assertions.assertEquals(test1, test2);
     }
 
     @Test

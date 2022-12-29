@@ -8,7 +8,7 @@ import org.jboss.resteasy.reactive.RestResponse;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import su.svn.daybook.DataTest;
+import su.svn.daybook.TestData;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.model.*;
 
@@ -55,7 +55,7 @@ class AbstractServiceTest {
     void testNoSuchElementException() {
         var expected = Answer.builder()
                 .error(404)
-                .message(DataTest.NO_SUCH_ELEMENT)
+                .message(TestData.NO_SUCH_ELEMENT)
                 .payload(String.valueOf((String) null))
                 .build();
         var o = service.testNoSuchElementException()

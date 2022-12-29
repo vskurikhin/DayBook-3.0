@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import su.svn.daybook.DataTest;
+import su.svn.daybook.TestData;
 import su.svn.daybook.domain.dao.TagLabelDao;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.messages.ApiResponse;
@@ -27,18 +27,18 @@ class TagLabelServiceTest {
 
     static TagLabelDao mock;
 
-    static final Uni<Optional<TagLabel>> UNI_OPTIONAL_TEST = Uni.createFrom().item(Optional.of(DataTest.TAG_LABEL.OBJECT_0));
+    static final Uni<Optional<TagLabel>> UNI_OPTIONAL_TEST = Uni.createFrom().item(Optional.of(TestData.TAG_LABEL.OBJECT_0));
 
-    static final Multi<TagLabel> MULTI_TEST = Multi.createFrom().item(DataTest.TAG_LABEL.OBJECT_0);
+    static final Multi<TagLabel> MULTI_TEST = Multi.createFrom().item(TestData.TAG_LABEL.OBJECT_0);
 
-    static final Multi<TagLabel> MULTI_WITH_NULL = DataTest.createMultiWithNull(TagLabel.class);
+    static final Multi<TagLabel> MULTI_WITH_NULL = TestData.createMultiWithNull(TagLabel.class);
 
-    static final Multi<TagLabel> MULTI_EMPTIES = DataTest.createMultiEmpties(TagLabel.class);
+    static final Multi<TagLabel> MULTI_EMPTIES = TestData.createMultiEmpties(TagLabel.class);
 
     @BeforeEach
     void setUp() {
         mock = Mockito.mock(TagLabelDao.class);
-        Mockito.when(mock.findById(DataTest.TAG_LABEL.ID)).thenReturn(UNI_OPTIONAL_TEST);
+        Mockito.when(mock.findById(TestData.TAG_LABEL.ID)).thenReturn(UNI_OPTIONAL_TEST);
         QuarkusMock.installMockForType(mock, TagLabelDao.class);
     }
 
@@ -49,7 +49,7 @@ class TagLabelServiceTest {
         Assertions.assertDoesNotThrow(() -> result.addAll(service.getAll()
                 .subscribe()
                 .asStream()
-                .peek(actual -> Assertions.assertEquals(Answer.of(DataTest.TAG_LABEL.OBJECT_0), actual)).toList()));
+                .peek(actual -> Assertions.assertEquals(Answer.of(TestData.TAG_LABEL.OBJECT_0), actual)).toList()));
         Assertions.assertTrue(result.size() > 0);
     }
 
@@ -77,9 +77,9 @@ class TagLabelServiceTest {
 
     @Test
     void testWhenGetThenEntry() {
-        Assertions.assertDoesNotThrow(() -> service.get(DataTest.TAG_LABEL.ID)
+        Assertions.assertDoesNotThrow(() -> service.get(TestData.TAG_LABEL.ID)
                 .onItem()
-                .invoke(actual -> Assertions.assertEquals(Answer.of(DataTest.TAG_LABEL.OBJECT_0), actual))
+                .invoke(actual -> Assertions.assertEquals(Answer.of(TestData.TAG_LABEL.OBJECT_0), actual))
                 .await()
                 .indefinitely());
     }
@@ -97,10 +97,10 @@ class TagLabelServiceTest {
     void testWhenAddThenId() {
         var expected = Answer.builder()
                 .error(201)
-                .payload(new ApiResponse<>(DataTest.TAG_LABEL.ID))
+                .payload(new ApiResponse<>(TestData.TAG_LABEL.ID))
                 .build();
-        Mockito.when(mock.insert(DataTest.TAG_LABEL.OBJECT_0)).thenReturn(DataTest.TAG_LABEL.UNI_OPTIONAL_ID);
-        Assertions.assertDoesNotThrow(() -> service.add(DataTest.TAG_LABEL.OBJECT_0)
+        Mockito.when(mock.insert(TestData.TAG_LABEL.OBJECT_0)).thenReturn(TestData.TAG_LABEL.UNI_OPTIONAL_ID);
+        Assertions.assertDoesNotThrow(() -> service.add(TestData.TAG_LABEL.OBJECT_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
                 .await()
@@ -109,8 +109,8 @@ class TagLabelServiceTest {
 
     @Test
     void testWhenAddThenEmpty() {
-        Mockito.when(mock.insert(DataTest.TAG_LABEL.OBJECT_0)).thenReturn(DataTest.UNI_OPTIONAL_EMPTY_STRING);
-        Assertions.assertDoesNotThrow(() -> service.add(DataTest.TAG_LABEL.OBJECT_0)
+        Mockito.when(mock.insert(TestData.TAG_LABEL.OBJECT_0)).thenReturn(TestData.UNI_OPTIONAL_EMPTY_STRING);
+        Assertions.assertDoesNotThrow(() -> service.add(TestData.TAG_LABEL.OBJECT_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(Answer.empty(), actual))
                 .await()
@@ -121,10 +121,10 @@ class TagLabelServiceTest {
     void testWhenPutThenId() {
         var expected = Answer.builder()
                 .error(202)
-                .payload(new ApiResponse<>(DataTest.TAG_LABEL.ID))
+                .payload(new ApiResponse<>(TestData.TAG_LABEL.ID))
                 .build();
-        Mockito.when(mock.update(DataTest.TAG_LABEL.OBJECT_0)).thenReturn(DataTest.TAG_LABEL.UNI_OPTIONAL_ID);
-        Assertions.assertDoesNotThrow(() -> service.put(DataTest.TAG_LABEL.OBJECT_0)
+        Mockito.when(mock.update(TestData.TAG_LABEL.OBJECT_0)).thenReturn(TestData.TAG_LABEL.UNI_OPTIONAL_ID);
+        Assertions.assertDoesNotThrow(() -> service.put(TestData.TAG_LABEL.OBJECT_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
                 .await()
@@ -133,8 +133,8 @@ class TagLabelServiceTest {
 
     @Test
     void testWhenPutThenEmpty() {
-        Mockito.when(mock.update(DataTest.TAG_LABEL.OBJECT_0)).thenReturn(DataTest.UNI_OPTIONAL_EMPTY_STRING);
-        Assertions.assertThrows(RuntimeException.class, () -> service.put(DataTest.TAG_LABEL.OBJECT_0)
+        Mockito.when(mock.update(TestData.TAG_LABEL.OBJECT_0)).thenReturn(TestData.UNI_OPTIONAL_EMPTY_STRING);
+        Assertions.assertThrows(RuntimeException.class, () -> service.put(TestData.TAG_LABEL.OBJECT_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(Answer.empty(), actual))
                 .await()
@@ -143,9 +143,9 @@ class TagLabelServiceTest {
 
     @Test
     void testWhenDeleteThenId() {
-        Mockito.when(mock.delete(DataTest.TAG_LABEL.ID)).thenReturn(DataTest.TAG_LABEL.UNI_OPTIONAL_ID);
-        var expected = Answer.of(new ApiResponse<>(DataTest.TAG_LABEL.ID));
-        Assertions.assertDoesNotThrow(() -> service.delete(DataTest.TAG_LABEL.ID)
+        Mockito.when(mock.delete(TestData.TAG_LABEL.ID)).thenReturn(TestData.TAG_LABEL.UNI_OPTIONAL_ID);
+        var expected = Answer.of(new ApiResponse<>(TestData.TAG_LABEL.ID));
+        Assertions.assertDoesNotThrow(() -> service.delete(TestData.TAG_LABEL.ID)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
                 .await()

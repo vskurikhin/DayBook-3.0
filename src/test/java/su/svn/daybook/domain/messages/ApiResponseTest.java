@@ -8,28 +8,29 @@
 
 package su.svn.daybook.domain.messages;
 
-import liquibase.structure.core.Data;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import nl.jqno.equalsverifier.Warning;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import su.svn.daybook.DataTest;
+import su.svn.daybook.TestData;
 
+import javax.annotation.Nonnull;
 import java.io.Serializable;
 
 class ApiResponseTest {
 
     @Test
     void testConstructors() {
+        Assertions.assertDoesNotThrow(() -> new ApiResponse<>());
         Assertions.assertDoesNotThrow(() -> new ApiResponse<>(
-                DataTest.ZERO_UUID, new Object()
+                TestData.ZERO_UUID, new Object()
         ));
         Assertions.assertDoesNotThrow(() -> ApiResponse.message(null));
     }
 
     @Test
     void testGetters(){
-        var entry = new ApiResponse<>(DataTest.ZERO_UUID);
+        var entry = new ApiResponse<>(TestData.ZERO_UUID);
         Assertions.assertDoesNotThrow(entry::getId);
         Assertions.assertDoesNotThrow(entry::getError);
         Assertions.assertDoesNotThrow(entry::getMessage);
@@ -44,19 +45,19 @@ class ApiResponseTest {
                 .suppress(Warning.NO_EXAMPLE_FOR_CACHED_HASHCODE)
                 .verify();
         Assertions.assertEquals(0, (new ApiResponse<>(new ForHashCode())).hashCode());
-        Assertions.assertNotEquals(0, (new ApiResponse<>(DataTest.ZERO_UUID)).hashCode());
+        Assertions.assertNotEquals(0, (new ApiResponse<>(TestData.ZERO_UUID)).hashCode());
     }
 
     @Test
     void testToString() {
-        var entry = new ApiResponse<>(DataTest.STRING_ZERO_UUID);
+        var entry = new ApiResponse<>(TestData.STRING_ZERO_UUID);
         Assertions.assertDoesNotThrow(() -> Assertions.assertNotNull(entry.toString()));
     }
 
     @Test
     void testBuilder() {
         Assertions.assertDoesNotThrow(() -> Assertions.assertNotNull(ApiResponse.builder()
-                .id(DataTest.ZERO_UUID)
+                .id(TestData.ZERO_UUID)
                 .error(0)
                 .message(null)
                 .payload(new Object())
@@ -66,7 +67,7 @@ class ApiResponseTest {
     static class ForHashCode implements Comparable<ForHashCode>, Serializable {
 
         @Override
-        public int compareTo(ForHashCode o) {
+        public int compareTo(@Nonnull ForHashCode o) {
             return 0;
         }
 
