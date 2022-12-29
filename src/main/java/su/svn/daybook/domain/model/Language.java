@@ -1,13 +1,14 @@
 /*
- * This file was last modified at 2021.12.06 19:31 by Victor N. Skurikhin.
+ * This file was last modified at 2022.01.12 22:58 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
- * CodifierOld.java
+ * Language.java
  * $Id$
  */
 
 package su.svn.daybook.domain.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
@@ -19,68 +20,104 @@ import io.vertx.mutiny.sqlclient.Tuple;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class Language implements Serializable {
+public final class Language implements LongIdentification, Marked, Owned, TimeUpdated, Serializable {
 
+    public static final String SELECT_FROM_DICTIONARY_LANGUAGE_WHERE_ID_$1 = """
+            SELECT id, language, user_name, create_time, update_time, enabled, visible, flags
+              FROM dictionary.language
+             WHERE id = $1
+            """;
+    public static final String SELECT_ALL_FROM_DICTIONARY_LANGUAGE_ORDER_BY_ID_ASC = """
+            SELECT id, language, user_name, create_time, update_time, enabled, visible, flags
+              FROM dictionary.language
+             ORDER BY id ASC
+            """;
+    public static final String INSERT_INTO_DICTIONARY_LANGUAGE = """
+            INSERT INTO dictionary.language
+             (id, language, user_name, enabled, visible, flags)
+             VALUES
+             ($1, $2, $3, $4, $5, $6)
+             RETURNING id
+            """;
+    public static final String INSERT_INTO_DICTIONARY_LANGUAGE_DEFAULT_ID = """
+            INSERT INTO dictionary.language
+             (id, language, user_name, enabled, visible, flags)
+             VALUES
+             (DEFAULT, $1, $2, $3, $4, $5)
+             RETURNING id
+            """;
+    public static final String UPDATE_DICTIONARY_LANGUAGE_WHERE_ID_$1 = """
+            UPDATE dictionary.language SET
+              language = $2,
+              user_name = $3,
+              enabled = $4,
+              visible = $5,
+              flags = $6
+             WHERE id = $1
+             RETURNING id
+            """;
+    public static final String DELETE_FROM_DICTIONARY_LANGUAGE_WHERE_ID_$1 = """
+            DELETE FROM dictionary.language
+             WHERE id = $1
+             RETURNING id
+            """;
+    public static final String COUNT_DICTIONARY_LANGUAGE = "SELECT count(*) FROM dictionary.language";
+    public static final String ID = "id";
     @Serial
-    private static final long serialVersionUID = 1026290511346629702L;
+    private static final long serialVersionUID = -3447138347398739815L;
+    private final Long id;
+    private final String language;
+    private final String userName;
+    private final LocalDateTime createTime;
+    private final LocalDateTime updateTime;
+    private final boolean enabled;
+    private final boolean visible;
+    private final int flags;
 
-    private Long id;
+    @JsonIgnore
+    private transient volatile int hash;
 
-    private String language;
+    @JsonIgnore
+    private transient volatile boolean hashIsZero;
 
-    private String userName;
+    public Language() {
+        this.id = null;
+        this.language = null;
+        this.userName = null;
+        this.createTime = null;
+        this.updateTime = null;
+        this.enabled = false;
+        this.visible = true;
+        this.flags = 0;
+    }
 
-    private LocalDateTime createTime;
-
-    private LocalDateTime updateTime;
-
-    private Boolean enabled;
-
-    private Boolean visible;
-
-    private Integer flags;
-
-    public static final String SELECT_FROM_DICTIONARY_WORD_WHERE_ID_$1
-            = "SELECT id, language, user_name, create_time, update_time, enabled, visible, flags "
-            + "  FROM dictionary.language "
-            + " WHERE id = $1";
-
-    public static final String SELECT_ALL_FROM_DICTIONARY_WORD_ORDER_BY_ID_ASC
-            = "SELECT id, language, user_name, create_time, update_time, enabled, visible, flags "
-            + "  FROM dictionary.language "
-            + " ORDER BY id ASC";
-
-    public static final String INSERT_INTO_DICTIONARY_WORD
-            = "INSERT INTO dictionary.language "
-            + " (id, language, user_name, create_time, update_time, enabled, visible, flags) "
-            + " VALUES "
-            + " ($1, $2, $3, $4, $5, $6, $7, $8) "
-            + " RETURNING id";
-
-    public static final String UPDATE_DICTIONARY_WORD_WHERE_ID_$1
-            = "UPDATE dictionary.language "
-            + " SET "
-            + "  language = $2,"
-            + "  user_name = $3, "
-            + "  create_time = $4, "
-            + "  update_time = $5,"
-            + "  enabled = $6, "
-            + "  visible = $7, "
-            + "  flags = $8 "
-            + " WHERE id = $1 "
-            + " RETURNING id";
-
-    public static final String DELETE_FROM_DICTIONARY_WORD_WHERE_ID_$1
-            = "DELETE FROM dictionary.language "
-            + " WHERE id = $1 "
-            + " RETURNING id";
+    public Language(
+            Long id,
+            String language,
+            String userName,
+            LocalDateTime createTime,
+            LocalDateTime updateTime,
+            boolean enabled,
+            boolean visible,
+            int flags) {
+        this.id = id;
+        this.language = language;
+        this.userName = userName;
+        this.createTime = createTime;
+        this.updateTime = updateTime;
+        this.enabled = enabled;
+        this.visible = visible;
+        this.flags = flags;
+    }
 
     public static Language from(Row row) {
         return new Language(
-                row.getLong("id"),
+                row.getLong(ID),
                 row.getString("language"),
                 row.getString("user_name"),
                 row.getLocalDateTime("create_time"),
@@ -92,7 +129,8 @@ public class Language implements Serializable {
     }
 
     public static Uni<Language> findById(PgPool client, Long id) {
-        return client.preparedQuery(SELECT_FROM_DICTIONARY_WORD_WHERE_ID_$1)
+        return client
+                .preparedQuery(SELECT_FROM_DICTIONARY_LANGUAGE_WHERE_ID_$1)
                 .execute(Tuple.of(id))
                 .onItem()
                 .transform(RowSet::iterator)
@@ -102,7 +140,7 @@ public class Language implements Serializable {
 
     public static Multi<Language> findAll(PgPool client) {
         return client
-                .query(SELECT_ALL_FROM_DICTIONARY_WORD_ORDER_BY_ID_ASC)
+                .query(SELECT_ALL_FROM_DICTIONARY_LANGUAGE_ORDER_BY_ID_ASC)
                 .execute()
                 .onItem()
                 .transformToMulti(set -> Multi.createFrom().iterable(set))
@@ -111,145 +149,125 @@ public class Language implements Serializable {
 
     }
 
+    public static Uni<Long> delete(PgPool client, Long id) {
+        return client.withTransaction(
+                connection -> connection.preparedQuery(DELETE_FROM_DICTIONARY_LANGUAGE_WHERE_ID_$1)
+                        .execute(Tuple.of(id))
+                        .onItem()
+                        .transform(pgRowSet -> pgRowSet.iterator().next().getLong(ID)));
+    }
+
+    public static Uni<Long> count(PgPool client) {
+        return client
+                .preparedQuery(COUNT_DICTIONARY_LANGUAGE)
+                .execute()
+                .onItem()
+                .transform(pgRowSet -> pgRowSet.iterator().next().getLong("count"));
+    }
+
+    public static Language.Builder builder() {
+        return new Language.Builder();
+    }
+
     public Uni<Long> insert(PgPool client) {
-        return client.preparedQuery(INSERT_INTO_DICTIONARY_WORD)
-                .execute(Tuple.of(listOf()))
-                .onItem()
-                .transform(RowSet::iterator)
-                .onItem()
-                .transform(iterator -> iterator.hasNext() ? iterator.next().getLong("id") : null);
+        return client.withTransaction(
+                connection -> connection.preparedQuery(caseInsertSql())
+                        .execute(caseInsertTuple())
+                        .onItem()
+                        .transform(RowSet::iterator)
+                        .onItem()
+                        .transform(iterator -> iterator.hasNext() ? iterator.next().getLong(ID) : null));
     }
 
     public Uni<Long> update(PgPool client) {
-        updateTime = LocalDateTime.now();
-        return client.preparedQuery(UPDATE_DICTIONARY_WORD_WHERE_ID_$1)
-                .execute(Tuple.of(listOf()))
-                .onItem()
-                .transform(pgRowSet -> pgRowSet.iterator().next().getLong("id"));
+        return client.withTransaction(
+                connection -> connection.preparedQuery(UPDATE_DICTIONARY_LANGUAGE_WHERE_ID_$1)
+                        .execute(Tuple.tuple(listOf()))
+                        .onItem()
+                        .transform(pgRowSet -> pgRowSet.iterator().next().getLong(ID)));
     }
 
-    public static Uni<Long> delete(PgPool client, Long id) {
-        return client.preparedQuery(DELETE_FROM_DICTIONARY_WORD_WHERE_ID_$1)
-                .execute(Tuple.of(id))
-                .onItem()
-                .transform(pgRowSet -> pgRowSet.iterator().next().getLong("id"));
+    private String caseInsertSql() {
+        return id != null ? INSERT_INTO_DICTIONARY_LANGUAGE : INSERT_INTO_DICTIONARY_LANGUAGE_DEFAULT_ID;
     }
 
-    private List<?> listOf() {
-        return List.of(id, language, userName, createTime, updateTime, enabled, visible, flags);
+    private Tuple caseInsertTuple() {
+        return id != null ? Tuple.tuple(listOf()) : Tuple.of(language, userName, enabled, visible, flags);
     }
 
-    public Language() {}
-
-    public Language(
-            Long id,
-            String language,
-            String userName,
-            LocalDateTime createTime,
-            LocalDateTime updateTime,
-            Boolean enabled,
-            Boolean visible,
-            Integer flags) {
-        this.id = id;
-        this.language = language;
-        this.userName = userName;
-        this.createTime = createTime;
-        this.updateTime = updateTime;
-        this.enabled = enabled;
-        this.visible = visible;
-        this.flags = flags;
+    private List<Object> listOf() {
+        return Arrays.asList(id, language, userName, enabled, visible, flags);
     }
 
     public Long getId() {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getWord() {
+    public String getLanguage() {
         return language;
-    }
-
-    public void setWord(String language) {
-        this.language = language;
     }
 
     public String getUserName() {
         return userName;
     }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
-    }
-
     public LocalDateTime getCreateTime() {
         return createTime;
-    }
-
-    public void setCreateTime(LocalDateTime createTime) {
-        this.createTime = createTime;
     }
 
     public LocalDateTime getUpdateTime() {
         return updateTime;
     }
 
-    public void setUpdateTime(LocalDateTime updateTime) {
-        this.updateTime = updateTime;
-    }
-
-    public Boolean getEnabled() {
+    public boolean getEnabled() {
         return enabled;
     }
 
-    public void setEnabled(Boolean enabled) {
-        this.enabled = enabled;
+    public boolean isEnabled() {
+        return enabled;
     }
 
-    public Boolean getVisible() {
+    public boolean getVisible() {
         return visible;
     }
 
-    public void setVisible(Boolean visible) {
-        this.visible = visible;
+    public boolean isVisible() {
+        return visible;
     }
 
-    public Integer getFlags() {
+    public int getFlags() {
         return flags;
-    }
-
-    public void setFlags(Integer flags) {
-        this.flags = flags;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Language codifier)) return false;
-
-        if (id != null ? !id.equals(codifier.id) : codifier.id != null) return false;
-        if (language != null ? !language.equals(codifier.language) : codifier.language != null) return false;
-        if (userName != null ? !userName.equals(codifier.userName) : codifier.userName != null) return false;
-        if (createTime != null ? !createTime.equals(codifier.createTime) : codifier.createTime != null) return false;
-        if (updateTime != null ? !updateTime.equals(codifier.updateTime) : codifier.updateTime != null) return false;
-        if (enabled != null ? !enabled.equals(codifier.enabled) : codifier.enabled != null) return false;
-        if (visible != null ? !visible.equals(codifier.visible) : codifier.visible != null) return false;
-        return flags != null ? flags.equals(codifier.flags) : codifier.flags == null;
+        if (o == null || getClass() != o.getClass()) return false;
+        var that = (Language) o;
+        return enabled == that.enabled
+                && visible == that.visible
+                && flags == that.flags
+                && Objects.equals(id, that.id)
+                && Objects.equals(language, that.language)
+                && Objects.equals(userName, that.userName);
     }
 
     @Override
     public int hashCode() {
-        int result = id != null ? id.hashCode() : 0;
-        result = 31 * result + (language != null ? language.hashCode() : 0);
-        result = 31 * result + (userName != null ? userName.hashCode() : 0);
-        result = 31 * result + (createTime != null ? createTime.hashCode() : 0);
-        result = 31 * result + (updateTime != null ? updateTime.hashCode() : 0);
-        result = 31 * result + (enabled != null ? enabled.hashCode() : 0);
-        result = 31 * result + (visible != null ? visible.hashCode() : 0);
-        result = 31 * result + (flags != null ? flags.hashCode() : 0);
-        return result;
+        int h = hash;
+        if (h == 0 && !hashIsZero) {
+            h = calculateHashCode();
+            if (h == 0) {
+                hashIsZero = true;
+            } else {
+                hash = h;
+            }
+        }
+        return h;
+    }
+
+    private int calculateHashCode() {
+        return Objects.hash(id, language, userName, enabled, visible, flags);
     }
 
     @Override
@@ -266,74 +284,61 @@ public class Language implements Serializable {
                 '}';
     }
 
-    public static Language.Builder builder() {
-        return new Language.Builder();
-    }
-
     public static final class Builder {
         private Long id;
         private String language;
         private String userName;
         private LocalDateTime createTime;
         private LocalDateTime updateTime;
-        private Boolean enabled;
-        private Boolean visible;
-        private Integer flags;
+        private boolean enabled;
+        private boolean visible;
+        private int flags;
 
         private Builder() {
         }
 
-        public Builder withId(Long id) {
+        public Builder id(Long id) {
             this.id = id;
             return this;
         }
 
-        public Builder withWord(String language) {
+        public Builder language(String language) {
             this.language = language;
             return this;
         }
 
-        public Builder withUserName(String userName) {
+        public Builder userName(String userName) {
             this.userName = userName;
             return this;
         }
 
-        public Builder withCreateTime(LocalDateTime createTime) {
+        public Builder createTime(LocalDateTime createTime) {
             this.createTime = createTime;
             return this;
         }
 
-        public Builder withUpdateTime(LocalDateTime updateTime) {
+        public Builder updateTime(LocalDateTime updateTime) {
             this.updateTime = updateTime;
             return this;
         }
 
-        public Builder withEnabled(Boolean enabled) {
+        public Builder enabled(boolean enabled) {
             this.enabled = enabled;
             return this;
         }
 
-        public Builder withVisible(Boolean visible) {
+        public Builder visible(boolean visible) {
             this.visible = visible;
             return this;
         }
 
-        public Builder withFlags(Integer flags) {
+        public Builder flags(int flags) {
             this.flags = flags;
             return this;
         }
 
         public Language build() {
-            Language codifier = new Language();
-            codifier.setId(id);
-            codifier.setWord(language);
-            codifier.setUserName(userName);
-            codifier.setCreateTime(createTime);
-            codifier.setUpdateTime(updateTime);
-            codifier.setEnabled(enabled);
-            codifier.setVisible(visible);
-            codifier.setFlags(flags);
-            return codifier;
+            return new Language(id, language, userName, createTime, updateTime, enabled, visible, flags);
         }
     }
 }

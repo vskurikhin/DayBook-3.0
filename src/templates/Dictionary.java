@@ -43,17 +43,24 @@ public final class @Name@ implements @IdType@Identification, Marked, Owned, Time
             INSERT INTO @schema@.@table@
              (id, @key@, @value@, user_name, enabled, visible, flags)
              VALUES
+             ($1, $2, $3, $4, $5, $6, $7)
+             RETURNING id
+            """;
+    public static final String INSERT_INTO_@SCHEMA@_@TABLE@_DEFAULT_ID = """
+            INSERT INTO dictionary.language
+             (id, @key@, @value@, user_name, enabled, visible, flags)
+             VALUES
              (DEFAULT, $1, $2, $3, $4, $5, $6)
              RETURNING id
             """;
     public static final String UPDATE_@SCHEMA@_@TABLE@_WHERE_ID_$1 = """
             UPDATE @schema@.@table@ SET
               @key@ = $2,
-              user_name = $3,
-              enabled = $4,
-              visible = $5,
-              flags = $6,
-              @value@ = $7
+              @value@ = $3,
+              user_name = $4,
+              enabled = $5,
+              visible = $6,
+              flags = $7
              WHERE id = $1
              RETURNING id
             """;
@@ -188,8 +195,16 @@ public final class @Name@ implements @IdType@Identification, Marked, Owned, Time
                         .transform(pgRowSet -> pgRowSet.iterator().next().get@IdType@(ID)));
     }
 
+    private String caseInsertSql() {
+        return id != null ? INSERT_INTO_@SCHEMA@_@TABLE@ : INSERT_INTO_@SCHEMA@_@TABLE@_DEFAULT_ID;
+    }
+
+    private Tuple caseInsertTuple() {
+        return id != null ? Tuple.tuple(listOf()) : Tuple.of(@key@, @value@, userName, enabled, visible, flags);
+    }
+
     private List<Object> listOf() {
-        return Arrays.asList(id, @key@, userName, enabled, visible, flags, @value@);
+        return Arrays.asList(id, @key@, @value@, userName, enabled, visible, flags);
     }
 
     public @IdType@ getId() {

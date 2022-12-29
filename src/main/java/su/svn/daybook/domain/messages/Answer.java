@@ -63,6 +63,10 @@ public class Answer implements Serializable {
         return new Answer(NO_SUCH_ELEMENT, 404, EMPTY);
     }
 
+    public static Answer noNumber(String exceptionMessage) {
+        return new Answer("string does not have the number format", 404, exceptionMessage);
+    }
+
     public static <T> Answer of(@Nonnull T o) {
         return create(DEFAULT_MESSAGE, o);
     }

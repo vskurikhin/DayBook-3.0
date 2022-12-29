@@ -16,6 +16,7 @@ import su.svn.daybook.domain.messages.ApiResponse;
 import su.svn.daybook.domain.model.Codifier;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -48,49 +49,52 @@ class CodifierServiceTest {
     @Test
     void testWhenGetAllThenSingletonList() {
         Mockito.when(mock.findAll()).thenReturn(MULTI_TEST);
-        List<Answer> result = service.getAll()
+        List<Answer> result = new ArrayList<>();
+        Assertions.assertDoesNotThrow(() -> result.addAll(service.getAll()
                 .subscribe()
                 .asStream()
-                .peek(actual -> Assertions.assertEquals(Answer.of(DataTest.OBJECT_Codifier_0), actual)).toList();
+                .peek(actual -> Assertions.assertEquals(Answer.of(DataTest.OBJECT_Codifier_0), actual)).toList()));
         Assertions.assertTrue(result.size() > 0);
     }
 
     @Test
     void testWhenGetAllThenEmpty() {
         Mockito.when(mock.findAll()).thenReturn(MULTI_EMPTIES);
-        List<Answer> result = service.getAll()
+        List<Answer> result = new ArrayList<>();
+        Assertions.assertDoesNotThrow(() -> result.addAll(service.getAll()
                 .subscribe()
                 .asStream()
-                .toList();
+                .toList()));
         Assertions.assertEquals(0, result.size());
     }
 
     @Test
     void testWhenGetAllThenNull() {
         Mockito.when(mock.findAll()).thenReturn(MULTI_WITH_NULL);
-        List<Answer> result = service.getAll()
+        List<Answer> result = new ArrayList<>();
+        Assertions.assertDoesNotThrow(() -> result.addAll(service.getAll()
                 .subscribe()
                 .asStream()
-                .toList();
+                .toList()));
         Assertions.assertEquals(0, result.size());
     }
 
     @Test
     void testWhenGetThenEntry() {
-        service.get(Codifier.NONE)
+        Assertions.assertDoesNotThrow(() -> service.get(Codifier.NONE)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(Answer.of(DataTest.OBJECT_Codifier_0), actual))
                 .await()
-                .indefinitely();
+                .indefinitely());
     }
 
     @Test
     void testWhenGetThenNullParameter() {
-        service.get(null)
+        Assertions.assertDoesNotThrow(() -> service.get(null)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(Answer.empty(), actual))
                 .await()
-                .indefinitely();
+                .indefinitely());
     }
 
     @Test
@@ -100,21 +104,21 @@ class CodifierServiceTest {
                 .payload(new ApiResponse<>(Codifier.NONE))
                 .build();
         Mockito.when(mock.insert(DataTest.OBJECT_Codifier_0)).thenReturn(UNI_OPTIONAL_NONE_STRING);
-        service.add(DataTest.OBJECT_Codifier_0)
+        Assertions.assertDoesNotThrow(() -> service.add(DataTest.OBJECT_Codifier_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
                 .await()
-                .indefinitely();
+                .indefinitely());
     }
 
     @Test
     void testWhenAddThenEmpty() {
         Mockito.when(mock.insert(DataTest.OBJECT_Codifier_0)).thenReturn(DataTest.UNI_OPTIONAL_EMPTY_STRING);
-        service.add(DataTest.OBJECT_Codifier_0)
+        Assertions.assertDoesNotThrow(() -> service.add(DataTest.OBJECT_Codifier_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(Answer.empty(), actual))
                 .await()
-                .indefinitely();
+                .indefinitely());
     }
 
     @Test
@@ -124,11 +128,11 @@ class CodifierServiceTest {
                 .payload(new ApiResponse<>(Codifier.NONE))
                 .build();
         Mockito.when(mock.update(DataTest.OBJECT_Codifier_0)).thenReturn(UNI_OPTIONAL_NONE_STRING);
-        service.put(DataTest.OBJECT_Codifier_0)
+        Assertions.assertDoesNotThrow(() -> service.put(DataTest.OBJECT_Codifier_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
                 .await()
-                .indefinitely();
+                .indefinitely());
     }
 
     @Test
@@ -145,19 +149,19 @@ class CodifierServiceTest {
     void testWhenDeleteThenId() {
         Mockito.when(mock.delete(Codifier.NONE)).thenReturn(UNI_OPTIONAL_NONE_STRING);
         var expected = Answer.of(new ApiResponse<>(Codifier.NONE));
-        service.delete(Codifier.NONE)
+        Assertions.assertDoesNotThrow(() -> service.delete(Codifier.NONE)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
                 .await()
-                .indefinitely();
+                .indefinitely());
     }
 
     @Test
     void testWhenDeleteThenNullParameter() {
-        service.delete(null)
+        Assertions.assertDoesNotThrow(() -> service.delete(null)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(Answer.empty(), actual))
                 .await()
-                .indefinitely();
+                .indefinitely());
     }
 }

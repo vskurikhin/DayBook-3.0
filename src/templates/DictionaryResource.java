@@ -46,7 +46,7 @@ public class @Name@Resource extends AbstractResource implements Resources<@IdTyp
     @GET
     @Path(ResourcePath.ID)
     @Produces("application/json")
-    public Uni<Response> get(@IdType id, @Context UriInfo uriInfo) {
+    public Uni<Response> get(@IdType@ id, @Context UriInfo uriInfo) {
         return request(EventAddress.@TABLE@_GET, id, uriInfo);
     }
 
@@ -68,7 +68,7 @@ public class @Name@Resource extends AbstractResource implements Resources<@IdTyp
     @DELETE
     @Path(ResourcePath.ID)
     @Produces("application/json")
-    public Uni<Response> delete(@IdType id, @Context UriInfo uriInfo) {
+    public Uni<Response> delete(@IdType@ id, @Context UriInfo uriInfo) {
         return request(EventAddress.@TABLE@_DEL, id, uriInfo);
     }
 
