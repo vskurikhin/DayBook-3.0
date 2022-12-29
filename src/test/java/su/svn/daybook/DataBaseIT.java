@@ -20,7 +20,7 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
 @QuarkusTest
-@QuarkusTestResource(PostgresDatabaseTestResource.class)
+@QuarkusTestResource(value = PostgresDatabaseTestResource.class, restrictToAnnotatedClass = true)
 public class DataBaseIT {
 
     @Inject
@@ -31,6 +31,9 @@ public class DataBaseIT {
 
     @Inject
     I18nDao i18nDao;
+
+    @Inject
+    KeyValueDao keyValueDao;
 
     @Inject
     LanguageDao languageDao;
@@ -123,6 +126,29 @@ public class DataBaseIT {
                         Assertions.assertEquals(expected1, test);
                         Assertions.assertNotNull(test.getCreateTime());
                         Assertions.assertNull(test.getUpdateTime());
+                    }
+            );
+            Assertions.assertDoesNotThrow(
+                    () -> {
+                        var test = codifierDao.findRange(0, 0)
+                                .collect()
+                                .asList()
+                                .subscribeAsCompletionStage()
+                                .get();
+                        Assertions.assertNotNull(test);
+                        Assertions.assertTrue(test.isEmpty());
+                    }
+            );
+            Assertions.assertDoesNotThrow(
+                    () -> {
+                        var test = codifierDao.findRange(0, 1)
+                                .collect()
+                                .asList()
+                                .subscribeAsCompletionStage()
+                                .get();
+                        Assertions.assertNotNull(test);
+                        Assertions.assertFalse(test.isEmpty());
+                        Assertions.assertEquals(1, test.size());
                     }
             );
             var expected2 = Codifier.builder()
@@ -250,6 +276,29 @@ public class DataBaseIT {
                         Assertions.assertNull(test.getUpdateTime());
                     }
             );
+            Assertions.assertDoesNotThrow(
+                    () -> {
+                        var test = i18nDao.findRange(0, 0)
+                                .collect()
+                                .asList()
+                                .subscribeAsCompletionStage()
+                                .get();
+                        Assertions.assertNotNull(test);
+                        Assertions.assertTrue(test.isEmpty());
+                    }
+            );
+            Assertions.assertDoesNotThrow(
+                    () -> {
+                        var test = i18nDao.findRange(0, 1)
+                                .collect()
+                                .asList()
+                                .subscribeAsCompletionStage()
+                                .get();
+                        Assertions.assertNotNull(test);
+                        Assertions.assertFalse(test.isEmpty());
+                        Assertions.assertEquals(1, test.size());
+                    }
+            );
             var expected2 = I18n.builder()
                     .id(id)
                     .languageId(languageId)
@@ -308,6 +357,192 @@ public class DataBaseIT {
                     )
             );
 
+        }
+    }
+
+    @Nested
+    @DisplayName("KeyValueDao")
+    class KeyValueDaoTest {
+
+        Long id;
+
+        Long customId = Long.MIN_VALUE;
+
+        KeyValue entry;
+
+        String str = "str";
+
+        @BeforeEach
+        void setUp() {
+            entry = KeyValue.builder()
+                    .key(KeyValue.NONE)
+                    .build();
+            Assertions.assertDoesNotThrow(
+                    () -> {
+                        id = keyValueDao.insert(entry)
+                                .subscribeAsCompletionStage()
+                                .get()
+                                .orElse(null);
+                    }
+            );
+        }
+
+        @AfterEach
+        void tearDown() {
+            Assertions.assertDoesNotThrow(
+                    () -> Assertions.assertEquals(
+                            id, keyValueDao.delete(id)
+                                    .subscribeAsCompletionStage()
+                                    .get()
+                                    .orElse(null)
+                    )
+            );
+            Assertions.assertDoesNotThrow(
+                    () -> Assertions.assertEquals(
+                            0, keyValueDao.count()
+                                    .subscribeAsCompletionStage()
+                                    .get()
+                                    .orElse(null)
+                    )
+            );
+        }
+
+        @Test
+        void test() {
+            var expected1 = KeyValue.builder()
+                    .id(id)
+                    .key(KeyValue.NONE)
+                    .build();
+            Assertions.assertDoesNotThrow(
+                    () -> {
+                        var test = keyValueDao.findById(id)
+                                .subscribeAsCompletionStage()
+                                .get()
+                                .orElse(null);
+                        Assertions.assertNotNull(test);
+                        Assertions.assertEquals(expected1, test);
+                        Assertions.assertNotNull(test.getCreateTime());
+                        Assertions.assertNull(test.getUpdateTime());
+                    }
+            );
+            var expected2 = KeyValue.builder()
+                    .id(id)
+                    .key(KeyValue.NONE)
+                    .value(str)
+                    .build();
+            Assertions.assertDoesNotThrow(
+                    () -> Assertions.assertEquals(
+                            id, keyValueDao.update(expected2)
+                                    .subscribeAsCompletionStage()
+                                    .get()
+                                    .orElse(null)
+                    )
+            );
+            Assertions.assertDoesNotThrow(
+                    () -> {
+                        var test = keyValueDao.findById(id)
+                                .subscribeAsCompletionStage()
+                                .get()
+                                .orElse(null);
+                        Assertions.assertNotNull(test);
+                        Assertions.assertEquals(expected2, test);
+                        Assertions.assertNotNull(test.getCreateTime());
+                        Assertions.assertNotNull(test.getUpdateTime());
+                    }
+            );
+            Assertions.assertDoesNotThrow(
+                    () -> {
+                        var test = keyValueDao.findAll()
+                                .collect()
+                                .asList()
+                                .subscribeAsCompletionStage()
+                                .get();
+                        Assertions.assertNotNull(test);
+                        Assertions.assertFalse(test.isEmpty());
+                        Assertions.assertEquals(1, test.size());
+                    }
+            );
+            Assertions.assertDoesNotThrow(
+                    () -> {
+                        var test = keyValueDao.findRange(0, 0)
+                                .collect()
+                                .asList()
+                                .subscribeAsCompletionStage()
+                                .get();
+                        Assertions.assertNotNull(test);
+                        Assertions.assertTrue(test.isEmpty());
+                    }
+            );
+            Assertions.assertDoesNotThrow(
+                    () -> {
+                        var test = keyValueDao.findRange(0, 1)
+                                .collect()
+                                .asList()
+                                .subscribeAsCompletionStage()
+                                .get();
+                        Assertions.assertNotNull(test);
+                        Assertions.assertFalse(test.isEmpty());
+                        Assertions.assertEquals(1, test.size());
+                    }
+            );
+
+            var custom = KeyValue.builder()
+                    .id(customId)
+                    .key(UUID.randomUUID().toString())
+                    .build();
+            Assertions.assertDoesNotThrow(
+                    () -> Assertions.assertEquals(
+                            customId, keyValueDao.insert(custom)
+                                    .subscribeAsCompletionStage()
+                                    .get()
+                                    .orElse(null))
+            );
+            Assertions.assertDoesNotThrow(
+                    () -> {
+                        var test = keyValueDao.findRange(0, 1)
+                                .collect()
+                                .asList()
+                                .subscribeAsCompletionStage()
+                                .get();
+                        Assertions.assertNotNull(test);
+                        Assertions.assertFalse(test.isEmpty());
+                        Assertions.assertEquals(1, test.size());
+                        Assertions.assertEquals(custom, test.get(0));
+                    }
+            );
+            Assertions.assertDoesNotThrow(
+                    () -> {
+                        var test = keyValueDao.findRange(0, Long.MAX_VALUE)
+                                .collect()
+                                .asList()
+                                .subscribeAsCompletionStage()
+                                .get();
+                        Assertions.assertNotNull(test);
+                        Assertions.assertFalse(test.isEmpty());
+                        Assertions.assertEquals(2, test.size());
+                    }
+            );
+
+            Assertions.assertDoesNotThrow(
+                    () -> {
+                        var test = keyValueDao.findRange(1, 1)
+                                .collect()
+                                .asList()
+                                .subscribeAsCompletionStage()
+                                .get();
+                        Assertions.assertNotNull(test);
+                        Assertions.assertFalse(test.isEmpty());
+                        Assertions.assertEquals(1, test.size());
+                    }
+            );
+            Assertions.assertDoesNotThrow(
+                    () -> Assertions.assertEquals(
+                            customId, keyValueDao.delete(customId)
+                                    .subscribeAsCompletionStage()
+                                    .get()
+                                    .orElse(null)
+                    )
+            );
         }
     }
 
@@ -376,6 +611,30 @@ public class DataBaseIT {
                         Assertions.assertNull(test.getUpdateTime());
                     }
             );
+            Assertions.assertDoesNotThrow(
+                    () -> {
+                        var test = languageDao.findRange(0, 0)
+                                .collect()
+                                .asList()
+                                .subscribeAsCompletionStage()
+                                .get();
+                        Assertions.assertNotNull(test);
+                        Assertions.assertTrue(test.isEmpty());
+                    }
+            );
+
+            Assertions.assertDoesNotThrow(
+                    () -> {
+                        var test = languageDao.findRange(0, 1)
+                                .collect()
+                                .asList()
+                                .subscribeAsCompletionStage()
+                                .get();
+                        Assertions.assertNotNull(test);
+                        Assertions.assertFalse(test.isEmpty());
+                        Assertions.assertEquals(1, test.size());
+                    }
+            );
             var expected2 = Language.builder()
                     .id(id)
                     .language("value")
@@ -413,17 +672,54 @@ public class DataBaseIT {
                     }
             );
 
-            var test = Language.builder()
+            var custom = Language.builder()
                     .id(customId)
                     .language("language")
                     .build();
-            var strId = new AtomicReference<String>();
             Assertions.assertDoesNotThrow(
                     () -> Assertions.assertEquals(
-                            customId, languageDao.insert(test)
+                            customId, languageDao.insert(custom)
                                     .subscribeAsCompletionStage()
                                     .get()
                                     .orElse(null))
+            );
+            Assertions.assertDoesNotThrow(
+                    () -> {
+                        var test = languageDao.findRange(0, 1)
+                                .collect()
+                                .asList()
+                                .subscribeAsCompletionStage()
+                                .get();
+                        Assertions.assertNotNull(test);
+                        Assertions.assertFalse(test.isEmpty());
+                        Assertions.assertEquals(1, test.size());
+                        Assertions.assertEquals(custom, test.get(0));
+                    }
+            );
+            Assertions.assertDoesNotThrow(
+                    () -> {
+                        var test = languageDao.findRange(0, Long.MAX_VALUE)
+                                .collect()
+                                .asList()
+                                .subscribeAsCompletionStage()
+                                .get();
+                        Assertions.assertNotNull(test);
+                        Assertions.assertFalse(test.isEmpty());
+                        Assertions.assertEquals(2, test.size());
+                    }
+            );
+
+            Assertions.assertDoesNotThrow(
+                    () -> {
+                        var test = languageDao.findRange(1, 1)
+                                .collect()
+                                .asList()
+                                .subscribeAsCompletionStage()
+                                .get();
+                        Assertions.assertNotNull(test);
+                        Assertions.assertFalse(test.isEmpty());
+                        Assertions.assertEquals(1, test.size());
+                    }
             );
             Assertions.assertDoesNotThrow(
                     () -> Assertions.assertEquals(
@@ -564,18 +860,66 @@ public class DataBaseIT {
                         Assertions.assertEquals(1, test.size());
                     }
             );
+            Assertions.assertDoesNotThrow(
+                    () -> {
+                        var test = settingDao.findRange(0, 0)
+                                .collect()
+                                .asList()
+                                .subscribeAsCompletionStage()
+                                .get();
+                        Assertions.assertNotNull(test);
+                        Assertions.assertTrue(test.isEmpty());
+                    }
+            );
+            Assertions.assertDoesNotThrow(
+                    () -> {
+                        var test = settingDao.findRange(0, 1)
+                                .collect()
+                                .asList()
+                                .subscribeAsCompletionStage()
+                                .get();
+                        Assertions.assertNotNull(test);
+                        Assertions.assertFalse(test.isEmpty());
+                        Assertions.assertEquals(1, test.size());
+                    }
+            );
 
-            var test = Setting.builder()
+            var custom = Setting.builder()
                     .id(customId)
                     .key("key")
                     .valueTypeId(valueTypeId)
                     .build();
             Assertions.assertDoesNotThrow(
                     () -> Assertions.assertEquals(
-                            customId, settingDao.insert(test)
+                            customId, settingDao.insert(custom)
                                     .subscribeAsCompletionStage()
                                     .get()
                                     .orElse(null))
+            );
+            Assertions.assertDoesNotThrow(
+                    () -> {
+                        var test = settingDao.findRange(0, 1)
+                                .collect()
+                                .asList()
+                                .subscribeAsCompletionStage()
+                                .get();
+                        Assertions.assertNotNull(test);
+                        Assertions.assertFalse(test.isEmpty());
+                        Assertions.assertEquals(1, test.size());
+                        Assertions.assertEquals(custom, test.get(0));
+                    }
+            );
+            Assertions.assertDoesNotThrow(
+                    () -> {
+                        var test = settingDao.findRange(0, Long.MAX_VALUE)
+                                .collect()
+                                .asList()
+                                .subscribeAsCompletionStage()
+                                .get();
+                        Assertions.assertNotNull(test);
+                        Assertions.assertFalse(test.isEmpty());
+                        Assertions.assertEquals(2, test.size());
+                    }
             );
             Assertions.assertDoesNotThrow(
                     () -> Assertions.assertEquals(
@@ -688,15 +1032,50 @@ public class DataBaseIT {
                         Assertions.assertEquals(1, test.size());
                     }
             );
-            var test = TagLabel.builder()
+            Assertions.assertDoesNotThrow(
+                    () -> {
+                        var test = tagLabelDao.findRange(0, 0)
+                                .collect()
+                                .asList()
+                                .subscribeAsCompletionStage()
+                                .get();
+                        Assertions.assertNotNull(test);
+                        Assertions.assertTrue(test.isEmpty());
+                    }
+            );
+            Assertions.assertDoesNotThrow(
+                    () -> {
+                        var test = tagLabelDao.findRange(0, 1)
+                                .collect()
+                                .asList()
+                                .subscribeAsCompletionStage()
+                                .get();
+                        Assertions.assertNotNull(test);
+                        Assertions.assertFalse(test.isEmpty());
+                        Assertions.assertEquals(1, test.size());
+                    }
+            );
+            var custom = TagLabel.builder()
                     .label("label")
                     .build();
             var strId = new AtomicReference<String>();
             Assertions.assertDoesNotThrow(
-                    () -> strId.set(tagLabelDao.insert(test)
+                    () -> strId.set(tagLabelDao.insert(custom)
                             .subscribeAsCompletionStage()
                             .get()
                             .orElse(null))
+            );
+            Assertions.assertDoesNotThrow(
+                    () -> {
+                        var test = tagLabelDao.findRange(0, Long.MAX_VALUE)
+                                .collect()
+                                .asList()
+                                .subscribeAsCompletionStage()
+                                .get();
+                        Assertions.assertNotNull(test);
+                        Assertions.assertFalse(test.isEmpty());
+                        Assertions.assertEquals(2, test.size());
+                    }
             );
             Assertions.assertDoesNotThrow(
                     () -> Assertions.assertEquals(
@@ -714,6 +1093,8 @@ public class DataBaseIT {
     class UserNameDaoTest {
 
         UUID id = new UUID(0, 1);
+
+        UUID customId = UUID.randomUUID();
 
         UserName entry;
 
@@ -810,6 +1191,88 @@ public class DataBaseIT {
                         Assertions.assertEquals(1, test.size());
                     }
             );
+            Assertions.assertDoesNotThrow(
+                    () -> {
+                        var test = userNameDao.findRange(0, 0)
+                                .collect()
+                                .asList()
+                                .subscribeAsCompletionStage()
+                                .get();
+                        Assertions.assertNotNull(test);
+                        Assertions.assertTrue(test.isEmpty());
+                    }
+            );
+            Assertions.assertDoesNotThrow(
+                    () -> {
+                        var test = userNameDao.findRange(0, 1)
+                                .collect()
+                                .asList()
+                                .subscribeAsCompletionStage()
+                                .get();
+                        Assertions.assertNotNull(test);
+                        Assertions.assertFalse(test.isEmpty());
+                        Assertions.assertEquals(1, test.size());
+                    }
+            );
+            var custom = UserName.builder()
+                    .id(customId)
+                    .userName("userName")
+                    .password("password")
+                    .build();
+            Assertions.assertDoesNotThrow(
+                    () -> Assertions.assertEquals(
+                            customId, userNameDao.insert(custom)
+                                    .subscribeAsCompletionStage()
+                                    .get()
+                                    .orElse(null))
+            );
+            Assertions.assertDoesNotThrow(
+                    () -> {
+                        var test = userNameDao.findRange(1, 1)
+                                .collect()
+                                .asList()
+                                .subscribeAsCompletionStage()
+                                .get();
+                        Assertions.assertNotNull(test);
+                        Assertions.assertFalse(test.isEmpty());
+                        Assertions.assertEquals(1, test.size());
+                        Assertions.assertEquals(custom, test.get(0));
+                    }
+            );
+            Assertions.assertDoesNotThrow(
+                    () -> {
+                        var test = userNameDao.findRange(0, Long.MAX_VALUE)
+                                .collect()
+                                .asList()
+                                .subscribeAsCompletionStage()
+                                .get();
+                        Assertions.assertNotNull(test);
+                        Assertions.assertFalse(test.isEmpty());
+                        Assertions.assertEquals(2, test.size());
+                    }
+            );
+
+            Assertions.assertDoesNotThrow(
+                    () -> {
+                        var test = userNameDao.findRange(1, 1)
+                                .collect()
+                                .asList()
+                                .subscribeAsCompletionStage()
+                                .get();
+                        Assertions.assertNotNull(test);
+                        Assertions.assertFalse(test.isEmpty());
+                        Assertions.assertEquals(1, test.size());
+                    }
+            );
+            Assertions.assertDoesNotThrow(
+                    () -> Assertions.assertEquals(
+                            customId, userNameDao.delete(customId)
+                                    .subscribeAsCompletionStage()
+                                    .get()
+                                    .orElse(null)
+                    )
+            );
+
         }
     }
 
@@ -904,6 +1367,29 @@ public class DataBaseIT {
             Assertions.assertDoesNotThrow(
                     () -> {
                         var test = valueTypeDao.findAll()
+                                .collect()
+                                .asList()
+                                .subscribeAsCompletionStage()
+                                .get();
+                        Assertions.assertNotNull(test);
+                        Assertions.assertFalse(test.isEmpty());
+                        Assertions.assertEquals(1, test.size());
+                    }
+            );
+            Assertions.assertDoesNotThrow(
+                    () -> {
+                        var test = valueTypeDao.findRange(0, 0)
+                                .collect()
+                                .asList()
+                                .subscribeAsCompletionStage()
+                                .get();
+                        Assertions.assertNotNull(test);
+                        Assertions.assertTrue(test.isEmpty());
+                    }
+            );
+            Assertions.assertDoesNotThrow(
+                    () -> {
+                        var test = valueTypeDao.findRange(0, 1)
                                 .collect()
                                 .asList()
                                 .subscribeAsCompletionStage()
@@ -1043,6 +1529,31 @@ public class DataBaseIT {
                         Assertions.assertEquals(1, test.size());
                     }
             );
+
+            Assertions.assertDoesNotThrow(
+                    () -> {
+                        var test = wordDao.findRange(0, 0)
+                                .collect()
+                                .asList()
+                                .subscribeAsCompletionStage()
+                                .get();
+                        Assertions.assertNotNull(test);
+                        Assertions.assertTrue(test.isEmpty());
+                    }
+            );
+
+            Assertions.assertDoesNotThrow(
+                    () -> {
+                        var test = wordDao.findRange(0, 1)
+                                .collect()
+                                .asList()
+                                .subscribeAsCompletionStage()
+                                .get();
+                        Assertions.assertNotNull(test);
+                        Assertions.assertFalse(test.isEmpty());
+                        Assertions.assertEquals(1, test.size());
+                    }
+            );
         }
 
         @Test
@@ -1093,6 +1604,29 @@ public class DataBaseIT {
             Assertions.assertDoesNotThrow(
                     () -> {
                         var test = vocabularyDao.findAll()
+                                .collect()
+                                .asList()
+                                .subscribeAsCompletionStage()
+                                .get();
+                        Assertions.assertNotNull(test);
+                        Assertions.assertFalse(test.isEmpty());
+                        Assertions.assertEquals(1, test.size());
+                    }
+            );
+            Assertions.assertDoesNotThrow(
+                    () -> {
+                        var test = vocabularyDao.findRange(0, 0)
+                                .collect()
+                                .asList()
+                                .subscribeAsCompletionStage()
+                                .get();
+                        Assertions.assertNotNull(test);
+                        Assertions.assertTrue(test.isEmpty());
+                    }
+            );
+            Assertions.assertDoesNotThrow(
+                    () -> {
+                        var test = vocabularyDao.findRange(0, 1)
                                 .collect()
                                 .asList()
                                 .subscribeAsCompletionStage()

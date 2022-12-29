@@ -17,18 +17,27 @@ public enum EventAddress {
     I18nAdd(EventAddress.I18N_ADD),
     I18nGet(EventAddress.I18N_DEL),
     I18nDel(EventAddress.I18N_GET),
+    I18nPage(EventAddress.I18N_PAGE),
     I18nPut(EventAddress.I18N_PUT),
+    KeyValueAdd(EventAddress.KEY_VALUE_ADD),
+    KeyValueDel(EventAddress.KEY_VALUE_DEL),
+    KeyValueGet(EventAddress.KEY_VALUE_GET),
+    KeyValuePage(EventAddress.KEY_VALUE_PAGE),
+    KeyValuePut(EventAddress.KEY_VALUE_PUT),
     LanguageAdd(EventAddress.LANGUAGE_ADD),
     LanguageDel(EventAddress.LANGUAGE_DEL),
     LanguageGet(EventAddress.LANGUAGE_GET),
+    LanguagePage(EventAddress.LANGUAGE_PAGE),
     LanguagePut(EventAddress.LANGUAGE_PUT),
     SettingAdd(EventAddress.SETTING_ADD),
     SettingDel(EventAddress.SETTING_DEL),
     SettingGet(EventAddress.SETTING_GET),
+    SettingPage(EventAddress.SETTING_PAGE),
     SettingPut(EventAddress.SETTING_PUT),
     TagLabelAdd(EventAddress.TAG_LABEL_ADD),
     TagLabelDel(EventAddress.TAG_LABEL_DEL),
     TagLabelGet(EventAddress.TAG_LABEL_GET),
+    TagLabelPage(EventAddress.TAG_LABEL_PAGE),
     TagLabelPut(EventAddress.TAG_LABEL_PUT),
     UserAdd(EventAddress.USER_ADD),
     UserGet(EventAddress.USER_GET),
@@ -50,37 +59,51 @@ public enum EventAddress {
     public static final String CODIFIER_ADD = "code_add";
     public static final String CODIFIER_GET = "code_get";
     public static final String CODIFIER_PUT = "code_put";
+    public static final String CODIFIER_PAGE = "code_page_page";
     public static final String CODIFIER_DEL = "code_del";
     public static final String I18N_ADD = "i18n_add";
     public static final String I18N_DEL = "i18n_del";
     public static final String I18N_GET = "i18n_get";
+    public static final String I18N_PAGE = "i18n_page";
     public static final String I18N_PUT = "i18n_put";
+    public static final String KEY_VALUE_ADD = "key_value_add";
+    public static final String KEY_VALUE_DEL = "key_value_del";
+    public static final String KEY_VALUE_GET = "key_value_get";
+    public static final String KEY_VALUE_PAGE = "key_value_page_page";
+    public static final String KEY_VALUE_PUT = "key_value_put";
     public static final String LANGUAGE_ADD = "language_add";
     public static final String LANGUAGE_DEL = "language_del";
     public static final String LANGUAGE_GET = "language_get";
+    public static final String LANGUAGE_PAGE = "language_page";
     public static final String LANGUAGE_PUT = "language_put";
     public static final String SETTING_ADD = "setting_add";
     public static final String SETTING_DEL = "setting_del";
     public static final String SETTING_GET = "setting_get";
+    public static final String SETTING_PAGE = "setting_page";
     public static final String SETTING_PUT = "setting_put";
     public static final String TAG_LABEL_ADD = "tag_add";
     public static final String TAG_LABEL_GET = "tag_get";
+    public static final String TAG_LABEL_PAGE = "tag_page";
     public static final String TAG_LABEL_PUT = "tag_put";
     public static final String TAG_LABEL_DEL = "tag_del";
     public static final String USER_ADD = "user_add";
     public static final String USER_GET = "user_get";
+    public static final String USER_PAGE = "user_page";
     public static final String USER_PUT = "user_put";
     public static final String USER_DEL = "user_del";
     public static final String VALUE_TYPE_ADD = "value_type_add";
     public static final String VALUE_TYPE_GET = "value_type_get";
     public static final String VALUE_TYPE_PUT = "value_type_put";
+    public static final String VALUE_TYPE_PAGE = "value_type_page";
     public static final String VALUE_TYPE_DEL = "value_type_del";
     public static final String VOCABULARY_ADD = "vocabulary_add";
     public static final String VOCABULARY_GET = "vocabulary_get";
+    public static final String VOCABULARY_PAGE = "vocabulary_page";
     public static final String VOCABULARY_PUT = "vocabulary_put";
     public static final String VOCABULARY_DEL = "vocabulary_del";
     public static final String WORD_ADD = "word_add";
     public static final String WORD_GET = "word_get";
+    public static final String WORD_PAGE = "word_page";
     public static final String WORD_PUT = "word_put";
     public static final String WORD_DEL = "word_del";
 

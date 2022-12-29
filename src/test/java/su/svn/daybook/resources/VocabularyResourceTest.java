@@ -18,7 +18,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import su.svn.daybook.TestData;
 import su.svn.daybook.domain.messages.Answer;
-import su.svn.daybook.services.VocabularyService;
+import su.svn.daybook.models.pagination.PageRequest;
+import su.svn.daybook.services.domain.VocabularyService;
 
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
@@ -37,12 +38,14 @@ class VocabularyResourceTest {
 
     @BeforeEach
     void setUp() {
+        PageRequest pageRequest = new PageRequest(0, (short) 1);
         mock = Mockito.mock(VocabularyService.class);
         Mockito.when(mock.get("0")).thenReturn(test);
         Mockito.when(mock.get(RuntimeException.class.getSimpleName())).thenThrow(RuntimeException.class);
         Mockito.when(mock.get(Integer.toString(Integer.MAX_VALUE))).thenReturn(TestData.UNI_ANSWER_EMPTY);
         Mockito.when(mock.get(Integer.toString(Integer.MIN_VALUE))).thenReturn(TestData.UNI_ANSWER_NULL);
         Mockito.when(mock.getAll()).thenReturn(Multi.createFrom().item(Answer.of(TestData.VOCABULARY.OBJECT_0)));
+        Mockito.when(mock.getPage(pageRequest)).thenReturn(TestData.VOCABULARY.UNI_PAGE_ANSWER_SINGLETON_TEST);
         Mockito.when(mock.add(TestData.VOCABULARY.OBJECT_0)).thenReturn(TestData.UNI_ANSWER_API_RESPONSE_ZERO_LONG);
         Mockito.when(mock.put(TestData.VOCABULARY.OBJECT_0)).thenReturn(TestData.UNI_ANSWER_API_RESPONSE_ZERO_LONG);
         Mockito.when(mock.delete("0")).thenReturn(TestData.UNI_ANSWER_API_RESPONSE_ZERO_LONG);
@@ -91,10 +94,20 @@ class VocabularyResourceTest {
     void testEndpointGetAll() {
         given()
                 .when()
-                .get("/vocabulary/all")
+                .get("/vocabulary/_?get-all")
                 .then()
                 .statusCode(200)
                 .body(CoreMatchers.startsWith(TestData.VOCABULARY.JSON_ARRAY_SINGLETON_0));
+    }
+
+    @Test
+    void testEndpointGetPage() {
+        given()
+                .when()
+                .get("/vocabulary/?page=0&limit=1")
+                .then()
+                .statusCode(200)
+                .body(CoreMatchers.startsWith(TestData.VOCABULARY.JSON_PAGE_ARRAY_0));
     }
 
     @Test

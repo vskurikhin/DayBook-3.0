@@ -36,6 +36,11 @@ public class I18nDao {
                 .map(Optional::ofNullable);
     }
 
+    public Multi<I18n> findRange(long offset, long limit) {
+        LOG.tracef("findRange(%d, %d)", offset, limit);
+        return I18n.findRange(client, offset, limit);
+    }
+
     public Uni<Optional<Long>> insert(I18n entry) {
         LOG.tracef("insert(%s)", entry);
         return entry.insert(client)

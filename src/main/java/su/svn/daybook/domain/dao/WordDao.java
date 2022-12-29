@@ -40,6 +40,11 @@ public class WordDao {
         return findById(word);
     }
 
+    public Multi<Word> findRange(long offset, long limit) {
+        LOG.tracef("findRange(%d, %d)", offset, limit);
+        return Word.findRange(client, offset, limit);
+    }
+
     public Uni<Optional<String>> insert(Word entry) {
         LOG.tracef("insert(%s)", entry);
         return entry.insert(client)

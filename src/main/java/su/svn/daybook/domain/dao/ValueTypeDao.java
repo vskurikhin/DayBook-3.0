@@ -36,6 +36,11 @@ public class ValueTypeDao {
                 .map(Optional::ofNullable);
     }
 
+    public Multi<ValueType> findRange(long offset, long limit) {
+        LOG.tracef("findRange(%d, %d)", offset, limit);
+        return ValueType.findRange(client, offset, limit);
+    }
+
     public Uni<Optional<Long>> insert(ValueType entry) {
         LOG.tracef("insert(%s)", entry);
         return entry.insert(client)

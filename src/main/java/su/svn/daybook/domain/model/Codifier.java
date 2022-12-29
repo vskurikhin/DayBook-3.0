@@ -39,6 +39,11 @@ public final class Codifier implements StringIdentification, Marked, Owned, Time
               FROM dictionary.codifier
              ORDER BY code ASC
             """;
+    public static final String SELECT_ALL_FROM_DICTIONARY_CODIFIER_ORDER_BY_CODE_ASC_OFFSET_LIMIT = """
+            SELECT code, value, user_name, create_time, update_time, enabled, visible, flags
+              FROM dictionary.codifier
+             ORDER BY code ASC OFFSET $1 LIMIT $2
+            """;
     public static final String INSERT_INTO_DICTIONARY_CODIFIER = """
             INSERT INTO dictionary.codifier
              (code, value, user_name, enabled, visible, flags)
@@ -123,6 +128,16 @@ public final class Codifier implements StringIdentification, Marked, Owned, Time
         );
     }
 
+    public static Multi<Codifier> findAll(PgPool client) {
+        return client
+                .query(SELECT_ALL_FROM_DICTIONARY_CODIFIER_ORDER_BY_CODE_ASC)
+                .execute()
+                .onItem()
+                .transformToMulti(set -> Multi.createFrom().iterable(set))
+                .onItem()
+                .transform(Codifier::from);
+    }
+
     public static Uni<Codifier> findById(PgPool client, String id) {
         return client
                 .preparedQuery(SELECT_FROM_DICTIONARY_CODIFIER_WHERE_CODE_$1)
@@ -133,10 +148,10 @@ public final class Codifier implements StringIdentification, Marked, Owned, Time
                 .transform(iterator -> iterator.hasNext() ? Codifier.from(iterator.next()) : null);
     }
 
-    public static Multi<Codifier> findAll(PgPool client) {
+    public static Multi<Codifier> findRange(PgPool client, long offset, long limit) {
         return client
-                .query(SELECT_ALL_FROM_DICTIONARY_CODIFIER_ORDER_BY_CODE_ASC)
-                .execute()
+                .preparedQuery(SELECT_ALL_FROM_DICTIONARY_CODIFIER_ORDER_BY_CODE_ASC_OFFSET_LIMIT)
+                .execute(Tuple.of(offset, limit))
                 .onItem()
                 .transformToMulti(set -> Multi.createFrom().iterable(set))
                 .onItem()

@@ -39,6 +39,11 @@ public final class Word implements StringIdentification, Marked, Owned, TimeUpda
               FROM dictionary.word
              ORDER BY word ASC
             """;
+    public static final String SELECT_ALL_FROM_DICTIONARY_WORD_ORDER_BY_WORD_ASC_OFFSET_LIMIT = """
+            SELECT word, user_name, create_time, update_time, enabled, visible, flags
+              FROM dictionary.word
+             ORDER BY word ASC OFFSET $1 LIMIT $2 
+            """;
     public static final String INSERT_INTO_DICTIONARY_WORD = """
             INSERT INTO dictionary.word
              (word, user_name, enabled, visible, flags)
@@ -131,6 +136,17 @@ public final class Word implements StringIdentification, Marked, Owned, TimeUpda
         return client
                 .query(SELECT_ALL_FROM_DICTIONARY_WORD_ORDER_BY_ID_ASC)
                 .execute()
+                .onItem()
+                .transformToMulti(set -> Multi.createFrom().iterable(set))
+                .onItem()
+                .transform(Word::from);
+
+    }
+
+    public static Multi<Word> findRange(PgPool client, long offset, long limit) {
+        return client
+                .preparedQuery(SELECT_ALL_FROM_DICTIONARY_WORD_ORDER_BY_WORD_ASC_OFFSET_LIMIT)
+                .execute(Tuple.of(offset, limit))
                 .onItem()
                 .transformToMulti(set -> Multi.createFrom().iterable(set))
                 .onItem()

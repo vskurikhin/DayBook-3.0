@@ -39,6 +39,11 @@ public final class Setting implements LongIdentification, Marked, Owned, TimeUpd
               FROM dictionary.setting
              ORDER BY id ASC
             """;
+    public static final String SELECT_ALL_FROM_DICTIONARY_SETTING_ORDER_BY_ID_ASC_OFFSET_LIMIT = """
+            SELECT id, key, value, value_type_id, user_name, create_time, update_time, enabled, visible, flags
+              FROM dictionary.setting
+             ORDER BY id ASC OFFSET $1 LIMIT $2
+            """;
     public static final String INSERT_INTO_DICTIONARY_SETTING = """
             INSERT INTO dictionary.setting
              (id, key, value, value_type_id, user_name, enabled, visible, flags)
@@ -142,16 +147,6 @@ public final class Setting implements LongIdentification, Marked, Owned, TimeUpd
         );
     }
 
-    public static Uni<Setting> findById(PgPool client, Long id) {
-        return client
-                .preparedQuery(SELECT_FROM_DICTIONARY_SETTING_WHERE_ID_$1)
-                .execute(Tuple.of(id))
-                .onItem()
-                .transform(RowSet::iterator)
-                .onItem()
-                .transform(iterator -> iterator.hasNext() ? Setting.from(iterator.next()) : null);
-    }
-
     public static Multi<Setting> findAll(PgPool client) {
         return client
                 .query(SELECT_ALL_FROM_DICTIONARY_SETTING_ORDER_BY_ID_ASC)
@@ -163,12 +158,32 @@ public final class Setting implements LongIdentification, Marked, Owned, TimeUpd
 
     }
 
+    public static Uni<Setting> findById(PgPool client, Long id) {
+        return client
+                .preparedQuery(SELECT_FROM_DICTIONARY_SETTING_WHERE_ID_$1)
+                .execute(Tuple.of(id))
+                .onItem()
+                .transform(RowSet::iterator)
+                .onItem()
+                .transform(iterator -> iterator.hasNext() ? Setting.from(iterator.next()) : null);
+    }
+
+    public static Multi<Setting> findRange(PgPool client, long offset, long limit) {
+        return client
+                .preparedQuery(SELECT_ALL_FROM_DICTIONARY_SETTING_ORDER_BY_ID_ASC_OFFSET_LIMIT)
+                .execute(Tuple.of(offset, limit))
+                .onItem()
+                .transformToMulti(set -> Multi.createFrom().iterable(set))
+                .onItem()
+                .transform(Setting::from);
+    }
+
     public static Uni<Long> delete(PgPool client, Long id) {
         return client.withTransaction(
                 connection -> connection.preparedQuery(DELETE_FROM_DICTIONARY_SETTING_WHERE_ID_$1)
-                .execute(Tuple.of(id))
-                .onItem()
-                .transform(pgRowSet -> pgRowSet.iterator().next().getLong(ID)));
+                        .execute(Tuple.of(id))
+                        .onItem()
+                        .transform(pgRowSet -> pgRowSet.iterator().next().getLong(ID)));
     }
 
     public static Uni<Long> count(PgPool client) {

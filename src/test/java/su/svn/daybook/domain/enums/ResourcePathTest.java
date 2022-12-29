@@ -14,21 +14,20 @@ import org.junit.jupiter.api.Test;
 class ResourcePathTest {
 
     @Test
-    void testMethod_getValue() {
+    void testMethodGetValue() {
         Assertions.assertNull(ResourcePath.Null.getValue());
     }
 
     @Test
-    void testMethod_stringEquals() {
+    void testMethodStringEquals() {
         Assertions.assertTrue(ResourcePath.Null.stringEquals(null));
-        Assertions.assertTrue(ResourcePath.Add.stringEquals("/add"));
+        Assertions.assertTrue(ResourcePath.KeyValue.stringEquals("/key-value"));
     }
 
     @Test
-    void testMethod_lookup() {
+    void testMethodLookup() {
         Assertions.assertEquals(ResourcePath.Null, ResourcePath.lookup(null));
-        Assertions.assertEquals(ResourcePath.Add, ResourcePath.lookup("/add"));
+        Assertions.assertEquals(ResourcePath.KeyValue, ResourcePath.lookup("/key-value"));
         Assertions.assertNull(ResourcePath.lookup("VmeVXS0318/Zb/O8Xots9Qr3VCWIrsH3YNGeTpdrdGKnZhEz91SW3rFQqCCupzpWb"));
     }
-
 }

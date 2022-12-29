@@ -12,7 +12,8 @@ import su.svn.daybook.TestData;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.messages.ApiResponse;
 import su.svn.daybook.domain.model.Codifier;
-import su.svn.daybook.services.CodifierService;
+import su.svn.daybook.models.pagination.PageRequest;
+import su.svn.daybook.services.domain.CodifierService;
 
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
@@ -33,12 +34,14 @@ class CodifierResourceTest {
 
     @BeforeEach
     void setUp() {
+        PageRequest pageRequest = new PageRequest(0, (short) 1);
         mock = Mockito.mock(CodifierService.class);
         Mockito.when(mock.get(Codifier.NONE)).thenReturn(test);
         Mockito.when(mock.get(RuntimeException.class.getSimpleName())).thenThrow(RuntimeException.class);
         Mockito.when(mock.get(Integer.toString(Integer.MAX_VALUE))).thenReturn(TestData.UNI_ANSWER_EMPTY);
         Mockito.when(mock.get(Integer.toString(Integer.MIN_VALUE))).thenReturn(TestData.UNI_ANSWER_NULL);
         Mockito.when(mock.getAll()).thenReturn(Multi.createFrom().item(Answer.of(TestData.CODIFIER.OBJECT_0)));
+        Mockito.when(mock.getPage(pageRequest)).thenReturn(TestData.CODIFIER.UNI_PAGE_ANSWER_SINGLETON_TEST);
         Mockito.when(mock.add(TestData.CODIFIER.OBJECT_0)).thenReturn(UNI_ANSWER_API_RESPONSE_NONE_STRING);
         Mockito.when(mock.put(TestData.CODIFIER.OBJECT_0)).thenReturn(UNI_ANSWER_API_RESPONSE_NONE_STRING);
         Mockito.when(mock.delete(Codifier.NONE)).thenReturn(UNI_ANSWER_API_RESPONSE_NONE_STRING);
@@ -86,10 +89,20 @@ class CodifierResourceTest {
     void testEndpointGetAll() {
         given()
                 .when()
-                .get("/code/all")
+                .get("/code/_?get-all")
                 .then()
                 .statusCode(200)
                 .body(CoreMatchers.startsWith(TestData.CODIFIER.JSON_ARRAY_SINGLETON_0));
+    }
+
+    @Test
+    void testEndpointGetPage() {
+        given()
+                .when()
+                .get("/code/?page=0&limit=1")
+                .then()
+                .statusCode(200)
+                .body(CoreMatchers.startsWith(TestData.CODIFIER.JSON_PAGE_ARRAY_0));
     }
 
     @Test

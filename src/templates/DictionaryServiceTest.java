@@ -6,7 +6,7 @@
  * $Id$
  */
 
-package su.svn.daybook.services;
+package su.svn.daybook.services.domain;
 
 import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
