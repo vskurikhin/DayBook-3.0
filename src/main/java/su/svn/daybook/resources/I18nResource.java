@@ -1,21 +1,22 @@
 /*
- * This file was last modified at 2021.12.06 18:10 by Victor N. Skurikhin.
+ * This file was last modified at 2022.01.11 17:44 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
- * TagLabelResource.java
+ * I18nResource.java
  * $Id$
  */
 
 package su.svn.daybook.resources;
 
+import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
-import io.vertx.mutiny.core.eventbus.EventBus;
-import io.vertx.mutiny.core.eventbus.Message;
-import org.jboss.logging.Logger;
+import org.jboss.resteasy.reactive.RestResponse;
+import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
 import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.enums.ResourcePath;
-import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.model.I18n;
+import su.svn.daybook.services.AbstractService;
+import su.svn.daybook.services.I18nService;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -25,60 +26,59 @@ import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 
 @Path(ResourcePath.I18N)
-public class I18nResource {
-
-    private static final Logger LOG = Logger.getLogger(I18nResource.class);
+public class I18nResource extends AbstractResource implements Resources<Long, I18n> {
 
     @Inject
-    EventBus bus;
+    I18nService service;
+
+    @GET
+    @Path(ResourcePath.ALL)
+    @Produces("application/json")
+    public Multi<I18n> all() {
+        return getAll();
+    }
 
     @GET
     @Path(ResourcePath.ID)
     @Produces("application/json")
-    public Uni<Response> get(String id) {
-        return request(EventAddress.I18N_GET, id);
+    public Uni<Response> get(Long id, @Context UriInfo uriInfo) {
+        return request(EventAddress.I18N_GET, id, uriInfo);
     }
 
     @POST
-    @Path(ResourcePath.ADD)
     @Consumes("application/json")
     @Produces("application/json")
-    public Uni<Response> add(I18n i18n) {
-        return request(EventAddress.I18N_ADD, i18n);
+    public Uni<Response> post(I18n entry, @Context UriInfo uriInfo) {
+        return request(EventAddress.I18N_ADD, entry, uriInfo);
     }
 
+
     @PUT
-    @Path(ResourcePath.PUT)
     @Consumes("application/json")
     @Produces("application/json")
-    public Uni<Response> put(I18n i18n) {
-        return request(EventAddress.I18N_PUT, i18n);
+    public Uni<Response> put(I18n entry, @Context UriInfo uriInfo) {
+        return request(EventAddress.I18N_PUT, entry, uriInfo);
     }
 
     @DELETE
     @Path(ResourcePath.ID)
     @Produces("application/json")
-    public Uni<Response> delete(String id) {
-        return request(EventAddress.I18N_DEL, id);
+    public Uni<Response> delete(Long id, @Context UriInfo uriInfo) {
+        return request(EventAddress.I18N_DEL, id, uriInfo);
     }
 
-    private Uni<Response> request(String address, Object o) {
-        return bus.<Answer>request(address, o)
-                .onItem()
-                .transform(this::createResponseBuilder)
-                .onItem()
-                .transform(Response.ResponseBuilder::build);
+    @ServerExceptionMapper
+    public RestResponse<String> exception(Throwable x) {
+        return badRequest(x);
     }
 
-    private Response.ResponseBuilder createResponseBuilder(Message<Answer> message) {
-        if (message.body() == null) {
-            return Response.status(406, "body is null");
-        }
-        return message.body().getPayload() != null
-                ? Response.ok(message.body().getPayload())
-                : Response.status(message.body().getError(), message.body().getMessage());
+    @Override
+    public AbstractService<Long, I18n> getService() {
+        return service;
     }
 }

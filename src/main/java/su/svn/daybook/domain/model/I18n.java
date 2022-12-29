@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2021.12.15 12:06 by Victor N. Skurikhin.
+ * This file was last modified at 2022.01.12 22:58 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * I18n.java
@@ -8,6 +8,7 @@
 
 package su.svn.daybook.domain.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
@@ -16,74 +17,133 @@ import io.vertx.mutiny.sqlclient.Row;
 import io.vertx.mutiny.sqlclient.RowSet;
 import io.vertx.mutiny.sqlclient.Tuple;
 
+import javax.annotation.Nonnull;
+import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class I18n implements Serializable {
+public final class I18n implements LongIdentification, Marked, Owned, TimeUpdated, Serializable {
 
-    private static final long serialVersionUID = -1065369508632115811L;
+    public static final String SELECT_FROM_DICTIONARY_I18N_WHERE_ID_$1 = """
+            SELECT id, language_id, message, translation, user_name, create_time, update_time, enabled, visible, flags
+              FROM dictionary.i18n
+             WHERE id = $1
+            """;
+    public static final String SELECT_ALL_FROM_DICTIONARY_I18N_ORDER_BY_ID_ASC = """
+            SELECT id, language_id, message, translation, user_name, create_time, update_time, enabled, visible, flags
+              FROM dictionary.i18n
+             ORDER BY id ASC
+            """;
+    public static final String INSERT_INTO_DICTIONARY_I18N = """
+            INSERT INTO dictionary.i18n
+             (id, language_id, message, translation, user_name, enabled, visible, flags)
+             VALUES
+             ($1, $2, $3, $4, $5, $6, $7, $8)
+             RETURNING id
+            """;
+    public static final String INSERT_INTO_DICTIONARY_I18N_DEFAULT_ID = """
+            INSERT INTO dictionary.i18n
+             (id, language_id, message, translation, user_name, enabled, visible, flags)
+             VALUES
+             (DEFAULT, $1, $2, $3, $4, $5, $6, $7)
+             RETURNING id
+            """;
+    public static final String UPDATE_DICTIONARY_I18N_WHERE_ID_$1 = """
+            UPDATE dictionary.i18n SET
+              language_id = $2,
+              message = $3,
+              translation = $4,
+              user_name = $5,
+              enabled = $6,
+              visible = $7,
+              flags = $8
+             WHERE id = $1
+             RETURNING id
+            """;
+    public static final String DELETE_FROM_DICTIONARY_I18N_WHERE_ID_$1 = """
+            DELETE FROM dictionary.i18n
+             WHERE id = $1
+             RETURNING id
+            """;
+    public static final String COUNT_DICTIONARY_I18N = "SELECT count(*) FROM dictionary.i18n";
+    @Serial
+    private static final long serialVersionUID = -3886622244418636664L;
+    public static final String ID = "id";
+    private final Long id;
+    private final Long languageId;
+    private final String message;
+    private final String translation;
+    private final String userName;
+    private final LocalDateTime createTime;
+    private final LocalDateTime updateTime;
+    private final boolean enabled;
+    private final boolean visible;
+    private final int flags;
 
-    private Long id;
+    @JsonIgnore
+    private transient volatile int hash;
 
-    private Long languageId;
+    @JsonIgnore
+    private transient volatile boolean hashIsZero;
 
-    private String message;
+    public I18n() {
+        this.id = null;
+        this.languageId = 0L;
+        this.message = null;
+        this.translation = null;
+        this.userName = null;
+        this.createTime = null;
+        this.updateTime = null;
+        this.enabled = false;
+        this.visible = true;
+        this.flags = 0;
+    }
 
-    private String translation;
+    public I18n(
+            Long id,
+            @Nonnull Long languageId,
+            String message,
+            String translation,
+            String userName,
+            LocalDateTime createTime,
+            LocalDateTime updateTime,
+            boolean enabled,
+            boolean visible,
+            int flags) {
+        this.id = id;
+        this.languageId = languageId;
+        this.message = message;
+        this.translation = translation;
+        this.userName = userName;
+        this.createTime = createTime;
+        this.updateTime = updateTime;
+        this.enabled = enabled;
+        this.visible = visible;
+        this.flags = flags;
+    }
 
-    private String userName;
-
-    private LocalDateTime createTime;
-
-    private LocalDateTime updateTime;
-
-    private Boolean enabled;
-
-    private Boolean visible;
-
-    private Integer flags;
-
-    public static final String SELECT_FROM_DICTIONARY_I18N_WHERE_ID_$1
-            = "SELECT id, language_id, message, translation, user_name, create_time, update_time, enabled, visible, flags "
-            + "  FROM dictionary.i18n "
-            + " WHERE id = $1";
-
-    public static final String SELECT_ALL_FROM_DICTIONARY_I18N_ORDER_BY_ID_ASC
-            = "SELECT id, language_id, message, translation, user_name, create_time, update_time, enabled, visible, flags "
-            + "  FROM dictionary.i18n "
-            + " ORDER BY id ASC";
-
-    public static final String INSERT_INTO_DICTIONARY_I18N
-            = "INSERT INTO dictionary.i18n "
-            + " (id, language_id, message, translation, user_name, create_time, update_time, enabled, visible, flags) "
-            + " VALUES "
-            + " ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) "
-            + " RETURNING id";
-
-    public static final String UPDATE_DICTIONARY_I18N_WHERE_ID_$1
-            = "UPDATE dictionary.i18n "
-            + " SET "
-            + "  language_id = $2,"
-            + "  message = $3,"
-            + "  translation = $4,"
-            + "  user_name = $5, "
-            + "  create_time = $6, "
-            + "  update_time = $7, "
-            + "  enabled = $8, "
-            + "  visible = $9, "
-            + "  flags = $10 "
-            + " WHERE id = $1 "
-            + " RETURNING id";
-
-    public static final String DELETE_FROM_DICTIONARY_I18N_WHERE_ID_$1
-            = "DELETE FROM dictionary.i18n "
-            + " WHERE id = $1 "
-            + " RETURNING id";
+    public static I18n from(Row row) {
+        return new I18n(
+                row.getLong(ID),
+                row.getLong("language_id"),
+                row.getString("message"),
+                row.getString("translation"),
+                row.getString("user_name"),
+                row.getLocalDateTime("create_time"),
+                row.getLocalDateTime("update_time"),
+                row.getBoolean("enabled"),
+                row.getBoolean("visible"),
+                row.getInteger("flags")
+        );
+    }
 
     public static Uni<I18n> findById(PgPool client, Long id) {
-        return client.preparedQuery(SELECT_FROM_DICTIONARY_I18N_WHERE_ID_$1)
+        return client
+                .preparedQuery(SELECT_FROM_DICTIONARY_I18N_WHERE_ID_$1)
                 .execute(Tuple.of(id))
                 .onItem()
                 .transform(RowSet::iterator)
@@ -102,193 +162,144 @@ public class I18n implements Serializable {
 
     }
 
+    public static Uni<Long> delete(PgPool client, Long id) {
+        return client.withTransaction(
+                connection -> connection.preparedQuery(DELETE_FROM_DICTIONARY_I18N_WHERE_ID_$1)
+                .execute(Tuple.of(id))
+                .onItem()
+                .transform(pgRowSet -> pgRowSet.iterator().next().getLong(ID)));
+    }
+
+    public static Uni<Long> count(PgPool client) {
+        return client
+                .preparedQuery(COUNT_DICTIONARY_I18N)
+                .execute()
+                .onItem()
+                .transform(pgRowSet -> pgRowSet.iterator().next().getLong("count"));
+    }
+
+    public static I18n.Builder builder() {
+        return new I18n.Builder();
+    }
+
     public Uni<Long> insert(PgPool client) {
-        return client.preparedQuery(INSERT_INTO_DICTIONARY_I18N)
-                .execute(Tuple.of(listOf()))
-                .onItem()
-                .transform(RowSet::iterator)
-                .onItem()
-                .transform(iterator -> iterator.hasNext() ? iterator.next().getLong("id") : null);
+        return client.withTransaction(
+                connection -> connection.preparedQuery(caseInsertSql())
+                        .execute(caseInsertTuple())
+                        .onItem()
+                        .transform(RowSet::iterator)
+                        .onItem()
+                        .transform(iterator -> iterator.hasNext() ? iterator.next().getLong(ID) : null));
     }
 
     public Uni<Long> update(PgPool client) {
-        updateTime = LocalDateTime.now();
-        return client.preparedQuery(UPDATE_DICTIONARY_I18N_WHERE_ID_$1)
-                .execute(Tuple.of(listOf()))
-                .onItem()
-                .transform(pgRowSet -> pgRowSet.iterator().next().getLong("id"));
+        return client.withTransaction(
+                connection -> connection.preparedQuery(UPDATE_DICTIONARY_I18N_WHERE_ID_$1)
+                        .execute(Tuple.tuple(listOf()))
+                        .onItem()
+                        .transform(pgRowSet -> pgRowSet.iterator().next().getLong(ID)));
     }
 
-    public static Uni<Long> delete(PgPool client, Long id) {
-        return client.preparedQuery(DELETE_FROM_DICTIONARY_I18N_WHERE_ID_$1)
-                .execute(Tuple.of(id))
-                .onItem()
-                .transform(pgRowSet -> pgRowSet.iterator().next().getLong("id"));
+    private String caseInsertSql() {
+        return id != null ? INSERT_INTO_DICTIONARY_I18N : INSERT_INTO_DICTIONARY_I18N_DEFAULT_ID;
     }
 
-    private List<?> listOf() {
-        return List.of(id, languageId, message, translation, userName, createTime, updateTime, enabled, visible, flags);
+    private Tuple caseInsertTuple() {
+        return id != null ?
+                Tuple.tuple(listOf())
+                : Tuple.tuple(Arrays.asList(languageId, message, translation, userName, enabled, visible, flags));
     }
 
-    public I18n() {}
-
-    public I18n(
-            Long id,
-            Long languageId,
-            String message,
-            String translation,
-            String userName,
-            LocalDateTime createTime,
-            LocalDateTime updateTime,
-            Boolean enabled,
-            Boolean visible,
-            Integer flags) {
-        this.id = id;
-        this.languageId = languageId;
-        this.message = message;
-        this.translation = translation;
-        this.userName = userName;
-        this.createTime = createTime;
-        this.updateTime = updateTime;
-        this.enabled = enabled;
-        this.visible = visible;
-        this.flags = flags;
-    }
-
-    public static I18n from(Row row) {
-        return new I18n(
-                row.getLong("id"),
-                row.getLong("language_id"),
-                row.getString("message"),
-                row.getString("translation"),
-                row.getString("user_name"),
-                row.getLocalDateTime("create_time"),
-                row.getLocalDateTime("update_time"),
-                row.getBoolean("enabled"),
-                row.getBoolean("visible"),
-                row.getInteger("flags")
-        );
+    private List<Object> listOf() {
+        return Arrays.asList(id, languageId, message, translation, userName, enabled, visible, flags);
     }
 
     public Long getId() {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     public Long getLanguageId() {
         return languageId;
-    }
-
-    public void setLanguageId(Long languageId) {
-        this.languageId = languageId;
     }
 
     public String getMessage() {
         return message;
     }
 
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
     public String getTranslation() {
         return translation;
-    }
-
-    public void setTranslation(String translation) {
-        this.translation = translation;
     }
 
     public String getUserName() {
         return userName;
     }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
-    }
-
     public LocalDateTime getCreateTime() {
         return createTime;
-    }
-
-    public void setCreateTime(LocalDateTime createTime) {
-        this.createTime = createTime;
     }
 
     public LocalDateTime getUpdateTime() {
         return updateTime;
     }
 
-    public void setUpdateTime(LocalDateTime updateTime) {
-        this.updateTime = updateTime;
-    }
-
-    public Boolean getEnabled() {
+    public boolean getEnabled() {
         return enabled;
     }
 
-    public void setEnabled(Boolean enabled) {
-        this.enabled = enabled;
+    public boolean isEnabled() {
+        return enabled;
     }
 
-    public Boolean getVisible() {
+    public boolean getVisible() {
         return visible;
     }
 
-    public void setVisible(Boolean visible) {
-        this.visible = visible;
+    public boolean isVisible() {
+        return visible;
     }
 
-    public Integer getFlags() {
+    public int getFlags() {
         return flags;
-    }
-
-    public void setFlags(Integer flags) {
-        this.flags = flags;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-
-        I18n i18n = (I18n) o;
-
-        if (id != null ? !id.equals(i18n.id) : i18n.id != null) return false;
-        if (languageId != null ? !languageId.equals(i18n.languageId) : i18n.languageId != null) return false;
-        if (message != null ? !message.equals(i18n.message) : i18n.message != null) return false;
-        if (translation != null ? !translation.equals(i18n.translation) : i18n.translation != null) return false;
-        if (userName != null ? !userName.equals(i18n.userName) : i18n.userName != null) return false;
-        if (createTime != null ? !createTime.equals(i18n.createTime) : i18n.createTime != null) return false;
-        if (updateTime != null ? !updateTime.equals(i18n.updateTime) : i18n.updateTime != null) return false;
-        if (enabled != null ? !enabled.equals(i18n.enabled) : i18n.enabled != null) return false;
-        if (visible != null ? !visible.equals(i18n.visible) : i18n.visible != null) return false;
-        return flags != null ? flags.equals(i18n.flags) : i18n.flags == null;
+        var that = (I18n) o;
+        return enabled == that.enabled
+                && visible == that.visible
+                && flags == that.flags
+                && Objects.equals(id, that.id)
+                && Objects.equals(languageId, that.languageId)
+                && Objects.equals(message, that.message)
+                && Objects.equals(translation, that.translation)
+                && Objects.equals(userName, that.userName);
     }
 
     @Override
     public int hashCode() {
-        int result = id != null ? id.hashCode() : 0;
-        result = 31 * result + (languageId != null ? languageId.hashCode() : 0);
-        result = 31 * result + (message != null ? message.hashCode() : 0);
-        result = 31 * result + (translation != null ? translation.hashCode() : 0);
-        result = 31 * result + (userName != null ? userName.hashCode() : 0);
-        result = 31 * result + (createTime != null ? createTime.hashCode() : 0);
-        result = 31 * result + (updateTime != null ? updateTime.hashCode() : 0);
-        result = 31 * result + (enabled != null ? enabled.hashCode() : 0);
-        result = 31 * result + (visible != null ? visible.hashCode() : 0);
-        result = 31 * result + (flags != null ? flags.hashCode() : 0);
-        return result;
+        int h = hash;
+        if (h == 0 && !hashIsZero) {
+            h = calculateHashCode();
+            if (h == 0) {
+                hashIsZero = true;
+            } else {
+                hash = h;
+            }
+        }
+        return h;
+    }
+
+    private int calculateHashCode() {
+        return Objects.hash(id, languageId, message, translation, userName, enabled, visible, flags);
     }
 
     @Override
     public String toString() {
         return "I18n{" +
                 "id=" + id +
-                ", languageId=" + languageId +
+                ", languageId='" + languageId + '\'' +
                 ", message='" + message + '\'' +
                 ", translation='" + translation + '\'' +
                 ", userName='" + userName + '\'' +
@@ -300,10 +311,6 @@ public class I18n implements Serializable {
                 '}';
     }
 
-    public static Builder builder() {
-        return new I18n.Builder();
-    }
-
     public static final class Builder {
         private Long id;
         private Long languageId;
@@ -312,93 +319,67 @@ public class I18n implements Serializable {
         private String userName;
         private LocalDateTime createTime;
         private LocalDateTime updateTime;
-        private Boolean enabled;
-        private Boolean visible;
-        private Integer flags;
+        private boolean enabled;
+        private boolean visible;
+        private int flags;
 
         private Builder() {
         }
 
-        public static Builder anI18n() {
-            return new Builder();
-        }
-
-        public Builder withId(Long id) {
+        public Builder id(Long id) {
             this.id = id;
             return this;
         }
 
-        public Builder withLanguageId(Long languageId) {
+        public Builder languageId(long languageId) {
             this.languageId = languageId;
             return this;
         }
 
-        public Builder withMessage(String message) {
+        public Builder message(String message) {
             this.message = message;
             return this;
         }
 
-        public Builder withTranslation(String translation) {
+        public Builder translation(String translation) {
             this.translation = translation;
             return this;
         }
 
-        public Builder withUserName(String userName) {
+        public Builder userName(String userName) {
             this.userName = userName;
             return this;
         }
 
-        public Builder withCreateTime(LocalDateTime createTime) {
+        public Builder createTime(LocalDateTime createTime) {
             this.createTime = createTime;
             return this;
         }
 
-        public Builder withUpdateTime(LocalDateTime updateTime) {
+        public Builder updateTime(LocalDateTime updateTime) {
             this.updateTime = updateTime;
             return this;
         }
 
-        public Builder withEnabled(Boolean enabled) {
+        public Builder enabled(boolean enabled) {
             this.enabled = enabled;
             return this;
         }
 
-        public Builder withVisible(Boolean visible) {
+        public Builder visible(boolean visible) {
             this.visible = visible;
             return this;
         }
 
-        public Builder withFlags(Integer flags) {
+        public Builder flags(int flags) {
             this.flags = flags;
             return this;
         }
 
-        public Builder but() {
-            return anI18n().withId(id)
-                    .withLanguageId(languageId)
-                    .withMessage(message)
-                    .withTranslation(translation)
-                    .withUserName(userName)
-                    .withCreateTime(createTime)
-                    .withUpdateTime(updateTime)
-                    .withEnabled(enabled)
-                    .withVisible(visible)
-                    .withFlags(flags);
-        }
-
         public I18n build() {
-            I18n i18n = new I18n();
-            i18n.setId(id);
-            i18n.setLanguageId(languageId);
-            i18n.setMessage(message);
-            i18n.setTranslation(translation);
-            i18n.setUserName(userName);
-            i18n.setCreateTime(createTime);
-            i18n.setUpdateTime(updateTime);
-            i18n.setEnabled(enabled);
-            i18n.setVisible(visible);
-            i18n.setFlags(flags);
-            return i18n;
+            return new I18n(
+                    id, languageId, message, translation, userName, createTime, updateTime, enabled, visible, flags
+            );
         }
     }
 }
