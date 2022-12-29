@@ -54,7 +54,7 @@ public class @Name@Dao {
                 .map(Optional::ofNullable);
     }
 
-    public Uni<Optional<@IdType@>> count() {
+    public Uni<Optional<Long>> count() {
         LOG.trace("count()");
         return @Name@.count(client)
                 .map(Optional::ofNullable);

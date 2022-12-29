@@ -2,7 +2,7 @@
  * This file was last modified at 2021.12.06 19:31 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
- * Codifier.java
+ * CodifierOld.java
  * $Id$
  */
 
@@ -16,6 +16,7 @@ import io.vertx.mutiny.sqlclient.Row;
 import io.vertx.mutiny.sqlclient.RowSet;
 import io.vertx.mutiny.sqlclient.Tuple;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -23,6 +24,7 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Language implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 1026290511346629702L;
 
     private Long id;
@@ -225,9 +227,7 @@ public class Language implements Serializable {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Language)) return false;
-
-        Language codifier = (Language) o;
+        if (!(o instanceof Language codifier)) return false;
 
         if (id != null ? !id.equals(codifier.id) : codifier.id != null) return false;
         if (language != null ? !language.equals(codifier.language) : codifier.language != null) return false;
@@ -254,7 +254,7 @@ public class Language implements Serializable {
 
     @Override
     public String toString() {
-        return "Codifier{" +
+        return "Language{" +
                 "id=" + id +
                 ", language='" + language + '\'' +
                 ", userName='" + userName + '\'' +

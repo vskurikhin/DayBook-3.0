@@ -22,7 +22,7 @@ import javax.inject.Inject;
 import java.util.NoSuchElementException;
 
 @ApplicationScoped
-public class @Name@Service extends AbstractService<Long, @Name@> {
+public class @Name@Service extends AbstractService<@IdType@, @Name@> {
 
     private static final Logger LOG = Logger.getLogger(@Name@Service.class);
 
@@ -39,7 +39,7 @@ public class @Name@Service extends AbstractService<Long, @Name@> {
     public Uni<Answer> get(Object o) {
         LOG.tracef("get(%s)", o);
         try {
-            return getEntry(getIdLong(o));
+            return getEntry(getId@IdType@(o));
         } catch (NumberFormatException e) {
             LOG.errorf("get(%s)", o, e);
             var numberError = new Answer(e.getMessage(), 404);
@@ -113,7 +113,7 @@ public class @Name@Service extends AbstractService<Long, @Name@> {
     public Uni<Answer> delete(Object o) {
         LOG.tracef("delete(%s)", o);
         try {
-            return deleteEntry(getIdLong(o));
+            return deleteEntry(getId@IdType@(o));
         } catch (NumberFormatException e) {
             LOG.errorf("delete(%s)", o, e);
             var numberError = new Answer(e.getMessage(), 404);

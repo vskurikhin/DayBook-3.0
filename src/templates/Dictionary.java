@@ -28,7 +28,7 @@ import java.util.Objects;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public final class @Name@ implements @IdType@Identification, Marked, Owned, TimeUpdated, Serializable {
 
-    public static final String NONE = "5f8c1804-5c59-43b6-9099-c1820cffc001";
+    public static final String NONE = "@uuid@";
     public static final String SELECT_FROM_@SCHEMA@_@TABLE@_WHERE_ID_$1 = """
             SELECT id, @key@, @value@, user_name, create_time, update_time, enabled, visible, flags
               FROM @schema@.@table@
@@ -240,7 +240,7 @@ public final class @Name@ implements @IdType@Identification, Marked, Owned, Time
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        @Name@ that = (@Name@) o;
+        var that = (@Name@) o;
         return enabled == that.enabled
                 && visible == that.visible
                 && flags == that.flags

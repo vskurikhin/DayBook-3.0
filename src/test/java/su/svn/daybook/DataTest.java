@@ -35,7 +35,7 @@ public class DataTest {
             """ + Codifier.NONE + """
             ","enabled":false,"visible":true,"flags":0,"id":"\
             """ + Codifier.NONE + "\"}";
-    public static final String JSON_Codifier_Id_0 = "{\"code\":\"" + Codifier.NONE + "\"}";
+    public static final String JSON_Codifier_Id_0 = "{\"id\":\"" + Codifier.NONE + "\"}";
     public static final String JSON_ARRAY_Codifier_0 = "[" + JSON_Codifier_0 + "]";
     public static final Word OBJECT_Word_0 = new Word(
             Word.NONE, null, null, null, false, true, 0
@@ -85,6 +85,7 @@ public class DataTest {
             """;
     public static final String JSON_ARRAY_UserName_0 = "[" + JSON_UserName_0 + "]";
     public static final Uni<Optional<Long>> UNI_OPTIONAL_EMPTY_LONG = Uni.createFrom().item(Optional.empty());
+    public static final Uni<Optional<String>> UNI_OPTIONAL_EMPTY_STRING = Uni.createFrom().item(Optional.empty());
     public static Uni<Answer> UNI_ANSWER_API_RESPONSE_ZERO_UUID = Uni.createFrom().item(Answer.of(new ApiResponse<>(ZERO_UUID)));
     public static Uni<Optional<UUID>> UNI_OPTIONAL_ZERO_UUID = Uni.createFrom().item(Optional.of(ZERO_UUID));
     public static Uni<Optional<UUID>> UNI_OPTIONAL_EMPTY_UUID = Uni.createFrom().item(Optional.empty());

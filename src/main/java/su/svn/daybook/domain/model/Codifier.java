@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2021.12.06 19:31 by Victor N. Skurikhin.
+ * This file was last modified at 2022.01.12 22:58 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * Codifier.java
@@ -8,6 +8,7 @@
 
 package su.svn.daybook.domain.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
@@ -27,33 +28,31 @@ import java.util.Objects;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public final class Codifier implements StringIdentification, Marked, Owned, TimeUpdated, Serializable {
 
-    public static final String NONE = "__NONE__";
+    public static final String NONE = "b19bba7c-d53a-4174-9475-6ae9d7b9bbee";
     public static final String SELECT_FROM_DICTIONARY_CODIFIER_WHERE_CODE_$1 = """
             SELECT code, value, user_name, create_time, update_time, enabled, visible, flags
               FROM dictionary.codifier
              WHERE code = $1
             """;
-    public static final String SELECT_ALL_FROM_DICTIONARY_CODIFIER_ORDER_BY_CODE = """
+    public static final String SELECT_ALL_FROM_DICTIONARY_CODIFIER_ORDER_BY_CODE_ASC = """
             SELECT code, value, user_name, create_time, update_time, enabled, visible, flags
               FROM dictionary.codifier
-             ORDER BY code
+             ORDER BY code ASC
             """;
     public static final String INSERT_INTO_DICTIONARY_CODIFIER = """
             INSERT INTO dictionary.codifier
-             (code, value, user_name, create_time, update_time, enabled, visible, flags)
+             (code, value, user_name, enabled, visible, flags)
              VALUES
-             ($1, $2, $3, $4, $5, $6, $7, $8)
+             ($1, $2, $3, $4, $5, $6)
              RETURNING code
             """;
     public static final String UPDATE_DICTIONARY_CODIFIER_WHERE_CODE_$1 = """
             UPDATE dictionary.codifier SET
-              value = $2,
-              user_name = $3,
-              create_time = $4,
-              update_time = $5,
-              enabled = $6,
-              visible = $7,
-              flags = $8
+              user_name = $2,
+              enabled = $3,
+              visible = $4,
+              flags = $5,
+              value = $6
              WHERE code = $1
              RETURNING code
             """;
@@ -64,8 +63,8 @@ public final class Codifier implements StringIdentification, Marked, Owned, Time
             """;
     public static final String COUNT_DICTIONARY_CODIFIER = "SELECT count(*) FROM dictionary.codifier";
     @Serial
-    private static final long serialVersionUID = 1265480523704797546L;
-    @Nonnull
+    private static final long serialVersionUID = 260226838732667047L;
+    public static final String ID = "code";
     private final String code;
     private final String value;
     private final String userName;
@@ -74,6 +73,12 @@ public final class Codifier implements StringIdentification, Marked, Owned, Time
     private final boolean enabled;
     private final boolean visible;
     private final int flags;
+
+    @JsonIgnore
+    private transient volatile int hash;
+
+    @JsonIgnore
+    private transient volatile boolean hashIsZero;
 
     public Codifier() {
         this.code = NONE;
@@ -87,8 +92,7 @@ public final class Codifier implements StringIdentification, Marked, Owned, Time
     }
 
     public Codifier(
-            @Nonnull
-            String code,
+            @Nonnull String code,
             String value,
             String userName,
             LocalDateTime createTime,
@@ -108,7 +112,7 @@ public final class Codifier implements StringIdentification, Marked, Owned, Time
 
     public static Codifier from(Row row) {
         return new Codifier(
-                row.getString("code"),
+                row.getString(ID),
                 row.getString("value"),
                 row.getString("user_name"),
                 row.getLocalDateTime("create_time"),
@@ -119,9 +123,10 @@ public final class Codifier implements StringIdentification, Marked, Owned, Time
         );
     }
 
-    public static Uni<Codifier> findByCode(PgPool client, String code) {
-        return client.preparedQuery(SELECT_FROM_DICTIONARY_CODIFIER_WHERE_CODE_$1)
-                .execute(Tuple.of(code))
+    public static Uni<Codifier> findById(PgPool client, String id) {
+        return client
+                .preparedQuery(SELECT_FROM_DICTIONARY_CODIFIER_WHERE_CODE_$1)
+                .execute(Tuple.of(id))
                 .onItem()
                 .transform(RowSet::iterator)
                 .onItem()
@@ -130,7 +135,7 @@ public final class Codifier implements StringIdentification, Marked, Owned, Time
 
     public static Multi<Codifier> findAll(PgPool client) {
         return client
-                .query(SELECT_ALL_FROM_DICTIONARY_CODIFIER_ORDER_BY_CODE)
+                .query(SELECT_ALL_FROM_DICTIONARY_CODIFIER_ORDER_BY_CODE_ASC)
                 .execute()
                 .onItem()
                 .transformToMulti(set -> Multi.createFrom().iterable(set))
@@ -139,15 +144,17 @@ public final class Codifier implements StringIdentification, Marked, Owned, Time
 
     }
 
-    public static Uni<String> delete(PgPool client, String code) {
-        return client.preparedQuery(DELETE_FROM_DICTIONARY_CODIFIER_WHERE_CODE_$1)
-                .execute(Tuple.of(code))
+    public static Uni<String> delete(PgPool client, String id) {
+        return client.withTransaction(
+                connection -> connection.preparedQuery(DELETE_FROM_DICTIONARY_CODIFIER_WHERE_CODE_$1)
+                .execute(Tuple.of(id))
                 .onItem()
-                .transform(pgRowSet -> pgRowSet.iterator().next().getString("code"));
+                .transform(pgRowSet -> pgRowSet.iterator().next().getString(ID)));
     }
 
     public static Uni<Long> count(PgPool client) {
-        return client.preparedQuery(COUNT_DICTIONARY_CODIFIER)
+        return client
+                .preparedQuery(COUNT_DICTIONARY_CODIFIER)
                 .execute()
                 .onItem()
                 .transform(pgRowSet -> pgRowSet.iterator().next().getLong("count"));
@@ -158,25 +165,25 @@ public final class Codifier implements StringIdentification, Marked, Owned, Time
     }
 
     public Uni<String> insert(PgPool client) {
-        return client.preparedQuery(INSERT_INTO_DICTIONARY_CODIFIER)
-                .execute(Tuple.tuple(listOf()))
-                .onItem()
-                .transform(RowSet::iterator)
-                .onItem()
-                .transform(iterator -> iterator.hasNext() ? iterator.next().getString("code") : null);
+        return client.withTransaction(
+                connection -> connection.preparedQuery(INSERT_INTO_DICTIONARY_CODIFIER)
+                        .execute(Tuple.of(code, value, userName, enabled, visible, flags))
+                        .onItem()
+                        .transform(RowSet::iterator)
+                        .onItem()
+                        .transform(iterator -> iterator.hasNext() ? iterator.next().getString(ID) : null));
     }
 
     public Uni<String> update(PgPool client) {
-        return client.preparedQuery(UPDATE_DICTIONARY_CODIFIER_WHERE_CODE_$1)
-                .execute(Tuple.tuple(listOf()))
-                .onItem()
-                .transform(RowSet::iterator)
-                .onItem()
-                .transform(iterator -> iterator.hasNext() ? iterator.next().getString("code") : null);
+        return client.withTransaction(
+                connection -> connection.preparedQuery(UPDATE_DICTIONARY_CODIFIER_WHERE_CODE_$1)
+                        .execute(Tuple.tuple(listOf()))
+                        .onItem()
+                        .transform(pgRowSet -> pgRowSet.iterator().next().getString(ID)));
     }
 
     private List<Object> listOf() {
-        return Arrays.asList(code, value, userName, createTime, updateTime, enabled, visible, flags);
+        return Arrays.asList(code, userName, enabled, visible, flags, value);
     }
 
     public String getId() {
@@ -227,17 +234,30 @@ public final class Codifier implements StringIdentification, Marked, Owned, Time
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Codifier codifier = (Codifier) o;
-        return enabled == codifier.enabled
-                && visible == codifier.visible
-                && flags == codifier.flags
-                && Objects.equals(code, codifier.code)
-                && Objects.equals(value, codifier.value)
-                && Objects.equals(userName, codifier.userName);
+        var that = (Codifier) o;
+        return enabled == that.enabled
+                && visible == that.visible
+                && flags == that.flags
+                && Objects.equals(code, that.code)
+                && Objects.equals(value, that.value)
+                && Objects.equals(userName, that.userName);
     }
 
     @Override
     public int hashCode() {
+        int h = hash;
+        if (h == 0 && !hashIsZero) {
+            h = calculateHashCode();
+            if (h == 0) {
+                hashIsZero = true;
+            } else {
+                hash = h;
+            }
+        }
+        return h;
+    }
+
+    private int calculateHashCode() {
         return Objects.hash(code, value, userName, enabled, visible, flags);
     }
 
@@ -266,6 +286,11 @@ public final class Codifier implements StringIdentification, Marked, Owned, Time
         private int flags;
 
         private Builder() {
+        }
+
+        public Builder id(String id) {
+            this.code = id;
+            return this;
         }
 
         public Builder code(String code) {

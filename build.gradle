@@ -168,11 +168,12 @@ private void genDictionary(template, projectDir, to, sufix = "") {
     def templateFileName = template.toPath().fileName.toString()
     def name = this.getProjectProperty('table', 'value_type').toString()
     def schema = this.getProjectProperty('schema', 'dictionary').toString()
-    def idType = this.getProjectProperty('idType', 'Long').toString()
+    def idType = this.getProjectProperty('IdType', 'Long').toString()
     def key = this.getProjectProperty('key', 'key').toString()
     def keyType = this.getProjectProperty('keyType', 'String').toString()
     def value = this.getProjectProperty('value', 'value').toString()
     def valueType = this.getProjectProperty('valueType', 'String').toString()
+    def uuid = UUID.randomUUID().toString()
     copy {
         from template
         filter ReplaceTokens, tokens: [
@@ -188,7 +189,8 @@ private void genDictionary(template, projectDir, to, sufix = "") {
                 KType           : keyType,
                 value           : value,
                 Value           : value.capitalize(),
-                VType           : valueType
+                VType           : valueType,
+                uuid            : uuid
         ]
         into projectDir + '/' + to
         rename { filename ->
@@ -237,12 +239,14 @@ task generator() {
     def model = new File("src/templates/Dictionary.java")
     def dao = new File("src/templates/DictionaryDao.java")
     def service = new File("src/templates/DictionaryService.java")
+    def resource = new File("src/templates/DictionaryResource.java")
     def test = new File("src/templates/DictionaryTest.java")
     def createTable = new File("src/templates/create_table.sql")
     def tableTriggers = new File("src/templates/table_triggers.sql")
     doLast {
         genDictionary(model, projectDir, "src/main/java/su/svn/daybook/domain/model")
         genDictionary(dao, projectDir, "src/main/java/su/svn/daybook/domain/dao", "Dao")
+        genDictionary(resource, projectDir, "src/main/java/su/svn/daybook/resources", "Resource")
         genDictionary(service, projectDir, "src/main/java/su/svn/daybook/services", "Service")
         genDictionary(test, projectDir, "src/test/java/su/svn/daybook/domain/model", "Test")
         genSql(createTable, resourcesDb, resourcesDbPath, schemaName)
