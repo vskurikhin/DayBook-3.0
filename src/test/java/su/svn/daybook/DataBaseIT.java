@@ -36,6 +36,9 @@ public class DataBaseIT {
     LanguageDao languageDao;
 
     @Inject
+    SettingDao settingDao;
+
+    @Inject
     TagLabelDao tagLabelDao;
 
     @Inject
@@ -431,6 +434,157 @@ public class DataBaseIT {
                     )
             );
 
+        }
+    }
+
+    @Nested
+    @DisplayName("SettingDao")
+    class SettingDaoTest {
+
+        Long id;
+
+        Long customId = Long.MIN_VALUE;
+
+        Long valueTypeId = 0L;
+
+        Setting entry;
+
+        String str = "str";
+
+        @BeforeEach
+        void setUp() {
+            entry = Setting.builder()
+                    .key(str)
+                    .valueTypeId(valueTypeId)
+                    .build();
+            var valueType = ValueType.builder()
+                    .id(valueTypeId)
+                    .valueType(str)
+                    .build();
+            Assertions.assertDoesNotThrow(
+                    () -> {
+                        id = valueTypeDao.insert(valueType)
+                                .subscribeAsCompletionStage()
+                                .get()
+                                .orElse(null);
+                    }
+            );
+            Assertions.assertDoesNotThrow(
+                    () -> {
+                        id = settingDao.insert(entry)
+                                .subscribeAsCompletionStage()
+                                .get()
+                                .orElse(null);
+                    }
+            );
+        }
+
+        @AfterEach
+        void tearDown() {
+            Assertions.assertDoesNotThrow(
+                    () -> Assertions.assertEquals(
+                            id, settingDao.delete(id)
+                                    .subscribeAsCompletionStage()
+                                    .get()
+                                    .orElse(null)
+                    )
+            );
+            Assertions.assertDoesNotThrow(
+                    () -> Assertions.assertEquals(
+                            0, settingDao.count()
+                                    .subscribeAsCompletionStage()
+                                    .get()
+                                    .orElse(null)
+                    )
+            );
+            Assertions.assertDoesNotThrow(
+                    () -> Assertions.assertEquals(
+                            valueTypeId, valueTypeDao.delete(valueTypeId)
+                                    .subscribeAsCompletionStage()
+                                    .get()
+                                    .orElse(null)
+                    )
+            );
+        }
+
+        @Test
+        void test() {
+            var expected1 = Setting.builder()
+                    .id(id)
+                    .key(str)
+                    .valueTypeId(valueTypeId)
+                    .build();
+            Assertions.assertDoesNotThrow(
+                    () -> {
+                        var test = settingDao.findById(id)
+                                .subscribeAsCompletionStage()
+                                .get()
+                                .orElse(null);
+                        Assertions.assertNotNull(test);
+                        Assertions.assertEquals(expected1, test);
+                        Assertions.assertNotNull(test.getCreateTime());
+                        Assertions.assertNull(test.getUpdateTime());
+                    }
+            );
+            var expected2 = Setting.builder()
+                    .id(id)
+                    .key(str)
+                    .valueTypeId(valueTypeId)
+                    .value("value")
+                    .build();
+            Assertions.assertDoesNotThrow(
+                    () -> Assertions.assertEquals(
+                            id, settingDao.update(expected2)
+                                    .subscribeAsCompletionStage()
+                                    .get()
+                                    .orElse(null)
+                    )
+            );
+            Assertions.assertDoesNotThrow(
+                    () -> {
+                        var test = settingDao.findById(id)
+                                .subscribeAsCompletionStage()
+                                .get()
+                                .orElse(null);
+                        Assertions.assertNotNull(test);
+                        Assertions.assertEquals(expected2, test);
+                        Assertions.assertNotNull(test.getCreateTime());
+                        Assertions.assertNotNull(test.getUpdateTime());
+                    }
+            );
+            Assertions.assertDoesNotThrow(
+                    () -> {
+                        var test = settingDao.findAll()
+                                .collect()
+                                .asList()
+                                .subscribeAsCompletionStage()
+                                .get();
+                        Assertions.assertNotNull(test);
+                        Assertions.assertFalse(test.isEmpty());
+                        Assertions.assertEquals(1, test.size());
+                    }
+            );
+
+            var test = Setting.builder()
+                    .id(customId)
+                    .key("key")
+                    .valueTypeId(valueTypeId)
+                    .build();
+            Assertions.assertDoesNotThrow(
+                    () -> Assertions.assertEquals(
+                            customId, settingDao.insert(test)
+                                    .subscribeAsCompletionStage()
+                                    .get()
+                                    .orElse(null))
+            );
+            Assertions.assertDoesNotThrow(
+                    () -> Assertions.assertEquals(
+                            customId, settingDao.delete(customId)
+                                    .subscribeAsCompletionStage()
+                                    .get()
+                                    .orElse(null)
+                    )
+            );
         }
     }
 

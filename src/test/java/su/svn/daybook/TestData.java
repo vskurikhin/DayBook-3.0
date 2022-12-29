@@ -82,6 +82,19 @@ public class TestData {
         public static final String JSON_ID_0 = "{\"id\":0}";
     }
 
+    public static class SETTING {
+        public static final Setting OBJECT_0 = new Setting(
+                0L, Setting.NONE, null, 0L, null, null, null, false, true, 0
+        );
+        public static final String JSON_0 = """
+                {"id":0,"key":"\
+                """ + Setting.NONE +"""
+                ","valueTypeId":0,"enabled":false,"visible":true,"flags":0}\
+                """;
+        public static final String JSON_ARRAY_SINGLETON_0 = "[" + JSON_0 + "]";
+        public static final String JSON_ID_0 = "{\"id\":0}";
+    }
+
     public static class TAG_LABEL {
         public static final String ID = TagLabel.NONE.replace("-", "").substring(0, 16);
         public static final Uni<Optional<String>> UNI_OPTIONAL_ID = Uni.createFrom().item(Optional.of(ID));
