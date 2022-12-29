@@ -2,7 +2,7 @@
  * This file was last modified at 2022.01.12 22:58 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
- * @Name@.java
+ * ValueType.java
  * $Id$
  */
 
@@ -26,56 +26,54 @@ import java.util.List;
 import java.util.Objects;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public final class @Name@ implements @IdType@Identification, Marked, Owned, TimeUpdated, Serializable {
+public final class ValueType implements LongIdentification, Marked, Owned, TimeUpdated, Serializable {
 
-    public static final String NONE = "@uuid@";
-    public static final String SELECT_FROM_@SCHEMA@_@TABLE@_WHERE_ID_$1 = """
-            SELECT id, @key@, @value@, user_name, create_time, update_time, enabled, visible, flags
-              FROM @schema@.@table@
+    public static final String NONE = "8af24446-2ca5-4ed3-8d80-f2681feb0ecc";
+    public static final String SELECT_FROM_DICTIONARY_VALUE_TYPE_WHERE_ID_$1 = """
+            SELECT id, value_type, user_name, create_time, update_time, enabled, visible, flags
+              FROM dictionary.value_type
              WHERE id = $1
             """;
-    public static final String SELECT_ALL_FROM_@SCHEMA@_@TABLE@_ORDER_BY_ID_ASC = """
-            SELECT id, @key@, @value@, user_name, create_time, update_time, enabled, visible, flags
-              FROM @schema@.@table@
+    public static final String SELECT_ALL_FROM_DICTIONARY_VALUE_TYPE_ORDER_BY_ID_ASC = """
+            SELECT id, value_type, user_name, create_time, update_time, enabled, visible, flags
+              FROM dictionary.value_type
              ORDER BY id ASC
             """;
-    public static final String INSERT_INTO_@SCHEMA@_@TABLE@ = """
-            INSERT INTO @schema@.@table@
-             (id, @key@, @value@, user_name, enabled, visible, flags)
+    public static final String INSERT_INTO_DICTIONARY_VALUE_TYPE = """
+            INSERT INTO dictionary.value_type
+             (id, value_type, user_name, enabled, visible, flags)
              VALUES
-             ($1, $2, $3, $4, $5, $6, $7)
+             ($1, $2, $3, $4, $5, $6)
              RETURNING id
             """;
-    public static final String INSERT_INTO_@SCHEMA@_@TABLE@_DEFAULT_ID = """
-            INSERT INTO @schema@.@table@
-             (id, @key@, @value@, user_name, enabled, visible, flags)
+    public static final String INSERT_INTO_DICTIONARY_VALUE_TYPE_DEFAULT_ID = """
+            INSERT INTO dictionary.value_type
+             (id, value_type, user_name, enabled, visible, flags)
              VALUES
-             (DEFAULT, $1, $2, $3, $4, $5, $6)
+             (DEFAULT, $1, $2, $3, $4, $5)
              RETURNING id
             """;
-    public static final String UPDATE_@SCHEMA@_@TABLE@_WHERE_ID_$1 = """
-            UPDATE @schema@.@table@ SET
-              @key@ = $2,
-              @value@ = $3,
-              user_name = $4,
-              enabled = $5,
-              visible = $6,
-              flags = $7
+    public static final String UPDATE_DICTIONARY_VALUE_TYPE_WHERE_ID_$1 = """
+            UPDATE dictionary.value_type SET
+              value_type = $2,
+              user_name = $3,
+              enabled = $4,
+              visible = $5,
+              flags = $6
              WHERE id = $1
              RETURNING id
             """;
-    public static final String DELETE_FROM_@SCHEMA@_@TABLE@_WHERE_ID_$1 = """
-            DELETE FROM @schema@.@table@
+    public static final String DELETE_FROM_DICTIONARY_VALUE_TYPE_WHERE_ID_$1 = """
+            DELETE FROM dictionary.value_type
              WHERE id = $1
              RETURNING id
             """;
-    public static final String COUNT_@SCHEMA@_@TABLE@ = "SELECT count(*) FROM @schema@.@table@";
+    public static final String COUNT_DICTIONARY_VALUE_TYPE = "SELECT count(*) FROM dictionary.value_type";
     @Serial
-    private static final long serialVersionUID = @serialVersionUID@L;
+    private static final long serialVersionUID = 1855327022471501329L;
     public static final String ID = "id";
-    private final @IdType@ id;
-    private final @KType@ @key@;
-    private final @VType@ @value@;
+    private final Long id;
+    private final String valueType;
     private final String userName;
     private final LocalDateTime createTime;
     private final LocalDateTime updateTime;
@@ -89,10 +87,9 @@ public final class @Name@ implements @IdType@Identification, Marked, Owned, Time
     @JsonIgnore
     private transient volatile boolean hashIsZero;
 
-    public @Name@() {
+    public ValueType() {
         this.id = null;
-        this.@key@ = NONE;
-        this.@value@ = null;
+        this.valueType = NONE;
         this.userName = null;
         this.createTime = null;
         this.updateTime = null;
@@ -101,10 +98,9 @@ public final class @Name@ implements @IdType@Identification, Marked, Owned, Time
         this.flags = 0;
     }
 
-    public @Name@(
-            @IdType@ id,
-            @Nonnull @KType@ @key@,
-            @VType@ @value@,
+    public ValueType(
+            Long id,
+            @Nonnull String valueType,
             String userName,
             LocalDateTime createTime,
             LocalDateTime updateTime,
@@ -112,8 +108,7 @@ public final class @Name@ implements @IdType@Identification, Marked, Owned, Time
             boolean visible,
             int flags) {
         this.id = id;
-        this.@key@ = @key@;
-        this.@value@ = @value@;
+        this.valueType = valueType;
         this.userName = userName;
         this.createTime = createTime;
         this.updateTime = updateTime;
@@ -122,11 +117,10 @@ public final class @Name@ implements @IdType@Identification, Marked, Owned, Time
         this.flags = flags;
     }
 
-    public static @Name@ from(Row row) {
-        return new @Name@(
-                row.get@IdType@(ID),
-                row.get@KType@("@key@"),
-                row.get@VType@("@value@"),
+    public static ValueType from(Row row) {
+        return new ValueType(
+                row.getLong(ID),
+                row.getString("value_type"),
                 row.getString("user_name"),
                 row.getLocalDateTime("create_time"),
                 row.getLocalDateTime("update_time"),
@@ -136,87 +130,83 @@ public final class @Name@ implements @IdType@Identification, Marked, Owned, Time
         );
     }
 
-    public static Uni<@Name@> findById(PgPool client, @IdType@ id) {
+    public static Uni<ValueType> findById(PgPool client, Long id) {
         return client
-                .preparedQuery(SELECT_FROM_@SCHEMA@_@TABLE@_WHERE_ID_$1)
+                .preparedQuery(SELECT_FROM_DICTIONARY_VALUE_TYPE_WHERE_ID_$1)
                 .execute(Tuple.of(id))
                 .onItem()
                 .transform(RowSet::iterator)
                 .onItem()
-                .transform(iterator -> iterator.hasNext() ? @Name@.from(iterator.next()) : null);
+                .transform(iterator -> iterator.hasNext() ? ValueType.from(iterator.next()) : null);
     }
 
-    public static Multi<@Name@> findAll(PgPool client) {
+    public static Multi<ValueType> findAll(PgPool client) {
         return client
-                .query(SELECT_ALL_FROM_@SCHEMA@_@TABLE@_ORDER_BY_ID_ASC)
+                .query(SELECT_ALL_FROM_DICTIONARY_VALUE_TYPE_ORDER_BY_ID_ASC)
                 .execute()
                 .onItem()
                 .transformToMulti(set -> Multi.createFrom().iterable(set))
                 .onItem()
-                .transform(@Name@::from);
+                .transform(ValueType::from);
 
     }
 
-    public static Uni<@IdType@> delete(PgPool client, @IdType@ id) {
+    public static Uni<Long> delete(PgPool client, Long id) {
         return client.withTransaction(
-                connection -> connection.preparedQuery(DELETE_FROM_@SCHEMA@_@TABLE@_WHERE_ID_$1)
+                connection -> connection.preparedQuery(DELETE_FROM_DICTIONARY_VALUE_TYPE_WHERE_ID_$1)
                 .execute(Tuple.of(id))
                 .onItem()
-                .transform(pgRowSet -> pgRowSet.iterator().next().get@IdType@(ID)));
+                .transform(pgRowSet -> pgRowSet.iterator().next().getLong(ID)));
     }
 
     public static Uni<Long> count(PgPool client) {
         return client
-                .preparedQuery(COUNT_@SCHEMA@_@TABLE@)
+                .preparedQuery(COUNT_DICTIONARY_VALUE_TYPE)
                 .execute()
                 .onItem()
                 .transform(pgRowSet -> pgRowSet.iterator().next().getLong("count"));
     }
 
-    public static @Name@.Builder builder() {
-        return new @Name@.Builder();
+    public static ValueType.Builder builder() {
+        return new ValueType.Builder();
     }
 
-    public Uni<@IdType@> insert(PgPool client) {
+    public Uni<Long> insert(PgPool client) {
         return client.withTransaction(
                 connection -> connection.preparedQuery(caseInsertSql())
                         .execute(caseInsertTuple())
                         .onItem()
                         .transform(RowSet::iterator)
                         .onItem()
-                        .transform(iterator -> iterator.hasNext() ? iterator.next().get@IdType@(ID) : null));
+                        .transform(iterator -> iterator.hasNext() ? iterator.next().getLong(ID) : null));
     }
 
-    public Uni<@IdType@> update(PgPool client) {
+    public Uni<Long> update(PgPool client) {
         return client.withTransaction(
-                connection -> connection.preparedQuery(UPDATE_@SCHEMA@_@TABLE@_WHERE_ID_$1)
+                connection -> connection.preparedQuery(UPDATE_DICTIONARY_VALUE_TYPE_WHERE_ID_$1)
                         .execute(Tuple.tuple(listOf()))
                         .onItem()
-                        .transform(pgRowSet -> pgRowSet.iterator().next().get@IdType@(ID)));
+                        .transform(pgRowSet -> pgRowSet.iterator().next().getLong(ID)));
     }
 
     private String caseInsertSql() {
-        return id != null ? INSERT_INTO_@SCHEMA@_@TABLE@ : INSERT_INTO_@SCHEMA@_@TABLE@_DEFAULT_ID;
+        return id != null ? INSERT_INTO_DICTIONARY_VALUE_TYPE : INSERT_INTO_DICTIONARY_VALUE_TYPE_DEFAULT_ID;
     }
 
     private Tuple caseInsertTuple() {
-        return id != null ? Tuple.tuple(listOf()) : Tuple.of(@key@, @value@, userName, enabled, visible, flags);
+        return id != null ? Tuple.tuple(listOf()) : Tuple.of(valueType, userName, enabled, visible, flags);
     }
 
     private List<Object> listOf() {
-        return Arrays.asList(id, @key@, @value@, userName, enabled, visible, flags);
+        return Arrays.asList(id, valueType, userName, enabled, visible, flags);
     }
 
-    public @IdType@ getId() {
+    public Long getId() {
         return id;
     }
 
-    public @KType@ get@Key@() {
-        return @key@;
-    }
-
-    public @VType@ get@Value@() {
-        return @value@;
+    public String getValueType() {
+        return valueType;
     }
 
     public String getUserName() {
@@ -255,13 +245,12 @@ public final class @Name@ implements @IdType@Identification, Marked, Owned, Time
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        var that = (@Name@) o;
+        var that = (ValueType) o;
         return enabled == that.enabled
                 && visible == that.visible
                 && flags == that.flags
                 && Objects.equals(id, that.id)
-                && Objects.equals(@key@, that.@key@)
-                && Objects.equals(@value@, that.@value@)
+                && Objects.equals(valueType, that.valueType)
                 && Objects.equals(userName, that.userName);
     }
 
@@ -280,15 +269,14 @@ public final class @Name@ implements @IdType@Identification, Marked, Owned, Time
     }
 
     private int calculateHashCode() {
-        return Objects.hash(id, @key@, @value@, userName, enabled, visible, flags);
+        return Objects.hash(id, valueType, userName, enabled, visible, flags);
     }
 
     @Override
     public String toString() {
-        return "@Name@{" +
+        return "ValueType{" +
                 "id=" + id +
-                ", @key@='" + @key@ + '\'' +
-                ", @value@='" + @value@ + '\'' +
+                ", valueType='" + valueType + '\'' +
                 ", userName='" + userName + '\'' +
                 ", createTime=" + createTime +
                 ", updateTime=" + updateTime +
@@ -299,9 +287,8 @@ public final class @Name@ implements @IdType@Identification, Marked, Owned, Time
     }
 
     public static final class Builder {
-        private @IdType@ id;
-        private @KType@ @key@;
-        private @VType@ @value@;
+        private Long id;
+        private String valueType;
         private String userName;
         private LocalDateTime createTime;
         private LocalDateTime updateTime;
@@ -312,18 +299,13 @@ public final class @Name@ implements @IdType@Identification, Marked, Owned, Time
         private Builder() {
         }
 
-        public Builder id(@IdType@ id) {
+        public Builder id(Long id) {
             this.id = id;
             return this;
         }
 
-        public Builder @key@(@Nonnull @KType@ @key@) {
-            this.@key@ = @key@;
-            return this;
-        }
-
-        public Builder @value@(@VType@ @value@) {
-            this.@value@ = @value@;
+        public Builder valueType(@Nonnull String valueType) {
+            this.valueType = valueType;
             return this;
         }
 
@@ -357,8 +339,8 @@ public final class @Name@ implements @IdType@Identification, Marked, Owned, Time
             return this;
         }
 
-        public @Name@ build() {
-            return new @Name@(id, @key@, @value@, userName, createTime, updateTime, enabled, visible, flags);
+        public ValueType build() {
+            return new ValueType(id, valueType, userName, createTime, updateTime, enabled, visible, flags);
         }
     }
 }

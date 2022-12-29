@@ -111,6 +111,18 @@ public class TestData {
                 {"id":"00000000-0000-0000-0000-000000000000"}\
                 """;
     }
+    public static class VALUE_TYPE {
+        public static final ValueType OBJECT_0 = new ValueType(
+                0L, ValueType.NONE, null, null, null, false, true, 0
+        );
+        public static final String JSON_0 = """
+                {"id":0,"valueType":"\
+                """ + ValueType.NONE + """
+                ","enabled":false,"visible":true,"flags":0}\
+                """;
+        public static final String JSON_ARRAY_SINGLETON_0 = "[" + JSON_0 + "]";
+        public static final String JSON_ID_0 = "{\"id\":0}";
+    }
 
     public static class VOCABULARY {
         public static final Vocabulary OBJECT_0 = new Vocabulary(

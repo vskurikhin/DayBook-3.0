@@ -39,6 +39,9 @@ public class DataBaseIT {
     TagLabelDao tagLabelDao;
 
     @Inject
+    ValueTypeDao valueTypeDao;
+
+    @Inject
     VocabularyDao vocabularyDao;
 
     @Inject
@@ -159,7 +162,7 @@ public class DataBaseIT {
     }
 
     @Nested
-    @DisplayName("TagLabelDao")
+    @DisplayName("I18nDao")
     class I18nDaoTest {
 
         Long id;
@@ -656,6 +659,108 @@ public class DataBaseIT {
         }
     }
 
+    @Nested
+    @DisplayName("ValueTypeDao")
+    class ValueTypeDaoTest {
+
+        Long id;
+
+        String str = "str";
+
+        ValueType entry;
+
+        @BeforeEach
+        void setUp() {
+            entry = ValueType.builder()
+                    .id(id)
+                    .valueType(str)
+                    .build();
+            Assertions.assertDoesNotThrow(
+                    () -> {
+                        id = valueTypeDao.insert(entry)
+                                .subscribeAsCompletionStage()
+                                .get()
+                                .orElse(null);
+                    }
+            );
+        }
+
+        @AfterEach
+        void tearDown() {
+            Assertions.assertDoesNotThrow(
+                    () -> Assertions.assertEquals(
+                            id, valueTypeDao.delete(id)
+                                    .subscribeAsCompletionStage()
+                                    .get()
+                                    .orElse(null)
+                    )
+            );
+            Assertions.assertDoesNotThrow(
+                    () -> Assertions.assertEquals(
+                            0, valueTypeDao.count()
+                                    .subscribeAsCompletionStage()
+                                    .get()
+                                    .orElse(null)
+                    )
+            );
+        }
+
+        @Test
+        void test() {
+            var expected1 = ValueType.builder()
+                    .id(id)
+                    .valueType(str)
+                    .build();
+            Assertions.assertDoesNotThrow(
+                    () -> {
+                        var test = valueTypeDao.findById(id)
+                                .subscribeAsCompletionStage()
+                                .get()
+                                .orElse(null);
+                        Assertions.assertNotNull(test);
+                        Assertions.assertEquals(expected1, test);
+                        Assertions.assertNotNull(test.getCreateTime());
+                        Assertions.assertNull(test.getUpdateTime());
+                    }
+            );
+            var expected2 = ValueType.builder()
+                    .id(id)
+                    .valueType("value")
+                    .build();
+            Assertions.assertDoesNotThrow(
+                    () -> Assertions.assertEquals(
+                            id, valueTypeDao.update(expected2)
+                                    .subscribeAsCompletionStage()
+                                    .get()
+                                    .orElse(null)
+                    )
+            );
+            Assertions.assertDoesNotThrow(
+                    () -> {
+                        var test = valueTypeDao.findById(id)
+                                .subscribeAsCompletionStage()
+                                .get()
+                                .orElse(null);
+                        Assertions.assertNotNull(test);
+                        Assertions.assertEquals(expected2, test);
+                        Assertions.assertNotNull(test.getCreateTime());
+                        Assertions.assertNotNull(test.getUpdateTime());
+                    }
+            );
+            Assertions.assertDoesNotThrow(
+                    () -> {
+                        var test = valueTypeDao.findAll()
+                                .collect()
+                                .asList()
+                                .subscribeAsCompletionStage()
+                                .get();
+                        Assertions.assertNotNull(test);
+                        Assertions.assertFalse(test.isEmpty());
+                        Assertions.assertEquals(1, test.size());
+                    }
+            );
+        }
+    }
 
     @Nested
     @DisplayName("VocabularyDao")

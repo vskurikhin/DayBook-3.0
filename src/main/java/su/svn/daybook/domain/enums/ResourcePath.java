@@ -19,6 +19,7 @@ public enum ResourcePath {
     Put(ResourcePath.PUT),
     TagLabel(ResourcePath.TAG_LABEL),
     User(ResourcePath.USER),
+    ValueType(ResourcePath.VALUE_TYPE),
     Vocabulary(ResourcePath.VOCABULARY),
     Word(ResourcePath.WORD);
 
@@ -31,6 +32,7 @@ public enum ResourcePath {
     public static final String LANGUAGE = "/lang";
     public static final String TAG_LABEL = "/tag";
     public static final String USER = "/user";
+    public static final String VALUE_TYPE = "/value-type";
     public static final String VOCABULARY = "/vocabulary";
     public static final String WORD = "/word";
 
