@@ -48,10 +48,13 @@ public class DataTest {
     public static final String JSON_Word_Id_0 = "{\"word\":\"" + Word.NONE + "\"}";
     public static final String JSON_ARRAY_Word_0 = "[" + JSON_Word_0 + "]";
     public static final Language OBJECT_Language_0 = new Language(
-            0L, null, null, null, null, null, null, null
+            0L, null, null, null, null, false, true, 0
     );
-    public static final String JSON_Language_0 = "{\"id\":0}";
-    public static final String JSON_ARRAY_Language_0 = "[{\"id\":0}]";
+    public static final String JSON_Language_0 = """
+            {"id":0,"enabled":false,"visible":true,"flags":0}\
+            """;
+    public static final String JSON_ARRAY_Language_0 = "[" + JSON_Language_0 + "]";
+    public static final String JSON_Language_Id_0 = "{\"id\":0}";
     public static final Vocabulary OBJECT_Vocabulary_0 = new Vocabulary(
             0L, Vocabulary.NONE, null, null, null, null, false, true, 0
     );

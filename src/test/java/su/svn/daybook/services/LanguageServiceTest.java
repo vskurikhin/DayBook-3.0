@@ -23,9 +23,9 @@ import su.svn.daybook.domain.messages.ApiResponse;
 import su.svn.daybook.domain.model.Language;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @QuarkusTest
 class LanguageServiceTest {
@@ -35,131 +35,155 @@ class LanguageServiceTest {
 
     static LanguageDao mock;
 
-    static Uni<Optional<Language>> optionalUniTest = Uni.createFrom().item(Optional.of(DataTest.OBJECT_Language_0));
+    static final Uni<Optional<Language>> UNI_OPTIONAL_TEST = Uni.createFrom().item(Optional.of(DataTest.OBJECT_Language_0));
 
-    static Uni<Optional<Long>> optionalUniId = Uni.createFrom().item(Optional.of(0L));
+    static final Multi<Language> MULTI_TEST = Multi.createFrom().item(DataTest.OBJECT_Language_0);
 
-    static Uni<Optional<Long>> optionalUniEmptyId = Uni.createFrom().item(Optional.empty());
+    static final Multi<Language> MULTI_WITH_NULL = DataTest.createMultiWithNull(Language.class);
 
-    static Multi<Language> multiTest = Multi.createFrom().item(DataTest.OBJECT_Language_0);
-
-    static Multi<Language> multiEmpties = Multi.createFrom().empty();
-
-    static Multi<Language> multiWithNull = Multi.createFrom().item(() -> null);
+    static final Multi<Language> MULTI_EMPTIES = DataTest.createMultiEmpties(Language.class);
 
     @BeforeEach
     void setUp() {
         mock = Mockito.mock(LanguageDao.class);
-        Mockito.when(mock.findById(0L)).thenReturn(optionalUniTest);
+        Mockito.when(mock.findById(0L)).thenReturn(UNI_OPTIONAL_TEST);
         QuarkusMock.installMockForType(mock, LanguageDao.class);
     }
 
     @Test
-    void testMethod_getAll() {
-        Mockito.when(mock.findAll()).thenReturn(multiTest);
-        List<Answer> result = service.getAll()
+    void testWhenGetAllThenSingletonList() {
+        Mockito.when(mock.findAll()).thenReturn(MULTI_TEST);
+        List<Answer> result = new ArrayList<>();
+        Assertions.assertDoesNotThrow(() -> result.addAll(service.getAll()
                 .subscribe()
                 .asStream()
-                .peek(actual -> Assertions.assertEquals(Answer.of(DataTest.OBJECT_Language_0), actual))
-                .collect(Collectors.toList());
+                .peek(actual -> Assertions.assertEquals(Answer.of(DataTest.OBJECT_Language_0), actual)).toList()));
         Assertions.assertTrue(result.size() > 0);
     }
 
     @Test
-    void testMethod_getAll_whithEmptyResult() {
-        Mockito.when(mock.findAll()).thenReturn(multiEmpties);
-        List<Answer> result = service.getAll()
+    void testWhenGetAllThenEmpty() {
+        Mockito.when(mock.findAll()).thenReturn(MULTI_EMPTIES);
+        List<Answer> result = new ArrayList<>();
+        Assertions.assertDoesNotThrow(() -> result.addAll(service.getAll()
                 .subscribe()
                 .asStream()
-                .collect(Collectors.toList());
+                .toList()));
         Assertions.assertEquals(0, result.size());
     }
 
     @Test
-    void testMethod_getAll_whithNullResult() {
-        Mockito.when(mock.findAll()).thenReturn(multiWithNull);
-        List<Answer> result = service.getAll()
+    void testWhenGetAllThenNull() {
+        Mockito.when(mock.findAll()).thenReturn(MULTI_WITH_NULL);
+        List<Answer> result = new ArrayList<>();
+        Assertions.assertDoesNotThrow(() -> result.addAll(service.getAll()
                 .subscribe()
                 .asStream()
-                .collect(Collectors.toList());
+                .toList()));
         Assertions.assertEquals(0, result.size());
     }
 
     @Test
-    void testMethod_languageGet() {
-        service.languageGet("0")
+    void testWhenGetThenEntry() {
+        Assertions.assertDoesNotThrow(() -> service.get(0L)
                 .onItem()
-                .invoke(actual -> Assertions.assertEquals(Answer.of(Optional.of(DataTest.OBJECT_Language_0)), actual))
+                .invoke(actual -> Assertions.assertEquals(Answer.of(DataTest.OBJECT_Language_0), actual))
                 .await()
-                .indefinitely();
+                .indefinitely());
     }
 
     @Test
-    void testMethod_languageGet_whenNoNumberParameter() {
-        service.languageGet("noNumber")
-                .onItem()
-                .invoke(actual -> Assertions.assertEquals(DataTest.ANSWER_ERROR_NoNumber, actual))
-                .await()
-                .indefinitely();
-    }
-
-    @Test
-    void testMethod_languageGet_whenNullParameter() {
-        service.languageGet(null)
+    void testWhenGetThenNullParameter() {
+        Assertions.assertDoesNotThrow(() -> service.get(null)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(Answer.empty(), actual))
                 .await()
-                .indefinitely();
+                .indefinitely());
     }
 
     @Test
-    void testMethod_languageAdd() {
-        var expected = Answer.of(new ApiResponse<>(0L));
-        Mockito.when(mock.insert(DataTest.OBJECT_Language_0)).thenReturn(optionalUniId);
-        service.languageAdd(DataTest.OBJECT_Language_0)
+    void testWhenGetThenNoNumber() {
+        Assertions.assertDoesNotThrow(() -> service.get("noNumber")
+                .onItem()
+                .invoke(actual -> Assertions.assertEquals(Answer.noNumber("For input string: \"noNumber\""), actual))
+                .await()
+                .indefinitely());
+    }
+
+    @Test
+    void testWhenAddThenId() {
+        var expected = Answer.builder()
+                .error(201)
+                .payload(new ApiResponse<>(0L))
+                .build();
+        Mockito.when(mock.insert(DataTest.OBJECT_Language_0)).thenReturn(DataTest.UNI_OPTIONAL_ZERO_LONG);
+        Assertions.assertDoesNotThrow(() -> service.add(DataTest.OBJECT_Language_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
                 .await()
-                .indefinitely();
+                .indefinitely());
     }
 
     @Test
-    void testMethod_languagePut() {
-        Mockito.when(mock.update(DataTest.OBJECT_Language_0)).thenReturn(optionalUniId);
-        var expected = Answer.of(new ApiResponse<>(0L));
-        service.languagePut(DataTest.OBJECT_Language_0)
-                .onItem()
-                .invoke(actual -> Assertions.assertEquals(expected, actual))
-                .await()
-                .indefinitely();
-    }
-
-    @Test
-    void testMethod_languageDelete() {
-        Mockito.when(mock.delete(0L)).thenReturn(optionalUniId);
-        var expected = Answer.of(new ApiResponse<>(0L));
-        service.languageDelete("0")
-                .onItem()
-                .invoke(actual -> Assertions.assertEquals(expected, actual))
-                .await()
-                .indefinitely();
-    }
-
-    @Test
-    void testMethod_languageDelete_whenNoNumberParameter() {
-        service.languageDelete("noNumber")
-                .onItem()
-                .invoke(actual -> Assertions.assertEquals(DataTest.ANSWER_ERROR_NoNumber, actual))
-                .await()
-                .indefinitely();
-    }
-
-    @Test
-    void testMethod_languageDelete_whenNullParameter() {
-        service.languageDelete(null)
+    void testWhenAddThenEmpty() {
+        Mockito.when(mock.insert(DataTest.OBJECT_Language_0)).thenReturn(DataTest.UNI_OPTIONAL_EMPTY_LONG);
+        Assertions.assertDoesNotThrow(() -> service.add(DataTest.OBJECT_Language_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(Answer.empty(), actual))
                 .await()
-                .indefinitely();
+                .indefinitely());
+    }
+
+    @Test
+    void testWhenPutThenId() {
+        var expected = Answer.builder()
+                .error(202)
+                .payload(new ApiResponse<>(0L))
+                .build();
+        Mockito.when(mock.update(DataTest.OBJECT_Language_0)).thenReturn(DataTest.UNI_OPTIONAL_ZERO_LONG);
+        Assertions.assertDoesNotThrow(() -> service.put(DataTest.OBJECT_Language_0)
+                .onItem()
+                .invoke(actual -> Assertions.assertEquals(expected, actual))
+                .await()
+                .indefinitely());
+    }
+
+    @Test
+    void testWhenPutThenEmpty() {
+        Mockito.when(mock.update(DataTest.OBJECT_Language_0)).thenReturn(DataTest.UNI_OPTIONAL_ZERO_LONG);
+        Assertions.assertThrows(RuntimeException.class, () -> service.put(DataTest.OBJECT_Language_0)
+                .onItem()
+                .invoke(actual -> Assertions.assertEquals(Answer.empty(), actual))
+                .await()
+                .indefinitely());
+    }
+
+    @Test
+    void testWhenDeleteThenId() {
+        Mockito.when(mock.delete(0L)).thenReturn(DataTest.UNI_OPTIONAL_ZERO_LONG);
+        var expected = Answer.of(new ApiResponse<>(0L));
+        Assertions.assertDoesNotThrow(() -> service.delete(0L)
+                .onItem()
+                .invoke(actual -> Assertions.assertEquals(expected, actual))
+                .await()
+                .indefinitely());
+    }
+
+    @Test
+    void testWhenDeleteThenNoNumber() {
+        Assertions.assertDoesNotThrow(() -> service.delete("noNumber")
+                .onItem()
+                .invoke(actual -> Assertions.assertEquals(Answer.noNumber("For input string: \"noNumber\""), actual))
+                .await()
+                .indefinitely());
+    }
+
+    @Test
+    void testWhenDeleteThenNullParameter() {
+        Assertions.assertDoesNotThrow(() -> service.delete(null)
+                .onItem()
+                .invoke(actual -> Assertions.assertEquals(Answer.empty(), actual))
+                .await()
+                .indefinitely());
     }
 }

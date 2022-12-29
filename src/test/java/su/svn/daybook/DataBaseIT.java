@@ -30,6 +30,9 @@ public class DataBaseIT {
     UserNameDao userNameDao;
 
     @Inject
+    LanguageDao languagedao;
+
+    @Inject
     TagLabelDao tagLabelDao;
 
     @Inject
@@ -149,6 +152,132 @@ public class DataBaseIT {
                         Assertions.assertEquals(1, test.size());
                     }
             );
+        }
+    }
+
+    @Nested
+    @DisplayName("TagLabelDao")
+    class LanguageDaoTest {
+
+        Long id;
+
+        Long customId = Long.MIN_VALUE;
+
+        Language entry;
+
+        String str = "str";
+
+        @BeforeEach
+        void setUp() {
+            entry = Language.builder()
+                    .language(str)
+                    .build();
+            Assertions.assertDoesNotThrow(
+                    () -> {
+                        id = languagedao.insert(entry)
+                                .subscribeAsCompletionStage()
+                                .get()
+                                .orElse(null);
+                    }
+            );
+        }
+
+        @AfterEach
+        void tearDown() {
+            Assertions.assertDoesNotThrow(
+                    () -> Assertions.assertEquals(
+                            id, languagedao.delete(id)
+                                    .subscribeAsCompletionStage()
+                                    .get()
+                                    .orElse(null)
+                    )
+            );
+            Assertions.assertDoesNotThrow(
+                    () -> Assertions.assertEquals(
+                            0, languagedao.count()
+                                    .subscribeAsCompletionStage()
+                                    .get()
+                                    .orElse(null)
+                    )
+            );
+        }
+
+        @Test
+        void test() {
+            var expected1 = Language.builder()
+                    .id(id)
+                    .language(str)
+                    .build();
+            Assertions.assertDoesNotThrow(
+                    () -> {
+                        var test = languagedao.findById(id)
+                                .subscribeAsCompletionStage()
+                                .get()
+                                .orElse(null);
+                        Assertions.assertNotNull(test);
+                        Assertions.assertEquals(expected1, test);
+                        Assertions.assertNotNull(test.getCreateTime());
+                        Assertions.assertNull(test.getUpdateTime());
+                    }
+            );
+            var expected2 = Language.builder()
+                    .id(id)
+                    .language("value")
+                    .build();
+            Assertions.assertDoesNotThrow(
+                    () -> Assertions.assertEquals(
+                            id, languagedao.update(expected2)
+                                    .subscribeAsCompletionStage()
+                                    .get()
+                                    .orElse(null)
+                    )
+            );
+            Assertions.assertDoesNotThrow(
+                    () -> {
+                        var test = languagedao.findById(id)
+                                .subscribeAsCompletionStage()
+                                .get()
+                                .orElse(null);
+                        Assertions.assertNotNull(test);
+                        Assertions.assertEquals(expected2, test);
+                        Assertions.assertNotNull(test.getCreateTime());
+                        Assertions.assertNotNull(test.getUpdateTime());
+                    }
+            );
+            Assertions.assertDoesNotThrow(
+                    () -> {
+                        var test = languagedao.findAll()
+                                .collect()
+                                .asList()
+                                .subscribeAsCompletionStage()
+                                .get();
+                        Assertions.assertNotNull(test);
+                        Assertions.assertFalse(test.isEmpty());
+                        Assertions.assertEquals(1, test.size());
+                    }
+            );
+
+            var test = Language.builder()
+                    .id(customId)
+                    .language("language")
+                    .build();
+            var strId = new AtomicReference<String>();
+            Assertions.assertDoesNotThrow(
+                    () -> Assertions.assertEquals(
+                            customId, languagedao.insert(test)
+                            .subscribeAsCompletionStage()
+                            .get()
+                            .orElse(null))
+            );
+            Assertions.assertDoesNotThrow(
+                    () -> Assertions.assertEquals(
+                            customId, languagedao.delete(customId)
+                                    .subscribeAsCompletionStage()
+                                    .get()
+                                    .orElse(null)
+                    )
+            );
+
         }
     }
 

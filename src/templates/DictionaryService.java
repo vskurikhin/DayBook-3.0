@@ -42,8 +42,7 @@ public class @Name@Service extends AbstractService<@IdType@, @Name@> {
             return getEntry(getId@IdType@(o));
         } catch (NumberFormatException e) {
             LOG.errorf("get(%s)", o, e);
-            var numberError = new Answer(e.getMessage(), 404);
-            return Uni.createFrom().item(numberError);
+            return Uni.createFrom().item(Answer.noNumber(e.getMessage()));
         } catch (NoSuchElementException e) {
             LOG.errorf("get(%s)", o, e);
             return Uni.createFrom().item(Answer.empty());
@@ -116,8 +115,7 @@ public class @Name@Service extends AbstractService<@IdType@, @Name@> {
             return deleteEntry(getId@IdType@(o));
         } catch (NumberFormatException e) {
             LOG.errorf("delete(%s)", o, e);
-            var numberError = new Answer(e.getMessage(), 404);
-            return Uni.createFrom().item(numberError);
+            return Uni.createFrom().item(Answer.noNumber(e.getMessage()));
         } catch (NoSuchElementException e) {
             LOG.errorf("delete(%s)", o, e);
             return Uni.createFrom().item(Answer.empty());
