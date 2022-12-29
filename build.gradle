@@ -242,7 +242,8 @@ task generator() {
     def resource = new File("src/templates/DictionaryResource.java")
     def test = new File("src/templates/DictionaryTest.java")
     def createTable = new File("src/templates/create_table.sql")
-    def tableTriggers = new File("src/templates/table_triggers.sql")
+    def tableTriggers = new File("src/templates/triggers_table.sql")
+    def indexOnTable =new File("src/templates/idx_table.sql")
     doLast {
         genDictionary(model, projectDir, "src/main/java/su/svn/daybook/domain/model")
         genDictionary(dao, projectDir, "src/main/java/su/svn/daybook/domain/dao", "Dao")
@@ -251,6 +252,7 @@ task generator() {
         genDictionary(test, projectDir, "src/test/java/su/svn/daybook/domain/model", "Test")
         genSql(createTable, resourcesDb, resourcesDbPath, schemaName)
         genSql(tableTriggers, resourcesDb, resourcesDbPath, schemaName, 'triggers')
+        genSql(indexOnTable, resourcesDb, resourcesDbPath, schemaName, 'idx')
     }
 }
 
@@ -259,9 +261,9 @@ task generate() {
         def task = this.getProjectProperty('task', 'issue_1')
         def desc = this.getProjectProperty('desc', 'migration')
         def scriptName = "${task}_${desc}"
-        def version = getLastVersionFile(folderPath + "/")
-
         def folderPath = getChangeSetFolderPath(resourcesDbPath, schemaName)
+
+        def version = getLastVersionFile(folderPath + "/")
         def fileName = getChangeSetFileName(scriptName, version)
         def filePath = "${folderPath}/${fileName}"
         def logicalFilePath = "${resourcesDb}/changelog/${schemaName}/Change-Sets/${fileName}"
