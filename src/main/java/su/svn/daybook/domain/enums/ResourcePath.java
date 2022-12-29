@@ -16,6 +16,7 @@ public enum ResourcePath {
     I18n(ResourcePath.I18N),
     Id(ResourcePath.ID),
     Language(ResourcePath.LANGUAGE),
+    Setting(ResourcePath.SETTING),
     Put(ResourcePath.PUT),
     TagLabel(ResourcePath.TAG_LABEL),
     User(ResourcePath.USER),
@@ -30,6 +31,7 @@ public enum ResourcePath {
     public static final String PUT = "/put";
     public static final String I18N = "/i18n";
     public static final String LANGUAGE = "/lang";
+    public static final String SETTING = "/setting";
     public static final String TAG_LABEL = "/tag";
     public static final String USER = "/user";
     public static final String VALUE_TYPE = "/value-type";
