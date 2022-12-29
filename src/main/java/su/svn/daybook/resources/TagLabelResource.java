@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2021.12.06 18:10 by Victor N. Skurikhin.
+ * This file was last modified at 2022.01.11 17:44 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * TagLabelResource.java
@@ -8,69 +8,77 @@
 
 package su.svn.daybook.resources;
 
+import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
-import io.vertx.mutiny.core.eventbus.EventBus;
-import io.vertx.mutiny.core.eventbus.Message;
+import org.jboss.resteasy.reactive.RestResponse;
+import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
 import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.enums.ResourcePath;
-import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.model.TagLabel;
-import su.svn.daybook.domain.model.TagLabel;
+import su.svn.daybook.services.AbstractService;
+import su.svn.daybook.services.TagLabelService;
 
 import javax.inject.Inject;
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 
 @Path(ResourcePath.TAG_LABEL)
-public class TagLabelResource {
+public class TagLabelResource extends AbstractResource implements Resources<String, TagLabel> {
 
     @Inject
-    EventBus bus;
+    TagLabelService service;
+
+    @GET
+    @Path(ResourcePath.ALL)
+    @Produces("application/json")
+    public Multi<TagLabel> all() {
+        return getAll();
+    }
 
     @GET
     @Path(ResourcePath.ID)
     @Produces("application/json")
-    public Uni<Response> get(String id) {
-        return request(EventAddress.TAG_GET, id);
+    public Uni<Response> get(String id, @Context UriInfo uriInfo) {
+        return request(EventAddress.TAG_LABEL_GET, id, uriInfo);
     }
 
     @POST
-    @Path(ResourcePath.ADD)
     @Consumes("application/json")
     @Produces("application/json")
-    public Uni<Response> add(TagLabel tagLabel) {
-        return request(EventAddress.TAG_ADD, tagLabel);
+    public Uni<Response> post(TagLabel entry, @Context UriInfo uriInfo) {
+        return request(EventAddress.TAG_LABEL_ADD, entry, uriInfo);
     }
 
+
     @PUT
-    @Path(ResourcePath.PUT)
     @Consumes("application/json")
     @Produces("application/json")
-    public Uni<Response> put(TagLabel tagLabel) {
-        return request(EventAddress.TAG_PUT, tagLabel);
+    public Uni<Response> put(TagLabel entry, @Context UriInfo uriInfo) {
+        return request(EventAddress.TAG_LABEL_PUT, entry, uriInfo);
     }
 
     @DELETE
     @Path(ResourcePath.ID)
     @Produces("application/json")
-    public Uni<Response> delete(String id) {
-        return request(EventAddress.TAG_DEL, id);
+    public Uni<Response> delete(String id, @Context UriInfo uriInfo) {
+        return request(EventAddress.TAG_LABEL_DEL, id, uriInfo);
     }
 
-    private Uni<Response> request(String address, Object o) {
-        return bus.<Answer>request(address, o)
-                .onItem()
-                .transform(this::createResponseBuilder)
-                .onItem()
-                .transform(Response.ResponseBuilder::build);
+    @ServerExceptionMapper
+    public RestResponse<String> exception(Throwable x) {
+        return badRequest(x);
     }
 
-    private Response.ResponseBuilder createResponseBuilder(Message<Answer> message) {
-        if (message.body() == null) {
-            return Response.status(406, "body is null");
-        }
-        return message.body().getPayload() != null
-                ? Response.ok(message.body().getPayload())
-                : Response.status(message.body().getError(), message.body().getMessage());
+    @Override
+    public AbstractService<String, TagLabel> getService() {
+        return service;
     }
 }

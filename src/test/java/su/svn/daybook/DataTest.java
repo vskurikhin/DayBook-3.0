@@ -73,14 +73,6 @@ public class DataTest {
             """;
     public static final String JSON_ARRAY_I18n_0 = "[" + JSON_I18n_0 + "]";
     public static final String JSON_I18n_Id_0 = "{\"id\":0}";
-    public static final TagLabel OBJECT_TagLabel_0 = new TagLabel(
-            "test", null, null, null, null, false, true, 0
-    );
-    public static final String JSON_TagLabel_0 = """
-            {"id":"test","enabled":false,"visible":true,"flags":0}\
-            """;
-    public static final String JSON_ARRAY_TagLabel_0
-            = "[" + JSON_TagLabel_0 + "]";
     public static final UserName OBJECT_UserName_0 = new UserName(
             ZERO_UUID, "root", "password", null, null, false, true, 0
     );
@@ -109,5 +101,28 @@ public class DataTest {
 
     public static <T> Multi<T> createMultiWithNull(Class<T> t) {
         return Multi.createFrom().item(() -> null);
+    }
+
+
+    public static class TAG_LABEL {
+
+        public static final String ID = TagLabel.NONE.replace("-","").substring(0, 16);
+
+        public static final Uni<Optional<String>> UNI_OPTIONAL_ID = Uni.createFrom().item(Optional.of(ID));
+
+        public static Uni<Answer> UNI_ANSWER_API_RESPONSE_ID = Uni.createFrom().item(Answer.of(new ApiResponse<>(ID)));
+
+        public static final TagLabel OBJECT_0 = new TagLabel(
+                ID, TagLabel.NONE, null, null, null, false, true, 0
+        );
+        public static final String JSON_0 = """
+                {"id":"\
+                """ + ID + """
+                ","label":"\
+                """ + TagLabel.NONE + """
+                ","enabled":false,"visible":true,"flags":0}\
+                """;
+        public static final String JSON_ARRAY_SINGLETON_0
+                = "[" + JSON_0 + "]";
     }
 }

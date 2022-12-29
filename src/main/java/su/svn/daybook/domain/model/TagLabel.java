@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2021.12.07 07:56 by Victor N. Skurikhin.
+ * This file was last modified at 2022.01.12 22:58 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * TagLabel.java
@@ -8,6 +8,7 @@
 
 package su.svn.daybook.domain.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
@@ -15,7 +16,9 @@ import io.vertx.mutiny.pgclient.PgPool;
 import io.vertx.mutiny.sqlclient.Row;
 import io.vertx.mutiny.sqlclient.RowSet;
 import io.vertx.mutiny.sqlclient.Tuple;
+import su.svn.daybook.utils.StringUtil;
 
+import javax.annotation.Nonnull;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -26,6 +29,7 @@ import java.util.Objects;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public final class TagLabel implements StringIdentification, Marked, Owned, TimeUpdated, Serializable {
 
+    public static final String NONE = "519797ec-dba2-452b-b600-eb9dde6b57b8";
     public static final String SELECT_FROM_DICTIONARY_TAG_LABEL_WHERE_ID_$1 = """
             SELECT id, label, user_name, create_time, update_time, enabled, visible, flags
               FROM dictionary.tag_label
@@ -43,7 +47,7 @@ public final class TagLabel implements StringIdentification, Marked, Owned, Time
              ($1, $2, $3, $4, $5, $6)
              RETURNING id
             """;
-    public static final String INSERT_INTO_DICTIONARY_TAG_LABEL_WITH_DEFAULT_ID = """
+    public static final String INSERT_INTO_DICTIONARY_TAG_LABEL_DEFAULT_ID = """
             INSERT INTO dictionary.tag_label
              (id, label, user_name, enabled, visible, flags)
              VALUES
@@ -65,9 +69,10 @@ public final class TagLabel implements StringIdentification, Marked, Owned, Time
              WHERE id = $1
              RETURNING id
             """;
-    public static final String COUNT_DICTIONARY_TAG_LABE = "SELECT count(*) FROM dictionary.tag_label";
+    public static final String COUNT_DICTIONARY_TAG_LABEL = "SELECT count(*) FROM dictionary.tag_label";
     @Serial
-    private static final long serialVersionUID = 7430969393917118489L;
+    private static final long serialVersionUID = 2947209495026660348L;
+    public static final String ID = "id";
     private final String id;
     private final String label;
     private final String userName;
@@ -77,9 +82,15 @@ public final class TagLabel implements StringIdentification, Marked, Owned, Time
     private final boolean visible;
     private final int flags;
 
+    @JsonIgnore
+    private transient volatile int hash;
+
+    @JsonIgnore
+    private transient volatile boolean hashIsZero;
+
     public TagLabel() {
         this.id = null;
-        this.label = null;
+        this.label = NONE;
         this.userName = null;
         this.createTime = null;
         this.updateTime = null;
@@ -90,7 +101,7 @@ public final class TagLabel implements StringIdentification, Marked, Owned, Time
 
     public TagLabel(
             String id,
-            String label,
+            @Nonnull String label,
             String userName,
             LocalDateTime createTime,
             LocalDateTime updateTime,
@@ -109,7 +120,7 @@ public final class TagLabel implements StringIdentification, Marked, Owned, Time
 
     public static TagLabel from(Row row) {
         return new TagLabel(
-                row.getString("id"),
+                row.getString(ID),
                 row.getString("label"),
                 row.getString("user_name"),
                 row.getLocalDateTime("create_time"),
@@ -121,7 +132,8 @@ public final class TagLabel implements StringIdentification, Marked, Owned, Time
     }
 
     public static Uni<TagLabel> findById(PgPool client, String id) {
-        return client.preparedQuery(SELECT_FROM_DICTIONARY_TAG_LABEL_WHERE_ID_$1)
+        return client
+                .preparedQuery(SELECT_FROM_DICTIONARY_TAG_LABEL_WHERE_ID_$1)
                 .execute(Tuple.of(id))
                 .onItem()
                 .transform(RowSet::iterator)
@@ -141,43 +153,51 @@ public final class TagLabel implements StringIdentification, Marked, Owned, Time
     }
 
     public static Uni<String> delete(PgPool client, String id) {
-        return client.preparedQuery(DELETE_FROM_DICTIONARY_TAG_LABEL_WHERE_ID_$1)
+        return client.withTransaction(
+                connection -> connection.preparedQuery(DELETE_FROM_DICTIONARY_TAG_LABEL_WHERE_ID_$1)
                 .execute(Tuple.of(id))
                 .onItem()
-                .transform(pgRowSet -> pgRowSet.iterator().next().getString("id"));
+                .transform(pgRowSet -> pgRowSet.iterator().next().getString(ID)));
     }
 
     public static Uni<Long> count(PgPool client) {
-        return client.preparedQuery(COUNT_DICTIONARY_TAG_LABE)
+        return client
+                .preparedQuery(COUNT_DICTIONARY_TAG_LABEL)
                 .execute()
                 .onItem()
                 .transform(pgRowSet -> pgRowSet.iterator().next().getLong("count"));
     }
 
-    public static Builder builder() {
-        return new Builder();
+    public static TagLabel.Builder builder() {
+        return new TagLabel.Builder();
     }
 
     public Uni<String> insert(PgPool client) {
-        var sql = id == null
-                ? INSERT_INTO_DICTIONARY_TAG_LABEL_WITH_DEFAULT_ID
-                : INSERT_INTO_DICTIONARY_TAG_LABEL;
-        var tuple = id == null
-                ? Tuple.of(label, userName, enabled, visible, flags)
-                : Tuple.tuple(listOf());
-        return client.preparedQuery(sql)
-                .execute(tuple)
-                .onItem()
-                .transform(RowSet::iterator)
-                .onItem()
-                .transform(iterator -> iterator.hasNext() ? iterator.next().getString("id") : null);
+        return client.withTransaction(
+                connection -> connection.preparedQuery(caseInsertSql())
+                        .execute(caseInsertTuple())
+                        .onItem()
+                        .transform(RowSet::iterator)
+                        .onItem()
+                        .transform(iterator -> iterator.hasNext() ? iterator.next().getString(ID) : null));
     }
 
     public Uni<String> update(PgPool client) {
-        return client.preparedQuery(UPDATE_DICTIONARY_TAG_LABEL_WHERE_ID_$1)
-                .execute(Tuple.tuple(listOf()))
-                .onItem()
-                .transform(pgRowSet -> pgRowSet.iterator().next().getString("id"));
+        return client.withTransaction(
+                connection -> connection.preparedQuery(UPDATE_DICTIONARY_TAG_LABEL_WHERE_ID_$1)
+                        .execute(Tuple.tuple(listOf()))
+                        .onItem()
+                        .transform(pgRowSet -> pgRowSet.iterator().next().getString(ID)));
+    }
+
+    private String caseInsertSql() {
+        return id != null ? INSERT_INTO_DICTIONARY_TAG_LABEL : INSERT_INTO_DICTIONARY_TAG_LABEL_DEFAULT_ID;
+    }
+
+    private Tuple caseInsertTuple() {
+        return id != null
+                ? Tuple.of(StringUtil.generateTagId(id), label, userName, enabled, visible, flags)
+                : Tuple.of(label, userName, enabled, visible, flags);
     }
 
     private List<Object> listOf() {
@@ -228,24 +248,37 @@ public final class TagLabel implements StringIdentification, Marked, Owned, Time
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        TagLabel tagLabel = (TagLabel) o;
-        return enabled == tagLabel.enabled
-                && visible == tagLabel.visible
-                && flags == tagLabel.flags
-                && Objects.equals(id, tagLabel.id)
-                && Objects.equals(label, tagLabel.label)
-                && Objects.equals(userName, tagLabel.userName);
+        var that = (TagLabel) o;
+        return enabled == that.enabled
+                && visible == that.visible
+                && flags == that.flags
+                && Objects.equals(id, that.id)
+                && Objects.equals(label, that.label)
+                && Objects.equals(userName, that.userName);
     }
 
     @Override
     public int hashCode() {
+        int h = hash;
+        if (h == 0 && !hashIsZero) {
+            h = calculateHashCode();
+            if (h == 0) {
+                hashIsZero = true;
+            } else {
+                hash = h;
+            }
+        }
+        return h;
+    }
+
+    private int calculateHashCode() {
         return Objects.hash(id, label, userName, enabled, visible, flags);
     }
 
     @Override
     public String toString() {
         return "TagLabel{" +
-                "id='" + id + '\'' +
+                "id=" + id +
                 ", label='" + label + '\'' +
                 ", userName='" + userName + '\'' +
                 ", createTime=" + createTime +
@@ -274,7 +307,7 @@ public final class TagLabel implements StringIdentification, Marked, Owned, Time
             return this;
         }
 
-        public Builder label(String label) {
+        public Builder label(@Nonnull String label) {
             this.label = label;
             return this;
         }

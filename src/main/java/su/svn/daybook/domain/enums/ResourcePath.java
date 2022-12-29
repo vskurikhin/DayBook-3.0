@@ -13,38 +13,26 @@ public enum ResourcePath {
     Add(ResourcePath.ADD),
     All(ResourcePath.ALL),
     Codifier(ResourcePath.CODIFIER),
-    Codifiers(ResourcePath.CODIFIERS),
     I18n(ResourcePath.I18N),
     Id(ResourcePath.ID),
     Language(ResourcePath.LANGUAGE),
-    Languages(ResourcePath.LANGUAGES),
     Put(ResourcePath.PUT),
     TagLabel(ResourcePath.TAG_LABEL),
-    TagLabels(ResourcePath.TAG_LABELS),
     User(ResourcePath.USER),
-    Users(ResourcePath.USERS),
     Vocabulary(ResourcePath.VOCABULARY),
-    Vocabularies(ResourcePath.VOCABULARIES),
-    Word(ResourcePath.WORD),
-    Words(ResourcePath.WORDS);
+    Word(ResourcePath.WORD);
 
     public static final String ADD = "/add";
     public static final String ALL = "/all";
     public static final String CODIFIER = "/code";
-    public static final String CODIFIERS = "/codes";
     public static final String ID = "/{id}";
     public static final String PUT = "/put";
     public static final String I18N = "/i18n";
     public static final String LANGUAGE = "/lang";
-    public static final String LANGUAGES = "/langs";
     public static final String TAG_LABEL = "/tag";
-    public static final String TAG_LABELS = "/tags";
     public static final String USER = "/user";
-    public static final String USERS = "/users";
     public static final String VOCABULARY = "/vocabulary";
-    public static final String VOCABULARIES = "/vocabularies";
     public static final String WORD = "/word";
-    public static final String WORDS = "/words";
 
     private final String value;
 
