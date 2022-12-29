@@ -10,6 +10,7 @@ package su.svn.daybook.resources;
 
 import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
+import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,62 +18,71 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import su.svn.daybook.DataTest;
 import su.svn.daybook.domain.messages.Answer;
-import su.svn.daybook.domain.messages.ApiResponse;
 import su.svn.daybook.services.LanguageService;
 
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 
 import static io.restassured.RestAssured.given;
-import static org.junit.jupiter.api.Assertions.*;
 
 @QuarkusTest
 class LanguageResourceTest {
 
-    static Uni<Answer> tezd = Uni.createFrom()
+    static Uni<Answer> test = Uni.createFrom()
             .item(1)
             .onItem()
             .transform(i -> Answer.of(DataTest.OBJECT_Language_0));
 
-    static Uni<Answer> empty = Uni.createFrom().item(Answer.empty());
-
-    static Uni<Answer> nullAnswer = Uni.createFrom().item(() -> null);
-
-    static Uni<Answer> tezdId = Uni.createFrom().item(Answer.of(new ApiResponse(0L)));
+    LanguageService mock;
 
     @BeforeEach
     void setUp() {
-        LanguageService mock = Mockito.mock(LanguageService.class);
-        Mockito.when(mock.languageGet("0")).thenReturn(tezd);
-        Mockito.when(mock.languageGet(Integer.toString(Integer.MAX_VALUE))).thenReturn(empty);
-        Mockito.when(mock.languageGet(Integer.toString(Integer.MIN_VALUE))).thenReturn(nullAnswer);
-        Mockito.when(mock.languageAdd(DataTest.OBJECT_Language_0)).thenReturn(tezdId);
-        Mockito.when(mock.languagePut(DataTest.OBJECT_Language_0)).thenReturn(tezdId);
-        Mockito.when(mock.languageDelete("0")).thenReturn(tezdId);
+        mock = Mockito.mock(LanguageService.class);
+        Mockito.when(mock.get(0L)).thenReturn(test);
+        Mockito.when(mock.get("0")).thenReturn(test);
+        Mockito.when(mock.get(1L)).thenThrow(RuntimeException.class);
+        Mockito.when(mock.get((long) Integer.MAX_VALUE)).thenReturn(DataTest.UNI_ANSWER_EMPTY);
+        Mockito.when(mock.get(Long.toString(Integer.MAX_VALUE))).thenReturn(DataTest.UNI_ANSWER_EMPTY);
+        Mockito.when(mock.get((long) Integer.MIN_VALUE)).thenReturn(DataTest.UNI_ANSWER_NULL);
+        Mockito.when(mock.get(Long.toString(Integer.MIN_VALUE))).thenReturn(DataTest.UNI_ANSWER_NULL);
+        Mockito.when(mock.getAll()).thenReturn(Multi.createFrom().item(Answer.of(DataTest.OBJECT_Language_0)));
+        Mockito.when(mock.add(DataTest.OBJECT_Language_0)).thenReturn(DataTest.UNI_ANSWER_API_RESPONSE_ZERO_LONG);
+        Mockito.when(mock.put(DataTest.OBJECT_Language_0)).thenReturn(DataTest.UNI_ANSWER_API_RESPONSE_ZERO_LONG);
+        Mockito.when(mock.delete(0L)).thenReturn(DataTest.UNI_ANSWER_API_RESPONSE_ZERO_LONG);
+        Mockito.when(mock.delete("0")).thenReturn(DataTest.UNI_ANSWER_API_RESPONSE_ZERO_LONG);
         QuarkusMock.installMockForType(mock, LanguageService.class);
     }
 
     @Test
-    void testEndpoint_get() {
+    void testEndpointGet() {
         given()
                 .when()
                 .get("/lang/0")
                 .then()
                 .statusCode(200)
-                .body(CoreMatchers.startsWith("{\"id\":0}"));
+                .body(CoreMatchers.startsWith(DataTest.JSON_Language_0));
     }
 
     @Test
-    void testEndpoint_get_whenNone() {
+    void testEndpointGetThenRuntimeException() {
+        given()
+                .when()
+                .get("/lang/1")
+                .then()
+                .statusCode(400);
+    }
+
+    @Test
+    void testEndpointGetWhenEmpty() {
         given()
                 .when()
                 .get("/lang/" + Integer.MAX_VALUE)
                 .then()
-                .statusCode(200);
+                .statusCode(404);
     }
 
     @Test
-    void testEndpoint_get_whenNull() {
+    void testEndpointGetWhenNull() {
         given()
                 .when()
                 .get("/lang/" + Integer.MIN_VALUE)
@@ -81,36 +91,46 @@ class LanguageResourceTest {
     }
 
     @Test
-    void testEndpoint_add() {
+    void testEndpointGetAll() {
+        given()
+                .when()
+                .get("/lang/all")
+                .then()
+                .statusCode(200)
+                .body(CoreMatchers.startsWith(DataTest.JSON_ARRAY_Language_0));
+    }
+
+    @Test
+    void testEndpointAdd() {
         given()
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                 .body(DataTest.JSON_Language_0)
                 .when()
-                .post("/lang/add")
+                .post("/lang")
                 .then()
                 .statusCode(200)
-                .body(CoreMatchers.startsWith(DataTest.JSON_Language_0));
+                .body(CoreMatchers.startsWith("{\"id\":0"));
     }
 
     @Test
-    void testEndpoint_put() {
+    void testEndpointPut() {
         given()
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                 .body(DataTest.JSON_Language_0)
                 .when()
-                .put("/lang/put")
+                .put("/lang")
                 .then()
                 .statusCode(200)
-                .body(CoreMatchers.startsWith(DataTest.JSON_Language_0));
+                .body(CoreMatchers.startsWith(DataTest.JSON_Language_Id_0));
     }
 
     @Test
-    void testEndpoint_delete() {
+    void testEndpointDelete() {
         given()
                 .when()
                 .delete("/lang/0")
                 .then()
                 .statusCode(200)
-                .body(CoreMatchers.startsWith(DataTest.JSON_Language_0));
+                .body(CoreMatchers.startsWith(DataTest.JSON_Language_Id_0));
     }
 }

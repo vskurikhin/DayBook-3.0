@@ -35,6 +35,7 @@ class CodifierResourceTest {
     void setUp() {
         mock = Mockito.mock(CodifierService.class);
         Mockito.when(mock.get(Codifier.NONE)).thenReturn(test);
+        Mockito.when(mock.get(RuntimeException.class.getSimpleName())).thenThrow(RuntimeException.class);
         Mockito.when(mock.get(Integer.toString(Integer.MAX_VALUE))).thenReturn(DataTest.UNI_ANSWER_EMPTY);
         Mockito.when(mock.get(Integer.toString(Integer.MIN_VALUE))).thenReturn(DataTest.UNI_ANSWER_NULL);
         Mockito.when(mock.getAll()).thenReturn(Multi.createFrom().item(Answer.of(DataTest.OBJECT_Codifier_0)));
@@ -52,6 +53,15 @@ class CodifierResourceTest {
                 .then()
                 .statusCode(200)
                 .body(CoreMatchers.startsWith(DataTest.JSON_Codifier_0));
+    }
+
+    @Test
+    void testEndpointGetWhenRuntimeException() {
+        given()
+                .when()
+                .get("/code/" + RuntimeException.class.getSimpleName())
+                .then()
+                .statusCode(400);
     }
 
     @Test

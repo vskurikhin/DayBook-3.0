@@ -25,7 +25,6 @@ import su.svn.daybook.domain.model.Word;
 import javax.inject.Inject;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @QuarkusTest
 class WordServiceTest {
@@ -61,7 +60,7 @@ class WordServiceTest {
                 .subscribe()
                 .asStream()
                 .peek(actual -> Assertions.assertEquals(Answer.of(DataTest.OBJECT_Word_0), actual))
-                .collect(Collectors.toList());
+                .toList();
         Assertions.assertTrue(result.size() > 0);
     }
 
@@ -71,7 +70,7 @@ class WordServiceTest {
         List<Answer> result = service.getAll()
                 .subscribe()
                 .asStream()
-                .collect(Collectors.toList());
+                .toList();
         Assertions.assertEquals(0, result.size());
     }
 
@@ -81,7 +80,7 @@ class WordServiceTest {
         List<Answer> result = service.getAll()
                 .subscribe()
                 .asStream()
-                .collect(Collectors.toList());
+                .toList();
         Assertions.assertEquals(0, result.size());
     }
 
