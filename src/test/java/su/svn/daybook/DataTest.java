@@ -66,9 +66,13 @@ public class DataTest {
     public static final String JSON_Vocabulary_Id_0 = "{\"id\":0";
     public static final String JSON_ARRAY_Vocabulary_0 = "[" + JSON_Vocabulary_0 + "]";
     public static final I18n OBJECT_I18n_0 = new I18n(
-            0L, null, null, null, null, null, null, null, null, null
+            0L, 0L, null, null, null, null, null, false, true, 0
     );
-    public static final String JSON_I18n_0 = "{\"id\":0}";
+    public static final String JSON_I18n_0 =  """
+            {"id":0,"languageId":0,"enabled":false,"visible":true,"flags":0}\
+            """;
+    public static final String JSON_ARRAY_I18n_0 = "[" + JSON_I18n_0 + "]";
+    public static final String JSON_I18n_Id_0 = "{\"id\":0}";
     public static final TagLabel OBJECT_TagLabel_0 = new TagLabel(
             "test", null, null, null, null, false, true, 0
     );

@@ -179,8 +179,8 @@ public final class @Name@ implements @IdType@Identification, Marked, Owned, Time
 
     public Uni<@IdType@> insert(PgPool client) {
         return client.withTransaction(
-                connection -> connection.preparedQuery(INSERT_INTO_@SCHEMA@_@TABLE@)
-                        .execute(Tuple.of(@key@, @value@, userName, enabled, visible, flags))
+                connection -> connection.preparedQuery(caseInsertSql())
+                        .execute(caseInsertTuple())
                         .onItem()
                         .transform(RowSet::iterator)
                         .onItem()
