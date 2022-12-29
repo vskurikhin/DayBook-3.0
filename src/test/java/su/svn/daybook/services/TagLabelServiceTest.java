@@ -15,9 +15,9 @@ import su.svn.daybook.domain.messages.ApiResponse;
 import su.svn.daybook.domain.model.TagLabel;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @QuarkusTest
 class TagLabelServiceTest {
@@ -27,155 +27,137 @@ class TagLabelServiceTest {
 
     static TagLabelDao mock;
 
-    static Uni<Optional<TagLabel>> optionalUniTest = Uni.createFrom().item(Optional.of(DataTest.OBJECT_TagLabel_0));
+    static final Uni<Optional<TagLabel>> UNI_OPTIONAL_TEST = Uni.createFrom().item(Optional.of(DataTest.TAG_LABEL.OBJECT_0));
 
-    static Uni<Optional<String>> optionalUniId = Uni.createFrom().item(Optional.of("test"));
+    static final Multi<TagLabel> MULTI_TEST = Multi.createFrom().item(DataTest.TAG_LABEL.OBJECT_0);
 
-    static Uni<Optional<String>> optionalUniEmptyId = Uni.createFrom().item(Optional.empty());
+    static final Multi<TagLabel> MULTI_WITH_NULL = DataTest.createMultiWithNull(TagLabel.class);
 
-    static Uni<Optional<TagLabel>> optionalUniEmptyTagLabel = Uni.createFrom().item(Optional.empty());
-
-    static Multi<TagLabel> multiTest = Multi.createFrom().item(DataTest.OBJECT_TagLabel_0);
-
-    static Multi<TagLabel> multiEmpties = Multi.createFrom().empty();
-
-    static Multi<TagLabel> multiWithNull = Multi.createFrom().item(() -> null);
+    static final Multi<TagLabel> MULTI_EMPTIES = DataTest.createMultiEmpties(TagLabel.class);
 
     @BeforeEach
     void setUp() {
         mock = Mockito.mock(TagLabelDao.class);
-        Mockito.when(mock.findById("test")).thenReturn(optionalUniTest);
-        Mockito.when(mock.delete("no")).thenReturn(optionalUniEmptyId);
-        Mockito.when(mock.findById("no")).thenReturn(optionalUniEmptyTagLabel);
+        Mockito.when(mock.findById(DataTest.TAG_LABEL.ID)).thenReturn(UNI_OPTIONAL_TEST);
         QuarkusMock.installMockForType(mock, TagLabelDao.class);
     }
 
     @Test
-    void testMethod_getAll() {
-        Mockito.when(mock.findAll()).thenReturn(multiTest);
-        List<Answer> result = service.getAll()
+    void testWhenGetAllThenSingletonList() {
+        Mockito.when(mock.findAll()).thenReturn(MULTI_TEST);
+        List<Answer> result = new ArrayList<>();
+        Assertions.assertDoesNotThrow(() -> result.addAll(service.getAll()
                 .subscribe()
                 .asStream()
-                .peek(actual -> Assertions.assertEquals(Answer.of(DataTest.OBJECT_TagLabel_0), actual))
-                .collect(Collectors.toList());
+                .peek(actual -> Assertions.assertEquals(Answer.of(DataTest.TAG_LABEL.OBJECT_0), actual)).toList()));
         Assertions.assertTrue(result.size() > 0);
     }
 
     @Test
-    void testMethod_getAll_whithEmptyResult() {
-        Mockito.when(mock.findAll()).thenReturn(multiEmpties);
-        List<Answer> result = service.getAll()
+    void testWhenGetAllThenEmpty() {
+        Mockito.when(mock.findAll()).thenReturn(MULTI_EMPTIES);
+        List<Answer> result = new ArrayList<>();
+        Assertions.assertDoesNotThrow(() -> result.addAll(service.getAll()
                 .subscribe()
                 .asStream()
-                .collect(Collectors.toList());
+                .toList()));
         Assertions.assertEquals(0, result.size());
     }
 
     @Test
-    void testMethod_getAll_whithNullResult() {
-        Mockito.when(mock.findAll()).thenReturn(multiWithNull);
-        List<Answer> result = service.getAll()
+    void testWhenGetAllThenNull() {
+        Mockito.when(mock.findAll()).thenReturn(MULTI_WITH_NULL);
+        List<Answer> result = new ArrayList<>();
+        Assertions.assertDoesNotThrow(() -> result.addAll(service.getAll()
                 .subscribe()
                 .asStream()
-                .collect(Collectors.toList());
+                .toList()));
         Assertions.assertEquals(0, result.size());
     }
 
     @Test
-    void testMethod_wordGet() {
-        service.tagGet("test")
+    void testWhenGetThenEntry() {
+        Assertions.assertDoesNotThrow(() -> service.get(DataTest.TAG_LABEL.ID)
                 .onItem()
-                .invoke(actual -> Assertions.assertEquals(Answer.of(Optional.of(DataTest.OBJECT_TagLabel_0)), actual))
+                .invoke(actual -> Assertions.assertEquals(Answer.of(DataTest.TAG_LABEL.OBJECT_0), actual))
                 .await()
-                .indefinitely();
+                .indefinitely());
     }
 
     @Test
-    void testMethod_wordGet_whenNoNumberParameter() {
-        service.tagGet("no")
-                .onItem()
-                .invoke(actual -> Assertions.assertEquals(DataTest.ANSWER_ERROR_EMPTY, actual))
-                .await()
-                .indefinitely();
-    }
-
-    @Test
-    void testMethod_wordGet_whenNullParameter() {
-        service.tagGet(null)
+    void testWhenGetThenNullParameter() {
+        Assertions.assertDoesNotThrow(() -> service.get(null)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(Answer.empty(), actual))
                 .await()
-                .indefinitely();
+                .indefinitely());
     }
 
     @Test
-    void testMethod_wordAdd() {
-        var expected = Answer.of(new ApiResponse<>("test"));
-        Mockito.when(mock.insert(DataTest.OBJECT_TagLabel_0)).thenReturn(optionalUniId);
-        service.tagAdd(DataTest.OBJECT_TagLabel_0)
+    void testWhenAddThenId() {
+        var expected = Answer.builder()
+                .error(201)
+                .payload(new ApiResponse<>(DataTest.TAG_LABEL.ID))
+                .build();
+        Mockito.when(mock.insert(DataTest.TAG_LABEL.OBJECT_0)).thenReturn(DataTest.TAG_LABEL.UNI_OPTIONAL_ID);
+        Assertions.assertDoesNotThrow(() -> service.add(DataTest.TAG_LABEL.OBJECT_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
                 .await()
-                .indefinitely();
+                .indefinitely());
     }
 
     @Test
-    void testMethod_wordAdd_whithEmptyResult() {
-        Mockito.when(mock.insert(DataTest.OBJECT_TagLabel_0)).thenReturn(optionalUniEmptyId);
-        service.tagAdd(DataTest.OBJECT_TagLabel_0)
+    void testWhenAddThenEmpty() {
+        Mockito.when(mock.insert(DataTest.TAG_LABEL.OBJECT_0)).thenReturn(DataTest.UNI_OPTIONAL_EMPTY_STRING);
+        Assertions.assertDoesNotThrow(() -> service.add(DataTest.TAG_LABEL.OBJECT_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(Answer.empty(), actual))
                 .await()
-                .indefinitely();
+                .indefinitely());
     }
 
     @Test
-    void testMethod_wordPut() {
-        Mockito.when(mock.update(DataTest.OBJECT_TagLabel_0)).thenReturn(optionalUniId);
-        var expected = Answer.of(new ApiResponse<>("test"));
-        service.tagPut(DataTest.OBJECT_TagLabel_0)
+    void testWhenPutThenId() {
+        var expected = Answer.builder()
+                .error(202)
+                .payload(new ApiResponse<>(DataTest.TAG_LABEL.ID))
+                .build();
+        Mockito.when(mock.update(DataTest.TAG_LABEL.OBJECT_0)).thenReturn(DataTest.TAG_LABEL.UNI_OPTIONAL_ID);
+        Assertions.assertDoesNotThrow(() -> service.put(DataTest.TAG_LABEL.OBJECT_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
                 .await()
-                .indefinitely();
+                .indefinitely());
     }
 
     @Test
-    void testMethod_codePut_whithEmptyResult() {
-        Mockito.when(mock.update(DataTest.OBJECT_TagLabel_0)).thenReturn(optionalUniEmptyId);
-        service.tagPut(DataTest.OBJECT_TagLabel_0)
+    void testWhenPutThenEmpty() {
+        Mockito.when(mock.update(DataTest.TAG_LABEL.OBJECT_0)).thenReturn(DataTest.UNI_OPTIONAL_EMPTY_STRING);
+        Assertions.assertThrows(RuntimeException.class, () -> service.put(DataTest.TAG_LABEL.OBJECT_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(Answer.empty(), actual))
                 .await()
-                .indefinitely();
+                .indefinitely());
     }
 
     @Test
-    void testMethod_wordDelete() {
-        Mockito.when(mock.delete("test")).thenReturn(optionalUniId);
-        var expected = Answer.of(new ApiResponse<>("test"));
-        service.tagDelete("test")
+    void testWhenDeleteThenId() {
+        Mockito.when(mock.delete(DataTest.TAG_LABEL.ID)).thenReturn(DataTest.TAG_LABEL.UNI_OPTIONAL_ID);
+        var expected = Answer.of(new ApiResponse<>(DataTest.TAG_LABEL.ID));
+        Assertions.assertDoesNotThrow(() -> service.delete(DataTest.TAG_LABEL.ID)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
                 .await()
-                .indefinitely();
+                .indefinitely());
     }
 
     @Test
-    void testMethod_wordDelete_whenNoNumberParameter() {
-        service.tagDelete("no")
-                .onItem()
-                .invoke(actual -> Assertions.assertEquals(DataTest.ANSWER_ERROR_EMPTY, actual))
-                .await()
-                .indefinitely();
-    }
-
-    @Test
-    void testMethod_wordDelete_whenNullParameter() {
-        service.tagDelete(null)
+    void testWhenDeleteThenNullParameter() {
+        Assertions.assertDoesNotThrow(() -> service.delete(null)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(Answer.empty(), actual))
                 .await()
-                .indefinitely();
+                .indefinitely());
     }
 }

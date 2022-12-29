@@ -22,10 +22,10 @@ public enum EventAddress {
     LanguageDel(EventAddress.LANGUAGE_DEL),
     LanguageGet(EventAddress.LANGUAGE_GET),
     LanguagePut(EventAddress.LANGUAGE_PUT),
-    TagAdd(EventAddress.TAG_ADD),
-    TagDel(EventAddress.TAG_DEL),
-    TagGet(EventAddress.TAG_GET),
-    TagPut(EventAddress.TAG_PUT),
+    TagLabelAdd(EventAddress.TAG_LABEL_ADD),
+    TagLabelDel(EventAddress.TAG_LABEL_DEL),
+    TagLabelGet(EventAddress.TAG_LABEL_GET),
+    TagLabelPut(EventAddress.TAG_LABEL_PUT),
     UserAdd(EventAddress.USER_ADD),
     UserGet(EventAddress.USER_GET),
     UserPut(EventAddress.USER_PUT),
@@ -55,10 +55,10 @@ public enum EventAddress {
     public static final String LANGUAGE_DEL = "language_del";
     public static final String LANGUAGE_GET = "language_get";
     public static final String LANGUAGE_PUT = "language_put";
-    public static final String TAG_ADD = "tag_add";
-    public static final String TAG_GET = "tag_get";
-    public static final String TAG_PUT = "tag_put";
-    public static final String TAG_DEL = "tag_del";
+    public static final String TAG_LABEL_ADD = "tag_add";
+    public static final String TAG_LABEL_GET = "tag_get";
+    public static final String TAG_LABEL_PUT = "tag_put";
+    public static final String TAG_LABEL_DEL = "tag_del";
     public static final String USER_ADD = "user_add";
     public static final String USER_GET = "user_get";
     public static final String USER_PUT = "user_put";

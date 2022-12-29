@@ -317,7 +317,7 @@ public final class @Name@ implements @IdType@Identification, Marked, Owned, Time
             return this;
         }
 
-        public Builder @key@(@KType@ @key@) {
+        public Builder @key@(@Nonnull @KType@ @key@) {
             this.@key@ = @key@;
             return this;
         }
