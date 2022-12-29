@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import su.svn.daybook.DataTest;
+import su.svn.daybook.TestData;
 import su.svn.daybook.domain.dao.CodifierDao;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.messages.ApiResponse;
@@ -30,13 +30,13 @@ class CodifierServiceTest {
 
     static final Uni<Optional<String>> UNI_OPTIONAL_NONE_STRING = Uni.createFrom().item(Optional.of(Codifier.NONE));
 
-    static final Uni<Optional<Codifier>> UNI_OPTIONAL_TEST = Uni.createFrom().item(Optional.of(DataTest.OBJECT_Codifier_0));
+    static final Uni<Optional<Codifier>> UNI_OPTIONAL_TEST = Uni.createFrom().item(Optional.of(TestData.CODIFIER.OBJECT_0));
 
-    static final Multi<Codifier> MULTI_TEST = Multi.createFrom().item(DataTest.OBJECT_Codifier_0);
+    static final Multi<Codifier> MULTI_TEST = Multi.createFrom().item(TestData.CODIFIER.OBJECT_0);
 
-    static final Multi<Codifier> MULTI_WITH_NULL = DataTest.createMultiWithNull(Codifier.class);
+    static final Multi<Codifier> MULTI_WITH_NULL = TestData.createMultiWithNull(Codifier.class);
 
-    static final Multi<Codifier> MULTI_EMPTIES = DataTest.createMultiEmpties(Codifier.class);
+    static final Multi<Codifier> MULTI_EMPTIES = TestData.createMultiEmpties(Codifier.class);
 
     @BeforeEach
     void setUp() {
@@ -53,7 +53,7 @@ class CodifierServiceTest {
         Assertions.assertDoesNotThrow(() -> result.addAll(service.getAll()
                 .subscribe()
                 .asStream()
-                .peek(actual -> Assertions.assertEquals(Answer.of(DataTest.OBJECT_Codifier_0), actual)).toList()));
+                .peek(actual -> Assertions.assertEquals(Answer.of(TestData.CODIFIER.OBJECT_0), actual)).toList()));
         Assertions.assertTrue(result.size() > 0);
     }
 
@@ -83,7 +83,7 @@ class CodifierServiceTest {
     void testWhenGetThenEntry() {
         Assertions.assertDoesNotThrow(() -> service.get(Codifier.NONE)
                 .onItem()
-                .invoke(actual -> Assertions.assertEquals(Answer.of(DataTest.OBJECT_Codifier_0), actual))
+                .invoke(actual -> Assertions.assertEquals(Answer.of(TestData.CODIFIER.OBJECT_0), actual))
                 .await()
                 .indefinitely());
     }
@@ -103,8 +103,8 @@ class CodifierServiceTest {
                 .error(201)
                 .payload(new ApiResponse<>(Codifier.NONE))
                 .build();
-        Mockito.when(mock.insert(DataTest.OBJECT_Codifier_0)).thenReturn(UNI_OPTIONAL_NONE_STRING);
-        Assertions.assertDoesNotThrow(() -> service.add(DataTest.OBJECT_Codifier_0)
+        Mockito.when(mock.insert(TestData.CODIFIER.OBJECT_0)).thenReturn(UNI_OPTIONAL_NONE_STRING);
+        Assertions.assertDoesNotThrow(() -> service.add(TestData.CODIFIER.OBJECT_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
                 .await()
@@ -113,8 +113,8 @@ class CodifierServiceTest {
 
     @Test
     void testWhenAddThenEmpty() {
-        Mockito.when(mock.insert(DataTest.OBJECT_Codifier_0)).thenReturn(DataTest.UNI_OPTIONAL_EMPTY_STRING);
-        Assertions.assertDoesNotThrow(() -> service.add(DataTest.OBJECT_Codifier_0)
+        Mockito.when(mock.insert(TestData.CODIFIER.OBJECT_0)).thenReturn(TestData.UNI_OPTIONAL_EMPTY_STRING);
+        Assertions.assertDoesNotThrow(() -> service.add(TestData.CODIFIER.OBJECT_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(Answer.empty(), actual))
                 .await()
@@ -127,8 +127,8 @@ class CodifierServiceTest {
                 .error(202)
                 .payload(new ApiResponse<>(Codifier.NONE))
                 .build();
-        Mockito.when(mock.update(DataTest.OBJECT_Codifier_0)).thenReturn(UNI_OPTIONAL_NONE_STRING);
-        Assertions.assertDoesNotThrow(() -> service.put(DataTest.OBJECT_Codifier_0)
+        Mockito.when(mock.update(TestData.CODIFIER.OBJECT_0)).thenReturn(UNI_OPTIONAL_NONE_STRING);
+        Assertions.assertDoesNotThrow(() -> service.put(TestData.CODIFIER.OBJECT_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
                 .await()
@@ -137,8 +137,8 @@ class CodifierServiceTest {
 
     @Test
     void testWhenPutThenEmpty() {
-        Mockito.when(mock.update(DataTest.OBJECT_Codifier_0)).thenReturn(DataTest.UNI_OPTIONAL_EMPTY_STRING);
-        Assertions.assertThrows(CompositeException.class, () -> service.put(DataTest.OBJECT_Codifier_0)
+        Mockito.when(mock.update(TestData.CODIFIER.OBJECT_0)).thenReturn(TestData.UNI_OPTIONAL_EMPTY_STRING);
+        Assertions.assertThrows(CompositeException.class, () -> service.put(TestData.CODIFIER.OBJECT_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(Answer.empty(), actual))
                 .await()

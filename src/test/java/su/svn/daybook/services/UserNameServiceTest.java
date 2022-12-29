@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import su.svn.daybook.DataTest;
+import su.svn.daybook.TestData;
 import su.svn.daybook.domain.dao.UserNameDao;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.messages.ApiResponse;
@@ -27,16 +27,16 @@ class UserNameServiceTest {
 
     static UserNameDao mock;
 
-    static Uni<Optional<UserName>> uniOptionalTest = Uni.createFrom().item(Optional.of(DataTest.OBJECT_UserName_0));
+    static Uni<Optional<UserName>> uniOptionalTest = Uni.createFrom().item(Optional.of(TestData.USERNAME.OBJECT_0));
 
-    static Multi<UserName> multiTest = Multi.createFrom().item(DataTest.OBJECT_UserName_0);
+    static Multi<UserName> multiTest = Multi.createFrom().item(TestData.USERNAME.OBJECT_0);
 
     static Multi<UserName> multiEmpties = Multi.createFrom().empty();
 
     @BeforeEach
     void setUp() {
         mock = Mockito.mock(UserNameDao.class);
-        Mockito.when(mock.findById(DataTest.ZERO_UUID)).thenReturn(uniOptionalTest);
+        Mockito.when(mock.findById(TestData.ZERO_UUID)).thenReturn(uniOptionalTest);
         QuarkusMock.installMockForType(mock, UserNameDao.class);
     }
 
@@ -46,7 +46,7 @@ class UserNameServiceTest {
         List<Answer> result = service.getAll()
                 .subscribe()
                 .asStream()
-                .peek(actual -> Assertions.assertEquals(Answer.of(DataTest.OBJECT_UserName_0), actual))
+                .peek(actual -> Assertions.assertEquals(Answer.of(TestData.USERNAME.OBJECT_0), actual))
                 .toList();
         Assertions.assertTrue(result.size() > 0);
     }
@@ -63,18 +63,18 @@ class UserNameServiceTest {
 
     @Test
     void testWhenGetThenEntry() {
-        service.get(DataTest.ZERO_UUID)
+        service.get(TestData.ZERO_UUID)
                 .onItem()
-                .invoke(actual -> Assertions.assertEquals(Answer.of(DataTest.OBJECT_UserName_0), actual))
+                .invoke(actual -> Assertions.assertEquals(Answer.of(TestData.USERNAME.OBJECT_0), actual))
                 .await()
                 .indefinitely();
     }
 
     @Test
     void testWhenGetWithStringThenEntry() {
-        service.get(DataTest.STRING_ZERO_UUID)
+        service.get(TestData.STRING_ZERO_UUID)
                 .onItem()
-                .invoke(actual -> Assertions.assertEquals(Answer.of(DataTest.OBJECT_UserName_0), actual))
+                .invoke(actual -> Assertions.assertEquals(Answer.of(TestData.USERNAME.OBJECT_0), actual))
                 .await()
                 .indefinitely();
     }
@@ -92,10 +92,10 @@ class UserNameServiceTest {
     void testWhenAddThenId() {
         var expected = Answer.builder()
                 .error(201)
-                .payload(new ApiResponse<>(DataTest.ZERO_UUID))
+                .payload(new ApiResponse<>(TestData.ZERO_UUID))
                 .build();
-        Mockito.when(mock.insert(DataTest.OBJECT_UserName_0)).thenReturn(DataTest.UNI_OPTIONAL_ZERO_UUID);
-        service.add(DataTest.OBJECT_UserName_0)
+        Mockito.when(mock.insert(TestData.USERNAME.OBJECT_0)).thenReturn(TestData.UNI_OPTIONAL_ZERO_UUID);
+        service.add(TestData.USERNAME.OBJECT_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
                 .await()
@@ -104,8 +104,8 @@ class UserNameServiceTest {
 
     @Test
     void testWhenAddThenEmpty() {
-        Mockito.when(mock.insert(DataTest.OBJECT_UserName_0)).thenReturn(DataTest.UNI_OPTIONAL_EMPTY_UUID);
-        service.add(DataTest.OBJECT_UserName_0)
+        Mockito.when(mock.insert(TestData.USERNAME.OBJECT_0)).thenReturn(TestData.UNI_OPTIONAL_EMPTY_UUID);
+        service.add(TestData.USERNAME.OBJECT_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(Answer.empty(), actual))
                 .await()
@@ -117,10 +117,10 @@ class UserNameServiceTest {
     void testWhenPutThenId() {
         var expected = Answer.builder()
                 .error(202)
-                .payload(new ApiResponse<>(DataTest.ZERO_UUID))
+                .payload(new ApiResponse<>(TestData.ZERO_UUID))
                 .build();
-        Mockito.when(mock.update(DataTest.OBJECT_UserName_0)).thenReturn(DataTest.UNI_OPTIONAL_ZERO_UUID);
-        service.put(DataTest.OBJECT_UserName_0)
+        Mockito.when(mock.update(TestData.USERNAME.OBJECT_0)).thenReturn(TestData.UNI_OPTIONAL_ZERO_UUID);
+        service.put(TestData.USERNAME.OBJECT_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
                 .await()
@@ -129,20 +129,20 @@ class UserNameServiceTest {
 
     @Test
     void testWhenPutThenEmpty() {
-        Mockito.when(mock.update(DataTest.OBJECT_UserName_0)).thenReturn(DataTest.UNI_OPTIONAL_EMPTY_UUID);
-        Mockito.when(mock.findById(DataTest.ZERO_UUID)).thenReturn(uniOptionalTest);
-        Assertions.assertThrows(CompositeException.class, () -> service.put(DataTest.OBJECT_UserName_0)
+        Mockito.when(mock.update(TestData.USERNAME.OBJECT_0)).thenReturn(TestData.UNI_OPTIONAL_EMPTY_UUID);
+        Mockito.when(mock.findById(TestData.ZERO_UUID)).thenReturn(uniOptionalTest);
+        Assertions.assertThrows(CompositeException.class, () -> service.put(TestData.USERNAME.OBJECT_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(Answer.empty(), actual))
                 .await()
-                .indefinitely());;
+                .indefinitely());
     }
 
     @Test
     void testWhenDeleteThenId() {
-        var expected = Answer.of(new ApiResponse<>(DataTest.ZERO_UUID));
-        Mockito.when(mock.delete(DataTest.ZERO_UUID)).thenReturn(DataTest.UNI_OPTIONAL_ZERO_UUID);
-        service.delete(DataTest.ZERO_UUID)
+        var expected = Answer.of(new ApiResponse<>(TestData.ZERO_UUID));
+        Mockito.when(mock.delete(TestData.ZERO_UUID)).thenReturn(TestData.UNI_OPTIONAL_ZERO_UUID);
+        service.delete(TestData.ZERO_UUID)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
                 .await()

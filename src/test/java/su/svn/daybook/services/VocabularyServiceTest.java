@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import su.svn.daybook.DataTest;
+import su.svn.daybook.TestData;
 import su.svn.daybook.domain.dao.VocabularyDao;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.messages.ApiResponse;
@@ -36,13 +36,13 @@ class VocabularyServiceTest {
 
     static VocabularyDao mock;
 
-    static final Uni<Optional<Vocabulary>> UNI_OPTIONAL_TEST = Uni.createFrom().item(Optional.of(DataTest.OBJECT_Vocabulary_0));
+    static final Uni<Optional<Vocabulary>> UNI_OPTIONAL_TEST = Uni.createFrom().item(Optional.of(TestData.VOCABULARY.OBJECT_0));
 
-    static final Multi<Vocabulary> MULTI_TEST = Multi.createFrom().item(DataTest.OBJECT_Vocabulary_0);
+    static final Multi<Vocabulary> MULTI_TEST = Multi.createFrom().item(TestData.VOCABULARY.OBJECT_0);
 
-    static final Multi<Vocabulary> MULTI_WITH_NULL = DataTest.createMultiWithNull(Vocabulary.class);
+    static final Multi<Vocabulary> MULTI_WITH_NULL = TestData.createMultiWithNull(Vocabulary.class);
 
-    static final Multi<Vocabulary> MULTI_EMPTIES = DataTest.createMultiEmpties(Vocabulary.class);
+    static final Multi<Vocabulary> MULTI_EMPTIES = TestData.createMultiEmpties(Vocabulary.class);
 
     @BeforeEach
     void setUp() {
@@ -58,7 +58,7 @@ class VocabularyServiceTest {
         Assertions.assertDoesNotThrow(() -> result.addAll(service.getAll()
                 .subscribe()
                 .asStream()
-                .peek(actual -> Assertions.assertEquals(Answer.of(DataTest.OBJECT_Vocabulary_0), actual)).toList()));
+                .peek(actual -> Assertions.assertEquals(Answer.of(TestData.VOCABULARY.OBJECT_0), actual)).toList()));
         Assertions.assertTrue(result.size() > 0);
     }
 
@@ -88,7 +88,7 @@ class VocabularyServiceTest {
     void testWhenGetThenEntry() {
         Assertions.assertDoesNotThrow(() -> service.get("0")
                 .onItem()
-                .invoke(actual -> Assertions.assertEquals(Answer.of(DataTest.OBJECT_Vocabulary_0), actual))
+                .invoke(actual -> Assertions.assertEquals(Answer.of(TestData.VOCABULARY.OBJECT_0), actual))
                 .await()
                 .indefinitely());
     }
@@ -97,7 +97,7 @@ class VocabularyServiceTest {
     void testWhenGetThenNoNumberParameter() {
         Assertions.assertDoesNotThrow(() -> service.get("noNumber")
                 .onItem()
-                .invoke(actual -> Assertions.assertEquals(DataTest.ANSWER_ERROR_NoNumber, actual))
+                .invoke(actual -> Assertions.assertEquals(TestData.ANSWER_ERROR_NoNumber, actual))
                 .await()
                 .indefinitely());
     }
@@ -117,8 +117,8 @@ class VocabularyServiceTest {
                 .error(201)
                 .payload(new ApiResponse<>(0L))
                 .build();
-        Mockito.when(mock.insert(DataTest.OBJECT_Vocabulary_0)).thenReturn(DataTest.UNI_OPTIONAL_ZERO_LONG);
-        Assertions.assertDoesNotThrow(() -> service.add(DataTest.OBJECT_Vocabulary_0)
+        Mockito.when(mock.insert(TestData.VOCABULARY.OBJECT_0)).thenReturn(TestData.UNI_OPTIONAL_ZERO_LONG);
+        Assertions.assertDoesNotThrow(() -> service.add(TestData.VOCABULARY.OBJECT_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
                 .await()
@@ -127,8 +127,8 @@ class VocabularyServiceTest {
 
     @Test
     void testWhenAddThenEmpty() {
-        Mockito.when(mock.insert(DataTest.OBJECT_Vocabulary_0)).thenReturn(DataTest.UNI_OPTIONAL_EMPTY_LONG);
-        Assertions.assertDoesNotThrow(() -> service.add(DataTest.OBJECT_Vocabulary_0)
+        Mockito.when(mock.insert(TestData.VOCABULARY.OBJECT_0)).thenReturn(TestData.UNI_OPTIONAL_EMPTY_LONG);
+        Assertions.assertDoesNotThrow(() -> service.add(TestData.VOCABULARY.OBJECT_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(Answer.empty(), actual))
                 .await()
@@ -141,8 +141,8 @@ class VocabularyServiceTest {
                 .error(202)
                 .payload(new ApiResponse<>(0L))
                 .build();
-        Mockito.when(mock.update(DataTest.OBJECT_Vocabulary_0)).thenReturn(DataTest.UNI_OPTIONAL_ZERO_LONG);
-        Assertions.assertDoesNotThrow(() -> service.put(DataTest.OBJECT_Vocabulary_0)
+        Mockito.when(mock.update(TestData.VOCABULARY.OBJECT_0)).thenReturn(TestData.UNI_OPTIONAL_ZERO_LONG);
+        Assertions.assertDoesNotThrow(() -> service.put(TestData.VOCABULARY.OBJECT_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
                 .await()
@@ -151,8 +151,8 @@ class VocabularyServiceTest {
 
     @Test
     void testWhenPutThenEmpty() {
-        Mockito.when(mock.update(DataTest.OBJECT_Vocabulary_0)).thenReturn(DataTest.UNI_OPTIONAL_EMPTY_LONG);
-        Assertions.assertThrows(CompositeException.class, () -> service.put(DataTest.OBJECT_Vocabulary_0)
+        Mockito.when(mock.update(TestData.VOCABULARY.OBJECT_0)).thenReturn(TestData.UNI_OPTIONAL_EMPTY_LONG);
+        Assertions.assertThrows(CompositeException.class, () -> service.put(TestData.VOCABULARY.OBJECT_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(Answer.empty(), actual))
                 .await()
@@ -161,7 +161,7 @@ class VocabularyServiceTest {
 
     @Test
     void testWhenDeleteThenId() {
-        Mockito.when(mock.delete(0L)).thenReturn(DataTest.UNI_OPTIONAL_ZERO_LONG);
+        Mockito.when(mock.delete(0L)).thenReturn(TestData.UNI_OPTIONAL_ZERO_LONG);
         var expected = Answer.of(new ApiResponse<>(0L));
         Assertions.assertDoesNotThrow(() -> service.delete("0")
                 .onItem()
@@ -174,7 +174,7 @@ class VocabularyServiceTest {
     void testWhenDeleteWithNullIdThenEmpty() {
         Assertions.assertDoesNotThrow(() -> service.delete("noNumber")
                 .onItem()
-                .invoke(actual -> Assertions.assertEquals(DataTest.ANSWER_ERROR_NoNumber, actual))
+                .invoke(actual -> Assertions.assertEquals(TestData.ANSWER_ERROR_NoNumber, actual))
                 .await()
                 .indefinitely());
     }

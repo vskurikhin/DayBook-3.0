@@ -10,19 +10,21 @@ package su.svn.daybook.services;
 
 import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
+import io.smallrye.mutiny.CompositeException;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import su.svn.daybook.DataTest;
+import su.svn.daybook.TestData;
 import su.svn.daybook.domain.dao.WordDao;
 import su.svn.daybook.domain.messages.Answer;
-import su.svn.daybook.domain.messages.DictionaryResponse;
+import su.svn.daybook.domain.messages.ApiResponse;
 import su.svn.daybook.domain.model.Word;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,133 +36,140 @@ class WordServiceTest {
 
     static WordDao mock;
 
-    static Uni<Optional<Word>> optionalUniTest = Uni.createFrom().item(Optional.of(DataTest.OBJECT_Word_0));
+    static final Uni<Optional<String>> UNI_OPTIONAL_NONE_STRING = Uni.createFrom().item(Optional.of(Word.NONE));
 
-    static Uni<Optional<String>> optionalUniId = Uni.createFrom().item(Optional.of("word"));
+    static final Uni<Optional<Word>> UNI_OPTIONAL_TEST = Uni.createFrom().item(Optional.of(TestData.WORD.OBJECT_0));
 
-    static Uni<Optional<String>> optionalUniEmptyId = Uni.createFrom().item(Optional.empty());
+    static final Multi<Word> MULTI_TEST = Multi.createFrom().item(TestData.WORD.OBJECT_0);
 
-    static Multi<Word> multiTest = Multi.createFrom().item(DataTest.OBJECT_Word_0);
+    static final Multi<Word> MULTI_WITH_NULL = TestData.createMultiWithNull(Word.class);
 
-    static Multi<Word> multiEmpties = Multi.createFrom().empty();
-
-    static Multi<Word> multiWithNull = Multi.createFrom().item(() -> null);
+    static final Multi<Word> MULTI_EMPTIES = TestData.createMultiEmpties(Word.class);
 
     @BeforeEach
     void setUp() {
         mock = Mockito.mock(WordDao.class);
-        Mockito.when(mock.findByWord("word")).thenReturn(optionalUniTest);
+        Mockito.when(mock.findById(Word.NONE)).thenReturn(UNI_OPTIONAL_TEST);
+        Mockito.when(mock.findByWord(Word.NONE)).thenReturn(UNI_OPTIONAL_TEST);
         QuarkusMock.installMockForType(mock, WordDao.class);
     }
 
     @Test
-    void testMethod_getAll() {
-        Mockito.when(mock.findAll()).thenReturn(multiTest);
-        List<Answer> result = service.getAll()
+    void testWhenGetAllThenSingletonList() {
+        Mockito.when(mock.findAll()).thenReturn(MULTI_TEST);
+        List<Answer> result = new ArrayList<>();
+        Assertions.assertDoesNotThrow(() -> result.addAll(service.getAll()
                 .subscribe()
                 .asStream()
-                .peek(actual -> Assertions.assertEquals(Answer.of(DataTest.OBJECT_Word_0), actual))
-                .toList();
+                .peek(actual -> Assertions.assertEquals(Answer.of(TestData.WORD.OBJECT_0), actual)).toList()));
         Assertions.assertTrue(result.size() > 0);
     }
 
     @Test
-    void testMethod_getAll_whithEmptyResult() {
-        Mockito.when(mock.findAll()).thenReturn(multiEmpties);
-        List<Answer> result = service.getAll()
+    void testWhenGetAllThenEmpty() {
+        Mockito.when(mock.findAll()).thenReturn(MULTI_EMPTIES);
+        List<Answer> result = new ArrayList<>();
+        Assertions.assertDoesNotThrow(() -> result.addAll(service.getAll()
                 .subscribe()
                 .asStream()
-                .toList();
+                .toList()));
         Assertions.assertEquals(0, result.size());
     }
 
     @Test
-    void testMethod_getAll_whithNullResult() {
-        Mockito.when(mock.findAll()).thenReturn(multiWithNull);
-        List<Answer> result = service.getAll()
+    void testWhenGetAllThenNull() {
+        Mockito.when(mock.findAll()).thenReturn(MULTI_WITH_NULL);
+        List<Answer> result = new ArrayList<>();
+        Assertions.assertDoesNotThrow(() -> result.addAll(service.getAll()
                 .subscribe()
                 .asStream()
-                .toList();
+                .toList()));
         Assertions.assertEquals(0, result.size());
     }
 
     @Test
-    void testMethod_wordGet() {
-        service.wordGet("word")
+    void testWhenGetThenEntry() {
+        Assertions.assertDoesNotThrow(() -> service.get(Word.NONE)
                 .onItem()
-                .invoke(actual -> Assertions.assertEquals(Answer.of(DataTest.OBJECT_Word_0), actual))
+                .invoke(actual -> Assertions.assertEquals(Answer.of(TestData.WORD.OBJECT_0), actual))
                 .await()
-                .indefinitely();
+                .indefinitely());
     }
 
     @Test
-    void testMethod_wordGet_whenNullParameter() {
-        service.wordGet(null)
+    void testWhenGetThenNullParameter() {
+        Assertions.assertDoesNotThrow(() -> service.get(null)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(Answer.empty(), actual))
                 .await()
-                .indefinitely();
+                .indefinitely());
     }
 
     @Test
-    void testMethod_wordAdd() {
-        var expected = Answer.of(DictionaryResponse.word("word"));
-        Mockito.when(mock.insert(DataTest.OBJECT_Word_0)).thenReturn(optionalUniId);
-        service.wordAdd(DataTest.OBJECT_Word_0)
+    void testWhenAddThenId() {
+        var expected = Answer.builder()
+                .error(201)
+                .payload(new ApiResponse<>(Word.NONE))
+                .build();
+        Mockito.when(mock.insert(TestData.WORD.OBJECT_0)).thenReturn(UNI_OPTIONAL_NONE_STRING);
+        Assertions.assertDoesNotThrow(() -> service.add(TestData.WORD.OBJECT_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
                 .await()
-                .indefinitely();
+                .indefinitely());
     }
 
     @Test
-    void testMethod_wordAdd_whithEmptyResult() {
-        Mockito.when(mock.insert(DataTest.OBJECT_Word_0)).thenReturn(optionalUniEmptyId);
-        service.wordAdd(DataTest.OBJECT_Word_0)
+    void testWhenAddThenEmpty() {
+        Mockito.when(mock.insert(TestData.WORD.OBJECT_0)).thenReturn(TestData.UNI_OPTIONAL_EMPTY_STRING);
+        Assertions.assertDoesNotThrow(() -> service.add(TestData.WORD.OBJECT_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(Answer.empty(), actual))
                 .await()
-                .indefinitely();
+                .indefinitely());
     }
 
     @Test
-    void testMethod_wordPut() {
-        Mockito.when(mock.update(DataTest.OBJECT_Word_0)).thenReturn(optionalUniId);
-        var expected = Answer.of(DictionaryResponse.word("word"));
-        service.wordPut(DataTest.OBJECT_Word_0)
+    void testWhenPutThenId() {
+        var expected = Answer.builder()
+                .error(202)
+                .payload(new ApiResponse<>(Word.NONE))
+                .build();
+        Mockito.when(mock.update(TestData.WORD.OBJECT_0)).thenReturn(UNI_OPTIONAL_NONE_STRING);
+        Assertions.assertDoesNotThrow(() -> service.put(TestData.WORD.OBJECT_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
                 .await()
-                .indefinitely();
+                .indefinitely());
     }
 
     @Test
-    void testMethod_codePut_whithEmptyResult() {
-        Mockito.when(mock.update(DataTest.OBJECT_Word_0)).thenReturn(optionalUniEmptyId);
-        service.wordPut(DataTest.OBJECT_Word_0)
+    void testWhenPutThenEmpty() {
+        Mockito.when(mock.update(TestData.WORD.OBJECT_0)).thenReturn(TestData.UNI_OPTIONAL_EMPTY_STRING);
+        Assertions.assertThrows(CompositeException.class, () -> service.put(TestData.WORD.OBJECT_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(Answer.empty(), actual))
                 .await()
-                .indefinitely();
+                .indefinitely());
     }
 
     @Test
-    void testMethod_wordDelete() {
-        Mockito.when(mock.delete("word")).thenReturn(optionalUniId);
-        var expected = Answer.of(DictionaryResponse.word("word"));
-        service.wordDelete("word")
+    void testWhenDeleteThenId() {
+        Mockito.when(mock.delete(Word.NONE)).thenReturn(UNI_OPTIONAL_NONE_STRING);
+        var expected = Answer.of(new ApiResponse<>(Word.NONE));
+        Assertions.assertDoesNotThrow(() -> service.delete(Word.NONE)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
                 .await()
-                .indefinitely();
+                .indefinitely());
     }
 
     @Test
-    void testMethod_wordDelete_whenNullParameter() {
-        service.wordDelete(null)
+    void testWhenDeleteThenNullParameter() {
+        Assertions.assertDoesNotThrow(() -> service.delete(null)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(Answer.empty(), actual))
                 .await()
-                .indefinitely();
+                .indefinitely());
     }
 }

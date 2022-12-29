@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2022.01.11 17:44 by Victor N. Skurikhin.
+ * This file was last modified at 2022.01.12 22:58 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * WordService.java
@@ -15,20 +15,19 @@ import org.jboss.logging.Logger;
 import su.svn.daybook.domain.dao.WordDao;
 import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.messages.Answer;
-import su.svn.daybook.domain.messages.DictionaryResponse;
 import su.svn.daybook.domain.model.Word;
 
-import javax.annotation.Nonnull;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.util.NoSuchElementException;
 
 @ApplicationScoped
-public class WordService {
+public class WordService extends AbstractService<String, Word> {
 
     private static final Logger LOG = Logger.getLogger(WordService.class);
 
     @Inject
-    WordDao wordDao;
+    WordDao vocabularyDao;
 
     /**
      * This is method a Vertx message consumer and Word provider by id
@@ -37,17 +36,26 @@ public class WordService {
      * @return - a lazy asynchronous action with the Answer containing the Word as payload or empty payload
      */
     @ConsumeEvent(EventAddress.WORD_GET)
-    public Uni<Answer> wordGet(Object o) {
-        var methodCall = String.format("wordGet(%s)", o);
-        if (o instanceof String) {
-            return get(o.toString());
+    public Uni<Answer> get(Object o) {
+        LOG.tracef("get(%s)", o);
+        try {
+            return getEntry(getIdString(o));
+        } catch (NumberFormatException e) {
+            LOG.errorf("get(%s)", o, e);
+            return Uni.createFrom().item(Answer.noNumber(e.getMessage()));
+        } catch (NoSuchElementException e) {
+            LOG.errorf("get(%s)", o, e);
+            return Uni.createFrom().item(Answer.empty());
         }
-        return Uni.createFrom().item(Answer.empty());
     }
 
-    private Uni<Answer> get(String word) {
-        return wordDao.findByWord(word)
-                .map(t -> t.isEmpty() ? Answer.empty() : Answer.of(t.get()));
+    private Uni<Answer> getEntry(String id) {
+        return vocabularyDao.findById(id)
+                .map(this::getAnswerApiResponseWithValue)
+                .onFailure(onFailureNoSuchElementPredicate())
+                .recoverWithUni(this::toNoSuchElementAnswer)
+                .onFailure(onFailurePredicate())
+                .recoverWithItem(new Answer("bad request", 400));
     }
 
     /**
@@ -57,14 +65,18 @@ public class WordService {
      * @return - a lazy asynchronous action (LAA) with the Answer containing the Word id as payload or empty payload
      */
     @ConsumeEvent(EventAddress.WORD_ADD)
-    public Uni<Answer> wordAdd(Word o) {
-        LOG.tracef("wordAdd(%s)", o);
-        return add(o);
+    public Uni<Answer> add(Word o) {
+        LOG.tracef("add(%s)", o);
+        return addEntry(o);
     }
 
-    private Uni<Answer> add(Word entry) {
-        return wordDao.insert(entry)
-                .map(o -> o.isEmpty() ? Answer.empty() : Answer.of(DictionaryResponse.word(o.get())));
+    private Uni<Answer> addEntry(Word entry) {
+        return vocabularyDao.insert(entry)
+                .map(o -> getAnswerApiResponseWithKey(201, o))
+                .onFailure(onFailureDuplicatePredicate())
+                .recoverWithUni(this::toDuplicateKeyValueAnswer)
+                .onFailure(onFailurePredicate())
+                .recoverWithUni(get(entry.getId()));
     }
 
     /**
@@ -74,14 +86,20 @@ public class WordService {
      * @return - a LAA with the Answer containing Word id as payload or empty payload
      */
     @ConsumeEvent(EventAddress.WORD_PUT)
-    public Uni<Answer> wordPut(Word o) {
-        LOG.tracef("wordPut(%s)", o);
-        return put(o);
+    public Uni<Answer> put(Word o) {
+        LOG.tracef("put(%s)", o);
+        return putEntry(o);
     }
 
-    private Uni<Answer> put(Word entry) {
-        return wordDao.update(entry)
-                .map(o -> o.isEmpty() ? Answer.empty() : Answer.of(DictionaryResponse.word(o.get())));
+    private Uni<Answer> putEntry(Word entry) {
+        return vocabularyDao.update(entry)
+                .flatMap(this::getAnswerForPut)
+                .onFailure(onFailureDuplicatePredicate())
+                .recoverWithUni(this::toDuplicateKeyValueAnswer)
+                .onFailure(onFailurePredicate())
+                .recoverWithUni(get(entry.getId()))
+                .onFailure(onFailureNoSuchElementPredicate())
+                .recoverWithUni(this::toNoSuchElementAnswer);
     }
 
     /**
@@ -91,17 +109,26 @@ public class WordService {
      * @return - a LAA with the Answer containing Word id as payload or empty payload
      */
     @ConsumeEvent(EventAddress.WORD_DEL)
-    public Uni<Answer> wordDelete(Object o) {
-        var methodCall = String.format("wordDelete(%s)", o);
-        if (o instanceof String) {
-            return delete(o.toString());
+    public Uni<Answer> delete(Object o) {
+        LOG.tracef("delete(%s)", o);
+        try {
+            return deleteEntry(getIdString(o));
+        } catch (NumberFormatException e) {
+            LOG.errorf("delete(%s)", o, e);
+            return Uni.createFrom().item(Answer.noNumber(e.getMessage()));
+        } catch (NoSuchElementException e) {
+            LOG.errorf("delete(%s)", o, e);
+            return Uni.createFrom().item(Answer.empty());
         }
-        return Uni.createFrom().item(Answer.empty());
     }
 
-    private Uni<Answer> delete(String word) {
-        return wordDao.delete(word)
-                .map(o -> o.isEmpty() ? Answer.empty() : Answer.of(DictionaryResponse.word(o.get())));
+    private Uni<Answer> deleteEntry(String id) {
+        return vocabularyDao.delete(id)
+                .map(this::getAnswerApiResponseWithKey)
+                .onFailure(onFailureNoSuchElementPredicate())
+                .recoverWithUni(this::toNoSuchElementAnswer)
+                .onFailure(onFailurePredicate())
+                .recoverWithItem(new Answer("bad request", 400));
     }
 
     /**
@@ -111,13 +138,8 @@ public class WordService {
      */
     public Multi<Answer> getAll() {
         LOG.trace("getAll");
-        return wordDao.findAll()
+        return vocabularyDao.findAll()
                 .onItem()
                 .transform(this::getAnswer);
-    }
-
-    private Answer getAnswer(@Nonnull Word Word) {
-        LOG.tracef("getAnswer Word: %s", Word);
-        return Answer.of(Word);
     }
 }

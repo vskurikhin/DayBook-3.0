@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import su.svn.daybook.DataTest;
+import su.svn.daybook.TestData;
 import su.svn.daybook.domain.dao.LanguageDao;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.messages.ApiResponse;
@@ -35,13 +35,13 @@ class LanguageServiceTest {
 
     static LanguageDao mock;
 
-    static final Uni<Optional<Language>> UNI_OPTIONAL_TEST = Uni.createFrom().item(Optional.of(DataTest.OBJECT_Language_0));
+    static final Uni<Optional<Language>> UNI_OPTIONAL_TEST = Uni.createFrom().item(Optional.of(TestData.LANGUAGE.OBJECT_0));
 
-    static final Multi<Language> MULTI_TEST = Multi.createFrom().item(DataTest.OBJECT_Language_0);
+    static final Multi<Language> MULTI_TEST = Multi.createFrom().item(TestData.LANGUAGE.OBJECT_0);
 
-    static final Multi<Language> MULTI_WITH_NULL = DataTest.createMultiWithNull(Language.class);
+    static final Multi<Language> MULTI_WITH_NULL = TestData.createMultiWithNull(Language.class);
 
-    static final Multi<Language> MULTI_EMPTIES = DataTest.createMultiEmpties(Language.class);
+    static final Multi<Language> MULTI_EMPTIES = TestData.createMultiEmpties(Language.class);
 
     @BeforeEach
     void setUp() {
@@ -57,7 +57,7 @@ class LanguageServiceTest {
         Assertions.assertDoesNotThrow(() -> result.addAll(service.getAll()
                 .subscribe()
                 .asStream()
-                .peek(actual -> Assertions.assertEquals(Answer.of(DataTest.OBJECT_Language_0), actual)).toList()));
+                .peek(actual -> Assertions.assertEquals(Answer.of(TestData.LANGUAGE.OBJECT_0), actual)).toList()));
         Assertions.assertTrue(result.size() > 0);
     }
 
@@ -87,7 +87,7 @@ class LanguageServiceTest {
     void testWhenGetThenEntry() {
         Assertions.assertDoesNotThrow(() -> service.get(0L)
                 .onItem()
-                .invoke(actual -> Assertions.assertEquals(Answer.of(DataTest.OBJECT_Language_0), actual))
+                .invoke(actual -> Assertions.assertEquals(Answer.of(TestData.LANGUAGE.OBJECT_0), actual))
                 .await()
                 .indefinitely());
     }
@@ -116,8 +116,8 @@ class LanguageServiceTest {
                 .error(201)
                 .payload(new ApiResponse<>(0L))
                 .build();
-        Mockito.when(mock.insert(DataTest.OBJECT_Language_0)).thenReturn(DataTest.UNI_OPTIONAL_ZERO_LONG);
-        Assertions.assertDoesNotThrow(() -> service.add(DataTest.OBJECT_Language_0)
+        Mockito.when(mock.insert(TestData.LANGUAGE.OBJECT_0)).thenReturn(TestData.UNI_OPTIONAL_ZERO_LONG);
+        Assertions.assertDoesNotThrow(() -> service.add(TestData.LANGUAGE.OBJECT_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
                 .await()
@@ -126,8 +126,8 @@ class LanguageServiceTest {
 
     @Test
     void testWhenAddThenEmpty() {
-        Mockito.when(mock.insert(DataTest.OBJECT_Language_0)).thenReturn(DataTest.UNI_OPTIONAL_EMPTY_LONG);
-        Assertions.assertDoesNotThrow(() -> service.add(DataTest.OBJECT_Language_0)
+        Mockito.when(mock.insert(TestData.LANGUAGE.OBJECT_0)).thenReturn(TestData.UNI_OPTIONAL_EMPTY_LONG);
+        Assertions.assertDoesNotThrow(() -> service.add(TestData.LANGUAGE.OBJECT_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(Answer.empty(), actual))
                 .await()
@@ -140,8 +140,8 @@ class LanguageServiceTest {
                 .error(202)
                 .payload(new ApiResponse<>(0L))
                 .build();
-        Mockito.when(mock.update(DataTest.OBJECT_Language_0)).thenReturn(DataTest.UNI_OPTIONAL_ZERO_LONG);
-        Assertions.assertDoesNotThrow(() -> service.put(DataTest.OBJECT_Language_0)
+        Mockito.when(mock.update(TestData.LANGUAGE.OBJECT_0)).thenReturn(TestData.UNI_OPTIONAL_ZERO_LONG);
+        Assertions.assertDoesNotThrow(() -> service.put(TestData.LANGUAGE.OBJECT_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
                 .await()
@@ -150,8 +150,8 @@ class LanguageServiceTest {
 
     @Test
     void testWhenPutThenEmpty() {
-        Mockito.when(mock.update(DataTest.OBJECT_Language_0)).thenReturn(DataTest.UNI_OPTIONAL_ZERO_LONG);
-        Assertions.assertThrows(RuntimeException.class, () -> service.put(DataTest.OBJECT_Language_0)
+        Mockito.when(mock.update(TestData.LANGUAGE.OBJECT_0)).thenReturn(TestData.UNI_OPTIONAL_ZERO_LONG);
+        Assertions.assertThrows(RuntimeException.class, () -> service.put(TestData.LANGUAGE.OBJECT_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(Answer.empty(), actual))
                 .await()
@@ -160,7 +160,7 @@ class LanguageServiceTest {
 
     @Test
     void testWhenDeleteThenId() {
-        Mockito.when(mock.delete(0L)).thenReturn(DataTest.UNI_OPTIONAL_ZERO_LONG);
+        Mockito.when(mock.delete(0L)).thenReturn(TestData.UNI_OPTIONAL_ZERO_LONG);
         var expected = Answer.of(new ApiResponse<>(0L));
         Assertions.assertDoesNotThrow(() -> service.delete(0L)
                 .onItem()

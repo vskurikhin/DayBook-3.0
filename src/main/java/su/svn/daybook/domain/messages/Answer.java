@@ -18,7 +18,7 @@ import java.io.Serializable;
 import java.util.Objects;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class Answer implements Serializable {
+public final class Answer implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 4530969986917184578L;
@@ -43,6 +43,10 @@ public class Answer implements Serializable {
 
     @JsonIgnore
     private transient volatile boolean hashIsZero;
+
+    Answer() {
+        this(DEFAULT_MESSAGE, 0, EMPTY);
+    }
 
     public Answer(@Nonnull String message) {
         this(message, 0, null);

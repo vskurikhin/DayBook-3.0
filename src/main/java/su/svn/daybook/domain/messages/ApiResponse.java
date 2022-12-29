@@ -8,6 +8,7 @@
 
 package su.svn.daybook.domain.messages;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.io.Serializable;
@@ -26,11 +27,13 @@ public final class ApiResponse<I extends Comparable<? extends Serializable>> {
 
     private transient final Class<?> payloadClass;
 
+    @JsonIgnore
     private transient volatile int hash;
 
+    @JsonIgnore
     private transient volatile boolean hashIsZero;
 
-    private ApiResponse() {
+    ApiResponse() {
         this(null, null, null, null);
     }
 

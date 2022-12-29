@@ -1,8 +1,8 @@
 /*
- * This file was last modified at 2021.12.06 18:10 by Victor N. Skurikhin.
+ * This file was last modified at 2022.01.12 22:58 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
- * TagLabelDao.java
+ * WordDao.java
  * $Id$
  */
 
@@ -26,31 +26,40 @@ public class WordDao {
     io.vertx.mutiny.pgclient.PgPool client;
 
     public Multi<Word> findAll() {
-        LOG.trace("findAll");
+        LOG.trace("findAll()");
         return Word.findAll(client);
     }
 
-    public Uni<Optional<Word>> findByWord(String word) {
-        return Word.findByWord(client, word)
+    public Uni<Optional<Word>> findById(String id) {
+        LOG.tracef("findById(%s)", id);
+        return Word.findById(client, id)
                 .map(Optional::ofNullable);
     }
 
+    public Uni<Optional<Word>> findByWord(String word) {
+        return findById(word);
+    }
+
     public Uni<Optional<String>> insert(Word entry) {
+        LOG.tracef("insert(%s)", entry);
         return entry.insert(client)
                 .map(Optional::ofNullable);
     }
 
     public Uni<Optional<String>> update(Word entry) {
+        LOG.tracef("update(%s)", entry);
         return entry.update(client)
                 .map(Optional::ofNullable);
     }
 
     public Uni<Optional<String>> delete(String id) {
+        LOG.tracef("delete(%s)", id);
         return Word.delete(client, id)
                 .map(Optional::ofNullable);
     }
 
     public Uni<Optional<Long>> count() {
+        LOG.trace("count()");
         return Word.count(client)
                 .map(Optional::ofNullable);
     }

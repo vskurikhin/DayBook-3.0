@@ -8,7 +8,7 @@ import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import su.svn.daybook.DataTest;
+import su.svn.daybook.TestData;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.messages.ApiResponse;
 import su.svn.daybook.domain.model.Codifier;
@@ -27,7 +27,7 @@ class CodifierResourceTest {
     static Uni<Answer> test = Uni.createFrom()
             .item(1)
             .onItem()
-            .transform(i -> Answer.of(DataTest.OBJECT_Codifier_0));
+            .transform(i -> Answer.of(TestData.CODIFIER.OBJECT_0));
 
     CodifierService mock;
 
@@ -36,11 +36,11 @@ class CodifierResourceTest {
         mock = Mockito.mock(CodifierService.class);
         Mockito.when(mock.get(Codifier.NONE)).thenReturn(test);
         Mockito.when(mock.get(RuntimeException.class.getSimpleName())).thenThrow(RuntimeException.class);
-        Mockito.when(mock.get(Integer.toString(Integer.MAX_VALUE))).thenReturn(DataTest.UNI_ANSWER_EMPTY);
-        Mockito.when(mock.get(Integer.toString(Integer.MIN_VALUE))).thenReturn(DataTest.UNI_ANSWER_NULL);
-        Mockito.when(mock.getAll()).thenReturn(Multi.createFrom().item(Answer.of(DataTest.OBJECT_Codifier_0)));
-        Mockito.when(mock.add(DataTest.OBJECT_Codifier_0)).thenReturn(UNI_ANSWER_API_RESPONSE_NONE_STRING);
-        Mockito.when(mock.put(DataTest.OBJECT_Codifier_0)).thenReturn(UNI_ANSWER_API_RESPONSE_NONE_STRING);
+        Mockito.when(mock.get(Integer.toString(Integer.MAX_VALUE))).thenReturn(TestData.UNI_ANSWER_EMPTY);
+        Mockito.when(mock.get(Integer.toString(Integer.MIN_VALUE))).thenReturn(TestData.UNI_ANSWER_NULL);
+        Mockito.when(mock.getAll()).thenReturn(Multi.createFrom().item(Answer.of(TestData.CODIFIER.OBJECT_0)));
+        Mockito.when(mock.add(TestData.CODIFIER.OBJECT_0)).thenReturn(UNI_ANSWER_API_RESPONSE_NONE_STRING);
+        Mockito.when(mock.put(TestData.CODIFIER.OBJECT_0)).thenReturn(UNI_ANSWER_API_RESPONSE_NONE_STRING);
         Mockito.when(mock.delete(Codifier.NONE)).thenReturn(UNI_ANSWER_API_RESPONSE_NONE_STRING);
         QuarkusMock.installMockForType(mock, CodifierService.class);
     }
@@ -52,7 +52,7 @@ class CodifierResourceTest {
                 .get("/code/" + Codifier.NONE)
                 .then()
                 .statusCode(200)
-                .body(CoreMatchers.startsWith(DataTest.JSON_Codifier_0));
+                .body(CoreMatchers.startsWith(TestData.CODIFIER.JSON_0));
     }
 
     @Test
@@ -89,14 +89,14 @@ class CodifierResourceTest {
                 .get("/code/all")
                 .then()
                 .statusCode(200)
-                .body(CoreMatchers.startsWith(DataTest.JSON_ARRAY_Codifier_0));
+                .body(CoreMatchers.startsWith(TestData.CODIFIER.JSON_ARRAY_SINGLETON_0));
     }
 
     @Test
     void testEndpointAdd() {
         given()
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
-                .body(DataTest.JSON_Codifier_0)
+                .body(TestData.CODIFIER.JSON_0)
                 .when()
                 .post("/code")
                 .then()
@@ -108,7 +108,7 @@ class CodifierResourceTest {
     void testEndpointPut() {
         given()
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
-                .body(DataTest.JSON_Codifier_0)
+                .body(TestData.CODIFIER.JSON_0)
                 .when()
                 .put("/code")
                 .then()

@@ -4,9 +4,7 @@ import nl.jqno.equalsverifier.EqualsVerifier;
 import nl.jqno.equalsverifier.Warning;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import su.svn.daybook.DataTest;
-
-import static su.svn.daybook.domain.model.TagLabel.NONE;
+import su.svn.daybook.TestData;
 
 class TagLabelTest {
 
@@ -15,7 +13,7 @@ class TagLabelTest {
     void testConstructors() {
         Assertions.assertDoesNotThrow(() -> new TagLabel());
         Assertions.assertDoesNotThrow(() -> new TagLabel(
-                DataTest.TAG_LABEL.ID, TagLabel.NONE, null, null, null, false, true, 0
+                TestData.TAG_LABEL.ID, TagLabel.NONE, null, null, null, false, true, 0
         ));
     }
     @Test
@@ -51,7 +49,7 @@ class TagLabelTest {
     @Test
     void testBuilder() {
         Assertions.assertDoesNotThrow(() -> Assertions.assertNotNull(TagLabel.builder()
-                .id(DataTest.TAG_LABEL.ID)
+                .id(TestData.TAG_LABEL.ID)
                 .label(TagLabel.NONE)
                 .userName(null)
                 .createTime(null)

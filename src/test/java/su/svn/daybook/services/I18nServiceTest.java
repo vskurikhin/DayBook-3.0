@@ -16,19 +16,16 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import su.svn.daybook.DataTest;
-import su.svn.daybook.domain.dao.I18nDao;
+import su.svn.daybook.TestData;
 import su.svn.daybook.domain.dao.I18nDao;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.messages.ApiResponse;
-import su.svn.daybook.domain.model.I18n;
 import su.svn.daybook.domain.model.I18n;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @QuarkusTest
 class I18nServiceTest {
@@ -38,13 +35,13 @@ class I18nServiceTest {
 
     static I18nDao mock;
 
-    static final Uni<Optional<I18n>> UNI_OPTIONAL_TEST = Uni.createFrom().item(Optional.of(DataTest.OBJECT_I18n_0));
+    static final Uni<Optional<I18n>> UNI_OPTIONAL_TEST = Uni.createFrom().item(Optional.of(TestData.I18N.OBJECT_0));
 
-    static final Multi<I18n> MULTI_TEST = Multi.createFrom().item(DataTest.OBJECT_I18n_0);
+    static final Multi<I18n> MULTI_TEST = Multi.createFrom().item(TestData.I18N.OBJECT_0);
 
-    static final Multi<I18n> MULTI_WITH_NULL = DataTest.createMultiWithNull(I18n.class);
+    static final Multi<I18n> MULTI_WITH_NULL = TestData.createMultiWithNull(I18n.class);
 
-    static final Multi<I18n> MULTI_EMPTIES = DataTest.createMultiEmpties(I18n.class);
+    static final Multi<I18n> MULTI_EMPTIES = TestData.createMultiEmpties(I18n.class);
 
     @BeforeEach
     void setUp() {
@@ -60,7 +57,7 @@ class I18nServiceTest {
         Assertions.assertDoesNotThrow(() -> result.addAll(service.getAll()
                 .subscribe()
                 .asStream()
-                .peek(actual -> Assertions.assertEquals(Answer.of(DataTest.OBJECT_I18n_0), actual)).toList()));
+                .peek(actual -> Assertions.assertEquals(Answer.of(TestData.I18N.OBJECT_0), actual)).toList()));
         Assertions.assertTrue(result.size() > 0);
     }
 
@@ -90,7 +87,7 @@ class I18nServiceTest {
     void testWhenGetThenEntry() {
         Assertions.assertDoesNotThrow(() -> service.get(0L)
                 .onItem()
-                .invoke(actual -> Assertions.assertEquals(Answer.of(DataTest.OBJECT_I18n_0), actual))
+                .invoke(actual -> Assertions.assertEquals(Answer.of(TestData.I18N.OBJECT_0), actual))
                 .await()
                 .indefinitely());
     }
@@ -119,8 +116,8 @@ class I18nServiceTest {
                 .error(201)
                 .payload(new ApiResponse<>(0L))
                 .build();
-        Mockito.when(mock.insert(DataTest.OBJECT_I18n_0)).thenReturn(DataTest.UNI_OPTIONAL_ZERO_LONG);
-        Assertions.assertDoesNotThrow(() -> service.add(DataTest.OBJECT_I18n_0)
+        Mockito.when(mock.insert(TestData.I18N.OBJECT_0)).thenReturn(TestData.UNI_OPTIONAL_ZERO_LONG);
+        Assertions.assertDoesNotThrow(() -> service.add(TestData.I18N.OBJECT_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
                 .await()
@@ -129,8 +126,8 @@ class I18nServiceTest {
 
     @Test
     void testWhenAddThenEmpty() {
-        Mockito.when(mock.insert(DataTest.OBJECT_I18n_0)).thenReturn(DataTest.UNI_OPTIONAL_EMPTY_LONG);
-        Assertions.assertDoesNotThrow(() -> service.add(DataTest.OBJECT_I18n_0)
+        Mockito.when(mock.insert(TestData.I18N.OBJECT_0)).thenReturn(TestData.UNI_OPTIONAL_EMPTY_LONG);
+        Assertions.assertDoesNotThrow(() -> service.add(TestData.I18N.OBJECT_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(Answer.empty(), actual))
                 .await()
@@ -143,8 +140,8 @@ class I18nServiceTest {
                 .error(202)
                 .payload(new ApiResponse<>(0L))
                 .build();
-        Mockito.when(mock.update(DataTest.OBJECT_I18n_0)).thenReturn(DataTest.UNI_OPTIONAL_ZERO_LONG);
-        Assertions.assertDoesNotThrow(() -> service.put(DataTest.OBJECT_I18n_0)
+        Mockito.when(mock.update(TestData.I18N.OBJECT_0)).thenReturn(TestData.UNI_OPTIONAL_ZERO_LONG);
+        Assertions.assertDoesNotThrow(() -> service.put(TestData.I18N.OBJECT_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
                 .await()
@@ -153,8 +150,8 @@ class I18nServiceTest {
 
     @Test
     void testWhenPutThenEmpty() {
-        Mockito.when(mock.update(DataTest.OBJECT_I18n_0)).thenReturn(DataTest.UNI_OPTIONAL_ZERO_LONG);
-        Assertions.assertThrows(RuntimeException.class, () -> service.put(DataTest.OBJECT_I18n_0)
+        Mockito.when(mock.update(TestData.I18N.OBJECT_0)).thenReturn(TestData.UNI_OPTIONAL_ZERO_LONG);
+        Assertions.assertThrows(RuntimeException.class, () -> service.put(TestData.I18N.OBJECT_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(Answer.empty(), actual))
                 .await()
@@ -163,7 +160,7 @@ class I18nServiceTest {
 
     @Test
     void testWhenDeleteThenId() {
-        Mockito.when(mock.delete(0L)).thenReturn(DataTest.UNI_OPTIONAL_ZERO_LONG);
+        Mockito.when(mock.delete(0L)).thenReturn(TestData.UNI_OPTIONAL_ZERO_LONG);
         var expected = Answer.of(new ApiResponse<>(0L));
         Assertions.assertDoesNotThrow(() -> service.delete(0L)
                 .onItem()

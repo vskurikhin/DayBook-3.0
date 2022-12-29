@@ -8,43 +8,54 @@
 
 package su.svn.daybook.domain.messages;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.io.Serial;
 import java.io.Serializable;
+import java.util.Objects;
 
-public class Command implements Serializable {
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public final class Command implements Serializable {
 
-    private static final long serialVersionUID = 8774569874565187574L;
-
+    public static final String BROADCAST = "*";
     public static final String PING = "PING";
-
     public static final String PONG = "PONG";
-
     public static final String SEND = "SEND";
-
     public static final String DEFAULT_COMMAND = SEND;
-
+    @Serial
+    private static final long serialVersionUID = 8774569874565187574L;
     private final String command;
 
-    private String recipient;
+    private final String recipient;
 
     private final String sender;
 
-    private Object payload;
+    private final Object payload;
 
-    private Class<?> payloadClass;
+    private final Class<?> payloadClass;
 
-    public Command(@Nonnull String sender, @Nonnull String recipient, @Nonnull String command) {
-        this.command = command;
-        this.recipient = recipient;
-        this.sender = sender;
+    @JsonIgnore
+    private transient volatile int hash;
+
+    @JsonIgnore
+    private transient volatile boolean hashIsZero;
+
+    Command() {
+        this(BROADCAST, BROADCAST, DEFAULT_COMMAND);
     }
 
-    private Command(String sender, String recipient, String command, Object payload, Class<?> payloadClass) {
+    public Command(@Nonnull String sender, @Nonnull String recipient, @Nonnull String command) {
+        this(sender, recipient, command, null);
+    }
+
+    private Command(String sender, String recipient, String command, Object payload) {
         this.command = command;
         this.recipient = recipient;
         this.payload = payload;
-        this.payloadClass = payloadClass;
+        this.payloadClass = payload != null ? payload.getClass() : null;
         this.sender = sender;
     }
 
@@ -53,19 +64,23 @@ public class Command implements Serializable {
     }
 
     public static Command createPongOf(@Nonnull Command ping) {
-        Command command = new Command(ping.getRecipient(), ping.getSender(), PONG);
-        command.setRecipient(ping.getSender());
-        return command;
+        return Command.builder()
+                .command(PONG)
+                .recipient(ping.getSender())
+                .sender(ping.getRecipient())
+                .build();
     }
 
     public static <T> Command createSend(@Nonnull String sender, @Nonnull String recipient, @Nonnull T o) {
         return create(sender, recipient, DEFAULT_COMMAND, o);
     }
 
-    /** @noinspection unchecked*/
     public static <T> Command create(@Nonnull String sender, @Nonnull String recipient, @Nonnull String command, T o) {
-        Class<T> tClass = (o != null) ? (Class<T>) o.getClass() : null;
-        return new Command(sender, recipient, command, o, tClass);
+        return new Command(sender, recipient, command, o);
+    }
+
+    public static Builder builder() {
+        return new Builder();
     }
 
     @Nonnull
@@ -75,10 +90,6 @@ public class Command implements Serializable {
 
     public String getRecipient() {
         return recipient;
-    }
-
-    public void setRecipient(@Nonnull String recipient) {
-        this.recipient = recipient;
     }
 
     @Nonnull
@@ -91,13 +102,6 @@ public class Command implements Serializable {
         return payload;
     }
 
-    public <T> void setPayload(T o) {
-        //noinspection unchecked
-        Class<T> tClass = (Class<T>) o.getClass();
-        this.payload = o;
-        this.payloadClass = tClass;
-    }
-
     public Class<?> getPayloadClass() {
         return payloadClass;
     }
@@ -106,24 +110,29 @@ public class Command implements Serializable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-
         Command command1 = (Command) o;
-
-        if (!command.equals(command1.command)) return false;
-        if (recipient != null ? !recipient.equals(command1.recipient) : command1.recipient != null) return false;
-        if (!sender.equals(command1.sender)) return false;
-        if (payload != null ? !payload.equals(command1.payload) : command1.payload != null) return false;
-        return payloadClass != null ? payloadClass.equals(command1.payloadClass) : command1.payloadClass == null;
+        return Objects.equals(command, command1.command)
+                && Objects.equals(recipient, command1.recipient)
+                && Objects.equals(sender, command1.sender)
+                && Objects.equals(payload, command1.payload);
     }
 
     @Override
     public int hashCode() {
-        int result = command.hashCode();
-        result = 31 * result + (recipient != null ? recipient.hashCode() : 0);
-        result = 31 * result + sender.hashCode();
-        result = 31 * result + (payload != null ? payload.hashCode() : 0);
-        result = 31 * result + (payloadClass != null ? payloadClass.hashCode() : 0);
-        return result;
+        int h = hash;
+        if (h == 0 && !hashIsZero) {
+            h = calculateHashCode();
+            if (h == 0) {
+                hashIsZero = true;
+            } else {
+                hash = h;
+            }
+        }
+        return h;
+    }
+
+    private int calculateHashCode() {
+        return Objects.hash(command, recipient, sender, payload);
     }
 
     @Override
@@ -135,5 +144,39 @@ public class Command implements Serializable {
                 ", payload=" + payload +
                 ", payloadClass=" + ((payloadClass != null) ? payloadClass.getCanonicalName() : "null") +
                 '}';
+    }
+
+    public static final class Builder {
+        private String command;
+        private String recipient;
+        private String sender;
+        private Object payload;
+
+        private Builder() {
+        }
+
+        public Builder command(@Nonnull String command) {
+            this.command = command;
+            return this;
+        }
+
+        public Builder recipient(@Nonnull String recipient) {
+            this.recipient = recipient;
+            return this;
+        }
+
+        public Builder sender(@Nonnull String sender) {
+            this.sender = sender;
+            return this;
+        }
+
+        public Builder payload(Object payload) {
+            this.payload = payload;
+            return this;
+        }
+
+        public Command build() {
+            return new Command(sender, recipient, command, payload);
+        }
     }
 }
