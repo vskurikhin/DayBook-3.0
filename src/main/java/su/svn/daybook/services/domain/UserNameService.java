@@ -8,6 +8,10 @@
 
 package su.svn.daybook.services.domain;
 
+import io.quarkus.cache.Cache;
+import io.quarkus.cache.CacheKey;
+import io.quarkus.cache.CacheManager;
+import io.quarkus.cache.CacheResult;
 import io.quarkus.vertx.ConsumeEvent;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
@@ -23,12 +27,16 @@ import su.svn.daybook.services.PageService;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.util.List;
 import java.util.UUID;
 
 @ApplicationScoped
 public class UserNameService extends AbstractService<UUID, UserName> {
 
     private static final Logger LOG = Logger.getLogger(UserNameService.class);
+
+    @Inject
+    CacheManager cacheManager;
 
     @Inject
     UserNameDao userNameDao;
@@ -46,7 +54,8 @@ public class UserNameService extends AbstractService<UUID, UserName> {
      * @return - a lazy asynchronous action with the Answer containing the UserName as payload or empty payload
      */
     @ConsumeEvent(EventAddress.USER_GET)
-    public Uni<Answer> get(Object o) {
+    @CacheResult(cacheName = EventAddress.USER_GET)
+    public Uni<Answer> get(@CacheKey Object o) {
         LOG.infof("get(%s)", o);
         if (o instanceof UUID id) {
             return getEntry(id);
@@ -64,13 +73,15 @@ public class UserNameService extends AbstractService<UUID, UserName> {
      */
     public Multi<Answer> getAll() {
         LOG.trace("getAll");
-        return userNameDao.findAll()
+        return userNameDao
+                .findAll()
                 .onItem()
                 .transform(this::answerOf);
     }
 
     private Uni<Answer> getEntry(UUID id) {
-        return userNameDao.findById(id)
+        return userNameDao
+                .findById(id)
                 .map(this::apiResponseWithValueAnswer)
                 .onFailure(exceptionAnswerService::testNoSuchElementException)
                 .recoverWithUni(exceptionAnswerService::noSuchElementAnswer)
@@ -79,7 +90,8 @@ public class UserNameService extends AbstractService<UUID, UserName> {
     }
 
     @ConsumeEvent(value = EventAddress.USER_PAGE)
-    public Uni<Page<Answer>> getPage(PageRequest pageRequest) {
+    @CacheResult(cacheName = EventAddress.USER_PAGE)
+    public Uni<Page<Answer>> getPage(@CacheKey PageRequest pageRequest) {
         //noinspection DuplicatedCode
         LOG.tracef("getPage(%s)", pageRequest);
         return pageService.getPage(pageRequest, userNameDao::count, userNameDao::findRange);
@@ -98,8 +110,11 @@ public class UserNameService extends AbstractService<UUID, UserName> {
     }
 
     private Uni<Answer> addEntry(UserName entry) {
-        return userNameDao.insert(entry)
+        return userNameDao
+                .insert(entry)
                 .map(o -> apiResponseWithKeyAnswer(201, o))
+                .onItem()
+                .transformToUni(this::invalidateAllAndAnswer)
                 .onFailure(exceptionAnswerService::testDuplicateKeyException)
                 .recoverWithUni(exceptionAnswerService::notAcceptableDuplicateKeyValueAnswer)
                 .onFailure(exceptionAnswerService::testException)
@@ -119,8 +134,11 @@ public class UserNameService extends AbstractService<UUID, UserName> {
     }
 
     private Uni<Answer> putEntry(UserName entry) {
-        return userNameDao.update(entry)
+        return userNameDao
+                .update(entry)
                 .flatMap(this::apiResponseAcceptedUniAnswer)
+                .onItem()
+                .transformToUni(answer -> invalidateAndAnswer(entry.getId(), answer))
                 .onFailure(exceptionAnswerService::testDuplicateKeyException)
                 .recoverWithUni(exceptionAnswerService::notAcceptableDuplicateKeyValueAnswer)
                 .onFailure(exceptionAnswerService::testNoSuchElementException)
@@ -141,18 +159,45 @@ public class UserNameService extends AbstractService<UUID, UserName> {
         if (o instanceof UUID id) {
             return deleteEntry(id);
         }
-        if (o instanceof String id) {
-            return deleteEntry(UUID.fromString(id));
+        if (o instanceof String sid) {
+            return deleteEntry(UUID.fromString(sid));
         }
         return Uni.createFrom().item(Answer.empty());
     }
 
     private Uni<Answer> deleteEntry(UUID id) {
-        return userNameDao.delete(id)
+        return userNameDao
+                .delete(id)
                 .map(this::apiResponseWithKeyAnswer)
+                .onItem()
+                .transformToUni(answer -> invalidateAndAnswer(id, answer))
                 .onFailure(exceptionAnswerService::testNoSuchElementException)
                 .recoverWithUni(exceptionAnswerService::noSuchElementAnswer)
                 .onFailure(exceptionAnswerService::testException)
                 .recoverWithUni(exceptionAnswerService::badRequestUniAnswer);
+    }
+
+    @Override
+    protected Uni<List<Void>> invalidate(Object o) {
+        LOG.tracef("invalidate(%s)", o);
+
+        var wordGetVoid = cacheManager
+                .getCache(EventAddress.USER_GET)
+                .map(cache -> cache.invalidate(o))
+                .orElse(Uni.createFrom().voidItem());
+        var wordPageVoid = invalidateAllPage();
+
+        return joinCollectFailures(wordGetVoid, wordPageVoid)
+                .onItem()
+                .invoke(voids -> LOG.tracef("invalidate of %d caches", voids.size()));
+    }
+
+    @Override
+    protected Uni<Void> invalidateAllPage() {
+        LOG.trace("invalidateAllPage()");
+        return cacheManager
+                .getCache(EventAddress.USER_PAGE)
+                .map(Cache::invalidateAll)
+                .orElse(Uni.createFrom().voidItem());
     }
 }

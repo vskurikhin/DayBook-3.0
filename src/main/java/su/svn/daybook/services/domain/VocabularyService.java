@@ -8,6 +8,10 @@
 
 package su.svn.daybook.services.domain;
 
+import io.quarkus.cache.Cache;
+import io.quarkus.cache.CacheKey;
+import io.quarkus.cache.CacheManager;
+import io.quarkus.cache.CacheResult;
 import io.quarkus.vertx.ConsumeEvent;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
@@ -23,12 +27,16 @@ import su.svn.daybook.services.PageService;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 @ApplicationScoped
 public class VocabularyService extends AbstractService<Long, Vocabulary> {
 
     private static final Logger LOG = Logger.getLogger(VocabularyService.class);
+
+    @Inject
+    CacheManager cacheManager;
 
     @Inject
     VocabularyDao vocabularyDao;
@@ -46,7 +54,8 @@ public class VocabularyService extends AbstractService<Long, Vocabulary> {
      * @return - a lazy asynchronous action with the Answer containing the Vocabulary as payload or empty payload
      */
     @ConsumeEvent(EventAddress.VOCABULARY_GET)
-    public Uni<Answer> get(Object o) {
+    @CacheResult(cacheName = EventAddress.VOCABULARY_GET)
+    public Uni<Answer> get(@CacheKey Object o) {
         LOG.tracef("get(%s)", o);
         try {
             return getEntry(getIdLong(o));
@@ -67,13 +76,15 @@ public class VocabularyService extends AbstractService<Long, Vocabulary> {
      */
     public Multi<Answer> getAll() {
         LOG.trace("getAll");
-        return vocabularyDao.findAll()
+        return vocabularyDao
+                .findAll()
                 .onItem()
                 .transform(this::answerOf);
     }
 
     private Uni<Answer> getEntry(long id) {
-        return vocabularyDao.findById(id)
+        return vocabularyDao
+                .findById(id)
                 .map(this::apiResponseWithValueAnswer)
                 .onFailure(exceptionAnswerService::testNoSuchElementException)
                 .recoverWithUni(exceptionAnswerService::noSuchElementAnswer)
@@ -82,7 +93,8 @@ public class VocabularyService extends AbstractService<Long, Vocabulary> {
     }
 
     @ConsumeEvent(value = EventAddress.VOCABULARY_PAGE)
-    public Uni<Page<Answer>> getPage(PageRequest pageRequest) {
+    @CacheResult(cacheName = EventAddress.VOCABULARY_PAGE)
+    public Uni<Page<Answer>> getPage(@CacheKey PageRequest pageRequest) {
         //noinspection DuplicatedCode
         LOG.tracef("getPage(%s)", pageRequest);
         return pageService.getPage(pageRequest, vocabularyDao::count, vocabularyDao::findRange);
@@ -101,8 +113,11 @@ public class VocabularyService extends AbstractService<Long, Vocabulary> {
     }
 
     private Uni<Answer> addEntry(Vocabulary entry) {
-        return vocabularyDao.insert(entry)
+        return vocabularyDao
+                .insert(entry)
                 .map(o -> apiResponseWithKeyAnswer(201, o))
+                .onItem()
+                .transformToUni(this::invalidateAllAndAnswer)
                 .onFailure(exceptionAnswerService::testDuplicateKeyException)
                 .recoverWithUni(exceptionAnswerService::notAcceptableDuplicateKeyValueAnswer)
                 .onFailure(exceptionAnswerService::testException)
@@ -122,8 +137,11 @@ public class VocabularyService extends AbstractService<Long, Vocabulary> {
     }
 
     private Uni<Answer> putEntry(Vocabulary entry) {
-        return vocabularyDao.update(entry)
+        return vocabularyDao
+                .update(entry)
                 .flatMap(this::apiResponseAcceptedUniAnswer)
+                .onItem()
+                .transformToUni(answer -> invalidateAndAnswer(entry.getId(), answer))
                 .onFailure(exceptionAnswerService::testDuplicateKeyException)
                 .recoverWithUni(exceptionAnswerService::notAcceptableDuplicateKeyValueAnswer)
                 .onFailure(exceptionAnswerService::testNoSuchElementException)
@@ -154,11 +172,38 @@ public class VocabularyService extends AbstractService<Long, Vocabulary> {
     }
 
     private Uni<Answer> deleteEntry(long id) {
-        return vocabularyDao.delete(id)
+        return vocabularyDao
+                .delete(id)
                 .map(this::apiResponseWithKeyAnswer)
+                .onItem()
+                .transformToUni(answer -> invalidateAndAnswer(id, answer))
                 .onFailure(exceptionAnswerService::testNoSuchElementException)
                 .recoverWithUni(exceptionAnswerService::noSuchElementAnswer)
                 .onFailure(exceptionAnswerService::testException)
                 .recoverWithUni(exceptionAnswerService::badRequestUniAnswer);
+    }
+
+    @Override
+    protected Uni<List<Void>> invalidate(Object o) {
+        LOG.tracef("invalidate(%s)", o);
+
+        var wordGetVoid = cacheManager
+                .getCache(EventAddress.VOCABULARY_GET)
+                .map(cache -> cache.invalidate(o))
+                .orElse(Uni.createFrom().voidItem());
+        var wordPageVoid = invalidateAllPage();
+
+        return joinCollectFailures(wordGetVoid, wordPageVoid)
+                .onItem()
+                .invoke(voids -> LOG.tracef("invalidate of %d caches", voids.size()));
+    }
+
+    @Override
+    protected Uni<Void> invalidateAllPage() {
+        LOG.trace("invalidateAllPage()");
+        return cacheManager
+                .getCache(EventAddress.VOCABULARY_PAGE)
+                .map(Cache::invalidateAll)
+                .orElse(Uni.createFrom().voidItem());
     }
 }

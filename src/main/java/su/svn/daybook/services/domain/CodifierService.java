@@ -8,6 +8,10 @@
 
 package su.svn.daybook.services.domain;
 
+import io.quarkus.cache.Cache;
+import io.quarkus.cache.CacheKey;
+import io.quarkus.cache.CacheManager;
+import io.quarkus.cache.CacheResult;
 import io.quarkus.vertx.ConsumeEvent;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
@@ -23,12 +27,16 @@ import su.svn.daybook.services.PageService;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 @ApplicationScoped
 public class CodifierService extends AbstractService<String, Codifier> {
 
     private static final Logger LOG = Logger.getLogger(CodifierService.class);
+
+    @Inject
+    CacheManager cacheManager;
 
     @Inject
     CodifierDao codifierDao;
@@ -46,7 +54,8 @@ public class CodifierService extends AbstractService<String, Codifier> {
      * @return - a lazy asynchronous action with the Answer containing the Codifier as payload or empty payload
      */
     @ConsumeEvent(EventAddress.CODIFIER_GET)
-    public Uni<Answer> get(Object o) {
+    @CacheResult(cacheName = EventAddress.CODIFIER_GET)
+    public Uni<Answer> get(@CacheKey Object o) {
         LOG.tracef("get(%s)", o);
         try {
             return getEntry(getIdString(o));
@@ -69,7 +78,8 @@ public class CodifierService extends AbstractService<String, Codifier> {
     }
 
     private Uni<Answer> getEntry(String id) {
-        return codifierDao.findById(id)
+        return codifierDao
+                .findById(id)
                 .map(this::apiResponseWithValueAnswer)
                 .onFailure(exceptionAnswerService::testNoSuchElementException)
                 .recoverWithUni(exceptionAnswerService::noSuchElementAnswer)
@@ -78,7 +88,8 @@ public class CodifierService extends AbstractService<String, Codifier> {
     }
 
     @ConsumeEvent(value = EventAddress.CODIFIER_PAGE)
-    public Uni<Page<Answer>> getPage(PageRequest pageRequest) {
+    @CacheResult(cacheName = EventAddress.CODIFIER_PAGE)
+    public Uni<Page<Answer>> getPage(@CacheKey PageRequest pageRequest) {
         //noinspection DuplicatedCode
         LOG.tracef("getPage(%s)", pageRequest);
         return pageService.getPage(pageRequest, codifierDao::count, codifierDao::findRange);
@@ -97,8 +108,11 @@ public class CodifierService extends AbstractService<String, Codifier> {
     }
 
     private Uni<Answer> addEntry(Codifier entry) {
-        return codifierDao.insert(entry)
+        return codifierDao
+                .insert(entry)
                 .map(o -> apiResponseWithKeyAnswer(201, o))
+                .onItem()
+                .transformToUni(this::invalidateAllAndAnswer)
                 .onFailure(exceptionAnswerService::testDuplicateKeyException)
                 .recoverWithUni(exceptionAnswerService::notAcceptableDuplicateKeyValueAnswer)
                 .onFailure(exceptionAnswerService::testException)
@@ -118,8 +132,11 @@ public class CodifierService extends AbstractService<String, Codifier> {
     }
 
     private Uni<Answer> putEntry(Codifier entry) {
-        return codifierDao.update(entry)
+        return codifierDao
+                .update(entry)
                 .flatMap(this::apiResponseAcceptedUniAnswer)
+                .onItem()
+                .transformToUni(answer -> invalidateAndAnswer(entry.getId(), answer))
                 .onFailure(exceptionAnswerService::testDuplicateKeyException)
                 .recoverWithUni(exceptionAnswerService::notAcceptableDuplicateKeyValueAnswer)
                 .onFailure(exceptionAnswerService::testNoSuchElementException)
@@ -146,11 +163,38 @@ public class CodifierService extends AbstractService<String, Codifier> {
     }
 
     private Uni<Answer> deleteEntry(String id) {
-        return codifierDao.delete(id)
+        return codifierDao
+                .delete(id)
                 .map(this::apiResponseWithKeyAnswer)
+                .onItem()
+                .transformToUni(answer -> invalidateAndAnswer(id, answer))
                 .onFailure(exceptionAnswerService::testNoSuchElementException)
                 .recoverWithUni(exceptionAnswerService::noSuchElementAnswer)
                 .onFailure(exceptionAnswerService::testException)
                 .recoverWithUni(exceptionAnswerService::badRequestUniAnswer);
+    }
+
+    @Override
+    protected Uni<List<Void>> invalidate(Object o) {
+        LOG.tracef("invalidate(%s)", o);
+
+        var wordGetVoid = cacheManager
+                .getCache(EventAddress.CODIFIER_GET)
+                .map(cache -> cache.invalidate(o))
+                .orElse(Uni.createFrom().voidItem());
+        var wordPageVoid = invalidateAllPage();
+
+        return joinCollectFailures(wordGetVoid, wordPageVoid)
+                .onItem()
+                .invoke(voids -> LOG.tracef("invalidate of %d caches", voids.size()));
+    }
+
+    @Override
+    protected Uni<Void> invalidateAllPage() {
+        LOG.trace("invalidateAllPage()");
+        return cacheManager
+                .getCache(EventAddress.CODIFIER_PAGE)
+                .map(Cache::invalidateAll)
+                .orElse(Uni.createFrom().voidItem());
     }
 }

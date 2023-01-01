@@ -74,7 +74,7 @@ public class PageService {
         var totalPages = request.calculateTotalPages(totalElements);
         var currentPageSize = posts.size();
         var hasPrevPage = pageNumber > 0 && totalElements > 0;
-        var hasNextPage = currentPageSize < totalPages;
+        var hasNextPage = pageNumber < (totalPages - 1);
         LOG.infof(
                 "preparePageAnswer: pageNumber=%d, totalPages=%d, currentPageSize=%d, hasPrevPage=%s, hasNextPage=%s",
                 pageNumber, totalPages, currentPageSize, hasPrevPage, hasNextPage

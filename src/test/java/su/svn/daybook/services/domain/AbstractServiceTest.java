@@ -14,6 +14,7 @@ import su.svn.daybook.domain.model.*;
 
 import javax.ws.rs.core.Response;
 import java.io.Serializable;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 class AbstractServiceTest {
@@ -47,6 +48,16 @@ class AbstractServiceTest {
 
         @Override
         public Multi<Answer> getAll() {
+            return null;
+        }
+
+        @Override
+        protected Uni<List<Void>> invalidate(Object o) {
+            return null;
+        }
+
+        @Override
+        protected Uni<Void> invalidateAllPage() {
             return null;
         }
 
