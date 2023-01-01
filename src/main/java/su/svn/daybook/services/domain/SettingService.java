@@ -8,6 +8,10 @@
 
 package su.svn.daybook.services.domain;
 
+import io.quarkus.cache.Cache;
+import io.quarkus.cache.CacheKey;
+import io.quarkus.cache.CacheManager;
+import io.quarkus.cache.CacheResult;
 import io.quarkus.vertx.ConsumeEvent;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
@@ -23,12 +27,16 @@ import su.svn.daybook.services.PageService;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 @ApplicationScoped
 public class SettingService extends AbstractService<Long, Setting> {
 
     private static final Logger LOG = Logger.getLogger(SettingService.class);
+
+    @Inject
+    CacheManager cacheManager;
 
     @Inject
     SettingDao settingDao;
@@ -46,7 +54,8 @@ public class SettingService extends AbstractService<Long, Setting> {
      * @return - a lazy asynchronous action with the Answer containing the Setting as payload or empty payload
      */
     @ConsumeEvent(EventAddress.SETTING_GET)
-    public Uni<Answer> get(Object o) {
+    @CacheResult(cacheName = EventAddress.SETTING_GET)
+    public Uni<Answer> get(@CacheKey Object o) {
         //noinspection DuplicatedCode
         LOG.tracef("get(%s)", o);
         try {
@@ -67,13 +76,15 @@ public class SettingService extends AbstractService<Long, Setting> {
      */
     public Multi<Answer> getAll() {
         LOG.trace("getAll");
-        return settingDao.findAll()
+        return settingDao
+                .findAll()
                 .onItem()
                 .transform(this::answerOf);
     }
 
     private Uni<Answer> getEntry(Long id) {
-        return settingDao.findById(id)
+        return settingDao
+                .findById(id)
                 .map(this::apiResponseWithValueAnswer)
                 .onFailure(exceptionAnswerService::testNoSuchElementException)
                 .recoverWithUni(exceptionAnswerService::noSuchElementAnswer)
@@ -82,7 +93,8 @@ public class SettingService extends AbstractService<Long, Setting> {
     }
 
     @ConsumeEvent(value = EventAddress.SETTING_PAGE)
-    public Uni<Page<Answer>> getPage(PageRequest pageRequest) {
+    @CacheResult(cacheName = EventAddress.SETTING_PAGE)
+    public Uni<Page<Answer>> getPage(@CacheKey PageRequest pageRequest) {
         //noinspection DuplicatedCode
         LOG.tracef("getPage(%s)", pageRequest);
         return pageService.getPage(pageRequest, settingDao::count, settingDao::findRange);
@@ -101,8 +113,11 @@ public class SettingService extends AbstractService<Long, Setting> {
     }
 
     private Uni<Answer> addEntry(Setting entry) {
-        return settingDao.insert(entry)
+        return settingDao
+                .insert(entry)
                 .map(o -> apiResponseWithKeyAnswer(201, o))
+                .onItem()
+                .transformToUni(this::invalidateAllAndAnswer)
                 .onFailure(exceptionAnswerService::testDuplicateKeyException)
                 .recoverWithUni(exceptionAnswerService::notAcceptableDuplicateKeyValueAnswer)
                 .onFailure(exceptionAnswerService::testException)
@@ -118,12 +133,16 @@ public class SettingService extends AbstractService<Long, Setting> {
     @ConsumeEvent(EventAddress.SETTING_PUT)
     public Uni<Answer> put(Setting o) {
         LOG.tracef("put(%s)", o);
-        return putEntry(o);
+        return putEntry(o)
+                .onItem()
+                .transformToUni(answer -> invalidateAndAnswer(o.getId(), answer));
     }
 
     private Uni<Answer> putEntry(Setting entry) {
         return settingDao.update(entry)
                 .flatMap(this::apiResponseAcceptedUniAnswer)
+                .onItem()
+                .transformToUni(answer -> invalidateAndAnswer(entry.getId(), answer))
                 .onFailure(exceptionAnswerService::testDuplicateKeyException)
                 .recoverWithUni(exceptionAnswerService::notAcceptableDuplicateKeyValueAnswer)
                 .onFailure(exceptionAnswerService::testNoSuchElementException)
@@ -143,7 +162,8 @@ public class SettingService extends AbstractService<Long, Setting> {
         //noinspection DuplicatedCode
         LOG.tracef("delete(%s)", o);
         try {
-            return deleteEntry(getIdLong(o));
+            var key = getIdLong(o);
+            return deleteEntry(key);
         } catch (NumberFormatException e) {
             LOG.errorf("delete(%s)", o, e);
             return Uni.createFrom().item(Answer.noNumber(e.getMessage()));
@@ -154,11 +174,38 @@ public class SettingService extends AbstractService<Long, Setting> {
     }
 
     private Uni<Answer> deleteEntry(Long id) {
-        return settingDao.delete(id)
+        return settingDao
+                .delete(id)
                 .map(this::apiResponseWithKeyAnswer)
+                .onItem()
+                .transformToUni(answer -> invalidateAndAnswer(id, answer))
                 .onFailure(exceptionAnswerService::testNoSuchElementException)
                 .recoverWithUni(exceptionAnswerService::noSuchElementAnswer)
                 .onFailure(exceptionAnswerService::testException)
                 .recoverWithUni(exceptionAnswerService::badRequestUniAnswer);
+    }
+
+    @Override
+    protected Uni<List<Void>> invalidate(Object o) {
+        LOG.tracef("invalidate(%s)", o);
+
+        var wordGetVoid = cacheManager
+                .getCache(EventAddress.SETTING_GET)
+                .map(cache -> cache.invalidate(o))
+                .orElse(Uni.createFrom().voidItem());
+        var wordPageVoid = invalidateAllPage();
+
+        return joinCollectFailures(wordGetVoid, wordPageVoid)
+                .onItem()
+                .invoke(voids -> LOG.tracef("invalidate of %d caches", voids.size()));
+    }
+
+    @Override
+    protected Uni<Void> invalidateAllPage() {
+        LOG.trace("invalidateAllPage()");
+        return cacheManager
+                .getCache(EventAddress.SETTING_PAGE)
+                .map(Cache::invalidateAll)
+                .orElse(Uni.createFrom().voidItem());
     }
 }

@@ -7,11 +7,10 @@ import org.reactivestreams.Publisher;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.messages.ApiResponse;
 import su.svn.daybook.domain.model.Identification;
-import su.svn.daybook.domain.model.KeyValue;
 
 import javax.annotation.Nonnull;
-import javax.ws.rs.core.Response;
 import java.io.Serializable;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
@@ -23,6 +22,10 @@ public abstract class AbstractService<K extends Comparable<? extends Serializabl
     private static final Logger LOG = Logger.getLogger(AbstractService.class);
 
     public abstract Multi<Answer> getAll();
+
+    protected abstract Uni<List<Void>> invalidate(Object o);
+
+    protected abstract Uni<Void> invalidateAllPage();
 
     protected Publisher<Answer> getAllIfNotOverSize(Optional<Long> count, Supplier<Multi<V>> supplier) {
         if (count.isPresent()) {
@@ -67,6 +70,28 @@ public abstract class AbstractService<K extends Comparable<? extends Serializabl
             throw new NoSuchElementException();
         }
         return Uni.createFrom().item(apiResponseWithKeyAnswer(202, o));
+    }
+
+    protected Uni<Answer> invalidateAndAnswer(K key, Answer answer) {
+        return invalidate(key)
+                .onItem()
+                .transform(v -> answer)
+                .onFailure()
+                .recoverWithUni(t -> Uni.createFrom().item(answer));
+    }
+
+    protected Uni<Answer> invalidateAllAndAnswer(Answer answer) {
+        return invalidateAllPage()
+                .onItem()
+                .transform(u -> answer)
+                .onFailure()
+                .recoverWithUni(t -> Uni.createFrom().item(answer));
+    }
+
+    protected Uni<List<Void>> joinCollectFailures(Uni<Void> void1, Uni<Void> void2) {
+        return Uni.join()
+                .all(void1, void2)
+                .andCollectFailures();
     }
 
     public long getIdLong(Object o) {

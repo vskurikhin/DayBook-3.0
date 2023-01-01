@@ -8,6 +8,10 @@
 
 package su.svn.daybook.services.domain;
 
+import io.quarkus.cache.Cache;
+import io.quarkus.cache.CacheKey;
+import io.quarkus.cache.CacheManager;
+import io.quarkus.cache.CacheResult;
 import io.quarkus.vertx.ConsumeEvent;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
@@ -23,12 +27,16 @@ import su.svn.daybook.services.PageService;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 @ApplicationScoped
 public class WordService extends AbstractService<String, Word> {
 
     private static final Logger LOG = Logger.getLogger(WordService.class);
+
+    @Inject
+    CacheManager cacheManager;
 
     @Inject
     WordDao wordDao;
@@ -46,7 +54,8 @@ public class WordService extends AbstractService<String, Word> {
      * @return - a lazy asynchronous action with the Answer containing the Word as payload or empty payload
      */
     @ConsumeEvent(EventAddress.WORD_GET)
-    public Uni<Answer> get(Object o) {
+    @CacheResult(cacheName = EventAddress.WORD_GET)
+    public Uni<Answer> get(@CacheKey Object o) {
         //noinspection DuplicatedCode
         LOG.tracef("get(%s)", o);
         try {
@@ -63,14 +72,17 @@ public class WordService extends AbstractService<String, Word> {
      * @return - the Answer's Multi-flow with all entries of Word
      */
     public Multi<Answer> getAll() {
+        //noinspection DuplicatedCode
         LOG.trace("getAll");
-        return wordDao.count()
+        return wordDao
+                .count()
                 .onItem()
                 .transformToMulti(count -> getAllIfNotOverSize(count, () -> wordDao.findAll()));
     }
 
     private Uni<Answer> getEntry(String id) {
-        return wordDao.findById(id)
+        return wordDao
+                .findById(id)
                 .map(this::apiResponseWithValueAnswer)
                 .onFailure(exceptionAnswerService::testNoSuchElementException)
                 .recoverWithUni(exceptionAnswerService::noSuchElementAnswer)
@@ -79,7 +91,8 @@ public class WordService extends AbstractService<String, Word> {
     }
 
     @ConsumeEvent(value = EventAddress.WORD_PAGE)
-    public Uni<Page<Answer>> getPage(PageRequest pageRequest) {
+    @CacheResult(cacheName = EventAddress.WORD_PAGE)
+    public Uni<Page<Answer>> getPage(@CacheKey PageRequest pageRequest) {
         //noinspection DuplicatedCode
         LOG.tracef("getPage(%s)", pageRequest);
         return pageService.getPage(pageRequest, wordDao::count, wordDao::findRange);
@@ -93,13 +106,17 @@ public class WordService extends AbstractService<String, Word> {
      */
     @ConsumeEvent(EventAddress.WORD_ADD)
     public Uni<Answer> add(Word o) {
+        //noinspection DuplicatedCode
         LOG.tracef("add(%s)", o);
         return addEntry(o);
     }
 
     private Uni<Answer> addEntry(Word entry) {
-        return wordDao.insert(entry)
+        return wordDao
+                .insert(entry)
                 .map(o -> apiResponseWithKeyAnswer(201, o))
+                .onItem()
+                .transformToUni(this::invalidateAllAndAnswer)
                 .onFailure(exceptionAnswerService::testDuplicateKeyException)
                 .recoverWithUni(exceptionAnswerService::notAcceptableDuplicateKeyValueAnswer)
                 .onFailure(exceptionAnswerService::testException)
@@ -114,13 +131,17 @@ public class WordService extends AbstractService<String, Word> {
      */
     @ConsumeEvent(EventAddress.WORD_PUT)
     public Uni<Answer> put(Word o) {
+        //noinspection DuplicatedCode
         LOG.tracef("put(%s)", o);
         return putEntry(o);
     }
 
     private Uni<Answer> putEntry(Word entry) {
-        return wordDao.update(entry)
+        return wordDao
+                .update(entry)
                 .flatMap(this::apiResponseAcceptedUniAnswer)
+                .onItem()
+                .transformToUni(answer -> invalidateAndAnswer(entry.getId(), answer))
                 .onFailure(exceptionAnswerService::testDuplicateKeyException)
                 .recoverWithUni(exceptionAnswerService::notAcceptableDuplicateKeyValueAnswer)
                 .onFailure(exceptionAnswerService::testNoSuchElementException)
@@ -148,11 +169,38 @@ public class WordService extends AbstractService<String, Word> {
     }
 
     private Uni<Answer> deleteEntry(String id) {
-        return wordDao.delete(id)
+        return wordDao
+                .delete(id)
                 .map(this::apiResponseWithKeyAnswer)
+                .onItem()
+                .transformToUni(answer -> invalidateAndAnswer(id, answer))
                 .onFailure(exceptionAnswerService::testNoSuchElementException)
                 .recoverWithUni(exceptionAnswerService::noSuchElementAnswer)
                 .onFailure(exceptionAnswerService::testException)
                 .recoverWithUni(exceptionAnswerService::badRequestUniAnswer);
+    }
+
+    @Override
+    protected Uni<List<Void>> invalidate(Object o) {
+        LOG.tracef("invalidate(%s)", o);
+
+        var wordGetVoid = cacheManager
+                .getCache(EventAddress.WORD_GET)
+                .map(cache -> cache.invalidate(o))
+                .orElse(Uni.createFrom().voidItem());
+        var wordPageVoid = invalidateAllPage();
+
+        return joinCollectFailures(wordGetVoid, wordPageVoid)
+                .onItem()
+                .invoke(voids -> LOG.tracef("invalidate of %d caches", voids.size()));
+    }
+
+    @Override
+    protected Uni<Void> invalidateAllPage() {
+        LOG.trace("invalidateAllPage()");
+        return cacheManager
+                .getCache(EventAddress.WORD_PAGE)
+                .map(Cache::invalidateAll)
+                .orElse(Uni.createFrom().voidItem());
     }
 }

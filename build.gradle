@@ -37,17 +37,17 @@ ext.libVers = [
 ]
 
 dependencies {
-    implementation 'io.quarkus:quarkus-grpc'
-    implementation "io.quarkus:quarkus-resteasy-reactive-jackson"
-    implementation 'io.quarkus:quarkus-hibernate-validator'
-    implementation 'io.quarkus:quarkus-smallrye-openapi'
-    implementation 'io.quarkus:quarkus-websockets'
-    implementation 'io.quarkus:quarkus-reactive-pg-client'
-    implementation 'io.quarkus:quarkus-cache'
-    implementation 'io.quarkus:quarkus-resteasy-reactive'
-    implementation "io.quarkus:quarkus-vertx"
-    implementation enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}")
     implementation "io.quarkus:quarkus-arc"
+    implementation "io.quarkus:quarkus-cache"
+    implementation "io.quarkus:quarkus-hibernate-validator"
+    implementation "io.quarkus:quarkus-micrometer-registry-prometheus"
+    implementation "io.quarkus:quarkus-reactive-pg-client"
+    implementation "io.quarkus:quarkus-resteasy-reactive"
+    implementation "io.quarkus:quarkus-resteasy-reactive-jackson"
+    implementation "io.quarkus:quarkus-smallrye-openapi"
+    implementation "io.quarkus:quarkus-vertx"
+    implementation "io.quarkus:quarkus-websockets"
+    implementation enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}")
     implementation "io.netty:netty-transport-native-epoll:$libVers.netty_transport_native:linux-x86_64"
     implementation "io.netty:netty-transport-native-kqueue:$libVers.netty_transport_native:osx-x86_64"
     implementation "com.google.code.findbugs:jsr305:$libVers.jsr305"

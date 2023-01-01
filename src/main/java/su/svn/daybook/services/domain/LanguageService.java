@@ -8,6 +8,10 @@
 
 package su.svn.daybook.services.domain;
 
+import io.quarkus.cache.Cache;
+import io.quarkus.cache.CacheKey;
+import io.quarkus.cache.CacheManager;
+import io.quarkus.cache.CacheResult;
 import io.quarkus.vertx.ConsumeEvent;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
@@ -23,12 +27,16 @@ import su.svn.daybook.services.PageService;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 @ApplicationScoped
 public class LanguageService extends AbstractService<Long, Language> {
 
     private static final Logger LOG = Logger.getLogger(LanguageService.class);
+
+    @Inject
+    CacheManager cacheManager;
 
     @Inject
     LanguageDao languageDao;
@@ -46,7 +54,8 @@ public class LanguageService extends AbstractService<Long, Language> {
      * @return - a lazy asynchronous action with the Answer containing the Language as payload or empty payload
      */
     @ConsumeEvent(EventAddress.LANGUAGE_GET)
-    public Uni<Answer> get(Object o) {
+    @CacheResult(cacheName = EventAddress.LANGUAGE_GET)
+    public Uni<Answer> get(@CacheKey Object o) {
         //noinspection DuplicatedCode
         LOG.tracef("get(%s)", o);
         try {
@@ -67,13 +76,15 @@ public class LanguageService extends AbstractService<Long, Language> {
      */
     public Multi<Answer> getAll() {
         LOG.trace("getAll");
-        return languageDao.findAll()
+        return languageDao
+                .findAll()
                 .onItem()
                 .transform(this::answerOf);
     }
 
     private Uni<Answer> getEntry(Long id) {
-        return languageDao.findById(id)
+        return languageDao
+                .findById(id)
                 .map(this::apiResponseWithValueAnswer)
                 .onFailure(exceptionAnswerService::testNoSuchElementException)
                 .recoverWithUni(exceptionAnswerService::noSuchElementAnswer)
@@ -82,7 +93,8 @@ public class LanguageService extends AbstractService<Long, Language> {
     }
 
     @ConsumeEvent(value = EventAddress.LANGUAGE_PAGE)
-    public Uni<Page<Answer>> getPage(PageRequest pageRequest) {
+    @CacheResult(cacheName = EventAddress.LANGUAGE_PAGE)
+    public Uni<Page<Answer>> getPage(@CacheKey PageRequest pageRequest) {
         //noinspection DuplicatedCode
         LOG.tracef("getPage(%s)", pageRequest);
         return pageService.getPage(pageRequest, languageDao::count, languageDao::findRange);
@@ -103,6 +115,8 @@ public class LanguageService extends AbstractService<Long, Language> {
     private Uni<Answer> addEntry(Language entry) {
         return languageDao.insert(entry)
                 .map(o -> apiResponseWithKeyAnswer(201, o))
+                .onItem()
+                .transformToUni(this::invalidateAllAndAnswer)
                 .onFailure(exceptionAnswerService::testDuplicateKeyException)
                 .recoverWithUni(exceptionAnswerService::notAcceptableDuplicateKeyValueAnswer)
                 .onFailure(exceptionAnswerService::testException)
@@ -122,8 +136,11 @@ public class LanguageService extends AbstractService<Long, Language> {
     }
 
     private Uni<Answer> putEntry(Language entry) {
-        return languageDao.update(entry)
+        return languageDao
+                .update(entry)
                 .flatMap(this::apiResponseAcceptedUniAnswer)
+                .onItem()
+                .transformToUni(answer -> invalidateAndAnswer(entry.getId(), answer))
                 .onFailure(exceptionAnswerService::testDuplicateKeyException)
                 .recoverWithUni(exceptionAnswerService::notAcceptableDuplicateKeyValueAnswer)
                 .onFailure(exceptionAnswerService::testNoSuchElementException)
@@ -156,9 +173,35 @@ public class LanguageService extends AbstractService<Long, Language> {
     private Uni<Answer> deleteEntry(Long id) {
         return languageDao.delete(id)
                 .map(this::apiResponseWithKeyAnswer)
+                .onItem()
+                .transformToUni(answer -> invalidateAndAnswer(id, answer))
                 .onFailure(exceptionAnswerService::testNoSuchElementException)
                 .recoverWithUni(exceptionAnswerService::noSuchElementAnswer)
                 .onFailure(exceptionAnswerService::testException)
                 .recoverWithUni(exceptionAnswerService::badRequestUniAnswer);
+    }
+
+    @Override
+    protected Uni<List<Void>> invalidate(Object o) {
+        LOG.tracef("invalidate(%s)", o);
+
+        var wordGetVoid = cacheManager
+                .getCache(EventAddress.LANGUAGE_GET)
+                .map(cache -> cache.invalidate(o))
+                .orElse(Uni.createFrom().voidItem());
+        var wordPageVoid = invalidateAllPage();
+
+        return joinCollectFailures(wordGetVoid, wordPageVoid)
+                .onItem()
+                .invoke(voids -> LOG.tracef("invalidate of %d caches", voids.size()));
+    }
+
+    @Override
+    protected Uni<Void> invalidateAllPage() {
+        LOG.trace("invalidateAllPage()");
+        return cacheManager
+                .getCache(EventAddress.LANGUAGE_PAGE)
+                .map(Cache::invalidateAll)
+                .orElse(Uni.createFrom().voidItem());
     }
 }

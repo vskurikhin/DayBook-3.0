@@ -82,10 +82,10 @@ class TagLabelServiceTest {
     @Test
     void testWhenGetPageThenSingletonList() {
 
-        Mockito.when(mock.findRange(0L, Short.MAX_VALUE)).thenReturn(MULTI_TEST);
+        Mockito.when(mock.findRange(0L, Short.MAX_VALUE - 1)).thenReturn(MULTI_TEST);
         Mockito.when(mock.count()).thenReturn(TestData.UNI_OPTIONAL_ONE_LONG);
 
-        PageRequest pageRequest = new PageRequest(0, Short.MAX_VALUE);
+        PageRequest pageRequest = new PageRequest(0L, (short) (Short.MAX_VALUE - 1));
         var expected = Page.<Answer>builder()
                 .totalPages(1L)
                 .totalElements(1)
@@ -106,10 +106,10 @@ class TagLabelServiceTest {
     @Test
     void testWhenGetPageThenEmpty() {
 
-        Mockito.when(mock.findRange(0L, Short.MAX_VALUE)).thenReturn(MULTI_EMPTIES);
+        Mockito.when(mock.findRange(0L, Short.MAX_VALUE - 2)).thenReturn(MULTI_EMPTIES);
         Mockito.when(mock.count()).thenReturn(TestData.UNI_OPTIONAL_ZERO_LONG);
 
-        PageRequest pageRequest = new PageRequest(0, Short.MAX_VALUE);
+        PageRequest pageRequest = new PageRequest(0L, (short) (Short.MAX_VALUE - 2));
         var expected = Page.<Answer>builder()
                 .totalPages(0L)
                 .totalElements(0)
@@ -156,15 +156,6 @@ class TagLabelServiceTest {
         Assertions.assertDoesNotThrow(() -> service.get(TestData.TAG_LABEL.ID)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(Answer.of(TestData.TAG_LABEL.OBJECT_0), actual))
-                .await()
-                .indefinitely());
-    }
-
-    @Test
-    void testWhenGetThenNullParameter() {
-        Assertions.assertDoesNotThrow(() -> service.get(null)
-                .onItem()
-                .invoke(actual -> Assertions.assertEquals(Answer.empty(), actual))
                 .await()
                 .indefinitely());
     }

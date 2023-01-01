@@ -8,6 +8,10 @@
 
 package su.svn.daybook.services.domain;
 
+import io.quarkus.cache.Cache;
+import io.quarkus.cache.CacheKey;
+import io.quarkus.cache.CacheManager;
+import io.quarkus.cache.CacheResult;
 import io.quarkus.vertx.ConsumeEvent;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
@@ -23,12 +27,16 @@ import su.svn.daybook.services.PageService;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 @ApplicationScoped
 public class KeyValueService extends AbstractService<Long, KeyValue> {
 
     private static final Logger LOG = Logger.getLogger(KeyValueService.class);
+
+    @Inject
+    CacheManager cacheManager;
 
     @Inject
     KeyValueDao keyValueDao;
@@ -46,7 +54,8 @@ public class KeyValueService extends AbstractService<Long, KeyValue> {
      * @return - a lazy asynchronous action with the Answer containing the KeyValue as payload or empty payload
      */
     @ConsumeEvent(EventAddress.KEY_VALUE_GET)
-    public Uni<Answer> get(Object o) {
+    @CacheResult(cacheName = EventAddress.KEY_VALUE_GET)
+    public Uni<Answer> get(@CacheKey Object o) {
         //noinspection DuplicatedCode
         LOG.tracef("get(%s)", o);
         try {
@@ -66,14 +75,17 @@ public class KeyValueService extends AbstractService<Long, KeyValue> {
      * @return - the Answer's Multi-flow with all entries of KeyValue
      */
     public Multi<Answer> getAll() {
+        //noinspection DuplicatedCode
         LOG.trace("getAll()");
-        return keyValueDao.count()
+        return keyValueDao
+                .count()
                 .onItem()
                 .transformToMulti(count -> getAllIfNotOverSize(count, () -> keyValueDao.findAll()));
     }
 
     private Uni<Answer> getEntry(Long id) {
-        return keyValueDao.findById(id)
+        return keyValueDao
+                .findById(id)
                 .map(this::apiResponseWithValueAnswer)
                 .onFailure(exceptionAnswerService::testNoSuchElementException)
                 .recoverWithUni(exceptionAnswerService::noSuchElementAnswer)
@@ -82,7 +94,8 @@ public class KeyValueService extends AbstractService<Long, KeyValue> {
     }
 
     @ConsumeEvent(value = EventAddress.KEY_VALUE_PAGE)
-    public Uni<Page<Answer>> getPage(PageRequest pageRequest) {
+    @CacheResult(cacheName = EventAddress.KEY_VALUE_PAGE)
+    public Uni<Page<Answer>> getPage(@CacheKey PageRequest pageRequest) {
         //noinspection DuplicatedCode
         LOG.tracef("getPage(%s)", pageRequest);
         return pageService.getPage(pageRequest, keyValueDao::count, keyValueDao::findRange);
@@ -96,13 +109,17 @@ public class KeyValueService extends AbstractService<Long, KeyValue> {
      */
     @ConsumeEvent(EventAddress.KEY_VALUE_ADD)
     public Uni<Answer> add(KeyValue o) {
+        //noinspection DuplicatedCode
         LOG.tracef("add(%s)", o);
         return addEntry(o);
     }
 
     private Uni<Answer> addEntry(KeyValue entry) {
-        return keyValueDao.insert(entry)
+        return keyValueDao
+                .insert(entry)
                 .map(o -> apiResponseWithKeyAnswer(201, o))
+                .onItem()
+                .transformToUni(this::invalidateAllAndAnswer)
                 .onFailure(exceptionAnswerService::testDuplicateKeyException)
                 .recoverWithUni(exceptionAnswerService::notAcceptableDuplicateKeyValueAnswer)
                 .onFailure(exceptionAnswerService::testException)
@@ -117,13 +134,17 @@ public class KeyValueService extends AbstractService<Long, KeyValue> {
      */
     @ConsumeEvent(EventAddress.KEY_VALUE_PUT)
     public Uni<Answer> put(KeyValue o) {
+        //noinspection DuplicatedCode
         LOG.tracef("put(%s)", o);
         return putEntry(o);
     }
 
     private Uni<Answer> putEntry(KeyValue entry) {
-        return keyValueDao.update(entry)
+        return keyValueDao
+                .update(entry)
                 .flatMap(this::apiResponseAcceptedUniAnswer)
+                .onItem()
+                .transformToUni(answer -> invalidateAndAnswer(entry.getId(), answer))
                 .onFailure(exceptionAnswerService::testDuplicateKeyException)
                 .recoverWithUni(exceptionAnswerService::notAcceptableDuplicateKeyValueAnswer)
                 .onFailure(exceptionAnswerService::testNoSuchElementException)
@@ -154,11 +175,38 @@ public class KeyValueService extends AbstractService<Long, KeyValue> {
     }
 
     private Uni<Answer> deleteEntry(Long id) {
-        return keyValueDao.delete(id)
+        return keyValueDao
+                .delete(id)
                 .map(this::apiResponseWithKeyAnswer)
+                .onItem()
+                .transformToUni(answer -> invalidateAndAnswer(id, answer))
                 .onFailure(exceptionAnswerService::testNoSuchElementException)
                 .recoverWithUni(exceptionAnswerService::noSuchElementAnswer)
                 .onFailure(exceptionAnswerService::testException)
                 .recoverWithUni(exceptionAnswerService::badRequestUniAnswer);
+    }
+
+    @Override
+    protected Uni<List<Void>> invalidate(Object o) {
+        LOG.tracef("invalidate(%s)", o);
+
+        var wordGetVoid = cacheManager
+                .getCache(EventAddress.KEY_VALUE_GET)
+                .map(cache -> cache.invalidate(o))
+                .orElse(Uni.createFrom().voidItem());
+        var wordPageVoid = invalidateAllPage();
+
+        return joinCollectFailures(wordGetVoid, wordPageVoid)
+                .onItem()
+                .invoke(voids -> LOG.tracef("invalidate of %d caches", voids.size()));
+    }
+
+    @Override
+    protected Uni<Void> invalidateAllPage() {
+        LOG.trace("invalidateAllPage()");
+        return cacheManager
+                .getCache(EventAddress.KEY_VALUE_PAGE)
+                .map(Cache::invalidateAll)
+                .orElse(Uni.createFrom().voidItem());
     }
 }
