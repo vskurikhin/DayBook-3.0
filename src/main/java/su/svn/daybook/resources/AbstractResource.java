@@ -8,10 +8,13 @@ import org.jboss.resteasy.reactive.RestResponse;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.messages.ApiResponse;
 import su.svn.daybook.domain.model.Identification;
+import su.svn.daybook.models.pagination.Page;
 
+import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import java.io.Serializable;
 import java.net.URI;
 import java.util.Collections;
 import java.util.regex.Pattern;
@@ -33,6 +36,14 @@ abstract class AbstractResource {
                 .transform(Response.ResponseBuilder::build);
     }
 
+    protected Uni<Response> requestPage(String address, Object o) {
+        return bus.<Page<Answer>>request(address, o)
+                .onItem()
+                .transform(this::createPageResponseBuilder)
+                .onItem()
+                .transform(Response.ResponseBuilder::build);
+    }
+
     protected Response.ResponseBuilder createResponseBuilder(UriInfo uriInfo, Message<Answer> message) {
         if (message.body() == null) {
             return Response.status(406, "body is null");
@@ -40,6 +51,37 @@ abstract class AbstractResource {
         return message.body().getPayload() != null
                 ? constructResponseBuilder(uriInfo, message.body())
                 : Response.status(message.body().getError(), message.body().getMessage());
+    }
+
+    protected Response.ResponseBuilder createPageResponseBuilder(Message<Page<Answer>> message) {
+        if (message.body() == null) {
+            return Response.status(406, "body is null");
+        }
+        var page = message.body();
+        var content = page.getContent()
+                .stream()
+                .map(this::getAnswerPayload)
+                .filter(this::nonEmpty)
+                .toList();
+        var result = page.convertToBuilderWith(content).build();
+        return Response.ok(result);
+    }
+
+    @Nonnull
+    private Serializable getAnswerPayload(Answer answer) {
+        if (answer.getPayload() != null) {
+            if (answer.getPayload() instanceof Serializable s) {
+                return s;
+            }
+        }
+        return Answer.empty();
+    }
+
+    private boolean nonEmpty(Object o) {
+        if (o instanceof Answer answer) {
+            return ! Answer.empty().equals(answer);
+        }
+        return true;
     }
 
     protected RestResponse<String> badRequest(Throwable x) {
@@ -60,7 +102,7 @@ abstract class AbstractResource {
             case 202 -> Response.accepted(answer.getPayload()).location(createUri(uriInfo, answer.getPayload()));
             case 404 -> Response.status(Response.Status.NOT_FOUND).entity(answer);
             case 406 -> Response.status(Response.Status.NOT_ACCEPTABLE).entity(answer);
-            default -> Response.status(Response.Status.BAD_REQUEST);
+            default -> Response.status(Response.Status.BAD_REQUEST).entity(answer);
         };
     }
 

@@ -36,6 +36,11 @@ public final class UserName implements UUIDIdentification, Marked, Owned, TimeUp
               FROM security.user_name
              ORDER BY id ASC
             """;
+    public static final String SELECT_ALL_FROM_SECURITY_USER_NAME_ORDER_BY_ID_ASC_OFFSET_LIMIT = """
+            SELECT id, user_name, password, create_time, update_time, enabled, visible, flags
+              FROM security.user_name
+             ORDER BY id ASC OFFSET $1 LIMIT $2
+            """;
     public static final String INSERT_INTO_SECURITY_USER_NAME = """
             INSERT INTO security.user_name
              (id, user_name, password, enabled, visible, flags)
@@ -119,16 +124,6 @@ public final class UserName implements UUIDIdentification, Marked, Owned, TimeUp
         );
     }
 
-    public static Uni<UserName> findById(PgPool client, UUID id) {
-        return client
-                .preparedQuery(SELECT_FROM_SECURITY_USER_NAME_WHERE_ID_$1)
-                .execute(Tuple.of(id))
-                .onItem()
-                .transform(RowSet::iterator)
-                .onItem()
-                .transform(iterator -> iterator.hasNext() ? UserName.from(iterator.next()) : null);
-    }
-
     public static Multi<UserName> findAll(PgPool client) {
         return client
                 .query(SELECT_ALL_FROM_SECURITY_USER_NAME_ORDER_BY_ID_ASC)
@@ -140,12 +135,32 @@ public final class UserName implements UUIDIdentification, Marked, Owned, TimeUp
 
     }
 
+    public static Uni<UserName> findById(PgPool client, UUID id) {
+        return client
+                .preparedQuery(SELECT_FROM_SECURITY_USER_NAME_WHERE_ID_$1)
+                .execute(Tuple.of(id))
+                .onItem()
+                .transform(RowSet::iterator)
+                .onItem()
+                .transform(iterator -> iterator.hasNext() ? UserName.from(iterator.next()) : null);
+    }
+
+    public static Multi<UserName> findRange(PgPool client, long offset, long limit) {
+        return client
+                .preparedQuery(SELECT_ALL_FROM_SECURITY_USER_NAME_ORDER_BY_ID_ASC_OFFSET_LIMIT)
+                .execute(Tuple.of(offset, limit))
+                .onItem()
+                .transformToMulti(set -> Multi.createFrom().iterable(set))
+                .onItem()
+                .transform(UserName::from);
+    }
+
     public static Uni<UUID> delete(PgPool client, UUID id) {
         return client.withTransaction(
                 connection -> connection.preparedQuery(DELETE_FROM_SECURITY_USER_NAME_WHERE_ID_$1)
-                .execute(Tuple.of(id))
-                .onItem()
-                .transform(pgRowSet -> pgRowSet.iterator().next().getUUID(ID)));
+                        .execute(Tuple.of(id))
+                        .onItem()
+                        .transform(pgRowSet -> pgRowSet.iterator().next().getUUID(ID)));
     }
 
     public static Uni<Long> count(PgPool client) {
@@ -163,19 +178,19 @@ public final class UserName implements UUIDIdentification, Marked, Owned, TimeUp
     public Uni<UUID> insert(PgPool client) {
         return client.withTransaction(
                 connection -> connection.preparedQuery(INSERT_INTO_SECURITY_USER_NAME)
-                .execute(Tuple.of(id, userName, password, enabled, visible, flags))
-                .onItem()
-                .transform(RowSet::iterator)
-                .onItem()
-                .transform(iterator -> iterator.hasNext() ? iterator.next().getUUID(ID) : null));
+                        .execute(Tuple.of(id, userName, password, enabled, visible, flags))
+                        .onItem()
+                        .transform(RowSet::iterator)
+                        .onItem()
+                        .transform(iterator -> iterator.hasNext() ? iterator.next().getUUID(ID) : null));
     }
 
     public Uni<UUID> update(PgPool client) {
         return client.withTransaction(
                 connection -> connection.preparedQuery(UPDATE_SECURITY_USER_NAME_WHERE_ID_$1)
-                .execute(Tuple.of(id, userName, password, enabled, visible, flags))
-                .onItem()
-                .transform(pgRowSet -> pgRowSet.iterator().next().getUUID(ID)));
+                        .execute(Tuple.of(id, userName, password, enabled, visible, flags))
+                        .onItem()
+                        .transform(pgRowSet -> pgRowSet.iterator().next().getUUID(ID)));
     }
 
     public UUID getId() {

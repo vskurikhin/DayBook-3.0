@@ -37,6 +37,11 @@ public final class Language implements LongIdentification, Marked, Owned, TimeUp
               FROM dictionary.language
              ORDER BY id ASC
             """;
+    public static final String SELECT_ALL_FROM_DICTIONARY_LANGUAGE_ORDER_BY_ID_ASC_OFFSET_LIMIT = """
+            SELECT id, language, user_name, create_time, update_time, enabled, visible, flags
+              FROM dictionary.language
+             ORDER BY id ASC OFFSET $1 LIMIT $2
+            """;
     public static final String INSERT_INTO_DICTIONARY_LANGUAGE = """
             INSERT INTO dictionary.language
              (id, language, user_name, enabled, visible, flags)
@@ -128,6 +133,16 @@ public final class Language implements LongIdentification, Marked, Owned, TimeUp
         );
     }
 
+    public static Multi<Language> findAll(PgPool client) {
+        return client
+                .query(SELECT_ALL_FROM_DICTIONARY_LANGUAGE_ORDER_BY_ID_ASC)
+                .execute()
+                .onItem()
+                .transformToMulti(set -> Multi.createFrom().iterable(set))
+                .onItem()
+                .transform(Language::from);
+    }
+
     public static Uni<Language> findById(PgPool client, Long id) {
         return client
                 .preparedQuery(SELECT_FROM_DICTIONARY_LANGUAGE_WHERE_ID_$1)
@@ -138,15 +153,14 @@ public final class Language implements LongIdentification, Marked, Owned, TimeUp
                 .transform(iterator -> iterator.hasNext() ? Language.from(iterator.next()) : null);
     }
 
-    public static Multi<Language> findAll(PgPool client) {
+    public static Multi<Language> findRange(PgPool client, long offset, long limit) {
         return client
-                .query(SELECT_ALL_FROM_DICTIONARY_LANGUAGE_ORDER_BY_ID_ASC)
-                .execute()
+                .preparedQuery(SELECT_ALL_FROM_DICTIONARY_LANGUAGE_ORDER_BY_ID_ASC_OFFSET_LIMIT)
+                .execute(Tuple.of(offset, limit))
                 .onItem()
                 .transformToMulti(set -> Multi.createFrom().iterable(set))
                 .onItem()
                 .transform(Language::from);
-
     }
 
     public static Uni<Long> delete(PgPool client, Long id) {

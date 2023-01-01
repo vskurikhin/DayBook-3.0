@@ -37,9 +37,14 @@ ext.libVers = [
 ]
 
 dependencies {
-    implementation "io.quarkus:quarkus-resteasy-reactive"
+    implementation 'io.quarkus:quarkus-grpc'
     implementation "io.quarkus:quarkus-resteasy-reactive-jackson"
-    implementation "io.quarkus:quarkus-reactive-pg-client"
+    implementation 'io.quarkus:quarkus-hibernate-validator'
+    implementation 'io.quarkus:quarkus-smallrye-openapi'
+    implementation 'io.quarkus:quarkus-websockets'
+    implementation 'io.quarkus:quarkus-reactive-pg-client'
+    implementation 'io.quarkus:quarkus-cache'
+    implementation 'io.quarkus:quarkus-resteasy-reactive'
     implementation "io.quarkus:quarkus-vertx"
     implementation enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}")
     implementation "io.quarkus:quarkus-arc"
@@ -115,6 +120,7 @@ test {
     useJUnitPlatform()
     environment "LC_CTYPE", "en_US.UTF-8"
     environment "LC_ALL", "en_US.UTF-8"
+    systemProperty "java.util.logging.manager", "org.jboss.logmanager.LogManager"
 }
 
 static def getEnv(key, defaultValue) {
@@ -180,6 +186,7 @@ private void genDictionary(template, projectDir, to, sufix = "") {
                 serialVersionUID: new Random().nextLong().toString(),
                 schema          : schema,
                 SCHEMA          : schema.toUpperCase(),
+                name            : toCamelCase(name, false),
                 Name            : toCamelCase(name, true),
                 table           : name,
                 TABLE           : name.toUpperCase(),
@@ -249,9 +256,9 @@ task generator() {
         genDictionary(model, projectDir, "src/main/java/su/svn/daybook/domain/model")
         genDictionary(dao, projectDir, "src/main/java/su/svn/daybook/domain/dao", "Dao")
         genDictionary(resource, projectDir, "src/main/java/su/svn/daybook/resources", "Resource")
-        genDictionary(service, projectDir, "src/main/java/su/svn/daybook/services", "Service")
+        genDictionary(service, projectDir, "src/main/java/su/svn/daybook/services/domain", "Service")
         genDictionary(test, projectDir, "src/test/java/su/svn/daybook/domain/model", "Test")
-        genDictionary(serviceTest, projectDir, "src/test/java/su/svn/daybook/domain/services", "ServiceTest")
+        genDictionary(serviceTest, projectDir, "src/test/java/su/svn/daybook/services/domain", "ServiceTest")
         genSql(createTable, resourcesDb, resourcesDbPath, schemaName)
         genSql(tableTriggers, resourcesDb, resourcesDbPath, schemaName, 'triggers')
         genSql(indexOnTable, resourcesDb, resourcesDbPath, schemaName, 'idx')

@@ -36,6 +36,11 @@ public class LanguageDao {
                 .map(Optional::ofNullable);
     }
 
+    public Multi<Language> findRange(long offset, long limit) {
+        LOG.tracef("findRange(%d, %d)", offset, limit);
+        return Language.findRange(client, offset, limit);
+    }
+
     public Uni<Optional<Long>> insert(Language entry) {
         LOG.tracef("insert(%s)", entry);
         return entry.insert(client)

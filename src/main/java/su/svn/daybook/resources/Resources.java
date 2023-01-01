@@ -4,7 +4,7 @@ import io.smallrye.mutiny.Multi;
 import org.jboss.logging.Logger;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.model.Identification;
-import su.svn.daybook.services.AbstractService;
+import su.svn.daybook.services.domain.AbstractService;
 
 import java.io.Serializable;
 import java.util.Objects;
@@ -27,7 +27,7 @@ public interface Resources<K extends Comparable<? extends Serializable>, V exten
                 .onItem()
                 .invoke(counter::incrementAndGet)
                 .onTermination()
-                .invoke(() -> LOG.debugf("getAll() counter %s", counter.get()));
+                .invoke(() -> LOG.tracef("getAll() counter %s", counter.get()));
     }
 
     private V extract(Answer answer) {

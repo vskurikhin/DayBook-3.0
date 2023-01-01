@@ -36,6 +36,11 @@ public class TagLabelDao {
                 .map(Optional::ofNullable);
     }
 
+    public Multi<TagLabel> findRange(long offset, long limit) {
+        LOG.tracef("findRange(%d, %d)", offset, limit);
+        return TagLabel.findRange(client, offset, limit);
+    }
+
     public Uni<Optional<String>> insert(TagLabel entry) {
         LOG.tracef("insert(%s)", entry);
         return entry.insert(client)

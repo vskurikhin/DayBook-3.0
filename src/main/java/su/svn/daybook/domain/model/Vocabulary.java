@@ -38,6 +38,11 @@ public final class Vocabulary implements LongIdentification, Marked, Owned, Time
               FROM dictionary.vocabulary
              ORDER BY id ASC
             """;
+    public static final String SELECT_ALL_FROM_DICTIONARY_VOCABULARY_ORDER_BY_ID_ASC_OFFSET_LIMIT = """
+            SELECT id, word, value, user_name, create_time, update_time, enabled, visible, flags
+              FROM dictionary.vocabulary
+             ORDER BY id ASC OFFSET $1 LIMIT $2
+            """;
     public static final String INSERT_INTO_DICTIONARY_VOCABULARY = """
             INSERT INTO dictionary.vocabulary
              (id, word, value, user_name, enabled, visible, flags)
@@ -126,16 +131,6 @@ public final class Vocabulary implements LongIdentification, Marked, Owned, Time
         );
     }
 
-    public static Uni<Vocabulary> findById(PgPool client, Long id) {
-        return client
-                .preparedQuery(SELECT_FROM_DICTIONARY_VOCABULARY_WHERE_ID_$1)
-                .execute(Tuple.of(id))
-                .onItem()
-                .transform(RowSet::iterator)
-                .onItem()
-                .transform(iterator -> iterator.hasNext() ? Vocabulary.from(iterator.next()) : null);
-    }
-
     public static Multi<Vocabulary> findAll(PgPool client) {
         return client
                 .query(SELECT_ALL_FROM_DICTIONARY_VOCABULARY_ORDER_BY_ID_ASC)
@@ -147,12 +142,32 @@ public final class Vocabulary implements LongIdentification, Marked, Owned, Time
 
     }
 
+    public static Uni<Vocabulary> findById(PgPool client, Long id) {
+        return client
+                .preparedQuery(SELECT_FROM_DICTIONARY_VOCABULARY_WHERE_ID_$1)
+                .execute(Tuple.of(id))
+                .onItem()
+                .transform(RowSet::iterator)
+                .onItem()
+                .transform(iterator -> iterator.hasNext() ? Vocabulary.from(iterator.next()) : null);
+    }
+
+    public static Multi<Vocabulary> findRange(PgPool client, long offset, long limit) {
+        return client
+                .preparedQuery(SELECT_ALL_FROM_DICTIONARY_VOCABULARY_ORDER_BY_ID_ASC_OFFSET_LIMIT)
+                .execute(Tuple.of(offset, limit))
+                .onItem()
+                .transformToMulti(set -> Multi.createFrom().iterable(set))
+                .onItem()
+                .transform(Vocabulary::from);
+    }
+
     public static Uni<Long> delete(PgPool client, Long id) {
         return client.withTransaction(
                 connection -> connection.preparedQuery(DELETE_FROM_DICTIONARY_VOCABULARY_WHERE_ID_$1)
-                .execute(Tuple.of(id))
-                .onItem()
-                .transform(pgRowSet -> pgRowSet.iterator().next().getLong(ID)));
+                        .execute(Tuple.of(id))
+                        .onItem()
+                        .transform(pgRowSet -> pgRowSet.iterator().next().getLong(ID)));
     }
 
     public static Uni<Long> count(PgPool client) {

@@ -38,6 +38,11 @@ public final class I18n implements LongIdentification, Marked, Owned, TimeUpdate
               FROM dictionary.i18n
              ORDER BY id ASC
             """;
+    public static final String SELECT_ALL_FROM_DICTIONARY_KEY_VALUE_ORDER_BY_ID_ASC_OFFSET_LIMIT = """
+            SELECT id, language_id, message, translation, user_name, create_time, update_time, enabled, visible, flags
+              FROM dictionary.i18n
+             ORDER BY id ASC OFFSET $1 LIMIT $2
+            """;
     public static final String INSERT_INTO_DICTIONARY_I18N = """
             INSERT INTO dictionary.i18n
              (id, language_id, message, translation, user_name, enabled, visible, flags)
@@ -141,16 +146,6 @@ public final class I18n implements LongIdentification, Marked, Owned, TimeUpdate
         );
     }
 
-    public static Uni<I18n> findById(PgPool client, Long id) {
-        return client
-                .preparedQuery(SELECT_FROM_DICTIONARY_I18N_WHERE_ID_$1)
-                .execute(Tuple.of(id))
-                .onItem()
-                .transform(RowSet::iterator)
-                .onItem()
-                .transform(iterator -> iterator.hasNext() ? I18n.from(iterator.next()) : null);
-    }
-
     public static Multi<I18n> findAll(PgPool client) {
         return client
                 .query(SELECT_ALL_FROM_DICTIONARY_I18N_ORDER_BY_ID_ASC)
@@ -162,12 +157,32 @@ public final class I18n implements LongIdentification, Marked, Owned, TimeUpdate
 
     }
 
+    public static Uni<I18n> findById(PgPool client, Long id) {
+        return client
+                .preparedQuery(SELECT_FROM_DICTIONARY_I18N_WHERE_ID_$1)
+                .execute(Tuple.of(id))
+                .onItem()
+                .transform(RowSet::iterator)
+                .onItem()
+                .transform(iterator -> iterator.hasNext() ? I18n.from(iterator.next()) : null);
+    }
+
+    public static Multi<I18n> findRange(PgPool client, long offset, long limit) {
+        return client
+                .preparedQuery(SELECT_ALL_FROM_DICTIONARY_KEY_VALUE_ORDER_BY_ID_ASC_OFFSET_LIMIT)
+                .execute(Tuple.of(offset, limit))
+                .onItem()
+                .transformToMulti(set -> Multi.createFrom().iterable(set))
+                .onItem()
+                .transform(I18n::from);
+    }
+
     public static Uni<Long> delete(PgPool client, Long id) {
         return client.withTransaction(
                 connection -> connection.preparedQuery(DELETE_FROM_DICTIONARY_I18N_WHERE_ID_$1)
-                .execute(Tuple.of(id))
-                .onItem()
-                .transform(pgRowSet -> pgRowSet.iterator().next().getLong(ID)));
+                        .execute(Tuple.of(id))
+                        .onItem()
+                        .transform(pgRowSet -> pgRowSet.iterator().next().getLong(ID)));
     }
 
     public static Uni<Long> count(PgPool client) {

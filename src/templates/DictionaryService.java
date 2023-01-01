@@ -6,7 +6,7 @@
  * $Id$
  */
 
-package su.svn.daybook.services;
+package su.svn.daybook.services.domain;
 
 import io.quarkus.vertx.ConsumeEvent;
 import io.smallrye.mutiny.Multi;
@@ -16,6 +16,11 @@ import su.svn.daybook.domain.dao.@Name@Dao;
 import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.model.@Name@;
+import su.svn.daybook.models.pagination.Page;
+import su.svn.daybook.models.pagination.PageRequest;
+import su.svn.daybook.models.pagination.PageRequestCodec;
+import su.svn.daybook.services.ExceptionAnswerService;
+import su.svn.daybook.services.PageService;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -27,7 +32,13 @@ public class @Name@Service extends AbstractService<@IdType@, @Name@> {
     private static final Logger LOG = Logger.getLogger(@Name@Service.class);
 
     @Inject
-    @Name@Dao vocabularyDao;
+    @Name@Dao @name@Dao;
+
+    @Inject
+    ExceptionAnswerService exceptionAnswerService;
+
+    @Inject
+    PageService pageService;
 
     /**
      * This is method a Vertx message consumer and @Name@ provider by id
@@ -37,25 +48,53 @@ public class @Name@Service extends AbstractService<@IdType@, @Name@> {
      */
     @ConsumeEvent(EventAddress.@TABLE@_GET)
     public Uni<Answer> get(Object o) {
+        //noinspection DuplicatedCode
         LOG.tracef("get(%s)", o);
         try {
             return getEntry(getId@IdType@(o));
         } catch (NumberFormatException e) {
             LOG.errorf("get(%s)", o, e);
-            return Uni.createFrom().item(Answer.noNumber(e.getMessage()));
+            return exceptionAnswerService.getUniAnswerNoNumber(e);
         } catch (NoSuchElementException e) {
             LOG.errorf("get(%s)", o, e);
             return Uni.createFrom().item(Answer.empty());
         }
     }
 
+    /**
+     * The method provides the Answer's flow with all entries of @Name@
+     *
+     * @return - the Answer's Multi-flow with all entries of @Name@
+     */
+    public Multi<Answer> getAll() {
+        LOG.trace("getAll()");
+        return @name@Dao.findAll()
+                .onItem()
+                .transform(this::answerOf);
+    }
+
     private Uni<Answer> getEntry(@IdType@ id) {
-        return vocabularyDao.findById(id)
-                .map(this::getAnswerApiResponseWithValue)
-                .onFailure(onFailureNoSuchElementPredicate())
-                .recoverWithUni(this::toNoSuchElementAnswer)
-                .onFailure(onFailurePredicate())
-                .recoverWithItem(new Answer("bad request", 400));
+        return @name@Dao.findById(id)
+                .map(this::apiResponseWithValueAnswer)
+                .onFailure(exceptionAnswerService::testNoSuchElementException)
+                .recoverWithUni(this::noSuchElementAnswer)
+                .onFailure(exceptionAnswerService::testException)
+                .recoverWithUni(this::badRequestAnswer);
+    }
+
+    @ConsumeEvent(value = EventAddress.@TABLE@_PAGE, codec = PageRequestCodec.class)
+    public Uni<Page<Answer>> getPage(PageRequest pageRequest) {
+        //noinspection DuplicatedCode
+        LOG.tracef("getPage(%s)", pageRequest);
+        try {
+            return pageService.getPage(pageRequest, @name@Dao::count, @name@Dao::findRange);
+        } catch (NumberFormatException e) {
+            LOG.errorf("getPage(%s)", pageRequest, e);
+            return exceptionAnswerService.getUniPageAnswerNoNumber(e);
+        } catch (NoSuchElementException e) {
+            LOG.errorf("getPage(%s)", pageRequest, e);
+            return pageService.getUniPageAnswerEmpty();
+        }
     }
 
     /**
@@ -71,12 +110,12 @@ public class @Name@Service extends AbstractService<@IdType@, @Name@> {
     }
 
     private Uni<Answer> addEntry(@Name@ entry) {
-        return vocabularyDao.insert(entry)
-                .map(o -> getAnswerApiResponseWithKey(201, o))
-                .onFailure(onFailureDuplicatePredicate())
-                .recoverWithUni(this::toDuplicateKeyValueAnswer)
-                .onFailure(onFailurePredicate())
-                .recoverWithUni(get(entry.getId()));
+        return @name@Dao.insert(entry)
+                .map(o -> apiResponseWithKeyAnswer(201, o))
+                .onFailure(exceptionAnswerService::testDuplicateKeyException)
+                .recoverWithUni(this::notAcceptableDuplicateKeyValueAnswer)
+                .onFailure(exceptionAnswerService::testException)
+                .recoverWithUni(this::badRequestAnswer);
     }
 
     /**
@@ -92,14 +131,14 @@ public class @Name@Service extends AbstractService<@IdType@, @Name@> {
     }
 
     private Uni<Answer> putEntry(@Name@ entry) {
-        return vocabularyDao.update(entry)
-                .flatMap(this::getAnswerForPut)
-                .onFailure(onFailureDuplicatePredicate())
-                .recoverWithUni(this::toDuplicateKeyValueAnswer)
-                .onFailure(onFailurePredicate())
+        return @name@Dao.update(entry)
+                .flatMap(this::apiResponseAcceptedUniAnswer)
+                .onFailure(exceptionAnswerService::testDuplicateKeyException)
+                .recoverWithUni(this::notAcceptableDuplicateKeyValueAnswer)
+                .onFailure(exceptionAnswerService::testNoSuchElementException)
                 .recoverWithUni(get(entry.getId()))
-                .onFailure(onFailureNoSuchElementPredicate())
-                .recoverWithUni(this::toNoSuchElementAnswer);
+                .onFailure(exceptionAnswerService::testException)
+                .recoverWithUni(this::badRequestAnswer);
     }
 
     /**
@@ -110,12 +149,13 @@ public class @Name@Service extends AbstractService<@IdType@, @Name@> {
      */
     @ConsumeEvent(EventAddress.@TABLE@_DEL)
     public Uni<Answer> delete(Object o) {
+        //noinspection DuplicatedCode
         LOG.tracef("delete(%s)", o);
         try {
             return deleteEntry(getId@IdType@(o));
         } catch (NumberFormatException e) {
             LOG.errorf("delete(%s)", o, e);
-            return Uni.createFrom().item(Answer.noNumber(e.getMessage()));
+            return exceptionAnswerService.getUniAnswerNoNumber(e);
         } catch (NoSuchElementException e) {
             LOG.errorf("delete(%s)", o, e);
             return Uni.createFrom().item(Answer.empty());
@@ -123,23 +163,11 @@ public class @Name@Service extends AbstractService<@IdType@, @Name@> {
     }
 
     private Uni<Answer> deleteEntry(@IdType@ id) {
-        return vocabularyDao.delete(id)
-                .map(this::getAnswerApiResponseWithKey)
-                .onFailure(onFailureNoSuchElementPredicate())
-                .recoverWithUni(this::toNoSuchElementAnswer)
-                .onFailure(onFailurePredicate())
-                .recoverWithItem(new Answer("bad request", 400));
-    }
-
-    /**
-     * The method provides the Answer's flow with all entries of @Name@
-     *
-     * @return - the Answer's Multi-flow with all entries of @Name@
-     */
-    public Multi<Answer> getAll() {
-        LOG.trace("getAll");
-        return vocabularyDao.findAll()
-                .onItem()
-                .transform(this::getAnswer);
+        return @name@Dao.delete(id)
+                .map(this::apiResponseWithKeyAnswer)
+                .onFailure(exceptionAnswerService::testNoSuchElementException)
+                .recoverWithUni(this::noSuchElementAnswer)
+                .onFailure(exceptionAnswerService::testException)
+                .recoverWithUni(this::badRequestAnswer);
     }
 }

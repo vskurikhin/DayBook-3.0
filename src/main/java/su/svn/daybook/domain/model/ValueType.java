@@ -39,6 +39,11 @@ public final class ValueType implements LongIdentification, Marked, Owned, TimeU
               FROM dictionary.value_type
              ORDER BY id ASC
             """;
+    public static final String SELECT_ALL_FROM_DICTIONARY_VALUE_TYPE_ORDER_BY_ID_ASC_OFFSET_LIMIT = """
+            SELECT id, value_type, user_name, create_time, update_time, enabled, visible, flags
+              FROM dictionary.value_type
+             ORDER BY id ASC OFFSET $1 LIMIT $2
+            """;
     public static final String INSERT_INTO_DICTIONARY_VALUE_TYPE = """
             INSERT INTO dictionary.value_type
              (id, value_type, user_name, enabled, visible, flags)
@@ -130,6 +135,17 @@ public final class ValueType implements LongIdentification, Marked, Owned, TimeU
         );
     }
 
+    public static Multi<ValueType> findAll(PgPool client) {
+        return client
+                .query(SELECT_ALL_FROM_DICTIONARY_VALUE_TYPE_ORDER_BY_ID_ASC)
+                .execute()
+                .onItem()
+                .transformToMulti(set -> Multi.createFrom().iterable(set))
+                .onItem()
+                .transform(ValueType::from);
+
+    }
+
     public static Uni<ValueType> findById(PgPool client, Long id) {
         return client
                 .preparedQuery(SELECT_FROM_DICTIONARY_VALUE_TYPE_WHERE_ID_$1)
@@ -140,15 +156,14 @@ public final class ValueType implements LongIdentification, Marked, Owned, TimeU
                 .transform(iterator -> iterator.hasNext() ? ValueType.from(iterator.next()) : null);
     }
 
-    public static Multi<ValueType> findAll(PgPool client) {
+    public static Multi<ValueType> findRange(PgPool client, long offset, long limit) {
         return client
-                .query(SELECT_ALL_FROM_DICTIONARY_VALUE_TYPE_ORDER_BY_ID_ASC)
-                .execute()
+                .preparedQuery(SELECT_ALL_FROM_DICTIONARY_VALUE_TYPE_ORDER_BY_ID_ASC_OFFSET_LIMIT)
+                .execute(Tuple.of(offset, limit))
                 .onItem()
                 .transformToMulti(set -> Multi.createFrom().iterable(set))
                 .onItem()
                 .transform(ValueType::from);
-
     }
 
     public static Uni<Long> delete(PgPool client, Long id) {

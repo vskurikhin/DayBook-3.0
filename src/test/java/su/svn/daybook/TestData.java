@@ -13,7 +13,9 @@ import io.smallrye.mutiny.Uni;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.messages.ApiResponse;
 import su.svn.daybook.domain.model.*;
+import su.svn.daybook.models.pagination.Page;
 
+import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -39,6 +41,9 @@ public class TestData {
     public static Uni<Answer> UNI_ANSWER_API_RESPONSE_ZERO_LONG = Uni.createFrom().item(Answer.of(new ApiResponse<>(0L)));
     public static Uni<Optional<Long>> UNI_OPTIONAL_ZERO_LONG = Uni.createFrom().item(Optional.of(0L));
 
+    public static Uni<Optional<Long>> UNI_OPTIONAL_ONE_LONG = Uni.createFrom().item(Optional.of(1L));
+    public static Uni<Optional<Long>> UNI_OPTIONAL_MINUS_ONE_LONG = Uni.createFrom().item(Optional.of(-1L));
+
     public static <T> Multi<T> createMultiEmpties(Class<T> t) {
         return Multi.createFrom().empty();
     }
@@ -51,6 +56,12 @@ public class TestData {
         public static final Codifier OBJECT_0 = new Codifier(
                 Codifier.NONE, null, null, null, null, false, true, 0
         );
+        public static final Uni<Page<Answer>> UNI_PAGE_ANSWER_SINGLETON_TEST = Uni.createFrom()
+                .item(
+                        Page.<Answer>builder()
+                                .content(Collections.singletonList(Answer.of(OBJECT_0)))
+                                .build()
+                );
         public static final String JSON_0 = """
                 {"code":"\
                 """ + Codifier.NONE + """
@@ -58,34 +69,87 @@ public class TestData {
                 """;
         public static final String JSON_ARRAY_SINGLETON_0 = "[" + JSON_0 + "]";
         public static final String JSON_ID_0 = "{\"id\":\"" + Codifier.NONE + "\"}";
+        public static final String JSON_PAGE_ARRAY_0 = """
+                        {"pageNumber":0,"totalElements":0,"nextPage":false,"prevPage":false,"content":\
+                        """ + JSON_ARRAY_SINGLETON_0 +"""
+                        }""";
     }
 
     public static class I18N {
         public static final I18n OBJECT_0 = new I18n(
                 0L, 0L, null, null, null, null, null, false, true, 0
         );
+        public static final Uni<Page<Answer>> UNI_PAGE_ANSWER_SINGLETON_TEST = Uni.createFrom()
+                .item(
+                        Page.<Answer>builder()
+                                .content(Collections.singletonList(Answer.of(OBJECT_0)))
+                                .build()
+                );
         public static final String JSON_0 = """
                 {"id":0,"languageId":0,"enabled":false,"visible":true,"flags":0}\
                 """;
         public static final String JSON_ARRAY_SINGLETON_0 = "[" + JSON_0 + "]";
         public static final String JSON_ID_0 = "{\"id\":0}";
+        public static final String JSON_PAGE_ARRAY_0 = """
+                        {"pageNumber":0,"totalElements":0,"nextPage":false,"prevPage":false,"content":\
+                        """ + JSON_ARRAY_SINGLETON_0 +"""
+                        }""";
+    }
+
+    public static class KEY_VALUE {
+        public static final KeyValue OBJECT_0 = new KeyValue(
+                0L, KeyValue.NONE, null, null, null, null, false, true, 0
+        );
+        public static final Uni<Page<Answer>> UNI_PAGE_ANSWER_SINGLETON_TEST = Uni.createFrom()
+                .item(
+                        Page.<Answer>builder()
+                                .content(Collections.singletonList(Answer.of(OBJECT_0)))
+                                .build()
+                );
+        public static final String JSON_0 = """
+                {"id":0,"key":"\
+                """ + KeyValue.NONE +"""
+                ","enabled":false,"visible":true,"flags":0}\
+                """;
+        public static final String JSON_ARRAY_SINGLETON_0 = "[" + JSON_0 + "]";
+        public static final String JSON_ID_0 = "{\"id\":0}";
+        public static final String JSON_PAGE_ARRAY_0 = """
+                        {"pageNumber":0,"totalElements":0,"nextPage":false,"prevPage":false,"content":\
+                        """ + JSON_ARRAY_SINGLETON_0 +"""
+                        }""";
     }
 
     public static class LANGUAGE {
         public static final Language OBJECT_0 = new Language(
                 0L, null, null, null, null, false, true, 0
         );
+        public static final Uni<Page<Answer>> UNI_PAGE_ANSWER_SINGLETON_TEST = Uni.createFrom()
+                .item(
+                        Page.<Answer>builder()
+                                .content(Collections.singletonList(Answer.of(OBJECT_0)))
+                                .build()
+                );
         public static final String JSON_0 = """
                 {"id":0,"enabled":false,"visible":true,"flags":0}\
                 """;
         public static final String JSON_ARRAY_SINGLETON_0 = "[" + JSON_0 + "]";
         public static final String JSON_ID_0 = "{\"id\":0}";
+        public static final String JSON_PAGE_ARRAY_0 = """
+                        {"pageNumber":0,"totalElements":0,"nextPage":false,"prevPage":false,"content":\
+                        """ + JSON_ARRAY_SINGLETON_0 +"""
+                        }""";
     }
 
     public static class SETTING {
         public static final Setting OBJECT_0 = new Setting(
                 0L, Setting.NONE, null, 0L, null, null, null, false, true, 0
         );
+        public static final Uni<Page<Answer>> UNI_PAGE_ANSWER_SINGLETON_TEST = Uni.createFrom()
+                .item(
+                        Page.<Answer>builder()
+                                .content(Collections.singletonList(Answer.of(OBJECT_0)))
+                                .build()
+                );
         public static final String JSON_0 = """
                 {"id":0,"key":"\
                 """ + Setting.NONE +"""
@@ -93,14 +157,25 @@ public class TestData {
                 """;
         public static final String JSON_ARRAY_SINGLETON_0 = "[" + JSON_0 + "]";
         public static final String JSON_ID_0 = "{\"id\":0}";
+        public static final String JSON_PAGE_ARRAY_0 = """
+                        {"pageNumber":0,"totalElements":0,"nextPage":false,"prevPage":false,"content":\
+                        """ + JSON_ARRAY_SINGLETON_0 +"""
+                        }""";
     }
 
     public static class TAG_LABEL {
         public static final String ID = TagLabel.NONE.replace("-", "").substring(0, 16);
         public static final Uni<Optional<String>> UNI_OPTIONAL_ID = Uni.createFrom().item(Optional.of(ID));
+        public static Uni<Answer> UNI_ANSWER_API_RESPONSE_ID = Uni.createFrom().item(Answer.of(new ApiResponse<>(ID)));
         public static final TagLabel OBJECT_0 = new TagLabel(
                 ID, TagLabel.NONE, null, null, null, false, true, 0
         );
+        public static final Uni<Page<Answer>> UNI_PAGE_ANSWER_SINGLETON_TEST = Uni.createFrom()
+                .item(
+                        Page.<Answer>builder()
+                                .content(Collections.singletonList(Answer.of(OBJECT_0)))
+                                .build()
+                );
         public static final String JSON_0 = """
                 {"id":"\
                 """ + ID + """
@@ -109,13 +184,22 @@ public class TestData {
                 ","enabled":false,"visible":true,"flags":0}\
                 """;
         public static final String JSON_ARRAY_SINGLETON_0 = "[" + JSON_0 + "]";
-        public static Uni<Answer> UNI_ANSWER_API_RESPONSE_ID = Uni.createFrom().item(Answer.of(new ApiResponse<>(ID)));
+        public static final String JSON_PAGE_ARRAY_0 = """
+                        {"pageNumber":0,"totalElements":0,"nextPage":false,"prevPage":false,"content":\
+                        """ + JSON_ARRAY_SINGLETON_0 +"""
+                        }""";
     }
 
     public static class USERNAME {
         public static final UserName OBJECT_0 = new UserName(
                 ZERO_UUID, "root", "password", null, null, false, true, 0
         );
+        public static final Uni<Page<Answer>> UNI_PAGE_ANSWER_SINGLETON_TEST = Uni.createFrom()
+                .item(
+                        Page.<Answer>builder()
+                                .content(Collections.singletonList(Answer.of(OBJECT_0)))
+                                .build()
+                );
         public static final String JSON_0 = """
                 {"id":"00000000-0000-0000-0000-000000000000","userName":"root","password":"password","enabled":false,"visible":true,"flags":0}\
                 """;
@@ -123,11 +207,21 @@ public class TestData {
         public static final String JSON_ID_0 = """
                 {"id":"00000000-0000-0000-0000-000000000000"}\
                 """;
+        public static final String JSON_PAGE_ARRAY_0 = """
+                        {"pageNumber":0,"totalElements":0,"nextPage":false,"prevPage":false,"content":\
+                        """ + JSON_ARRAY_SINGLETON_0 +"""
+                        }""";
     }
     public static class VALUE_TYPE {
         public static final ValueType OBJECT_0 = new ValueType(
                 0L, ValueType.NONE, null, null, null, false, true, 0
         );
+        public static final Uni<Page<Answer>> UNI_PAGE_ANSWER_SINGLETON_TEST = Uni.createFrom()
+                .item(
+                        Page.<Answer>builder()
+                                .content(Collections.singletonList(Answer.of(OBJECT_0)))
+                                .build()
+                );
         public static final String JSON_0 = """
                 {"id":0,"valueType":"\
                 """ + ValueType.NONE + """
@@ -135,12 +229,22 @@ public class TestData {
                 """;
         public static final String JSON_ARRAY_SINGLETON_0 = "[" + JSON_0 + "]";
         public static final String JSON_ID_0 = "{\"id\":0}";
+        public static final String JSON_PAGE_ARRAY_0 = """
+                        {"pageNumber":0,"totalElements":0,"nextPage":false,"prevPage":false,"content":\
+                        """ + JSON_ARRAY_SINGLETON_0 +"""
+                        }""";
     }
 
     public static class VOCABULARY {
         public static final Vocabulary OBJECT_0 = new Vocabulary(
                 0L, Vocabulary.NONE, null, null, null, null, false, true, 0
         );
+        public static final Uni<Page<Answer>> UNI_PAGE_ANSWER_SINGLETON_TEST = Uni.createFrom()
+                .item(
+                        Page.<Answer>builder()
+                                .content(Collections.singletonList(Answer.of(OBJECT_0)))
+                                .build()
+                );
         public static final String JSON_0 = """
                 {"id":0,"word":"\
                 """ + Vocabulary.NONE + """
@@ -148,12 +252,24 @@ public class TestData {
                 """;
         public static final String JSON_ARRAY_SINGLETON_0 = "[" + JSON_0 + "]";
         public static final String JSON_ID_0 = "{\"id\":0";
+        public static final String JSON_PAGE_ARRAY_0 = """
+                        {"pageNumber":0,"totalElements":0,"nextPage":false,"prevPage":false,"content":\
+                        """ + JSON_ARRAY_SINGLETON_0 +"""
+                        }""";
     }
 
     public static class WORD {
         public static final Word OBJECT_0 = new Word(
                 Word.NONE, null, null, null, false, true, 0
         );
+        public static final Uni<Page<Answer>> UNI_PAGE_ANSWER_SINGLETON_TEST = Uni.createFrom()
+                .item(
+                        Page.<Answer>builder()
+                                .content(Collections.singletonList(Answer.of(OBJECT_0)))
+                                .build()
+                );
+        public static final Uni<Answer> UNI_ANSWER_API_RESPONSE_NONE_STRING = Uni.createFrom()
+                .item(Answer.of(new ApiResponse<>(Word.NONE)));
         public static final String JSON_0 = """
                 {"word":"\
                 """ + Word.NONE + """
@@ -161,5 +277,9 @@ public class TestData {
                 """;
         public static final String JSON_ARRAY_SINGLETON_0 = "[" + JSON_0 + "]";
         public static final String JSON_ID_0 = "{\"id\":\"" + Word.NONE + "\"}";
+        public static final String JSON_PAGE_ARRAY_0 = """
+                        {"pageNumber":0,"totalElements":0,"nextPage":false,"prevPage":false,"content":\
+                        """ + JSON_ARRAY_SINGLETON_0 +"""
+                        }""";
     }
 }

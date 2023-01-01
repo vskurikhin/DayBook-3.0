@@ -15,17 +15,12 @@ import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
 import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.enums.ResourcePath;
 import su.svn.daybook.domain.model.UserName;
-import su.svn.daybook.services.AbstractService;
-import su.svn.daybook.services.UserNameService;
+import su.svn.daybook.models.pagination.PageRequest;
+import su.svn.daybook.services.domain.AbstractService;
+import su.svn.daybook.services.domain.UserNameService;
 
 import javax.inject.Inject;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
@@ -45,7 +40,7 @@ public class UserNameResource extends AbstractResource implements Resources<UUID
     @GET
     @Path(ResourcePath.ALL)
     @Produces("application/json")
-    public Multi<UserName> all() {
+    public Multi<UserName> all(@QueryParam("get-all") Boolean getAll) {
         return getAll();
     }
 
@@ -54,6 +49,12 @@ public class UserNameResource extends AbstractResource implements Resources<UUID
     @Produces("application/json")
     public Uni<Response> get(String id, @Context UriInfo uriInfo) {
         return request(EventAddress.USER_GET, id, uriInfo);
+    }
+
+    @GET
+    @Produces("application/json")
+    public Uni<Response> page(@QueryParam("page") Long page, @QueryParam("limit") Short limit) {
+        return requestPage(EventAddress.USER_PAGE, new PageRequest(page, limit));
     }
 
     @POST

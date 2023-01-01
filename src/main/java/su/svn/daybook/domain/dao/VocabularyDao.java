@@ -36,6 +36,11 @@ public class VocabularyDao {
                 .map(Optional::ofNullable);
     }
 
+    public Multi<Vocabulary> findRange(long offset, long limit) {
+        LOG.tracef("findRange(%d, %d)", offset, limit);
+        return Vocabulary.findRange(client, offset, limit);
+    }
+
     public Uni<Optional<Long>> insert(Vocabulary entry) {
         LOG.tracef("insert(%s)", entry);
         return entry.insert(client)

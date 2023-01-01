@@ -36,6 +36,11 @@ public class SettingDao {
                 .map(Optional::ofNullable);
     }
 
+    public Multi<Setting> findRange(long offset, long limit) {
+        LOG.tracef("findRange(%d, %d)", offset, limit);
+        return Setting.findRange(client, offset, limit);
+    }
+
     public Uni<Optional<Long>> insert(Setting entry) {
         LOG.tracef("insert(%s)", entry);
         return entry.insert(client)

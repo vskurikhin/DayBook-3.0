@@ -18,7 +18,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import su.svn.daybook.TestData;
 import su.svn.daybook.domain.messages.Answer;
-import su.svn.daybook.services.I18nService;
+import su.svn.daybook.models.pagination.PageRequest;
+import su.svn.daybook.services.domain.I18nService;
 
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
@@ -37,6 +38,7 @@ class I18nResourceTest {
 
     @BeforeEach
     void setUp() {
+        PageRequest pageRequest = new PageRequest(0, (short) 1);
         mock = Mockito.mock(I18nService.class);
         Mockito.when(mock.get(0L)).thenReturn(test);
         Mockito.when(mock.get("0")).thenReturn(test);
@@ -46,6 +48,7 @@ class I18nResourceTest {
         Mockito.when(mock.get((long) Integer.MIN_VALUE)).thenReturn(TestData.UNI_ANSWER_NULL);
         Mockito.when(mock.get(Long.toString(Integer.MIN_VALUE))).thenReturn(TestData.UNI_ANSWER_NULL);
         Mockito.when(mock.getAll()).thenReturn(Multi.createFrom().item(Answer.of(TestData.I18N.OBJECT_0)));
+        Mockito.when(mock.getPage(pageRequest)).thenReturn(TestData.I18N.UNI_PAGE_ANSWER_SINGLETON_TEST);
         Mockito.when(mock.add(TestData.I18N.OBJECT_0)).thenReturn(TestData.UNI_ANSWER_API_RESPONSE_ZERO_LONG);
         Mockito.when(mock.put(TestData.I18N.OBJECT_0)).thenReturn(TestData.UNI_ANSWER_API_RESPONSE_ZERO_LONG);
         Mockito.when(mock.delete(0L)).thenReturn(TestData.UNI_ANSWER_API_RESPONSE_ZERO_LONG);
@@ -94,10 +97,20 @@ class I18nResourceTest {
     void testEndpointGetAll() {
         given()
                 .when()
-                .get("/i18n/all")
+                .get("/i18n/_?get-all")
                 .then()
                 .statusCode(200)
                 .body(CoreMatchers.startsWith(TestData.I18N.JSON_ARRAY_SINGLETON_0));
+    }
+
+    @Test
+    void testEndpointGetPage() {
+        given()
+                .when()
+                .get("/i18n/?page=0&limit=1")
+                .then()
+                .statusCode(200)
+                .body(CoreMatchers.startsWith(TestData.I18N.JSON_PAGE_ARRAY_0));
     }
 
     @Test

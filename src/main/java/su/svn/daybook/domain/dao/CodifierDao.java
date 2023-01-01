@@ -40,6 +40,11 @@ public class CodifierDao {
         return findById(code);
     }
 
+    public Multi<Codifier> findRange(long offset, long limit) {
+        LOG.tracef("findRange(%d, %d)", offset, limit);
+        return Codifier.findRange(client, offset, limit);
+    }
+
     public Uni<Optional<String>> insert(Codifier entry) {
         LOG.tracef("insert(%s)", entry);
         return entry.insert(client)

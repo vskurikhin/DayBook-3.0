@@ -15,8 +15,8 @@ import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
 import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.enums.ResourcePath;
 import su.svn.daybook.domain.model.@Name@;
-import su.svn.daybook.services.AbstractService;
-import su.svn.daybook.services.@Name@Service;
+import su.svn.daybook.services.domain.AbstractService;
+import su.svn.daybook.services.domain.@Name@Service;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
