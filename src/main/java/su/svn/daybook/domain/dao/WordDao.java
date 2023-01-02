@@ -11,7 +11,7 @@ package su.svn.daybook.domain.dao;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import org.jboss.logging.Logger;
-import su.svn.daybook.domain.model.Word;
+import su.svn.daybook.domain.model.WordTable;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -25,33 +25,33 @@ public class WordDao {
     @Inject
     io.vertx.mutiny.pgclient.PgPool client;
 
-    public Multi<Word> findAll() {
+    public Multi<WordTable> findAll() {
         LOG.trace("findAll()");
-        return Word.findAll(client);
+        return WordTable.findAll(client);
     }
 
-    public Uni<Optional<Word>> findById(String id) {
+    public Uni<Optional<WordTable>> findById(String id) {
         LOG.tracef("findById(%s)", id);
-        return Word.findById(client, id)
+        return WordTable.findById(client, id)
                 .map(Optional::ofNullable);
     }
 
-    public Uni<Optional<Word>> findByWord(String word) {
+    public Uni<Optional<WordTable>> findByWord(String word) {
         return findById(word);
     }
 
-    public Multi<Word> findRange(long offset, long limit) {
+    public Multi<WordTable> findRange(long offset, long limit) {
         LOG.tracef("findRange(%d, %d)", offset, limit);
-        return Word.findRange(client, offset, limit);
+        return WordTable.findRange(client, offset, limit);
     }
 
-    public Uni<Optional<String>> insert(Word entry) {
+    public Uni<Optional<String>> insert(WordTable entry) {
         LOG.tracef("insert(%s)", entry);
         return entry.insert(client)
                 .map(Optional::ofNullable);
     }
 
-    public Uni<Optional<String>> update(Word entry) {
+    public Uni<Optional<String>> update(WordTable entry) {
         LOG.tracef("update(%s)", entry);
         return entry.update(client)
                 .map(Optional::ofNullable);
@@ -59,13 +59,13 @@ public class WordDao {
 
     public Uni<Optional<String>> delete(String id) {
         LOG.tracef("delete(%s)", id);
-        return Word.delete(client, id)
+        return WordTable.delete(client, id)
                 .map(Optional::ofNullable);
     }
 
     public Uni<Optional<Long>> count() {
         LOG.trace("count()");
-        return Word.count(client)
+        return WordTable.count(client)
                 .map(Optional::ofNullable);
     }
 }

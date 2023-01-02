@@ -19,7 +19,7 @@ import org.jboss.logging.Logger;
 import su.svn.daybook.domain.dao.LanguageDao;
 import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.messages.Answer;
-import su.svn.daybook.domain.model.Language;
+import su.svn.daybook.domain.model.LanguageTable;
 import su.svn.daybook.models.pagination.Page;
 import su.svn.daybook.models.pagination.PageRequest;
 import su.svn.daybook.services.ExceptionAnswerService;
@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 @ApplicationScoped
-public class LanguageService extends AbstractService<Long, Language> {
+public class LanguageService extends AbstractService<Long, LanguageTable> {
 
     private static final Logger LOG = Logger.getLogger(LanguageService.class);
 
@@ -107,12 +107,12 @@ public class LanguageService extends AbstractService<Long, Language> {
      * @return - a lazy asynchronous action (LAA) with the Answer containing the Language id as payload or empty payload
      */
     @ConsumeEvent(EventAddress.LANGUAGE_ADD)
-    public Uni<Answer> add(Language o) {
+    public Uni<Answer> add(LanguageTable o) {
         LOG.tracef("add(%s)", o);
         return addEntry(o);
     }
 
-    private Uni<Answer> addEntry(Language entry) {
+    private Uni<Answer> addEntry(LanguageTable entry) {
         return languageDao.insert(entry)
                 .map(o -> apiResponseWithKeyAnswer(201, o))
                 .onItem()
@@ -130,12 +130,12 @@ public class LanguageService extends AbstractService<Long, Language> {
      * @return - a LAA with the Answer containing Language id as payload or empty payload
      */
     @ConsumeEvent(EventAddress.LANGUAGE_PUT)
-    public Uni<Answer> put(Language o) {
+    public Uni<Answer> put(LanguageTable o) {
         LOG.tracef("put(%s)", o);
         return putEntry(o);
     }
 
-    private Uni<Answer> putEntry(Language entry) {
+    private Uni<Answer> putEntry(LanguageTable entry) {
         return languageDao
                 .update(entry)
                 .flatMap(this::apiResponseAcceptedUniAnswer)

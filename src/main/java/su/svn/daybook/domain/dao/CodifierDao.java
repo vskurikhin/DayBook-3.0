@@ -11,7 +11,7 @@ package su.svn.daybook.domain.dao;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import org.jboss.logging.Logger;
-import su.svn.daybook.domain.model.Codifier;
+import su.svn.daybook.domain.model.CodifierTable;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -25,33 +25,33 @@ public class CodifierDao {
     @Inject
     io.vertx.mutiny.pgclient.PgPool client;
 
-    public Multi<Codifier> findAll() {
+    public Multi<CodifierTable> findAll() {
         LOG.trace("findAll()");
-        return Codifier.findAll(client);
+        return CodifierTable.findAll(client);
     }
 
-    public Uni<Optional<Codifier>> findById(String id) {
+    public Uni<Optional<CodifierTable>> findById(String id) {
         LOG.tracef("findById(%s)", id);
-        return Codifier.findById(client, id)
+        return CodifierTable.findById(client, id)
                 .map(Optional::ofNullable);
     }
 
-    public Uni<Optional<Codifier>> findByCode(String code) {
+    public Uni<Optional<CodifierTable>> findByCode(String code) {
         return findById(code);
     }
 
-    public Multi<Codifier> findRange(long offset, long limit) {
+    public Multi<CodifierTable> findRange(long offset, long limit) {
         LOG.tracef("findRange(%d, %d)", offset, limit);
-        return Codifier.findRange(client, offset, limit);
+        return CodifierTable.findRange(client, offset, limit);
     }
 
-    public Uni<Optional<String>> insert(Codifier entry) {
+    public Uni<Optional<String>> insert(CodifierTable entry) {
         LOG.tracef("insert(%s)", entry);
         return entry.insert(client)
                 .map(Optional::ofNullable);
     }
 
-    public Uni<Optional<String>> update(Codifier entry) {
+    public Uni<Optional<String>> update(CodifierTable entry) {
         LOG.tracef("update(%s)", entry);
         return entry.update(client)
                 .map(Optional::ofNullable);
@@ -59,13 +59,13 @@ public class CodifierDao {
 
     public Uni<Optional<String>> delete(String id) {
         LOG.tracef("delete(%s)", id);
-        return Codifier.delete(client, id)
+        return CodifierTable.delete(client, id)
                 .map(Optional::ofNullable);
     }
 
     public Uni<Optional<Long>> count() {
         LOG.trace("count()");
-        return Codifier.count(client)
+        return CodifierTable.count(client)
                 .map(Optional::ofNullable);
     }
 }

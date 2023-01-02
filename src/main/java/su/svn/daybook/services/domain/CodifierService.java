@@ -19,7 +19,7 @@ import org.jboss.logging.Logger;
 import su.svn.daybook.domain.dao.CodifierDao;
 import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.messages.Answer;
-import su.svn.daybook.domain.model.Codifier;
+import su.svn.daybook.domain.model.CodifierTable;
 import su.svn.daybook.models.pagination.Page;
 import su.svn.daybook.models.pagination.PageRequest;
 import su.svn.daybook.services.ExceptionAnswerService;
@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 @ApplicationScoped
-public class CodifierService extends AbstractService<String, Codifier> {
+public class CodifierService extends AbstractService<String, CodifierTable> {
 
     private static final Logger LOG = Logger.getLogger(CodifierService.class);
 
@@ -102,12 +102,12 @@ public class CodifierService extends AbstractService<String, Codifier> {
      * @return - a lazy asynchronous action (LAA) with the Answer containing the Codifier id as payload or empty payload
      */
     @ConsumeEvent(EventAddress.CODIFIER_ADD)
-    public Uni<Answer> add(Codifier o) {
+    public Uni<Answer> add(CodifierTable o) {
         LOG.tracef("add(%s)", o);
         return addEntry(o);
     }
 
-    private Uni<Answer> addEntry(Codifier entry) {
+    private Uni<Answer> addEntry(CodifierTable entry) {
         return codifierDao
                 .insert(entry)
                 .map(o -> apiResponseWithKeyAnswer(201, o))
@@ -126,12 +126,12 @@ public class CodifierService extends AbstractService<String, Codifier> {
      * @return - a LAA with the Answer containing Codifier id as payload or empty payload
      */
     @ConsumeEvent(EventAddress.CODIFIER_PUT)
-    public Uni<Answer> put(Codifier o) {
+    public Uni<Answer> put(CodifierTable o) {
         LOG.tracef("put(%s)", o);
         return putEntry(o);
     }
 
-    private Uni<Answer> putEntry(Codifier entry) {
+    private Uni<Answer> putEntry(CodifierTable entry) {
         return codifierDao
                 .update(entry)
                 .flatMap(this::apiResponseAcceptedUniAnswer)

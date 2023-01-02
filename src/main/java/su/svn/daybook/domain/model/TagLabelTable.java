@@ -2,7 +2,7 @@
  * This file was last modified at 2022.01.12 22:58 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
- * Word.java
+ * TagLabel.java
  * $Id$
  */
 
@@ -16,6 +16,7 @@ import io.vertx.mutiny.pgclient.PgPool;
 import io.vertx.mutiny.sqlclient.Row;
 import io.vertx.mutiny.sqlclient.RowSet;
 import io.vertx.mutiny.sqlclient.Tuple;
+import su.svn.daybook.utils.StringUtil;
 
 import javax.annotation.Nonnull;
 import java.io.Serial;
@@ -26,50 +27,61 @@ import java.util.List;
 import java.util.Objects;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public final class Word implements StringIdentification, Marked, Owned, TimeUpdated, Serializable {
+public final class TagLabelTable implements StringIdentification, Marked, Owned, TimeUpdated, Serializable {
 
-    public static final String NONE = "9e9574c8-990d-490a-be46-748e3160dbe1";
-    public static final String SELECT_FROM_DICTIONARY_WORD_WHERE_ID_$1 = """
-            SELECT word, user_name, create_time, update_time, enabled, visible, flags
-              FROM dictionary.word
-             WHERE word = $1
+    public static final String NONE = "519797ec-dba2-452b-b600-eb9dde6b57b8";
+    public static final String SELECT_FROM_DICTIONARY_TAG_LABEL_WHERE_ID_$1 = """
+            SELECT id, label, user_name, create_time, update_time, enabled, visible, flags
+              FROM dictionary.tag_label
+             WHERE id = $1 AND enabled
             """;
-    public static final String SELECT_ALL_FROM_DICTIONARY_WORD_ORDER_BY_ID_ASC = """
-            SELECT word, user_name, create_time, update_time, enabled, visible, flags
-              FROM dictionary.word
-             ORDER BY word ASC
+    public static final String SELECT_ALL_FROM_DICTIONARY_TAG_LABEL_ORDER_BY_ID_ASC = """
+            SELECT id, label, user_name, create_time, update_time, enabled, visible, flags
+              FROM dictionary.tag_label
+             WHERE enabled
+             ORDER BY id ASC
             """;
-    public static final String SELECT_ALL_FROM_DICTIONARY_WORD_ORDER_BY_WORD_ASC_OFFSET_LIMIT = """
-            SELECT word, user_name, create_time, update_time, enabled, visible, flags
-              FROM dictionary.word
-             ORDER BY word ASC OFFSET $1 LIMIT $2 
+    public static final String SELECT_ALL_FROM_DICTIONARY_TAG_LABEL_ORDER_BY_ID_ASC_OFFSET_LIMIT = """
+            SELECT id, label, user_name, create_time, update_time, enabled, visible, flags
+              FROM dictionary.tag_label
+             WHERE enabled
+             ORDER BY id ASC OFFSET $1 LIMIT $2
             """;
-    public static final String INSERT_INTO_DICTIONARY_WORD = """
-            INSERT INTO dictionary.word
-             (word, user_name, enabled, visible, flags)
+    public static final String INSERT_INTO_DICTIONARY_TAG_LABEL = """
+            INSERT INTO dictionary.tag_label
+             (id, label, user_name, enabled, visible, flags)
              VALUES
-             ($1, $2, $3, $4, $5)
-             RETURNING word
+             ($1, $2, $3, $4, $5, $6)
+             RETURNING id
             """;
-    public static final String UPDATE_DICTIONARY_WORD_WHERE_ID_$1 = """
-            UPDATE dictionary.word SET
-              user_name = $2,
-              enabled = $3,
-              visible = $4,
-              flags = $5
-             WHERE word = $1
-             RETURNING word
+    public static final String INSERT_INTO_DICTIONARY_TAG_LABEL_DEFAULT_ID = """
+            INSERT INTO dictionary.tag_label
+             (id, label, user_name, enabled, visible, flags)
+             VALUES
+             (DEFAULT, $1, $2, $3, $4, $5)
+             RETURNING id
             """;
-    public static final String DELETE_FROM_DICTIONARY_WORD_WHERE_ID_$1 = """
-            DELETE FROM dictionary.word
-             WHERE word = $1
-             RETURNING word
+    public static final String UPDATE_DICTIONARY_TAG_LABEL_WHERE_ID_$1 = """
+            UPDATE dictionary.tag_label SET
+              label = $2,
+              user_name = $3,
+              enabled = $4,
+              visible = $5,
+              flags = $6
+             WHERE id = $1
+             RETURNING id
             """;
-    public static final String COUNT_DICTIONARY_WORD = "SELECT count(*) FROM dictionary.word";
+    public static final String DELETE_FROM_DICTIONARY_TAG_LABEL_WHERE_ID_$1 = """
+            DELETE FROM dictionary.tag_label
+             WHERE id = $1
+             RETURNING id
+            """;
+    public static final String COUNT_DICTIONARY_TAG_LABEL = "SELECT count(*) FROM dictionary.tag_label";
     @Serial
-    private static final long serialVersionUID = 5605080331607472920L;
-    public static final String ID = "word";
-    private final String word;
+    private static final long serialVersionUID = 2947209495026660348L;
+    public static final String ID = "id";
+    private final String id;
+    private final String label;
     private final String userName;
     private final LocalDateTime createTime;
     private final LocalDateTime updateTime;
@@ -83,8 +95,9 @@ public final class Word implements StringIdentification, Marked, Owned, TimeUpda
     @JsonIgnore
     private transient volatile boolean hashIsZero;
 
-    public Word() {
-        this.word = NONE;
+    public TagLabelTable() {
+        this.id = null;
+        this.label = NONE;
         this.userName = null;
         this.createTime = null;
         this.updateTime = null;
@@ -93,15 +106,17 @@ public final class Word implements StringIdentification, Marked, Owned, TimeUpda
         this.flags = 0;
     }
 
-    public Word(
-            @Nonnull String word,
+    public TagLabelTable(
+            String id,
+            @Nonnull String label,
             String userName,
             LocalDateTime createTime,
             LocalDateTime updateTime,
             boolean enabled,
             boolean visible,
             int flags) {
-        this.word = word;
+        this.id = id;
+        this.label = label;
         this.userName = userName;
         this.createTime = createTime;
         this.updateTime = updateTime;
@@ -110,9 +125,10 @@ public final class Word implements StringIdentification, Marked, Owned, TimeUpda
         this.flags = flags;
     }
 
-    public static Word from(Row row) {
-        return new Word(
+    public static TagLabelTable from(Row row) {
+        return new TagLabelTable(
                 row.getString(ID),
+                row.getString("label"),
                 row.getString("user_name"),
                 row.getLocalDateTime("create_time"),
                 row.getLocalDateTime("update_time"),
@@ -122,62 +138,61 @@ public final class Word implements StringIdentification, Marked, Owned, TimeUpda
         );
     }
 
-    public static Uni<Word> findById(PgPool client, String id) {
+    public static Multi<TagLabelTable> findAll(PgPool client) {
         return client
-                .preparedQuery(SELECT_FROM_DICTIONARY_WORD_WHERE_ID_$1)
-                .execute(Tuple.of(id))
-                .onItem()
-                .transform(RowSet::iterator)
-                .onItem()
-                .transform(iterator -> iterator.hasNext() ? Word.from(iterator.next()) : null);
-    }
-
-    public static Multi<Word> findAll(PgPool client) {
-        return client
-                .query(SELECT_ALL_FROM_DICTIONARY_WORD_ORDER_BY_ID_ASC)
+                .query(SELECT_ALL_FROM_DICTIONARY_TAG_LABEL_ORDER_BY_ID_ASC)
                 .execute()
                 .onItem()
                 .transformToMulti(set -> Multi.createFrom().iterable(set))
                 .onItem()
-                .transform(Word::from);
+                .transform(TagLabelTable::from);
 
     }
 
-    public static Multi<Word> findRange(PgPool client, long offset, long limit) {
+    public static Uni<TagLabelTable> findById(PgPool client, String id) {
         return client
-                .preparedQuery(SELECT_ALL_FROM_DICTIONARY_WORD_ORDER_BY_WORD_ASC_OFFSET_LIMIT)
+                .preparedQuery(SELECT_FROM_DICTIONARY_TAG_LABEL_WHERE_ID_$1)
+                .execute(Tuple.of(id))
+                .onItem()
+                .transform(RowSet::iterator)
+                .onItem()
+                .transform(iterator -> iterator.hasNext() ? TagLabelTable.from(iterator.next()) : null);
+    }
+
+    public static Multi<TagLabelTable> findRange(PgPool client, long offset, long limit) {
+        return client
+                .preparedQuery(SELECT_ALL_FROM_DICTIONARY_TAG_LABEL_ORDER_BY_ID_ASC_OFFSET_LIMIT)
                 .execute(Tuple.of(offset, limit))
                 .onItem()
                 .transformToMulti(set -> Multi.createFrom().iterable(set))
                 .onItem()
-                .transform(Word::from);
-
+                .transform(TagLabelTable::from);
     }
 
     public static Uni<String> delete(PgPool client, String id) {
         return client.withTransaction(
-                connection -> connection.preparedQuery(DELETE_FROM_DICTIONARY_WORD_WHERE_ID_$1)
-                .execute(Tuple.of(id))
-                .onItem()
-                .transform(pgRowSet -> pgRowSet.iterator().next().getString(ID)));
+                connection -> connection.preparedQuery(DELETE_FROM_DICTIONARY_TAG_LABEL_WHERE_ID_$1)
+                        .execute(Tuple.of(id))
+                        .onItem()
+                        .transform(pgRowSet -> pgRowSet.iterator().next().getString(ID)));
     }
 
     public static Uni<Long> count(PgPool client) {
         return client
-                .preparedQuery(COUNT_DICTIONARY_WORD)
+                .preparedQuery(COUNT_DICTIONARY_TAG_LABEL)
                 .execute()
                 .onItem()
                 .transform(pgRowSet -> pgRowSet.iterator().next().getLong("count"));
     }
 
-    public static Word.Builder builder() {
-        return new Word.Builder();
+    public static TagLabelTable.Builder builder() {
+        return new TagLabelTable.Builder();
     }
 
     public Uni<String> insert(PgPool client) {
         return client.withTransaction(
-                connection -> connection.preparedQuery(INSERT_INTO_DICTIONARY_WORD)
-                        .execute(Tuple.tuple(listOf()))
+                connection -> connection.preparedQuery(caseInsertSql())
+                        .execute(caseInsertTuple())
                         .onItem()
                         .transform(RowSet::iterator)
                         .onItem()
@@ -186,23 +201,32 @@ public final class Word implements StringIdentification, Marked, Owned, TimeUpda
 
     public Uni<String> update(PgPool client) {
         return client.withTransaction(
-                connection -> connection.preparedQuery(UPDATE_DICTIONARY_WORD_WHERE_ID_$1)
+                connection -> connection.preparedQuery(UPDATE_DICTIONARY_TAG_LABEL_WHERE_ID_$1)
                         .execute(Tuple.tuple(listOf()))
                         .onItem()
                         .transform(pgRowSet -> pgRowSet.iterator().next().getString(ID)));
     }
 
+    private String caseInsertSql() {
+        return id != null ? INSERT_INTO_DICTIONARY_TAG_LABEL : INSERT_INTO_DICTIONARY_TAG_LABEL_DEFAULT_ID;
+    }
+
+    private Tuple caseInsertTuple() {
+        return id != null
+                ? Tuple.of(StringUtil.generateTagId(id), label, userName, enabled, visible, flags)
+                : Tuple.of(label, userName, enabled, visible, flags);
+    }
+
     private List<Object> listOf() {
-        return Arrays.asList(word, userName, enabled, visible, flags);
+        return Arrays.asList(id, label, userName, enabled, visible, flags);
     }
 
-    @JsonIgnore
     public String getId() {
-        return word;
+        return id;
     }
 
-    public String getWord() {
-        return word;
+    public String getLabel() {
+        return label;
     }
 
     public String getUserName() {
@@ -241,11 +265,12 @@ public final class Word implements StringIdentification, Marked, Owned, TimeUpda
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        var that = (Word) o;
+        var that = (TagLabelTable) o;
         return enabled == that.enabled
                 && visible == that.visible
                 && flags == that.flags
-                && Objects.equals(word, that.word)
+                && Objects.equals(id, that.id)
+                && Objects.equals(label, that.label)
                 && Objects.equals(userName, that.userName);
     }
 
@@ -264,13 +289,14 @@ public final class Word implements StringIdentification, Marked, Owned, TimeUpda
     }
 
     private int calculateHashCode() {
-        return Objects.hash(word, userName, enabled, visible, flags);
+        return Objects.hash(id, label, userName, enabled, visible, flags);
     }
 
     @Override
     public String toString() {
-        return "Word{" +
-                "word='" + word + '\'' +
+        return "TagLabel{" +
+                "id=" + id +
+                ", label='" + label + '\'' +
                 ", userName='" + userName + '\'' +
                 ", createTime=" + createTime +
                 ", updateTime=" + updateTime +
@@ -281,7 +307,8 @@ public final class Word implements StringIdentification, Marked, Owned, TimeUpda
     }
 
     public static final class Builder {
-        private String word;
+        private String id;
+        private String label;
         private String userName;
         private LocalDateTime createTime;
         private LocalDateTime updateTime;
@@ -292,13 +319,13 @@ public final class Word implements StringIdentification, Marked, Owned, TimeUpda
         private Builder() {
         }
 
-        public Builder id(@Nonnull String id) {
-            this.word = id;
+        public Builder id(String id) {
+            this.id = id;
             return this;
         }
 
-        public Builder word(@Nonnull String word) {
-            this.word = word;
+        public Builder label(@Nonnull String label) {
+            this.label = label;
             return this;
         }
 
@@ -332,8 +359,8 @@ public final class Word implements StringIdentification, Marked, Owned, TimeUpda
             return this;
         }
 
-        public Word build() {
-            return new Word(word, userName, createTime, updateTime, enabled, visible, flags);
+        public TagLabelTable build() {
+            return new TagLabelTable(id, label, userName, createTime, updateTime, enabled, visible, flags);
         }
     }
 }

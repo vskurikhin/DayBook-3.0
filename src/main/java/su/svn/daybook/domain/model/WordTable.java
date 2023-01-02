@@ -2,7 +2,7 @@
  * This file was last modified at 2022.01.12 22:58 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
- * Language.java
+ * Word.java
  * $Id$
  */
 
@@ -17,6 +17,7 @@ import io.vertx.mutiny.sqlclient.Row;
 import io.vertx.mutiny.sqlclient.RowSet;
 import io.vertx.mutiny.sqlclient.Tuple;
 
+import javax.annotation.Nonnull;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -25,58 +26,52 @@ import java.util.List;
 import java.util.Objects;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public final class Language implements LongIdentification, Marked, Owned, TimeUpdated, Serializable {
+public final class WordTable implements StringIdentification, Marked, Owned, TimeUpdated, Serializable {
 
-    public static final String SELECT_FROM_DICTIONARY_LANGUAGE_WHERE_ID_$1 = """
-            SELECT id, language, user_name, create_time, update_time, enabled, visible, flags
-              FROM dictionary.language
-             WHERE id = $1
+    public static final String NONE = "9e9574c8-990d-490a-be46-748e3160dbe1";
+    public static final String SELECT_FROM_DICTIONARY_WORD_WHERE_ID_$1 = """
+            SELECT word, user_name, create_time, update_time, enabled, visible, flags
+              FROM dictionary.word
+             WHERE word = $1 AND enabled
             """;
-    public static final String SELECT_ALL_FROM_DICTIONARY_LANGUAGE_ORDER_BY_ID_ASC = """
-            SELECT id, language, user_name, create_time, update_time, enabled, visible, flags
-              FROM dictionary.language
-             ORDER BY id ASC
+    public static final String SELECT_ALL_FROM_DICTIONARY_WORD_ORDER_BY_ID_ASC = """
+            SELECT word, user_name, create_time, update_time, enabled, visible, flags
+              FROM dictionary.word
+             WHERE enabled
+             ORDER BY word ASC
             """;
-    public static final String SELECT_ALL_FROM_DICTIONARY_LANGUAGE_ORDER_BY_ID_ASC_OFFSET_LIMIT = """
-            SELECT id, language, user_name, create_time, update_time, enabled, visible, flags
-              FROM dictionary.language
-             ORDER BY id ASC OFFSET $1 LIMIT $2
+    public static final String SELECT_ALL_FROM_DICTIONARY_WORD_ORDER_BY_WORD_ASC_OFFSET_LIMIT = """
+            SELECT word, user_name, create_time, update_time, enabled, visible, flags
+              FROM dictionary.word
+             WHERE enabled
+             ORDER BY word ASC OFFSET $1 LIMIT $2 
             """;
-    public static final String INSERT_INTO_DICTIONARY_LANGUAGE = """
-            INSERT INTO dictionary.language
-             (id, language, user_name, enabled, visible, flags)
+    public static final String INSERT_INTO_DICTIONARY_WORD = """
+            INSERT INTO dictionary.word
+             (word, user_name, enabled, visible, flags)
              VALUES
-             ($1, $2, $3, $4, $5, $6)
-             RETURNING id
+             ($1, $2, $3, $4, $5)
+             RETURNING word
             """;
-    public static final String INSERT_INTO_DICTIONARY_LANGUAGE_DEFAULT_ID = """
-            INSERT INTO dictionary.language
-             (id, language, user_name, enabled, visible, flags)
-             VALUES
-             (DEFAULT, $1, $2, $3, $4, $5)
-             RETURNING id
+    public static final String UPDATE_DICTIONARY_WORD_WHERE_ID_$1 = """
+            UPDATE dictionary.word SET
+              user_name = $2,
+              enabled = $3,
+              visible = $4,
+              flags = $5
+             WHERE word = $1
+             RETURNING word
             """;
-    public static final String UPDATE_DICTIONARY_LANGUAGE_WHERE_ID_$1 = """
-            UPDATE dictionary.language SET
-              language = $2,
-              user_name = $3,
-              enabled = $4,
-              visible = $5,
-              flags = $6
-             WHERE id = $1
-             RETURNING id
+    public static final String DELETE_FROM_DICTIONARY_WORD_WHERE_ID_$1 = """
+            DELETE FROM dictionary.word
+             WHERE word = $1
+             RETURNING word
             """;
-    public static final String DELETE_FROM_DICTIONARY_LANGUAGE_WHERE_ID_$1 = """
-            DELETE FROM dictionary.language
-             WHERE id = $1
-             RETURNING id
-            """;
-    public static final String COUNT_DICTIONARY_LANGUAGE = "SELECT count(*) FROM dictionary.language";
-    public static final String ID = "id";
+    public static final String COUNT_DICTIONARY_WORD = "SELECT count(*) FROM dictionary.word";
     @Serial
-    private static final long serialVersionUID = -3447138347398739815L;
-    private final Long id;
-    private final String language;
+    private static final long serialVersionUID = 5605080331607472920L;
+    public static final String ID = "word";
+    private final String word;
     private final String userName;
     private final LocalDateTime createTime;
     private final LocalDateTime updateTime;
@@ -90,9 +85,8 @@ public final class Language implements LongIdentification, Marked, Owned, TimeUp
     @JsonIgnore
     private transient volatile boolean hashIsZero;
 
-    public Language() {
-        this.id = null;
-        this.language = null;
+    public WordTable() {
+        this.word = NONE;
         this.userName = null;
         this.createTime = null;
         this.updateTime = null;
@@ -101,17 +95,15 @@ public final class Language implements LongIdentification, Marked, Owned, TimeUp
         this.flags = 0;
     }
 
-    public Language(
-            Long id,
-            String language,
+    public WordTable(
+            @Nonnull String word,
             String userName,
             LocalDateTime createTime,
             LocalDateTime updateTime,
             boolean enabled,
             boolean visible,
             int flags) {
-        this.id = id;
-        this.language = language;
+        this.word = word;
         this.userName = userName;
         this.createTime = createTime;
         this.updateTime = updateTime;
@@ -120,10 +112,9 @@ public final class Language implements LongIdentification, Marked, Owned, TimeUp
         this.flags = flags;
     }
 
-    public static Language from(Row row) {
-        return new Language(
-                row.getLong(ID),
-                row.getString("language"),
+    public static WordTable from(Row row) {
+        return new WordTable(
+                row.getString(ID),
                 row.getString("user_name"),
                 row.getLocalDateTime("create_time"),
                 row.getLocalDateTime("update_time"),
@@ -133,92 +124,87 @@ public final class Language implements LongIdentification, Marked, Owned, TimeUp
         );
     }
 
-    public static Multi<Language> findAll(PgPool client) {
+    public static Uni<WordTable> findById(PgPool client, String id) {
         return client
-                .query(SELECT_ALL_FROM_DICTIONARY_LANGUAGE_ORDER_BY_ID_ASC)
-                .execute()
-                .onItem()
-                .transformToMulti(set -> Multi.createFrom().iterable(set))
-                .onItem()
-                .transform(Language::from);
-    }
-
-    public static Uni<Language> findById(PgPool client, Long id) {
-        return client
-                .preparedQuery(SELECT_FROM_DICTIONARY_LANGUAGE_WHERE_ID_$1)
+                .preparedQuery(SELECT_FROM_DICTIONARY_WORD_WHERE_ID_$1)
                 .execute(Tuple.of(id))
                 .onItem()
                 .transform(RowSet::iterator)
                 .onItem()
-                .transform(iterator -> iterator.hasNext() ? Language.from(iterator.next()) : null);
+                .transform(iterator -> iterator.hasNext() ? WordTable.from(iterator.next()) : null);
     }
 
-    public static Multi<Language> findRange(PgPool client, long offset, long limit) {
+    public static Multi<WordTable> findAll(PgPool client) {
         return client
-                .preparedQuery(SELECT_ALL_FROM_DICTIONARY_LANGUAGE_ORDER_BY_ID_ASC_OFFSET_LIMIT)
+                .query(SELECT_ALL_FROM_DICTIONARY_WORD_ORDER_BY_ID_ASC)
+                .execute()
+                .onItem()
+                .transformToMulti(set -> Multi.createFrom().iterable(set))
+                .onItem()
+                .transform(WordTable::from);
+
+    }
+
+    public static Multi<WordTable> findRange(PgPool client, long offset, long limit) {
+        return client
+                .preparedQuery(SELECT_ALL_FROM_DICTIONARY_WORD_ORDER_BY_WORD_ASC_OFFSET_LIMIT)
                 .execute(Tuple.of(offset, limit))
                 .onItem()
                 .transformToMulti(set -> Multi.createFrom().iterable(set))
                 .onItem()
-                .transform(Language::from);
+                .transform(WordTable::from);
+
     }
 
-    public static Uni<Long> delete(PgPool client, Long id) {
+    public static Uni<String> delete(PgPool client, String id) {
         return client.withTransaction(
-                connection -> connection.preparedQuery(DELETE_FROM_DICTIONARY_LANGUAGE_WHERE_ID_$1)
-                        .execute(Tuple.of(id))
-                        .onItem()
-                        .transform(pgRowSet -> pgRowSet.iterator().next().getLong(ID)));
+                connection -> connection.preparedQuery(DELETE_FROM_DICTIONARY_WORD_WHERE_ID_$1)
+                .execute(Tuple.of(id))
+                .onItem()
+                .transform(pgRowSet -> pgRowSet.iterator().next().getString(ID)));
     }
 
     public static Uni<Long> count(PgPool client) {
         return client
-                .preparedQuery(COUNT_DICTIONARY_LANGUAGE)
+                .preparedQuery(COUNT_DICTIONARY_WORD)
                 .execute()
                 .onItem()
                 .transform(pgRowSet -> pgRowSet.iterator().next().getLong("count"));
     }
 
-    public static Language.Builder builder() {
-        return new Language.Builder();
+    public static WordTable.Builder builder() {
+        return new WordTable.Builder();
     }
 
-    public Uni<Long> insert(PgPool client) {
+    public Uni<String> insert(PgPool client) {
         return client.withTransaction(
-                connection -> connection.preparedQuery(caseInsertSql())
-                        .execute(caseInsertTuple())
+                connection -> connection.preparedQuery(INSERT_INTO_DICTIONARY_WORD)
+                        .execute(Tuple.tuple(listOf()))
                         .onItem()
                         .transform(RowSet::iterator)
                         .onItem()
-                        .transform(iterator -> iterator.hasNext() ? iterator.next().getLong(ID) : null));
+                        .transform(iterator -> iterator.hasNext() ? iterator.next().getString(ID) : null));
     }
 
-    public Uni<Long> update(PgPool client) {
+    public Uni<String> update(PgPool client) {
         return client.withTransaction(
-                connection -> connection.preparedQuery(UPDATE_DICTIONARY_LANGUAGE_WHERE_ID_$1)
+                connection -> connection.preparedQuery(UPDATE_DICTIONARY_WORD_WHERE_ID_$1)
                         .execute(Tuple.tuple(listOf()))
                         .onItem()
-                        .transform(pgRowSet -> pgRowSet.iterator().next().getLong(ID)));
-    }
-
-    private String caseInsertSql() {
-        return id != null ? INSERT_INTO_DICTIONARY_LANGUAGE : INSERT_INTO_DICTIONARY_LANGUAGE_DEFAULT_ID;
-    }
-
-    private Tuple caseInsertTuple() {
-        return id != null ? Tuple.tuple(listOf()) : Tuple.of(language, userName, enabled, visible, flags);
+                        .transform(pgRowSet -> pgRowSet.iterator().next().getString(ID)));
     }
 
     private List<Object> listOf() {
-        return Arrays.asList(id, language, userName, enabled, visible, flags);
+        return Arrays.asList(word, userName, enabled, visible, flags);
     }
 
-    public Long getId() {
-        return id;
+    @JsonIgnore
+    public String getId() {
+        return word;
     }
 
-    public String getLanguage() {
-        return language;
+    public String getWord() {
+        return word;
     }
 
     public String getUserName() {
@@ -257,12 +243,11 @@ public final class Language implements LongIdentification, Marked, Owned, TimeUp
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        var that = (Language) o;
+        var that = (WordTable) o;
         return enabled == that.enabled
                 && visible == that.visible
                 && flags == that.flags
-                && Objects.equals(id, that.id)
-                && Objects.equals(language, that.language)
+                && Objects.equals(word, that.word)
                 && Objects.equals(userName, that.userName);
     }
 
@@ -281,14 +266,13 @@ public final class Language implements LongIdentification, Marked, Owned, TimeUp
     }
 
     private int calculateHashCode() {
-        return Objects.hash(id, language, userName, enabled, visible, flags);
+        return Objects.hash(word, userName, enabled, visible, flags);
     }
 
     @Override
     public String toString() {
-        return "Language{" +
-                "id=" + id +
-                ", language='" + language + '\'' +
+        return "Word{" +
+                "word='" + word + '\'' +
                 ", userName='" + userName + '\'' +
                 ", createTime=" + createTime +
                 ", updateTime=" + updateTime +
@@ -299,8 +283,7 @@ public final class Language implements LongIdentification, Marked, Owned, TimeUp
     }
 
     public static final class Builder {
-        private Long id;
-        private String language;
+        private String word;
         private String userName;
         private LocalDateTime createTime;
         private LocalDateTime updateTime;
@@ -311,13 +294,13 @@ public final class Language implements LongIdentification, Marked, Owned, TimeUp
         private Builder() {
         }
 
-        public Builder id(Long id) {
-            this.id = id;
+        public Builder id(@Nonnull String id) {
+            this.word = id;
             return this;
         }
 
-        public Builder language(String language) {
-            this.language = language;
+        public Builder word(@Nonnull String word) {
+            this.word = word;
             return this;
         }
 
@@ -351,8 +334,8 @@ public final class Language implements LongIdentification, Marked, Owned, TimeUp
             return this;
         }
 
-        public Language build() {
-            return new Language(id, language, userName, createTime, updateTime, enabled, visible, flags);
+        public WordTable build() {
+            return new WordTable(word, userName, createTime, updateTime, enabled, visible, flags);
         }
     }
 }

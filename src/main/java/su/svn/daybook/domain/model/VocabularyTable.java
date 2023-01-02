@@ -2,13 +2,12 @@
  * This file was last modified at 2022.01.12 22:58 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
- * I18n.java
+ * Vocabulary.java
  * $Id$
  */
 
 package su.svn.daybook.domain.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
@@ -26,62 +25,56 @@ import java.util.List;
 import java.util.Objects;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public final class I18n implements LongIdentification, Marked, Owned, TimeUpdated, Serializable {
+public final class VocabularyTable implements LongIdentification, Marked, Owned, TimeUpdated, Serializable {
 
-    public static final String SELECT_FROM_DICTIONARY_I18N_WHERE_ID_$1 = """
-            SELECT id, language_id, message, translation, user_name, create_time, update_time, enabled, visible, flags
-              FROM dictionary.i18n
-             WHERE id = $1
+    public static final String NONE = "5f8c1804-5c59-43b6-9099-c1820cffc001";
+    public static final String SELECT_FROM_DICTIONARY_VOCABULARY_WHERE_ID_$1 = """
+            SELECT id, word, value, user_name, create_time, update_time, enabled, visible, flags
+              FROM dictionary.vocabulary
+             WHERE id = $1 AND enabled
             """;
-    public static final String SELECT_ALL_FROM_DICTIONARY_I18N_ORDER_BY_ID_ASC = """
-            SELECT id, language_id, message, translation, user_name, create_time, update_time, enabled, visible, flags
-              FROM dictionary.i18n
+    public static final String SELECT_ALL_FROM_DICTIONARY_VOCABULARY_ORDER_BY_ID_ASC = """
+            SELECT id, word, value, user_name, create_time, update_time, enabled, visible, flags
+              FROM dictionary.vocabulary
+             WHERE enabled
              ORDER BY id ASC
             """;
-    public static final String SELECT_ALL_FROM_DICTIONARY_KEY_VALUE_ORDER_BY_ID_ASC_OFFSET_LIMIT = """
-            SELECT id, language_id, message, translation, user_name, create_time, update_time, enabled, visible, flags
-              FROM dictionary.i18n
+    public static final String SELECT_ALL_FROM_DICTIONARY_VOCABULARY_ORDER_BY_ID_ASC_OFFSET_LIMIT = """
+            SELECT id, word, value, user_name, create_time, update_time, enabled, visible, flags
+              FROM dictionary.vocabulary
+             WHERE enabled
              ORDER BY id ASC OFFSET $1 LIMIT $2
             """;
-    public static final String INSERT_INTO_DICTIONARY_I18N = """
-            INSERT INTO dictionary.i18n
-             (id, language_id, message, translation, user_name, enabled, visible, flags)
+    public static final String INSERT_INTO_DICTIONARY_VOCABULARY = """
+            INSERT INTO dictionary.vocabulary
+             (id, word, value, user_name, enabled, visible, flags)
              VALUES
-             ($1, $2, $3, $4, $5, $6, $7, $8)
+             (DEFAULT, $1, $2, $3, $4, $5, $6)
              RETURNING id
             """;
-    public static final String INSERT_INTO_DICTIONARY_I18N_DEFAULT_ID = """
-            INSERT INTO dictionary.i18n
-             (id, language_id, message, translation, user_name, enabled, visible, flags)
-             VALUES
-             (DEFAULT, $1, $2, $3, $4, $5, $6, $7)
-             RETURNING id
-            """;
-    public static final String UPDATE_DICTIONARY_I18N_WHERE_ID_$1 = """
-            UPDATE dictionary.i18n SET
-              language_id = $2,
-              message = $3,
-              translation = $4,
-              user_name = $5,
-              enabled = $6,
-              visible = $7,
-              flags = $8
+    public static final String UPDATE_DICTIONARY_VOCABULARY_WHERE_ID_$1 = """
+            UPDATE dictionary.vocabulary SET
+              word = $2,
+              user_name = $3,
+              enabled = $4,
+              visible = $5,
+              flags = $6,
+              value = $7
              WHERE id = $1
              RETURNING id
             """;
-    public static final String DELETE_FROM_DICTIONARY_I18N_WHERE_ID_$1 = """
-            DELETE FROM dictionary.i18n
+    public static final String DELETE_FROM_DICTIONARY_VOCABULARY_WHERE_ID_$1 = """
+            DELETE FROM dictionary.vocabulary
              WHERE id = $1
              RETURNING id
             """;
-    public static final String COUNT_DICTIONARY_I18N = "SELECT count(*) FROM dictionary.i18n";
+    public static final String COUNT_DICTIONARY_VOCABULARY = "SELECT count(*) FROM dictionary.vocabulary";
     @Serial
-    private static final long serialVersionUID = -3886622244418636664L;
+    private static final long serialVersionUID = -71735002217330331L;
     public static final String ID = "id";
     private final Long id;
-    private final Long languageId;
-    private final String message;
-    private final String translation;
+    private final String word;
+    private final String value;
     private final String userName;
     private final LocalDateTime createTime;
     private final LocalDateTime updateTime;
@@ -89,17 +82,14 @@ public final class I18n implements LongIdentification, Marked, Owned, TimeUpdate
     private final boolean visible;
     private final int flags;
 
-    @JsonIgnore
     private transient volatile int hash;
 
-    @JsonIgnore
     private transient volatile boolean hashIsZero;
 
-    public I18n() {
+    public VocabularyTable() {
         this.id = null;
-        this.languageId = 0L;
-        this.message = null;
-        this.translation = null;
+        this.word = NONE;
+        this.value = null;
         this.userName = null;
         this.createTime = null;
         this.updateTime = null;
@@ -108,11 +98,10 @@ public final class I18n implements LongIdentification, Marked, Owned, TimeUpdate
         this.flags = 0;
     }
 
-    public I18n(
+    public VocabularyTable(
             Long id,
-            @Nonnull Long languageId,
-            String message,
-            String translation,
+            @Nonnull String word,
+            String value,
             String userName,
             LocalDateTime createTime,
             LocalDateTime updateTime,
@@ -120,9 +109,8 @@ public final class I18n implements LongIdentification, Marked, Owned, TimeUpdate
             boolean visible,
             int flags) {
         this.id = id;
-        this.languageId = languageId;
-        this.message = message;
-        this.translation = translation;
+        this.word = word;
+        this.value = value;
         this.userName = userName;
         this.createTime = createTime;
         this.updateTime = updateTime;
@@ -131,12 +119,11 @@ public final class I18n implements LongIdentification, Marked, Owned, TimeUpdate
         this.flags = flags;
     }
 
-    public static I18n from(Row row) {
-        return new I18n(
+    public static VocabularyTable from(Row row) {
+        return new VocabularyTable(
                 row.getLong(ID),
-                row.getLong("language_id"),
-                row.getString("message"),
-                row.getString("translation"),
+                row.getString("word"),
+                row.getString("value"),
                 row.getString("user_name"),
                 row.getLocalDateTime("create_time"),
                 row.getLocalDateTime("update_time"),
@@ -146,40 +133,40 @@ public final class I18n implements LongIdentification, Marked, Owned, TimeUpdate
         );
     }
 
-    public static Multi<I18n> findAll(PgPool client) {
+    public static Multi<VocabularyTable> findAll(PgPool client) {
         return client
-                .query(SELECT_ALL_FROM_DICTIONARY_I18N_ORDER_BY_ID_ASC)
+                .query(SELECT_ALL_FROM_DICTIONARY_VOCABULARY_ORDER_BY_ID_ASC)
                 .execute()
                 .onItem()
                 .transformToMulti(set -> Multi.createFrom().iterable(set))
                 .onItem()
-                .transform(I18n::from);
+                .transform(VocabularyTable::from);
 
     }
 
-    public static Uni<I18n> findById(PgPool client, Long id) {
+    public static Uni<VocabularyTable> findById(PgPool client, Long id) {
         return client
-                .preparedQuery(SELECT_FROM_DICTIONARY_I18N_WHERE_ID_$1)
+                .preparedQuery(SELECT_FROM_DICTIONARY_VOCABULARY_WHERE_ID_$1)
                 .execute(Tuple.of(id))
                 .onItem()
                 .transform(RowSet::iterator)
                 .onItem()
-                .transform(iterator -> iterator.hasNext() ? I18n.from(iterator.next()) : null);
+                .transform(iterator -> iterator.hasNext() ? VocabularyTable.from(iterator.next()) : null);
     }
 
-    public static Multi<I18n> findRange(PgPool client, long offset, long limit) {
+    public static Multi<VocabularyTable> findRange(PgPool client, long offset, long limit) {
         return client
-                .preparedQuery(SELECT_ALL_FROM_DICTIONARY_KEY_VALUE_ORDER_BY_ID_ASC_OFFSET_LIMIT)
+                .preparedQuery(SELECT_ALL_FROM_DICTIONARY_VOCABULARY_ORDER_BY_ID_ASC_OFFSET_LIMIT)
                 .execute(Tuple.of(offset, limit))
                 .onItem()
                 .transformToMulti(set -> Multi.createFrom().iterable(set))
                 .onItem()
-                .transform(I18n::from);
+                .transform(VocabularyTable::from);
     }
 
     public static Uni<Long> delete(PgPool client, Long id) {
         return client.withTransaction(
-                connection -> connection.preparedQuery(DELETE_FROM_DICTIONARY_I18N_WHERE_ID_$1)
+                connection -> connection.preparedQuery(DELETE_FROM_DICTIONARY_VOCABULARY_WHERE_ID_$1)
                         .execute(Tuple.of(id))
                         .onItem()
                         .transform(pgRowSet -> pgRowSet.iterator().next().getLong(ID)));
@@ -187,20 +174,20 @@ public final class I18n implements LongIdentification, Marked, Owned, TimeUpdate
 
     public static Uni<Long> count(PgPool client) {
         return client
-                .preparedQuery(COUNT_DICTIONARY_I18N)
+                .preparedQuery(COUNT_DICTIONARY_VOCABULARY)
                 .execute()
                 .onItem()
                 .transform(pgRowSet -> pgRowSet.iterator().next().getLong("count"));
     }
 
-    public static I18n.Builder builder() {
-        return new I18n.Builder();
+    public static VocabularyTable.Builder builder() {
+        return new VocabularyTable.Builder();
     }
 
     public Uni<Long> insert(PgPool client) {
         return client.withTransaction(
-                connection -> connection.preparedQuery(caseInsertSql())
-                        .execute(caseInsertTuple())
+                connection -> connection.preparedQuery(INSERT_INTO_DICTIONARY_VOCABULARY)
+                        .execute(Tuple.of(word, value, userName, enabled, visible, flags))
                         .onItem()
                         .transform(RowSet::iterator)
                         .onItem()
@@ -209,40 +196,26 @@ public final class I18n implements LongIdentification, Marked, Owned, TimeUpdate
 
     public Uni<Long> update(PgPool client) {
         return client.withTransaction(
-                connection -> connection.preparedQuery(UPDATE_DICTIONARY_I18N_WHERE_ID_$1)
+                connection -> connection.preparedQuery(UPDATE_DICTIONARY_VOCABULARY_WHERE_ID_$1)
                         .execute(Tuple.tuple(listOf()))
                         .onItem()
                         .transform(pgRowSet -> pgRowSet.iterator().next().getLong(ID)));
     }
 
-    private String caseInsertSql() {
-        return id != null ? INSERT_INTO_DICTIONARY_I18N : INSERT_INTO_DICTIONARY_I18N_DEFAULT_ID;
-    }
-
-    private Tuple caseInsertTuple() {
-        return id != null ?
-                Tuple.tuple(listOf())
-                : Tuple.tuple(Arrays.asList(languageId, message, translation, userName, enabled, visible, flags));
-    }
-
     private List<Object> listOf() {
-        return Arrays.asList(id, languageId, message, translation, userName, enabled, visible, flags);
+        return Arrays.asList(id, word, userName, enabled, visible, flags, value);
     }
 
     public Long getId() {
         return id;
     }
 
-    public Long getLanguageId() {
-        return languageId;
+    public String getWord() {
+        return word;
     }
 
-    public String getMessage() {
-        return message;
-    }
-
-    public String getTranslation() {
-        return translation;
+    public String getValue() {
+        return value;
     }
 
     public String getUserName() {
@@ -281,14 +254,13 @@ public final class I18n implements LongIdentification, Marked, Owned, TimeUpdate
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        var that = (I18n) o;
+        VocabularyTable that = (VocabularyTable) o;
         return enabled == that.enabled
                 && visible == that.visible
                 && flags == that.flags
                 && Objects.equals(id, that.id)
-                && Objects.equals(languageId, that.languageId)
-                && Objects.equals(message, that.message)
-                && Objects.equals(translation, that.translation)
+                && Objects.equals(word, that.word)
+                && Objects.equals(value, that.value)
                 && Objects.equals(userName, that.userName);
     }
 
@@ -307,16 +279,15 @@ public final class I18n implements LongIdentification, Marked, Owned, TimeUpdate
     }
 
     private int calculateHashCode() {
-        return Objects.hash(id, languageId, message, translation, userName, enabled, visible, flags);
+        return Objects.hash(id, word, value, userName, enabled, visible, flags);
     }
 
     @Override
     public String toString() {
-        return "I18n{" +
+        return "Vocabulary{" +
                 "id=" + id +
-                ", languageId='" + languageId + '\'' +
-                ", message='" + message + '\'' +
-                ", translation='" + translation + '\'' +
+                ", word='" + word + '\'' +
+                ", value='" + value + '\'' +
                 ", userName='" + userName + '\'' +
                 ", createTime=" + createTime +
                 ", updateTime=" + updateTime +
@@ -328,9 +299,8 @@ public final class I18n implements LongIdentification, Marked, Owned, TimeUpdate
 
     public static final class Builder {
         private Long id;
-        private Long languageId;
-        private String message;
-        private String translation;
+        private String word;
+        private String value;
         private String userName;
         private LocalDateTime createTime;
         private LocalDateTime updateTime;
@@ -346,18 +316,13 @@ public final class I18n implements LongIdentification, Marked, Owned, TimeUpdate
             return this;
         }
 
-        public Builder languageId(long languageId) {
-            this.languageId = languageId;
+        public Builder word(String word) {
+            this.word = word;
             return this;
         }
 
-        public Builder message(String message) {
-            this.message = message;
-            return this;
-        }
-
-        public Builder translation(String translation) {
-            this.translation = translation;
+        public Builder value(String value) {
+            this.value = value;
             return this;
         }
 
@@ -391,10 +356,8 @@ public final class I18n implements LongIdentification, Marked, Owned, TimeUpdate
             return this;
         }
 
-        public I18n build() {
-            return new I18n(
-                    id, languageId, message, translation, userName, createTime, updateTime, enabled, visible, flags
-            );
+        public VocabularyTable build() {
+            return new VocabularyTable(id, word, value, userName, createTime, updateTime, enabled, visible, flags);
         }
     }
 }

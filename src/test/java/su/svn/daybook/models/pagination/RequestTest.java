@@ -1,14 +1,10 @@
 package su.svn.daybook.models.pagination;
 
 import nl.jqno.equalsverifier.EqualsVerifier;
-import nl.jqno.equalsverifier.Warning;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.Collections;
-
-class PageRequestRequestTest {
+class PageRequestTest {
 
     @Test
     void testConstructors() {

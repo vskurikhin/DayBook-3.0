@@ -20,7 +20,7 @@ import su.svn.daybook.TestData;
 import su.svn.daybook.domain.dao.VocabularyDao;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.messages.ApiResponse;
-import su.svn.daybook.domain.model.Vocabulary;
+import su.svn.daybook.domain.model.VocabularyTable;
 import su.svn.daybook.models.pagination.Page;
 import su.svn.daybook.models.pagination.PageRequest;
 
@@ -39,13 +39,13 @@ class VocabularyServiceTest {
 
     static VocabularyDao mock;
 
-    static final Uni<Optional<Vocabulary>> UNI_OPTIONAL_TEST = Uni.createFrom().item(Optional.of(TestData.VOCABULARY.OBJECT_0));
+    static final Uni<Optional<VocabularyTable>> UNI_OPTIONAL_TEST = Uni.createFrom().item(Optional.of(TestData.VOCABULARY.OBJECT_0));
 
-    static final Multi<Vocabulary> MULTI_TEST = Multi.createFrom().item(TestData.VOCABULARY.OBJECT_0);
+    static final Multi<VocabularyTable> MULTI_TEST = Multi.createFrom().item(TestData.VOCABULARY.OBJECT_0);
 
-    static final Multi<Vocabulary> MULTI_WITH_NULL = TestData.createMultiWithNull(Vocabulary.class);
+    static final Multi<VocabularyTable> MULTI_WITH_NULL = TestData.createMultiWithNull(VocabularyTable.class);
 
-    static final Multi<Vocabulary> MULTI_EMPTIES = TestData.createMultiEmpties(Vocabulary.class);
+    static final Multi<VocabularyTable> MULTI_EMPTIES = TestData.createMultiEmpties(VocabularyTable.class);
 
     @BeforeEach
     void setUp() {

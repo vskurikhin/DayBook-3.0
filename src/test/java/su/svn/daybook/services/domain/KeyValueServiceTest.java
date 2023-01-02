@@ -20,7 +20,7 @@ import su.svn.daybook.TestData;
 import su.svn.daybook.domain.dao.KeyValueDao;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.messages.ApiResponse;
-import su.svn.daybook.domain.model.KeyValue;
+import su.svn.daybook.domain.model.KeyValueTable;
 import su.svn.daybook.models.pagination.Page;
 import su.svn.daybook.models.pagination.PageRequest;
 
@@ -39,13 +39,13 @@ class KeyValueServiceTest {
 
     static KeyValueDao mock;
 
-    static final Uni<Optional<KeyValue>> UNI_OPTIONAL_TEST = Uni.createFrom().item(Optional.of(TestData.KEY_VALUE.OBJECT_0));
+    static final Uni<Optional<KeyValueTable>> UNI_OPTIONAL_TEST = Uni.createFrom().item(Optional.of(TestData.KEY_VALUE.OBJECT_0));
 
-    static final Multi<KeyValue> MULTI_TEST = Multi.createFrom().item(TestData.KEY_VALUE.OBJECT_0);
+    static final Multi<KeyValueTable> MULTI_TEST = Multi.createFrom().item(TestData.KEY_VALUE.OBJECT_0);
 
-    static final Multi<KeyValue> MULTI_WITH_NULL = TestData.createMultiWithNull(KeyValue.class);
+    static final Multi<KeyValueTable> MULTI_WITH_NULL = TestData.createMultiWithNull(KeyValueTable.class);
 
-    static final Multi<KeyValue> MULTI_EMPTIES = TestData.createMultiEmpties(KeyValue.class);
+    static final Multi<KeyValueTable> MULTI_EMPTIES = TestData.createMultiEmpties(KeyValueTable.class);
 
     @BeforeEach
     void setUp() {

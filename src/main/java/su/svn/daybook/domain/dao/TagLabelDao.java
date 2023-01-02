@@ -11,7 +11,7 @@ package su.svn.daybook.domain.dao;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import org.jboss.logging.Logger;
-import su.svn.daybook.domain.model.TagLabel;
+import su.svn.daybook.domain.model.TagLabelTable;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -25,29 +25,29 @@ public class TagLabelDao {
     @Inject
     io.vertx.mutiny.pgclient.PgPool client;
 
-    public Multi<TagLabel> findAll() {
+    public Multi<TagLabelTable> findAll() {
         LOG.trace("findAll()");
-        return TagLabel.findAll(client);
+        return TagLabelTable.findAll(client);
     }
 
-    public Uni<Optional<TagLabel>> findById(String id) {
+    public Uni<Optional<TagLabelTable>> findById(String id) {
         LOG.tracef("findById(%s)", id);
-        return TagLabel.findById(client, id)
+        return TagLabelTable.findById(client, id)
                 .map(Optional::ofNullable);
     }
 
-    public Multi<TagLabel> findRange(long offset, long limit) {
+    public Multi<TagLabelTable> findRange(long offset, long limit) {
         LOG.tracef("findRange(%d, %d)", offset, limit);
-        return TagLabel.findRange(client, offset, limit);
+        return TagLabelTable.findRange(client, offset, limit);
     }
 
-    public Uni<Optional<String>> insert(TagLabel entry) {
+    public Uni<Optional<String>> insert(TagLabelTable entry) {
         LOG.tracef("insert(%s)", entry);
         return entry.insert(client)
                 .map(Optional::ofNullable);
     }
 
-    public Uni<Optional<String>> update(TagLabel entry) {
+    public Uni<Optional<String>> update(TagLabelTable entry) {
         LOG.tracef("update(%s)", entry);
         return entry.update(client)
                 .map(Optional::ofNullable);
@@ -55,13 +55,13 @@ public class TagLabelDao {
 
     public Uni<Optional<String>> delete(String id) {
         LOG.tracef("delete(%s)", id);
-        return TagLabel.delete(client, id)
+        return TagLabelTable.delete(client, id)
                 .map(Optional::ofNullable);
     }
 
     public Uni<Optional<Long>> count() {
         LOG.trace("count()");
-        return TagLabel.count(client)
+        return TagLabelTable.count(client)
                 .map(Optional::ofNullable);
     }
 }

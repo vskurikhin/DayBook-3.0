@@ -19,7 +19,7 @@ import org.jboss.logging.Logger;
 import su.svn.daybook.domain.dao.VocabularyDao;
 import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.messages.Answer;
-import su.svn.daybook.domain.model.Vocabulary;
+import su.svn.daybook.domain.model.VocabularyTable;
 import su.svn.daybook.models.pagination.Page;
 import su.svn.daybook.models.pagination.PageRequest;
 import su.svn.daybook.services.ExceptionAnswerService;
@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 @ApplicationScoped
-public class VocabularyService extends AbstractService<Long, Vocabulary> {
+public class VocabularyService extends AbstractService<Long, VocabularyTable> {
 
     private static final Logger LOG = Logger.getLogger(VocabularyService.class);
 
@@ -107,12 +107,12 @@ public class VocabularyService extends AbstractService<Long, Vocabulary> {
      * @return - a lazy asynchronous action (LAA) with the Answer containing the Vocabulary id as payload or empty payload
      */
     @ConsumeEvent(EventAddress.VOCABULARY_ADD)
-    public Uni<Answer> add(Vocabulary o) {
+    public Uni<Answer> add(VocabularyTable o) {
         LOG.tracef("add(%s)", o);
         return addEntry(o);
     }
 
-    private Uni<Answer> addEntry(Vocabulary entry) {
+    private Uni<Answer> addEntry(VocabularyTable entry) {
         return vocabularyDao
                 .insert(entry)
                 .map(o -> apiResponseWithKeyAnswer(201, o))
@@ -131,12 +131,12 @@ public class VocabularyService extends AbstractService<Long, Vocabulary> {
      * @return - a LAA with the Answer containing Vocabulary id as payload or empty payload
      */
     @ConsumeEvent(EventAddress.VOCABULARY_PUT)
-    public Uni<Answer> put(Vocabulary o) {
+    public Uni<Answer> put(VocabularyTable o) {
         LOG.tracef("put(%s)", o);
         return putEntry(o);
     }
 
-    private Uni<Answer> putEntry(Vocabulary entry) {
+    private Uni<Answer> putEntry(VocabularyTable entry) {
         return vocabularyDao
                 .update(entry)
                 .flatMap(this::apiResponseAcceptedUniAnswer)

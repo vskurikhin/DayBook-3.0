@@ -5,23 +5,22 @@ import nl.jqno.equalsverifier.Warning;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import static su.svn.daybook.domain.model.KeyValue.NONE;
+import static su.svn.daybook.domain.model.ValueTypeTable.NONE;
 
-class KeyValueTest {
+class ValueTypeTableTest {
 
     @Test
     void testConstructors() {
-        Assertions.assertDoesNotThrow(() -> new KeyValue());
-        Assertions.assertDoesNotThrow(() -> new KeyValue(
-                null, NONE, null, null, null, null, false, true, 0
+        Assertions.assertDoesNotThrow(() -> new ValueTypeTable());
+        Assertions.assertDoesNotThrow(() -> new ValueTypeTable(
+                null, NONE, null, null, null, false, true, 0
         ));
     }
     @Test
     void testGetters(){
-        var entry = new KeyValue();
+        var entry = new ValueTypeTable();
         Assertions.assertDoesNotThrow(entry::getId);
-        Assertions.assertDoesNotThrow(entry::getKey);
-        Assertions.assertDoesNotThrow(entry::getValue);
+        Assertions.assertDoesNotThrow(entry::getValueType);
         Assertions.assertDoesNotThrow(entry::getUserName);
         Assertions.assertDoesNotThrow(entry::getCreateTime);
         Assertions.assertDoesNotThrow(entry::getUpdateTime);
@@ -34,7 +33,7 @@ class KeyValueTest {
 
     @Test
     void testEqualsVerifier() {
-        EqualsVerifier.forClass(KeyValue.class)
+        EqualsVerifier.forClass(ValueTypeTable.class)
                 .withCachedHashCode("hash", "calculateHashCode", null)
                 .withIgnoredFields("createTime", "updateTime", "hash", "hashIsZero")
                 .suppress(Warning.NO_EXAMPLE_FOR_CACHED_HASHCODE)
@@ -43,16 +42,15 @@ class KeyValueTest {
 
     @Test
     void testToString() {
-        var entry = new KeyValue();
+        var entry = new ValueTypeTable();
         Assertions.assertDoesNotThrow(() -> Assertions.assertNotNull(entry.toString()));
     }
 
     @Test
     void testBuilder() {
-        Assertions.assertDoesNotThrow(() -> Assertions.assertNotNull(KeyValue.builder()
+        Assertions.assertDoesNotThrow(() -> Assertions.assertNotNull(ValueTypeTable.builder()
                 .id(null)
-                .key(NONE)
-                .value(null)
+                .valueType(NONE)
                 .userName(null)
                 .createTime(null)
                 .updateTime(null)

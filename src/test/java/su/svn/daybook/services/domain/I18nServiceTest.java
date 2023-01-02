@@ -20,10 +20,9 @@ import su.svn.daybook.TestData;
 import su.svn.daybook.domain.dao.I18nDao;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.messages.ApiResponse;
-import su.svn.daybook.domain.model.I18n;
+import su.svn.daybook.domain.model.I18nTable;
 import su.svn.daybook.models.pagination.Page;
 import su.svn.daybook.models.pagination.PageRequest;
-import su.svn.daybook.services.domain.I18nService;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -39,13 +38,13 @@ class I18nServiceTest {
 
     static I18nDao mock;
 
-    static final Uni<Optional<I18n>> UNI_OPTIONAL_TEST = Uni.createFrom().item(Optional.of(TestData.I18N.OBJECT_0));
+    static final Uni<Optional<I18nTable>> UNI_OPTIONAL_TEST = Uni.createFrom().item(Optional.of(TestData.I18N.OBJECT_0));
 
-    static final Multi<I18n> MULTI_TEST = Multi.createFrom().item(TestData.I18N.OBJECT_0);
+    static final Multi<I18nTable> MULTI_TEST = Multi.createFrom().item(TestData.I18N.OBJECT_0);
 
-    static final Multi<I18n> MULTI_WITH_NULL = TestData.createMultiWithNull(I18n.class);
+    static final Multi<I18nTable> MULTI_WITH_NULL = TestData.createMultiWithNull(I18nTable.class);
 
-    static final Multi<I18n> MULTI_EMPTIES = TestData.createMultiEmpties(I18n.class);
+    static final Multi<I18nTable> MULTI_EMPTIES = TestData.createMultiEmpties(I18nTable.class);
 
     @BeforeEach
     void setUp() {

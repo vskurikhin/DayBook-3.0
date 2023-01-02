@@ -5,24 +5,23 @@ import nl.jqno.equalsverifier.Warning;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import static su.svn.daybook.domain.model.Setting.NONE;
+import static su.svn.daybook.domain.model.VocabularyTable.NONE;
 
-class SettingTest {
+class VocabularyTableTest {
 
     @Test
     void testConstructors() {
-        Assertions.assertDoesNotThrow(() -> new Setting());
-        Assertions.assertDoesNotThrow(() -> new Setting(
-                0L, NONE, null, 0L, null, null, null, false, true, 0
+        Assertions.assertDoesNotThrow(() -> new VocabularyTable());
+        Assertions.assertDoesNotThrow(() -> new VocabularyTable(
+                null, NONE, null, null, null, null, false, true, 0
         ));
     }
     @Test
     void testGetters(){
-        var entry = new Setting();
+        var entry = new VocabularyTable();
         Assertions.assertDoesNotThrow(entry::getId);
-        Assertions.assertDoesNotThrow(entry::getKey);
+        Assertions.assertDoesNotThrow(entry::getWord);
         Assertions.assertDoesNotThrow(entry::getValue);
-        Assertions.assertDoesNotThrow(entry::getValueTypeId);
         Assertions.assertDoesNotThrow(entry::getUserName);
         Assertions.assertDoesNotThrow(entry::getCreateTime);
         Assertions.assertDoesNotThrow(entry::getUpdateTime);
@@ -35,7 +34,7 @@ class SettingTest {
 
     @Test
     void testEqualsVerifier() {
-        EqualsVerifier.forClass(Setting.class)
+        EqualsVerifier.forClass(VocabularyTable.class)
                 .withCachedHashCode("hash", "calculateHashCode", null)
                 .withIgnoredFields("createTime", "updateTime", "hash", "hashIsZero")
                 .suppress(Warning.NO_EXAMPLE_FOR_CACHED_HASHCODE)
@@ -44,17 +43,16 @@ class SettingTest {
 
     @Test
     void testToString() {
-        var entry = new Setting();
+        var entry = new VocabularyTable();
         Assertions.assertDoesNotThrow(() -> Assertions.assertNotNull(entry.toString()));
     }
 
     @Test
     void testBuilder() {
-        Assertions.assertDoesNotThrow(() -> Assertions.assertNotNull(Setting.builder()
+        Assertions.assertDoesNotThrow(() -> Assertions.assertNotNull(VocabularyTable.builder()
                 .id(null)
-                .key(NONE)
+                .word(NONE)
                 .value(null)
-                .valueTypeId(0)
                 .userName(null)
                 .createTime(null)
                 .updateTime(null)

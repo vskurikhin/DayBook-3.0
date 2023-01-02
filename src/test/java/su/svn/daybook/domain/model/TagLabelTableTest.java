@@ -4,23 +4,23 @@ import nl.jqno.equalsverifier.EqualsVerifier;
 import nl.jqno.equalsverifier.Warning;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import su.svn.daybook.TestData;
 
-import static su.svn.daybook.domain.model.Word.NONE;
+class TagLabelTableTest {
 
-class WordTest {
 
     @Test
     void testConstructors() {
-        Assertions.assertDoesNotThrow(() -> new Word());
-        Assertions.assertDoesNotThrow(() -> new Word(
-                NONE, null, null, null, false, true, 0
+        Assertions.assertDoesNotThrow(() -> new TagLabelTable());
+        Assertions.assertDoesNotThrow(() -> new TagLabelTable(
+                TestData.TAG_LABEL.ID, TagLabelTable.NONE, null, null, null, false, true, 0
         ));
     }
     @Test
     void testGetters(){
-        var entry = new Word();
+        var entry = new TagLabelTable();
         Assertions.assertDoesNotThrow(entry::getId);
-        Assertions.assertDoesNotThrow(entry::getWord);
+        Assertions.assertDoesNotThrow(entry::getLabel);
         Assertions.assertDoesNotThrow(entry::getUserName);
         Assertions.assertDoesNotThrow(entry::getCreateTime);
         Assertions.assertDoesNotThrow(entry::getUpdateTime);
@@ -33,7 +33,7 @@ class WordTest {
 
     @Test
     void testEqualsVerifier() {
-        EqualsVerifier.forClass(Word.class)
+        EqualsVerifier.forClass(TagLabelTable.class)
                 .withCachedHashCode("hash", "calculateHashCode", null)
                 .withIgnoredFields("createTime", "updateTime", "hash", "hashIsZero")
                 .suppress(Warning.NO_EXAMPLE_FOR_CACHED_HASHCODE)
@@ -42,15 +42,15 @@ class WordTest {
 
     @Test
     void testToString() {
-        var entry = new Word();
+        var entry = new TagLabelTable();
         Assertions.assertDoesNotThrow(() -> Assertions.assertNotNull(entry.toString()));
     }
 
     @Test
     void testBuilder() {
-        Assertions.assertDoesNotThrow(() -> Assertions.assertNotNull(Word.builder()
-                .id(NONE)
-                .word(NONE)
+        Assertions.assertDoesNotThrow(() -> Assertions.assertNotNull(TagLabelTable.builder()
+                .id(TestData.TAG_LABEL.ID)
+                .label(TagLabelTable.NONE)
                 .userName(null)
                 .createTime(null)
                 .updateTime(null)

@@ -12,10 +12,9 @@ import su.svn.daybook.TestData;
 import su.svn.daybook.domain.dao.TagLabelDao;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.messages.ApiResponse;
-import su.svn.daybook.domain.model.TagLabel;
+import su.svn.daybook.domain.model.TagLabelTable;
 import su.svn.daybook.models.pagination.Page;
 import su.svn.daybook.models.pagination.PageRequest;
-import su.svn.daybook.services.domain.TagLabelService;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -31,13 +30,13 @@ class TagLabelServiceTest {
 
     static TagLabelDao mock;
 
-    static final Uni<Optional<TagLabel>> UNI_OPTIONAL_TEST = Uni.createFrom().item(Optional.of(TestData.TAG_LABEL.OBJECT_0));
+    static final Uni<Optional<TagLabelTable>> UNI_OPTIONAL_TEST = Uni.createFrom().item(Optional.of(TestData.TAG_LABEL.OBJECT_0));
 
-    static final Multi<TagLabel> MULTI_TEST = Multi.createFrom().item(TestData.TAG_LABEL.OBJECT_0);
+    static final Multi<TagLabelTable> MULTI_TEST = Multi.createFrom().item(TestData.TAG_LABEL.OBJECT_0);
 
-    static final Multi<TagLabel> MULTI_WITH_NULL = TestData.createMultiWithNull(TagLabel.class);
+    static final Multi<TagLabelTable> MULTI_WITH_NULL = TestData.createMultiWithNull(TagLabelTable.class);
 
-    static final Multi<TagLabel> MULTI_EMPTIES = TestData.createMultiEmpties(TagLabel.class);
+    static final Multi<TagLabelTable> MULTI_EMPTIES = TestData.createMultiEmpties(TagLabelTable.class);
 
     @BeforeEach
     void setUp() {

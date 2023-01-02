@@ -14,7 +14,7 @@ import org.jboss.resteasy.reactive.RestResponse;
 import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
 import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.enums.ResourcePath;
-import su.svn.daybook.domain.model.I18n;
+import su.svn.daybook.domain.model.I18nTable;
 import su.svn.daybook.models.pagination.PageRequest;
 import su.svn.daybook.services.domain.AbstractService;
 import su.svn.daybook.services.domain.I18nService;
@@ -26,7 +26,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 @Path(ResourcePath.I18N)
-public class I18nResource extends AbstractResource implements Resources<Long, I18n> {
+public class I18nResource extends AbstractResource implements Resources<Long, I18nTable> {
 
     @Inject
     I18nService service;
@@ -34,7 +34,7 @@ public class I18nResource extends AbstractResource implements Resources<Long, I1
     @GET
     @Path(ResourcePath.ALL)
     @Produces("application/json")
-    public Multi<I18n> all(@QueryParam("get-all") Boolean getAll) {
+    public Multi<I18nTable> all(@QueryParam("get-all") Boolean getAll) {
         return getAll();
     }
 
@@ -54,7 +54,7 @@ public class I18nResource extends AbstractResource implements Resources<Long, I1
     @POST
     @Consumes("application/json")
     @Produces("application/json")
-    public Uni<Response> post(I18n entry, @Context UriInfo uriInfo) {
+    public Uni<Response> post(I18nTable entry, @Context UriInfo uriInfo) {
         return request(EventAddress.I18N_ADD, entry, uriInfo);
     }
 
@@ -62,7 +62,7 @@ public class I18nResource extends AbstractResource implements Resources<Long, I1
     @PUT
     @Consumes("application/json")
     @Produces("application/json")
-    public Uni<Response> put(I18n entry, @Context UriInfo uriInfo) {
+    public Uni<Response> put(I18nTable entry, @Context UriInfo uriInfo) {
         return request(EventAddress.I18N_PUT, entry, uriInfo);
     }
 
@@ -79,7 +79,7 @@ public class I18nResource extends AbstractResource implements Resources<Long, I1
     }
 
     @Override
-    public AbstractService<Long, I18n> getService() {
+    public AbstractService<Long, I18nTable> getService() {
         return service;
     }
 }

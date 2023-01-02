@@ -2,7 +2,7 @@
  * This file was last modified at 2022.01.12 22:58 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
- * KeyValue.java
+ * Codifier.java
  * $Id$
  */
 
@@ -26,60 +26,53 @@ import java.util.List;
 import java.util.Objects;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public final class KeyValue implements LongIdentification, Marked, Owned, TimeUpdated, Serializable {
+public final class CodifierTable implements StringIdentification, Marked, Owned, TimeUpdated, Serializable {
 
-    public static final String NONE = "d94d93d9-d44c-403c-97b1-d071b6974d80";
-    public static final String SELECT_FROM_DICTIONARY_KEY_VALUE_WHERE_ID_$1 = """
-            SELECT id, key, value, user_name, create_time, update_time, enabled, visible, flags
-              FROM dictionary.key_value
-             WHERE id = $1
+    public static final String NONE = "b19bba7c-d53a-4174-9475-6ae9d7b9bbee";
+    public static final String SELECT_FROM_DICTIONARY_CODIFIER_WHERE_CODE_$1 = """
+            SELECT code, value, user_name, create_time, update_time, enabled, visible, flags
+              FROM dictionary.codifier
+             WHERE code = $1 AND enabled
             """;
-    public static final String SELECT_ALL_FROM_DICTIONARY_KEY_VALUE_ORDER_BY_ID_ASC = """
-            SELECT id, key, value, user_name, create_time, update_time, enabled, visible, flags
-              FROM dictionary.key_value
-             ORDER BY id ASC
+    public static final String SELECT_ALL_FROM_DICTIONARY_CODIFIER_ORDER_BY_CODE_ASC = """
+            SELECT code, value, user_name, create_time, update_time, enabled, visible, flags
+              FROM dictionary.codifier
+             WHERE enabled
+             ORDER BY code ASC
             """;
-    public static final String SELECT_ALL_FROM_DICTIONARY_KEY_VALUE_ORDER_BY_ID_ASC_OFFSET_LIMIT = """
-            SELECT id, key, value, user_name, create_time, update_time, enabled, visible, flags
-              FROM dictionary.key_value
-             ORDER BY id ASC OFFSET $1 LIMIT $2
+    public static final String SELECT_ALL_FROM_DICTIONARY_CODIFIER_ORDER_BY_CODE_ASC_OFFSET_LIMIT = """
+            SELECT code, value, user_name, create_time, update_time, enabled, visible, flags
+              FROM dictionary.codifier
+             WHERE enabled
+             ORDER BY code ASC OFFSET $1 LIMIT $2
             """;
-    public static final String INSERT_INTO_DICTIONARY_KEY_VALUE = """
-            INSERT INTO dictionary.key_value
-             (id, key, value, user_name, enabled, visible, flags)
+    public static final String INSERT_INTO_DICTIONARY_CODIFIER = """
+            INSERT INTO dictionary.codifier
+             (code, value, user_name, enabled, visible, flags)
              VALUES
-             ($1, $2, $3, $4, $5, $6, $7)
-             RETURNING id
+             ($1, $2, $3, $4, $5, $6)
+             RETURNING code
             """;
-    public static final String INSERT_INTO_DICTIONARY_KEY_VALUE_DEFAULT_ID = """
-            INSERT INTO dictionary.key_value
-             (id, key, value, user_name, enabled, visible, flags)
-             VALUES
-             (DEFAULT, $1, $2, $3, $4, $5, $6)
-             RETURNING id
+    public static final String UPDATE_DICTIONARY_CODIFIER_WHERE_CODE_$1 = """
+            UPDATE dictionary.codifier SET
+              user_name = $2,
+              enabled = $3,
+              visible = $4,
+              flags = $5,
+              value = $6
+             WHERE code = $1
+             RETURNING code
             """;
-    public static final String UPDATE_DICTIONARY_KEY_VALUE_WHERE_ID_$1 = """
-            UPDATE dictionary.key_value SET
-              key = $2,
-              value = $3,
-              user_name = $4,
-              enabled = $5,
-              visible = $6,
-              flags = $7
-             WHERE id = $1
-             RETURNING id
+    public static final String DELETE_FROM_DICTIONARY_CODIFIER_WHERE_CODE_$1 = """
+            DELETE FROM dictionary.codifier
+             WHERE code = $1
+             RETURNING code
             """;
-    public static final String DELETE_FROM_DICTIONARY_KEY_VALUE_WHERE_ID_$1 = """
-            DELETE FROM dictionary.key_value
-             WHERE id = $1
-             RETURNING id
-            """;
-    public static final String COUNT_DICTIONARY_KEY_VALUE = "SELECT count(*) FROM dictionary.key_value";
+    public static final String COUNT_DICTIONARY_CODIFIER = "SELECT count(*) FROM dictionary.codifier";
     @Serial
-    private static final long serialVersionUID = 3377791800667728148L;
-    public static final String ID = "id";
-    private final Long id;
-    private final String key;
+    private static final long serialVersionUID = 260226838732667047L;
+    public static final String ID = "code";
+    private final String code;
     private final String value;
     private final String userName;
     private final LocalDateTime createTime;
@@ -94,9 +87,8 @@ public final class KeyValue implements LongIdentification, Marked, Owned, TimeUp
     @JsonIgnore
     private transient volatile boolean hashIsZero;
 
-    public KeyValue() {
-        this.id = null;
-        this.key = NONE;
+    public CodifierTable() {
+        this.code = NONE;
         this.value = null;
         this.userName = null;
         this.createTime = null;
@@ -106,9 +98,8 @@ public final class KeyValue implements LongIdentification, Marked, Owned, TimeUp
         this.flags = 0;
     }
 
-    public KeyValue(
-            Long id,
-            @Nonnull String key,
+    public CodifierTable(
+            @Nonnull String code,
             String value,
             String userName,
             LocalDateTime createTime,
@@ -116,8 +107,7 @@ public final class KeyValue implements LongIdentification, Marked, Owned, TimeUp
             boolean enabled,
             boolean visible,
             int flags) {
-        this.id = id;
-        this.key = key;
+        this.code = code;
         this.value = value;
         this.userName = userName;
         this.createTime = createTime;
@@ -127,10 +117,9 @@ public final class KeyValue implements LongIdentification, Marked, Owned, TimeUp
         this.flags = flags;
     }
 
-    public static KeyValue from(Row row) {
-        return new KeyValue(
-                row.getLong(ID),
-                row.getString("key"),
+    public static CodifierTable from(Row row) {
+        return new CodifierTable(
+                row.getString(ID),
                 row.getString("value"),
                 row.getString("user_name"),
                 row.getLocalDateTime("create_time"),
@@ -141,93 +130,86 @@ public final class KeyValue implements LongIdentification, Marked, Owned, TimeUp
         );
     }
 
-    public static Multi<KeyValue> findAll(PgPool client) {
+    public static Multi<CodifierTable> findAll(PgPool client) {
         return client
-                .query(SELECT_ALL_FROM_DICTIONARY_KEY_VALUE_ORDER_BY_ID_ASC)
+                .query(SELECT_ALL_FROM_DICTIONARY_CODIFIER_ORDER_BY_CODE_ASC)
                 .execute()
                 .onItem()
                 .transformToMulti(set -> Multi.createFrom().iterable(set))
                 .onItem()
-                .transform(KeyValue::from);
-
+                .transform(CodifierTable::from);
     }
 
-    public static Uni<KeyValue> findById(PgPool client, Long id) {
+    public static Uni<CodifierTable> findById(PgPool client, String id) {
         return client
-                .preparedQuery(SELECT_FROM_DICTIONARY_KEY_VALUE_WHERE_ID_$1)
+                .preparedQuery(SELECT_FROM_DICTIONARY_CODIFIER_WHERE_CODE_$1)
                 .execute(Tuple.of(id))
                 .onItem()
                 .transform(RowSet::iterator)
                 .onItem()
-                .transform(iterator -> iterator.hasNext() ? KeyValue.from(iterator.next()) : null);
+                .transform(iterator -> iterator.hasNext() ? CodifierTable.from(iterator.next()) : null);
     }
 
-    public static Multi<KeyValue> findRange(PgPool client, long offset, long limit) {
+    public static Multi<CodifierTable> findRange(PgPool client, long offset, long limit) {
         return client
-                .preparedQuery(SELECT_ALL_FROM_DICTIONARY_KEY_VALUE_ORDER_BY_ID_ASC_OFFSET_LIMIT)
+                .preparedQuery(SELECT_ALL_FROM_DICTIONARY_CODIFIER_ORDER_BY_CODE_ASC_OFFSET_LIMIT)
                 .execute(Tuple.of(offset, limit))
                 .onItem()
                 .transformToMulti(set -> Multi.createFrom().iterable(set))
                 .onItem()
-                .transform(KeyValue::from);
+                .transform(CodifierTable::from);
+
     }
 
-    public static Uni<Long> delete(PgPool client, Long id) {
+    public static Uni<String> delete(PgPool client, String id) {
         return client.withTransaction(
-                connection -> connection.preparedQuery(DELETE_FROM_DICTIONARY_KEY_VALUE_WHERE_ID_$1)
-                        .execute(Tuple.of(id))
-                        .onItem()
-                        .transform(pgRowSet -> pgRowSet.iterator().next().getLong(ID)));
+                connection -> connection.preparedQuery(DELETE_FROM_DICTIONARY_CODIFIER_WHERE_CODE_$1)
+                .execute(Tuple.of(id))
+                .onItem()
+                .transform(pgRowSet -> pgRowSet.iterator().next().getString(ID)));
     }
 
     public static Uni<Long> count(PgPool client) {
         return client
-                .preparedQuery(COUNT_DICTIONARY_KEY_VALUE)
+                .preparedQuery(COUNT_DICTIONARY_CODIFIER)
                 .execute()
                 .onItem()
                 .transform(pgRowSet -> pgRowSet.iterator().next().getLong("count"));
     }
 
-    public static KeyValue.Builder builder() {
-        return new KeyValue.Builder();
+    public static CodifierTable.Builder builder() {
+        return new CodifierTable.Builder();
     }
 
-    public Uni<Long> insert(PgPool client) {
+    public Uni<String> insert(PgPool client) {
         return client.withTransaction(
-                connection -> connection.preparedQuery(caseInsertSql())
-                        .execute(caseInsertTuple())
+                connection -> connection.preparedQuery(INSERT_INTO_DICTIONARY_CODIFIER)
+                        .execute(Tuple.of(code, value, userName, enabled, visible, flags))
                         .onItem()
                         .transform(RowSet::iterator)
                         .onItem()
-                        .transform(iterator -> iterator.hasNext() ? iterator.next().getLong(ID) : null));
+                        .transform(iterator -> iterator.hasNext() ? iterator.next().getString(ID) : null));
     }
 
-    public Uni<Long> update(PgPool client) {
+    public Uni<String> update(PgPool client) {
         return client.withTransaction(
-                connection -> connection.preparedQuery(UPDATE_DICTIONARY_KEY_VALUE_WHERE_ID_$1)
+                connection -> connection.preparedQuery(UPDATE_DICTIONARY_CODIFIER_WHERE_CODE_$1)
                         .execute(Tuple.tuple(listOf()))
                         .onItem()
-                        .transform(pgRowSet -> pgRowSet.iterator().next().getLong(ID)));
-    }
-
-    private String caseInsertSql() {
-        return id != null ? INSERT_INTO_DICTIONARY_KEY_VALUE : INSERT_INTO_DICTIONARY_KEY_VALUE_DEFAULT_ID;
-    }
-
-    private Tuple caseInsertTuple() {
-        return id != null ? Tuple.tuple(listOf()) : Tuple.of(key, value, userName, enabled, visible, flags);
+                        .transform(pgRowSet -> pgRowSet.iterator().next().getString(ID)));
     }
 
     private List<Object> listOf() {
-        return Arrays.asList(id, key, value, userName, enabled, visible, flags);
+        return Arrays.asList(code, userName, enabled, visible, flags, value);
     }
 
-    public Long getId() {
-        return id;
+    @JsonIgnore
+    public String getId() {
+        return code;
     }
 
-    public String getKey() {
-        return key;
+    public String getCode() {
+        return code;
     }
 
     public String getValue() {
@@ -270,12 +252,11 @@ public final class KeyValue implements LongIdentification, Marked, Owned, TimeUp
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        var that = (KeyValue) o;
+        var that = (CodifierTable) o;
         return enabled == that.enabled
                 && visible == that.visible
                 && flags == that.flags
-                && Objects.equals(id, that.id)
-                && Objects.equals(key, that.key)
+                && Objects.equals(code, that.code)
                 && Objects.equals(value, that.value)
                 && Objects.equals(userName, that.userName);
     }
@@ -295,14 +276,13 @@ public final class KeyValue implements LongIdentification, Marked, Owned, TimeUp
     }
 
     private int calculateHashCode() {
-        return Objects.hash(id, key, value, userName, enabled, visible, flags);
+        return Objects.hash(code, value, userName, enabled, visible, flags);
     }
 
     @Override
     public String toString() {
-        return "KeyValue{" +
-                "id=" + id +
-                ", key='" + key + '\'' +
+        return "Codifier{" +
+                "code='" + code + '\'' +
                 ", value='" + value + '\'' +
                 ", userName='" + userName + '\'' +
                 ", createTime=" + createTime +
@@ -314,8 +294,7 @@ public final class KeyValue implements LongIdentification, Marked, Owned, TimeUp
     }
 
     public static final class Builder {
-        private Long id;
-        private String key;
+        private String code;
         private String value;
         private String userName;
         private LocalDateTime createTime;
@@ -327,13 +306,13 @@ public final class KeyValue implements LongIdentification, Marked, Owned, TimeUp
         private Builder() {
         }
 
-        public Builder id(Long id) {
-            this.id = id;
+        public Builder id(String id) {
+            this.code = id;
             return this;
         }
 
-        public Builder key(@Nonnull String key) {
-            this.key = key;
+        public Builder code(String code) {
+            this.code = code;
             return this;
         }
 
@@ -372,8 +351,8 @@ public final class KeyValue implements LongIdentification, Marked, Owned, TimeUp
             return this;
         }
 
-        public KeyValue build() {
-            return new KeyValue(id, key, value, userName, createTime, updateTime, enabled, visible, flags);
+        public CodifierTable build() {
+            return new CodifierTable(code, value, userName, createTime, updateTime, enabled, visible, flags);
         }
     }
 }

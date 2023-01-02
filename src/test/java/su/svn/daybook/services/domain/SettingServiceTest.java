@@ -20,10 +20,9 @@ import su.svn.daybook.TestData;
 import su.svn.daybook.domain.dao.SettingDao;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.messages.ApiResponse;
-import su.svn.daybook.domain.model.Setting;
+import su.svn.daybook.domain.model.SettingTable;
 import su.svn.daybook.models.pagination.Page;
 import su.svn.daybook.models.pagination.PageRequest;
-import su.svn.daybook.services.domain.SettingService;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -39,13 +38,13 @@ class SettingServiceTest {
 
     static SettingDao mock;
 
-    static final Uni<Optional<Setting>> UNI_OPTIONAL_TEST = Uni.createFrom().item(Optional.of(TestData.SETTING.OBJECT_0));
+    static final Uni<Optional<SettingTable>> UNI_OPTIONAL_TEST = Uni.createFrom().item(Optional.of(TestData.SETTING.OBJECT_0));
 
-    static final Multi<Setting> MULTI_TEST = Multi.createFrom().item(TestData.SETTING.OBJECT_0);
+    static final Multi<SettingTable> MULTI_TEST = Multi.createFrom().item(TestData.SETTING.OBJECT_0);
 
-    static final Multi<Setting> MULTI_WITH_NULL = TestData.createMultiWithNull(Setting.class);
+    static final Multi<SettingTable> MULTI_WITH_NULL = TestData.createMultiWithNull(SettingTable.class);
 
-    static final Multi<Setting> MULTI_EMPTIES = TestData.createMultiEmpties(Setting.class);
+    static final Multi<SettingTable> MULTI_EMPTIES = TestData.createMultiEmpties(SettingTable.class);
 
     @BeforeEach
     void setUp() {

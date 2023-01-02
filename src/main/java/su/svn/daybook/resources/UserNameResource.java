@@ -14,7 +14,7 @@ import org.jboss.resteasy.reactive.RestResponse;
 import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
 import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.enums.ResourcePath;
-import su.svn.daybook.domain.model.UserName;
+import su.svn.daybook.domain.model.UserNameTable;
 import su.svn.daybook.models.pagination.PageRequest;
 import su.svn.daybook.services.domain.AbstractService;
 import su.svn.daybook.services.domain.UserNameService;
@@ -27,20 +27,20 @@ import javax.ws.rs.core.UriInfo;
 import java.util.UUID;
 
 @Path(ResourcePath.USER)
-public class UserNameResource extends AbstractResource implements Resources<UUID, UserName> {
+public class UserNameResource extends AbstractResource implements Resources<UUID, UserNameTable> {
 
     @Inject
     UserNameService userNameService;
 
     @Override
-    public AbstractService<UUID, UserName> getService() {
+    public AbstractService<UUID, UserNameTable> getService() {
         return userNameService;
     }
 
     @GET
     @Path(ResourcePath.ALL)
     @Produces("application/json")
-    public Multi<UserName> all(@QueryParam("get-all") Boolean getAll) {
+    public Multi<UserNameTable> all(@QueryParam("get-all") Boolean getAll) {
         return getAll();
     }
 
@@ -60,14 +60,14 @@ public class UserNameResource extends AbstractResource implements Resources<UUID
     @POST
     @Consumes("application/json")
     @Produces("application/json")
-    public Uni<Response> post(UserName entry, @Context UriInfo uriInfo) {
+    public Uni<Response> post(UserNameTable entry, @Context UriInfo uriInfo) {
         return request(EventAddress.USER_ADD, entry, uriInfo);
     }
 
     @PUT
     @Consumes("application/json")
     @Produces("application/json")
-    public Uni<Response> put(UserName entry, @Context UriInfo uriInfo) {
+    public Uni<Response> put(UserNameTable entry, @Context UriInfo uriInfo) {
         return request(EventAddress.USER_PUT, entry, uriInfo);
     }
 

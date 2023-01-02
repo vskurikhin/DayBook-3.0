@@ -11,7 +11,7 @@ package su.svn.daybook.domain.dao;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import org.jboss.logging.Logger;
-import su.svn.daybook.domain.model.KeyValue;
+import su.svn.daybook.domain.model.KeyValueTable;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -25,29 +25,29 @@ public class KeyValueDao {
     @Inject
     io.vertx.mutiny.pgclient.PgPool client;
 
-    public Multi<KeyValue> findAll() {
+    public Multi<KeyValueTable> findAll() {
         LOG.trace("findAll()");
-        return KeyValue.findAll(client);
+        return KeyValueTable.findAll(client);
     }
 
-    public Uni<Optional<KeyValue>> findById(Long id) {
+    public Uni<Optional<KeyValueTable>> findById(Long id) {
         LOG.tracef("findById(%s)", id);
-        return KeyValue.findById(client, id)
+        return KeyValueTable.findById(client, id)
                 .map(Optional::ofNullable);
     }
 
-    public Multi<KeyValue> findRange(long offset, long limit) {
+    public Multi<KeyValueTable> findRange(long offset, long limit) {
         LOG.tracef("findRange(%d, %d)", offset, limit);
-        return KeyValue.findRange(client, offset, limit);
+        return KeyValueTable.findRange(client, offset, limit);
     }
 
-    public Uni<Optional<Long>> insert(KeyValue entry) {
+    public Uni<Optional<Long>> insert(KeyValueTable entry) {
         LOG.tracef("insert(%s)", entry);
         return entry.insert(client)
                 .map(Optional::ofNullable);
     }
 
-    public Uni<Optional<Long>> update(KeyValue entry) {
+    public Uni<Optional<Long>> update(KeyValueTable entry) {
         LOG.tracef("update(%s)", entry);
         return entry.update(client)
                 .map(Optional::ofNullable);
@@ -55,13 +55,13 @@ public class KeyValueDao {
 
     public Uni<Optional<Long>> delete(Long id) {
         LOG.tracef("delete(%s)", id);
-        return KeyValue.delete(client, id)
+        return KeyValueTable.delete(client, id)
                 .map(Optional::ofNullable);
     }
 
     public Uni<Optional<Long>> count() {
         LOG.trace("count()");
-        return KeyValue.count(client)
+        return KeyValueTable.count(client)
                 .map(Optional::ofNullable);
     }
 }

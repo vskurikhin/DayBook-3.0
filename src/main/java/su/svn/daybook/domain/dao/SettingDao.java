@@ -11,7 +11,7 @@ package su.svn.daybook.domain.dao;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import org.jboss.logging.Logger;
-import su.svn.daybook.domain.model.Setting;
+import su.svn.daybook.domain.model.SettingTable;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -25,29 +25,29 @@ public class SettingDao {
     @Inject
     io.vertx.mutiny.pgclient.PgPool client;
 
-    public Multi<Setting> findAll() {
+    public Multi<SettingTable> findAll() {
         LOG.trace("findAll()");
-        return Setting.findAll(client);
+        return SettingTable.findAll(client);
     }
 
-    public Uni<Optional<Setting>> findById(Long id) {
+    public Uni<Optional<SettingTable>> findById(Long id) {
         LOG.tracef("findById(%s)", id);
-        return Setting.findById(client, id)
+        return SettingTable.findById(client, id)
                 .map(Optional::ofNullable);
     }
 
-    public Multi<Setting> findRange(long offset, long limit) {
+    public Multi<SettingTable> findRange(long offset, long limit) {
         LOG.tracef("findRange(%d, %d)", offset, limit);
-        return Setting.findRange(client, offset, limit);
+        return SettingTable.findRange(client, offset, limit);
     }
 
-    public Uni<Optional<Long>> insert(Setting entry) {
+    public Uni<Optional<Long>> insert(SettingTable entry) {
         LOG.tracef("insert(%s)", entry);
         return entry.insert(client)
                 .map(Optional::ofNullable);
     }
 
-    public Uni<Optional<Long>> update(Setting entry) {
+    public Uni<Optional<Long>> update(SettingTable entry) {
         LOG.tracef("update(%s)", entry);
         return entry.update(client)
                 .map(Optional::ofNullable);
@@ -55,13 +55,13 @@ public class SettingDao {
 
     public Uni<Optional<Long>> delete(Long id) {
         LOG.tracef("delete(%s)", id);
-        return Setting.delete(client, id)
+        return SettingTable.delete(client, id)
                 .map(Optional::ofNullable);
     }
 
     public Uni<Optional<Long>> count() {
         LOG.trace("count()");
-        return Setting.count(client)
+        return SettingTable.count(client)
                 .map(Optional::ofNullable);
     }
 }

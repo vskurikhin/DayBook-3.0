@@ -19,7 +19,7 @@ import org.jboss.logging.Logger;
 import su.svn.daybook.domain.dao.KeyValueDao;
 import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.messages.Answer;
-import su.svn.daybook.domain.model.KeyValue;
+import su.svn.daybook.domain.model.KeyValueTable;
 import su.svn.daybook.models.pagination.Page;
 import su.svn.daybook.models.pagination.PageRequest;
 import su.svn.daybook.services.ExceptionAnswerService;
@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 @ApplicationScoped
-public class KeyValueService extends AbstractService<Long, KeyValue> {
+public class KeyValueService extends AbstractService<Long, KeyValueTable> {
 
     private static final Logger LOG = Logger.getLogger(KeyValueService.class);
 
@@ -108,13 +108,13 @@ public class KeyValueService extends AbstractService<Long, KeyValue> {
      * @return - a lazy asynchronous action (LAA) with the Answer containing the KeyValue id as payload or empty payload
      */
     @ConsumeEvent(EventAddress.KEY_VALUE_ADD)
-    public Uni<Answer> add(KeyValue o) {
+    public Uni<Answer> add(KeyValueTable o) {
         //noinspection DuplicatedCode
         LOG.tracef("add(%s)", o);
         return addEntry(o);
     }
 
-    private Uni<Answer> addEntry(KeyValue entry) {
+    private Uni<Answer> addEntry(KeyValueTable entry) {
         return keyValueDao
                 .insert(entry)
                 .map(o -> apiResponseWithKeyAnswer(201, o))
@@ -133,13 +133,13 @@ public class KeyValueService extends AbstractService<Long, KeyValue> {
      * @return - a LAA with the Answer containing KeyValue id as payload or empty payload
      */
     @ConsumeEvent(EventAddress.KEY_VALUE_PUT)
-    public Uni<Answer> put(KeyValue o) {
+    public Uni<Answer> put(KeyValueTable o) {
         //noinspection DuplicatedCode
         LOG.tracef("put(%s)", o);
         return putEntry(o);
     }
 
-    private Uni<Answer> putEntry(KeyValue entry) {
+    private Uni<Answer> putEntry(KeyValueTable entry) {
         return keyValueDao
                 .update(entry)
                 .flatMap(this::apiResponseAcceptedUniAnswer)

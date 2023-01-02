@@ -2,7 +2,6 @@ package su.svn.daybook.services.domain;
 
 import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
-import io.smallrye.mutiny.CompositeException;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import org.junit.jupiter.api.Assertions;
@@ -13,10 +12,9 @@ import su.svn.daybook.TestData;
 import su.svn.daybook.domain.dao.CodifierDao;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.messages.ApiResponse;
-import su.svn.daybook.domain.model.Codifier;
+import su.svn.daybook.domain.model.CodifierTable;
 import su.svn.daybook.models.pagination.Page;
 import su.svn.daybook.models.pagination.PageRequest;
-import su.svn.daybook.services.domain.CodifierService;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -33,21 +31,21 @@ class CodifierServiceTest {
 
     static CodifierDao mock;
 
-    static final Uni<Optional<String>> UNI_OPTIONAL_NONE_STRING = Uni.createFrom().item(Optional.of(Codifier.NONE));
+    static final Uni<Optional<String>> UNI_OPTIONAL_NONE_STRING = Uni.createFrom().item(Optional.of(CodifierTable.NONE));
 
-    static final Uni<Optional<Codifier>> UNI_OPTIONAL_TEST = Uni.createFrom().item(Optional.of(TestData.CODIFIER.OBJECT_0));
+    static final Uni<Optional<CodifierTable>> UNI_OPTIONAL_TEST = Uni.createFrom().item(Optional.of(TestData.CODIFIER.OBJECT_0));
 
-    static final Multi<Codifier> MULTI_TEST = Multi.createFrom().item(TestData.CODIFIER.OBJECT_0);
+    static final Multi<CodifierTable> MULTI_TEST = Multi.createFrom().item(TestData.CODIFIER.OBJECT_0);
 
-    static final Multi<Codifier> MULTI_WITH_NULL = TestData.createMultiWithNull(Codifier.class);
+    static final Multi<CodifierTable> MULTI_WITH_NULL = TestData.createMultiWithNull(CodifierTable.class);
 
-    static final Multi<Codifier> MULTI_EMPTIES = TestData.createMultiEmpties(Codifier.class);
+    static final Multi<CodifierTable> MULTI_EMPTIES = TestData.createMultiEmpties(CodifierTable.class);
 
     @BeforeEach
     void setUp() {
         mock = Mockito.mock(CodifierDao.class);
-        Mockito.when(mock.findById(Codifier.NONE)).thenReturn(UNI_OPTIONAL_TEST);
-        Mockito.when(mock.findByCode(Codifier.NONE)).thenReturn(UNI_OPTIONAL_TEST);
+        Mockito.when(mock.findById(CodifierTable.NONE)).thenReturn(UNI_OPTIONAL_TEST);
+        Mockito.when(mock.findByCode(CodifierTable.NONE)).thenReturn(UNI_OPTIONAL_TEST);
         QuarkusMock.installMockForType(mock, CodifierDao.class);
     }
 
@@ -161,7 +159,7 @@ class CodifierServiceTest {
 
     @Test
     void testWhenGetThenEntry() {
-        Assertions.assertDoesNotThrow(() -> service.get(Codifier.NONE)
+        Assertions.assertDoesNotThrow(() -> service.get(CodifierTable.NONE)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(Answer.of(TestData.CODIFIER.OBJECT_0), actual))
                 .await()
@@ -172,7 +170,7 @@ class CodifierServiceTest {
     void testWhenAddThenId() {
         var expected = Answer.builder()
                 .error(201)
-                .payload(new ApiResponse<>(Codifier.NONE))
+                .payload(new ApiResponse<>(CodifierTable.NONE))
                 .build();
         Mockito.when(mock.insert(TestData.CODIFIER.OBJECT_0)).thenReturn(UNI_OPTIONAL_NONE_STRING);
         Assertions.assertDoesNotThrow(() -> service.add(TestData.CODIFIER.OBJECT_0)
@@ -196,7 +194,7 @@ class CodifierServiceTest {
     void testWhenPutThenId() {
         var expected = Answer.builder()
                 .error(202)
-                .payload(new ApiResponse<>(Codifier.NONE))
+                .payload(new ApiResponse<>(CodifierTable.NONE))
                 .build();
         Mockito.when(mock.update(TestData.CODIFIER.OBJECT_0)).thenReturn(UNI_OPTIONAL_NONE_STRING);
         Assertions.assertDoesNotThrow(() -> service.put(TestData.CODIFIER.OBJECT_0)
@@ -218,9 +216,9 @@ class CodifierServiceTest {
 
     @Test
     void testWhenDeleteThenId() {
-        Mockito.when(mock.delete(Codifier.NONE)).thenReturn(UNI_OPTIONAL_NONE_STRING);
-        var expected = Answer.of(new ApiResponse<>(Codifier.NONE));
-        Assertions.assertDoesNotThrow(() -> service.delete(Codifier.NONE)
+        Mockito.when(mock.delete(CodifierTable.NONE)).thenReturn(UNI_OPTIONAL_NONE_STRING);
+        var expected = Answer.of(new ApiResponse<>(CodifierTable.NONE));
+        Assertions.assertDoesNotThrow(() -> service.delete(CodifierTable.NONE)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
                 .await()

@@ -5,22 +5,23 @@ import nl.jqno.equalsverifier.Warning;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import static su.svn.daybook.domain.model.ValueType.NONE;
+import static su.svn.daybook.domain.model.CodifierTable.NONE;
 
-class ValueTypeTest {
+class CodifierTableTest {
 
     @Test
     void testConstructors() {
-        Assertions.assertDoesNotThrow(() -> new ValueType());
-        Assertions.assertDoesNotThrow(() -> new ValueType(
-                null, NONE, null, null, null, false, true, 0
+        Assertions.assertDoesNotThrow(() -> new CodifierTable());
+        Assertions.assertDoesNotThrow(() -> new CodifierTable(
+                NONE, null, null, null, null, false, true, 0
         ));
     }
     @Test
     void testGetters(){
-        var entry = new ValueType();
+        var entry = new CodifierTable();
         Assertions.assertDoesNotThrow(entry::getId);
-        Assertions.assertDoesNotThrow(entry::getValueType);
+        Assertions.assertDoesNotThrow(entry::getCode);
+        Assertions.assertDoesNotThrow(entry::getValue);
         Assertions.assertDoesNotThrow(entry::getUserName);
         Assertions.assertDoesNotThrow(entry::getCreateTime);
         Assertions.assertDoesNotThrow(entry::getUpdateTime);
@@ -33,7 +34,7 @@ class ValueTypeTest {
 
     @Test
     void testEqualsVerifier() {
-        EqualsVerifier.forClass(ValueType.class)
+        EqualsVerifier.forClass(CodifierTable.class)
                 .withCachedHashCode("hash", "calculateHashCode", null)
                 .withIgnoredFields("createTime", "updateTime", "hash", "hashIsZero")
                 .suppress(Warning.NO_EXAMPLE_FOR_CACHED_HASHCODE)
@@ -42,15 +43,16 @@ class ValueTypeTest {
 
     @Test
     void testToString() {
-        var entry = new ValueType();
+        var entry = new CodifierTable();
         Assertions.assertDoesNotThrow(() -> Assertions.assertNotNull(entry.toString()));
     }
 
     @Test
     void testBuilder() {
-        Assertions.assertDoesNotThrow(() -> Assertions.assertNotNull(ValueType.builder()
-                .id(null)
-                .valueType(NONE)
+        Assertions.assertDoesNotThrow(() -> Assertions.assertNotNull(CodifierTable.builder()
+                .id(NONE)
+                .code(NONE)
+                .value(null)
                 .userName(null)
                 .createTime(null)
                 .updateTime(null)

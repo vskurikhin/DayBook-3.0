@@ -14,8 +14,7 @@ import org.jboss.resteasy.reactive.RestResponse;
 import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
 import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.enums.ResourcePath;
-import su.svn.daybook.domain.model.KeyValue;
-import su.svn.daybook.domain.model.Language;
+import su.svn.daybook.domain.model.LanguageTable;
 import su.svn.daybook.models.pagination.PageRequest;
 import su.svn.daybook.services.domain.AbstractService;
 import su.svn.daybook.services.domain.LanguageService;
@@ -27,7 +26,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 @Path(ResourcePath.LANGUAGE)
-public class LanguageResource extends AbstractResource implements Resources<Long, Language> {
+public class LanguageResource extends AbstractResource implements Resources<Long, LanguageTable> {
 
     @Inject
     LanguageService service;
@@ -35,7 +34,7 @@ public class LanguageResource extends AbstractResource implements Resources<Long
     @GET
     @Path(ResourcePath.ALL)
     @Produces("application/json")
-    public Multi<Language> all(@QueryParam("get-all") Boolean getAll) {
+    public Multi<LanguageTable> all(@QueryParam("get-all") Boolean getAll) {
         return getAll();
     }
 
@@ -55,7 +54,7 @@ public class LanguageResource extends AbstractResource implements Resources<Long
     @POST
     @Consumes("application/json")
     @Produces("application/json")
-    public Uni<Response> post(Language entry, @Context UriInfo uriInfo) {
+    public Uni<Response> post(LanguageTable entry, @Context UriInfo uriInfo) {
         return request(EventAddress.LANGUAGE_ADD, entry, uriInfo);
     }
 
@@ -63,7 +62,7 @@ public class LanguageResource extends AbstractResource implements Resources<Long
     @PUT
     @Consumes("application/json")
     @Produces("application/json")
-    public Uni<Response> put(Language entry, @Context UriInfo uriInfo) {
+    public Uni<Response> put(LanguageTable entry, @Context UriInfo uriInfo) {
         return request(EventAddress.LANGUAGE_PUT, entry, uriInfo);
     }
 
@@ -80,7 +79,7 @@ public class LanguageResource extends AbstractResource implements Resources<Long
     }
 
     @Override
-    public AbstractService<Long, Language> getService() {
+    public AbstractService<Long, LanguageTable> getService() {
         return service;
     }
 }

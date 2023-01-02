@@ -7,18 +7,18 @@ import org.junit.jupiter.api.Test;
 
 import java.util.UUID;
 
-class UserNameTest {
+class UserNameTableTest {
 
     @Test
     void testConstructors() {
-        Assertions.assertDoesNotThrow(() -> new UserName());
-        Assertions.assertDoesNotThrow(() -> new UserName(
+        Assertions.assertDoesNotThrow(() -> new UserNameTable());
+        Assertions.assertDoesNotThrow(() -> new UserNameTable(
                 UUID.randomUUID(), "guest", "password",null, null, false, true, 0
         ));
     }
     @Test
     void testGetters(){
-        var entry = new UserName();
+        var entry = new UserNameTable();
         Assertions.assertDoesNotThrow(entry::getId);
         Assertions.assertDoesNotThrow(entry::getUserName);
         Assertions.assertDoesNotThrow(entry::getPassword);
@@ -33,7 +33,7 @@ class UserNameTest {
 
     @Test
     void testEqualsVerifier() {
-        EqualsVerifier.forClass(UserName.class)
+        EqualsVerifier.forClass(UserNameTable.class)
                 .withCachedHashCode("hash", "calculateHashCode", null)
                 .withIgnoredFields("createTime", "updateTime", "hash", "hashIsZero")
                 .suppress(Warning.NO_EXAMPLE_FOR_CACHED_HASHCODE)
@@ -42,13 +42,13 @@ class UserNameTest {
 
     @Test
     void testToString() {
-        var entry = new UserName();
+        var entry = new UserNameTable();
         Assertions.assertDoesNotThrow(() -> Assertions.assertNotNull(entry.toString()));
     }
 
     @Test
     void testBuilder() {
-        Assertions.assertDoesNotThrow(() -> Assertions.assertNotNull(UserName.builder()
+        Assertions.assertDoesNotThrow(() -> Assertions.assertNotNull(UserNameTable.builder()
                 .id(UUID.randomUUID())
                 .userName("root")
                 .password("password")
