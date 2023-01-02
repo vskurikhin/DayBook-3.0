@@ -7,7 +7,7 @@ import org.jboss.logging.Logger;
 import org.jboss.resteasy.reactive.RestResponse;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.messages.ApiResponse;
-import su.svn.daybook.domain.model.Identification;
+import su.svn.daybook.models.Identification;
 import su.svn.daybook.models.pagination.Page;
 
 import javax.annotation.Nonnull;

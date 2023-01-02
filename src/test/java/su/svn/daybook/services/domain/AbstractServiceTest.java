@@ -2,20 +2,14 @@ package su.svn.daybook.services.domain;
 
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
-import io.smallrye.mutiny.helpers.test.UniAssertSubscriber;
-import io.vertx.pgclient.PgException;
 import org.jboss.resteasy.reactive.RestResponse;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import su.svn.daybook.TestData;
 import su.svn.daybook.domain.messages.Answer;
-import su.svn.daybook.domain.model.*;
+import su.svn.daybook.models.LongIdentification;
 
 import javax.ws.rs.core.Response;
 import java.io.Serializable;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 class AbstractServiceTest {
 

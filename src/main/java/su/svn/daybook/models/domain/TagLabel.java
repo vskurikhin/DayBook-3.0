@@ -10,7 +10,8 @@ package su.svn.daybook.models.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import su.svn.daybook.domain.model.StringIdentification;
+import su.svn.daybook.annotations.DomainField;
+import su.svn.daybook.models.StringIdentification;
 
 import javax.annotation.Nonnull;
 import java.io.Serial;
@@ -24,9 +25,13 @@ public final class TagLabel implements StringIdentification, Serializable {
     public static final String ID = "id";
     @Serial
     private static final long serialVersionUID = -8634135233772426917L;
+    @DomainField
     private final String id;
+    @DomainField(nullable = false)
     private final String label;
+    @DomainField
     private final boolean visible;
+    @DomainField
     private final int flags;
 
     @JsonIgnore

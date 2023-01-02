@@ -16,6 +16,11 @@ import io.vertx.mutiny.pgclient.PgPool;
 import io.vertx.mutiny.sqlclient.Row;
 import io.vertx.mutiny.sqlclient.RowSet;
 import io.vertx.mutiny.sqlclient.Tuple;
+import su.svn.daybook.annotations.ModelField;
+import su.svn.daybook.models.LongIdentification;
+import su.svn.daybook.models.Marked;
+import su.svn.daybook.models.Owned;
+import su.svn.daybook.models.TimeUpdated;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -77,13 +82,17 @@ public final class LanguageTable implements LongIdentification, Marked, Owned, T
     public static final String ID = "id";
     @Serial
     private static final long serialVersionUID = -3447138347398739815L;
+    @ModelField
     private final Long id;
+    @ModelField
     private final String language;
     private final String userName;
     private final LocalDateTime createTime;
     private final LocalDateTime updateTime;
     private final boolean enabled;
+    @ModelField
     private final boolean visible;
+    @ModelField
     private final int flags;
 
     @JsonIgnore

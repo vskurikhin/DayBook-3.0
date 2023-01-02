@@ -1,4 +1,6 @@
-package su.svn.daybook.domain.model;
+package su.svn.daybook.models;
+
+import su.svn.daybook.models.Identification;
 
 import java.util.UUID;
 

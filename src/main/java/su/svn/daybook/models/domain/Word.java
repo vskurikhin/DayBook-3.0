@@ -10,7 +10,8 @@ package su.svn.daybook.models.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import su.svn.daybook.domain.model.StringIdentification;
+import su.svn.daybook.annotations.DomainField;
+import su.svn.daybook.models.StringIdentification;
 
 import javax.annotation.Nonnull;
 import java.io.Serial;
@@ -24,8 +25,11 @@ public final class Word implements StringIdentification, Serializable {
     @Serial
     private static final long serialVersionUID = 165354442157702336L;
     public static final String ID = "word";
+    @DomainField(nullable = false)
     private final String word;
+    @DomainField
     private final boolean visible;
+    @DomainField
     private final int flags;
 
     @JsonIgnore

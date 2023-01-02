@@ -16,6 +16,7 @@ class CodifierTableTest {
                 NONE, null, null, null, null, false, true, 0
         ));
     }
+
     @Test
     void testGetters(){
         var entry = new CodifierTable();

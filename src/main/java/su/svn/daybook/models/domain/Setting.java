@@ -10,23 +10,12 @@ package su.svn.daybook.models.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.smallrye.mutiny.Multi;
-import io.smallrye.mutiny.Uni;
-import io.vertx.mutiny.pgclient.PgPool;
-import io.vertx.mutiny.sqlclient.Row;
-import io.vertx.mutiny.sqlclient.RowSet;
-import io.vertx.mutiny.sqlclient.Tuple;
-import su.svn.daybook.domain.model.LongIdentification;
-import su.svn.daybook.domain.model.Marked;
-import su.svn.daybook.domain.model.Owned;
-import su.svn.daybook.domain.model.TimeUpdated;
+import su.svn.daybook.annotations.DomainField;
+import su.svn.daybook.models.LongIdentification;
 
 import javax.annotation.Nonnull;
 import java.io.Serial;
 import java.io.Serializable;
-import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -36,11 +25,17 @@ public final class Setting implements LongIdentification, Serializable {
     @Serial
     private static final long serialVersionUID = 3276899182029163317L;
     public static final String ID = "id";
+    @DomainField
     private final Long id;
+    @DomainField(nullable = false)
     private final String key;
+    @DomainField
     private final String value;
+    @DomainField
     private final Long valueTypeId;
+    @DomainField
     private final boolean visible;
+    @DomainField
     private final int flags;
 
     @JsonIgnore

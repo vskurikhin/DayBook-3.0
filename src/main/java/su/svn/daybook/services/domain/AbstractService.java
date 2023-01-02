@@ -6,7 +6,7 @@ import org.jboss.logging.Logger;
 import org.reactivestreams.Publisher;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.messages.ApiResponse;
-import su.svn.daybook.domain.model.Identification;
+import su.svn.daybook.models.Identification;
 
 import javax.annotation.Nonnull;
 import java.io.Serializable;

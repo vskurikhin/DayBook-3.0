@@ -16,6 +16,11 @@ import io.vertx.mutiny.pgclient.PgPool;
 import io.vertx.mutiny.sqlclient.Row;
 import io.vertx.mutiny.sqlclient.RowSet;
 import io.vertx.mutiny.sqlclient.Tuple;
+import su.svn.daybook.annotations.ModelField;
+import su.svn.daybook.models.LongIdentification;
+import su.svn.daybook.models.Marked;
+import su.svn.daybook.models.Owned;
+import su.svn.daybook.models.TimeUpdated;
 
 import javax.annotation.Nonnull;
 import java.io.Serial;
@@ -81,15 +86,21 @@ public final class SettingTable implements LongIdentification, Marked, Owned, Ti
     @Serial
     private static final long serialVersionUID = -2058935813612788249L;
     public static final String ID = "id";
+    @ModelField
     private final Long id;
+    @ModelField
     private final String key;
+    @ModelField
     private final String value;
+    @ModelField
     private final Long valueTypeId;
     private final String userName;
     private final LocalDateTime createTime;
     private final LocalDateTime updateTime;
     private final boolean enabled;
+    @ModelField
     private final boolean visible;
+    @ModelField
     private final int flags;
 
     @JsonIgnore
