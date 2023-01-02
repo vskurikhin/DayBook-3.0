@@ -106,7 +106,7 @@ public final class SettingTable implements LongIdentification, Marked, Owned, Ti
         this.userName = null;
         this.createTime = null;
         this.updateTime = null;
-        this.enabled = false;
+        this.enabled = true;
         this.visible = true;
         this.flags = 0;
     }

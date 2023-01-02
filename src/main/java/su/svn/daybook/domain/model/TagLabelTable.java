@@ -101,7 +101,7 @@ public final class TagLabelTable implements StringIdentification, Marked, Owned,
         this.userName = null;
         this.createTime = null;
         this.updateTime = null;
-        this.enabled = false;
+        this.enabled = true;
         this.visible = true;
         this.flags = 0;
     }

@@ -105,7 +105,7 @@ public final class I18nTable implements LongIdentification, Marked, Owned, TimeU
         this.userName = null;
         this.createTime = null;
         this.updateTime = null;
-        this.enabled = false;
+        this.enabled = true;
         this.visible = true;
         this.flags = 0;
     }

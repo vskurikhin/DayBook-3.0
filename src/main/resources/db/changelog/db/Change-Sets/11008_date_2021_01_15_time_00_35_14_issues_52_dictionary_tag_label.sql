@@ -23,7 +23,7 @@ CREATE TABLE dictionary.tag_label (
                 ON DELETE CASCADE ON UPDATE CASCADE,
   create_time   TIMESTAMP WITHOUT TIME ZONE NOT NULL    DEFAULT now(),
   update_time   TIMESTAMP WITHOUT TIME ZONE             DEFAULT now(),
-  enabled       BOOLEAN                     NOT NULL    DEFAULT false,
+  enabled       BOOLEAN                     NOT NULL    DEFAULT true,
   visible       BOOLEAN                     NOT NULL    DEFAULT true,
   flags         INT                         NOT NULL    DEFAULT 0
 );
