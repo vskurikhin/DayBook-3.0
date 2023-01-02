@@ -19,7 +19,7 @@ import org.jboss.logging.Logger;
 import su.svn.daybook.domain.dao.ValueTypeDao;
 import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.messages.Answer;
-import su.svn.daybook.domain.model.ValueType;
+import su.svn.daybook.domain.model.ValueTypeTable;
 import su.svn.daybook.models.pagination.Page;
 import su.svn.daybook.models.pagination.PageRequest;
 import su.svn.daybook.services.ExceptionAnswerService;
@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 @ApplicationScoped
-public class ValueTypeService extends AbstractService<Long, ValueType> {
+public class ValueTypeService extends AbstractService<Long, ValueTypeTable> {
 
     private static final Logger LOG = Logger.getLogger(ValueTypeService.class);
 
@@ -107,12 +107,12 @@ public class ValueTypeService extends AbstractService<Long, ValueType> {
      * @return - a lazy asynchronous action (LAA) with the Answer containing the ValueType id as payload or empty payload
      */
     @ConsumeEvent(EventAddress.VALUE_TYPE_ADD)
-    public Uni<Answer> add(ValueType o) {
+    public Uni<Answer> add(ValueTypeTable o) {
         LOG.tracef("add(%s)", o);
         return addEntry(o);
     }
 
-    private Uni<Answer> addEntry(ValueType entry) {
+    private Uni<Answer> addEntry(ValueTypeTable entry) {
         return valueTypeDao
                 .insert(entry)
                 .map(o -> apiResponseWithKeyAnswer(201, o))
@@ -131,12 +131,12 @@ public class ValueTypeService extends AbstractService<Long, ValueType> {
      * @return - a LAA with the Answer containing ValueType id as payload or empty payload
      */
     @ConsumeEvent(EventAddress.VALUE_TYPE_PUT)
-    public Uni<Answer> put(ValueType o) {
+    public Uni<Answer> put(ValueTypeTable o) {
         LOG.tracef("put(%s)", o);
         return putEntry(o);
     }
 
-    private Uni<Answer> putEntry(ValueType entry) {
+    private Uni<Answer> putEntry(ValueTypeTable entry) {
         return valueTypeDao
                 .update(entry)
                 .flatMap(this::apiResponseAcceptedUniAnswer)

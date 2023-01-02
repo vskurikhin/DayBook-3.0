@@ -14,7 +14,7 @@ import org.jboss.resteasy.reactive.RestResponse;
 import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
 import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.enums.ResourcePath;
-import su.svn.daybook.domain.model.ValueType;
+import su.svn.daybook.domain.model.ValueTypeTable;
 import su.svn.daybook.models.pagination.PageRequest;
 import su.svn.daybook.services.domain.AbstractService;
 import su.svn.daybook.services.domain.ValueTypeService;
@@ -26,7 +26,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 @Path(ResourcePath.VALUE_TYPE)
-public class ValueTypeResource extends AbstractResource implements Resources<Long, ValueType> {
+public class ValueTypeResource extends AbstractResource implements Resources<Long, ValueTypeTable> {
 
     @Inject
     ValueTypeService service;
@@ -34,7 +34,7 @@ public class ValueTypeResource extends AbstractResource implements Resources<Lon
     @GET
     @Path(ResourcePath.ALL)
     @Produces("application/json")
-    public Multi<ValueType> all(@QueryParam("get-all") Boolean getAll) {
+    public Multi<ValueTypeTable> all(@QueryParam("get-all") Boolean getAll) {
         return getAll();
     }
 
@@ -54,7 +54,7 @@ public class ValueTypeResource extends AbstractResource implements Resources<Lon
     @POST
     @Consumes("application/json")
     @Produces("application/json")
-    public Uni<Response> post(ValueType entry, @Context UriInfo uriInfo) {
+    public Uni<Response> post(ValueTypeTable entry, @Context UriInfo uriInfo) {
         return request(EventAddress.VALUE_TYPE_ADD, entry, uriInfo);
     }
 
@@ -62,7 +62,7 @@ public class ValueTypeResource extends AbstractResource implements Resources<Lon
     @PUT
     @Consumes("application/json")
     @Produces("application/json")
-    public Uni<Response> put(ValueType entry, @Context UriInfo uriInfo) {
+    public Uni<Response> put(ValueTypeTable entry, @Context UriInfo uriInfo) {
         return request(EventAddress.VALUE_TYPE_PUT, entry, uriInfo);
     }
 
@@ -79,7 +79,7 @@ public class ValueTypeResource extends AbstractResource implements Resources<Lon
     }
 
     @Override
-    public AbstractService<Long, ValueType> getService() {
+    public AbstractService<Long, ValueTypeTable> getService() {
         return service;
     }
 }

@@ -20,7 +20,7 @@ import su.svn.daybook.TestData;
 import su.svn.daybook.domain.dao.ValueTypeDao;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.messages.ApiResponse;
-import su.svn.daybook.domain.model.ValueType;
+import su.svn.daybook.domain.model.ValueTypeTable;
 import su.svn.daybook.models.pagination.Page;
 import su.svn.daybook.models.pagination.PageRequest;
 
@@ -38,13 +38,13 @@ class ValueTypeServiceTest {
 
     static ValueTypeDao mock;
 
-    static final Uni<Optional<ValueType>> UNI_OPTIONAL_TEST = Uni.createFrom().item(Optional.of(TestData.VALUE_TYPE.OBJECT_0));
+    static final Uni<Optional<ValueTypeTable>> UNI_OPTIONAL_TEST = Uni.createFrom().item(Optional.of(TestData.VALUE_TYPE.OBJECT_0));
 
-    static final Multi<ValueType> MULTI_TEST = Multi.createFrom().item(TestData.VALUE_TYPE.OBJECT_0);
+    static final Multi<ValueTypeTable> MULTI_TEST = Multi.createFrom().item(TestData.VALUE_TYPE.OBJECT_0);
 
-    static final Multi<ValueType> MULTI_WITH_NULL = TestData.createMultiWithNull(ValueType.class);
+    static final Multi<ValueTypeTable> MULTI_WITH_NULL = TestData.createMultiWithNull(ValueTypeTable.class);
 
-    static final Multi<ValueType> MULTI_EMPTIES = TestData.createMultiEmpties(ValueType.class);
+    static final Multi<ValueTypeTable> MULTI_EMPTIES = TestData.createMultiEmpties(ValueTypeTable.class);
 
     @BeforeEach
     void setUp() {

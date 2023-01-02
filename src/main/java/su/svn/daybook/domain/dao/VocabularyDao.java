@@ -11,7 +11,7 @@ package su.svn.daybook.domain.dao;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import org.jboss.logging.Logger;
-import su.svn.daybook.domain.model.Vocabulary;
+import su.svn.daybook.domain.model.VocabularyTable;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -25,29 +25,29 @@ public class VocabularyDao {
     @Inject
     io.vertx.mutiny.pgclient.PgPool client;
 
-    public Multi<Vocabulary> findAll() {
+    public Multi<VocabularyTable> findAll() {
         LOG.trace("findAll()");
-        return Vocabulary.findAll(client);
+        return VocabularyTable.findAll(client);
     }
 
-    public Uni<Optional<Vocabulary>> findById(Long id) {
+    public Uni<Optional<VocabularyTable>> findById(Long id) {
         LOG.tracef("findById(%s)", id);
-        return Vocabulary.findById(client, id)
+        return VocabularyTable.findById(client, id)
                 .map(Optional::ofNullable);
     }
 
-    public Multi<Vocabulary> findRange(long offset, long limit) {
+    public Multi<VocabularyTable> findRange(long offset, long limit) {
         LOG.tracef("findRange(%d, %d)", offset, limit);
-        return Vocabulary.findRange(client, offset, limit);
+        return VocabularyTable.findRange(client, offset, limit);
     }
 
-    public Uni<Optional<Long>> insert(Vocabulary entry) {
+    public Uni<Optional<Long>> insert(VocabularyTable entry) {
         LOG.tracef("insert(%s)", entry);
         return entry.insert(client)
                 .map(Optional::ofNullable);
     }
 
-    public Uni<Optional<Long>> update(Vocabulary entry) {
+    public Uni<Optional<Long>> update(VocabularyTable entry) {
         LOG.tracef("update(%s)", entry);
         return entry.update(client)
                 .map(Optional::ofNullable);
@@ -55,13 +55,13 @@ public class VocabularyDao {
 
     public Uni<Optional<Long>> delete(Long id) {
         LOG.tracef("delete(%s)", id);
-        return Vocabulary.delete(client, id)
+        return VocabularyTable.delete(client, id)
                 .map(Optional::ofNullable);
     }
 
     public Uni<Optional<Long>> count() {
         LOG.trace("count()");
-        return Vocabulary.count(client)
+        return VocabularyTable.count(client)
                 .map(Optional::ofNullable);
     }
 }

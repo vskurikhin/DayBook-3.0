@@ -18,7 +18,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import su.svn.daybook.TestData;
 import su.svn.daybook.domain.messages.Answer;
-import su.svn.daybook.domain.model.Word;
+import su.svn.daybook.domain.model.WordTable;
 import su.svn.daybook.models.pagination.PageRequest;
 import su.svn.daybook.services.domain.WordService;
 
@@ -41,7 +41,7 @@ class WordResourceTest {
     void setUp() {
         PageRequest pageRequest = new PageRequest(0, (short) 1);
         mock = Mockito.mock(WordService.class);
-        Mockito.when(mock.get(Word.NONE)).thenReturn(test);
+        Mockito.when(mock.get(WordTable.NONE)).thenReturn(test);
         Mockito.when(mock.get(RuntimeException.class.getSimpleName())).thenThrow(RuntimeException.class);
         Mockito.when(mock.get(Integer.toString(Integer.MAX_VALUE))).thenReturn(TestData.UNI_ANSWER_EMPTY);
         Mockito.when(mock.get(Integer.toString(Integer.MIN_VALUE))).thenReturn(TestData.UNI_ANSWER_NULL);
@@ -49,7 +49,7 @@ class WordResourceTest {
         Mockito.when(mock.getPage(pageRequest)).thenReturn(TestData.WORD.UNI_PAGE_ANSWER_SINGLETON_TEST);
         Mockito.when(mock.add(TestData.WORD.OBJECT_0)).thenReturn(TestData.WORD.UNI_ANSWER_API_RESPONSE_NONE_STRING);
         Mockito.when(mock.put(TestData.WORD.OBJECT_0)).thenReturn(TestData.WORD.UNI_ANSWER_API_RESPONSE_NONE_STRING);
-        Mockito.when(mock.delete(Word.NONE)).thenReturn(TestData.WORD.UNI_ANSWER_API_RESPONSE_NONE_STRING);
+        Mockito.when(mock.delete(WordTable.NONE)).thenReturn(TestData.WORD.UNI_ANSWER_API_RESPONSE_NONE_STRING);
         QuarkusMock.installMockForType(mock, WordService.class);
     }
 
@@ -57,7 +57,7 @@ class WordResourceTest {
     void testEndpointGet() {
         given()
                 .when()
-                .get("/word/" + Word.NONE)
+                .get("/word/" + WordTable.NONE)
                 .then()
                 .statusCode(200)
                 .body(CoreMatchers.startsWith(TestData.WORD.JSON_0));
@@ -138,7 +138,7 @@ class WordResourceTest {
     void testEndpointDelete() {
         given()
                 .when()
-                .delete("/word/" + Word.NONE)
+                .delete("/word/" + WordTable.NONE)
                 .then()
                 .statusCode(200)
                 .body(CoreMatchers.startsWith(TestData.WORD.JSON_ID_0));

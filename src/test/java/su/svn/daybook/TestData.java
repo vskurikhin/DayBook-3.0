@@ -26,7 +26,6 @@ public class TestData {
     public static final String NO_SUCH_ELEMENT = "no such element";
 
     public static final UUID ZERO_UUID = new UUID(0, 0);
-    public static final UUID ONE_UUID = new UUID(0, 1);
     public static final UUID RANDOM1_UUID = UUID.randomUUID();
     public static final UUID RANDOM2_UUID = UUID.randomUUID();
     public static final Uni<Optional<Long>> UNI_OPTIONAL_EMPTY_LONG = Uni.createFrom().item(Optional.empty());
@@ -35,7 +34,6 @@ public class TestData {
     public static Uni<Optional<UUID>> UNI_OPTIONAL_ZERO_UUID = Uni.createFrom().item(Optional.of(ZERO_UUID));
     public static Uni<Optional<UUID>> UNI_OPTIONAL_EMPTY_UUID = Uni.createFrom().item(Optional.empty());
     public static Answer ANSWER_ERROR_NoNumber = new Answer("For input string: \"noNumber\"", 404);
-    public static Answer ANSWER_ERROR_EMPTY = Answer.empty();
     public static Uni<Answer> UNI_ANSWER_EMPTY = Uni.createFrom().item(Answer.empty());
     public static Uni<Answer> UNI_ANSWER_NULL = Uni.createFrom().item(() -> null);
     public static Uni<Answer> UNI_ANSWER_API_RESPONSE_ZERO_LONG = Uni.createFrom().item(Answer.of(new ApiResponse<>(0L)));
@@ -53,8 +51,8 @@ public class TestData {
     }
 
     public static class CODIFIER {
-        public static final Codifier OBJECT_0 = new Codifier(
-                Codifier.NONE, null, null, null, null, false, true, 0
+        public static final CodifierTable OBJECT_0 = new CodifierTable(
+                CodifierTable.NONE, null, null, null, null, false, true, 0
         );
         public static final Uni<Page<Answer>> UNI_PAGE_ANSWER_SINGLETON_TEST = Uni.createFrom()
                 .item(
@@ -64,11 +62,11 @@ public class TestData {
                 );
         public static final String JSON_0 = """
                 {"code":"\
-                """ + Codifier.NONE + """
+                """ + CodifierTable.NONE + """
                 ","enabled":false,"visible":true,"flags":0}\
                 """;
         public static final String JSON_ARRAY_SINGLETON_0 = "[" + JSON_0 + "]";
-        public static final String JSON_ID_0 = "{\"id\":\"" + Codifier.NONE + "\"}";
+        public static final String JSON_ID_0 = "{\"id\":\"" + CodifierTable.NONE + "\"}";
         public static final String JSON_PAGE_ARRAY_0 = """
                         {"pageNumber":0,"totalElements":0,"nextPage":false,"prevPage":false,"content":\
                         """ + JSON_ARRAY_SINGLETON_0 +"""
@@ -76,7 +74,7 @@ public class TestData {
     }
 
     public static class I18N {
-        public static final I18n OBJECT_0 = new I18n(
+        public static final I18nTable OBJECT_0 = new I18nTable(
                 0L, 0L, null, null, null, null, null, false, true, 0
         );
         public static final Uni<Page<Answer>> UNI_PAGE_ANSWER_SINGLETON_TEST = Uni.createFrom()
@@ -97,8 +95,8 @@ public class TestData {
     }
 
     public static class KEY_VALUE {
-        public static final KeyValue OBJECT_0 = new KeyValue(
-                0L, KeyValue.NONE, null, null, null, null, false, true, 0
+        public static final KeyValueTable OBJECT_0 = new KeyValueTable(
+                0L, KeyValueTable.NONE, null, null, null, null, false, true, 0
         );
         public static final Uni<Page<Answer>> UNI_PAGE_ANSWER_SINGLETON_TEST = Uni.createFrom()
                 .item(
@@ -108,7 +106,7 @@ public class TestData {
                 );
         public static final String JSON_0 = """
                 {"id":0,"key":"\
-                """ + KeyValue.NONE +"""
+                """ + KeyValueTable.NONE +"""
                 ","enabled":false,"visible":true,"flags":0}\
                 """;
         public static final String JSON_ARRAY_SINGLETON_0 = "[" + JSON_0 + "]";
@@ -120,7 +118,7 @@ public class TestData {
     }
 
     public static class LANGUAGE {
-        public static final Language OBJECT_0 = new Language(
+        public static final LanguageTable OBJECT_0 = new LanguageTable(
                 0L, null, null, null, null, false, true, 0
         );
         public static final Uni<Page<Answer>> UNI_PAGE_ANSWER_SINGLETON_TEST = Uni.createFrom()
@@ -141,8 +139,8 @@ public class TestData {
     }
 
     public static class SETTING {
-        public static final Setting OBJECT_0 = new Setting(
-                0L, Setting.NONE, null, 0L, null, null, null, false, true, 0
+        public static final SettingTable OBJECT_0 = new SettingTable(
+                0L, SettingTable.NONE, null, 0L, null, null, null, false, true, 0
         );
         public static final Uni<Page<Answer>> UNI_PAGE_ANSWER_SINGLETON_TEST = Uni.createFrom()
                 .item(
@@ -152,7 +150,7 @@ public class TestData {
                 );
         public static final String JSON_0 = """
                 {"id":0,"key":"\
-                """ + Setting.NONE +"""
+                """ + SettingTable.NONE +"""
                 ","valueTypeId":0,"enabled":false,"visible":true,"flags":0}\
                 """;
         public static final String JSON_ARRAY_SINGLETON_0 = "[" + JSON_0 + "]";
@@ -164,11 +162,11 @@ public class TestData {
     }
 
     public static class TAG_LABEL {
-        public static final String ID = TagLabel.NONE.replace("-", "").substring(0, 16);
+        public static final String ID = TagLabelTable.NONE.replace("-", "").substring(0, 16);
         public static final Uni<Optional<String>> UNI_OPTIONAL_ID = Uni.createFrom().item(Optional.of(ID));
         public static Uni<Answer> UNI_ANSWER_API_RESPONSE_ID = Uni.createFrom().item(Answer.of(new ApiResponse<>(ID)));
-        public static final TagLabel OBJECT_0 = new TagLabel(
-                ID, TagLabel.NONE, null, null, null, false, true, 0
+        public static final TagLabelTable OBJECT_0 = new TagLabelTable(
+                ID, TagLabelTable.NONE, null, null, null, false, true, 0
         );
         public static final Uni<Page<Answer>> UNI_PAGE_ANSWER_SINGLETON_TEST = Uni.createFrom()
                 .item(
@@ -180,7 +178,7 @@ public class TestData {
                 {"id":"\
                 """ + ID + """
                 ","label":"\
-                """ + TagLabel.NONE + """
+                """ + TagLabelTable.NONE + """
                 ","enabled":false,"visible":true,"flags":0}\
                 """;
         public static final String JSON_ARRAY_SINGLETON_0 = "[" + JSON_0 + "]";
@@ -191,7 +189,7 @@ public class TestData {
     }
 
     public static class USERNAME {
-        public static final UserName OBJECT_0 = new UserName(
+        public static final UserNameTable OBJECT_0 = new UserNameTable(
                 ZERO_UUID, "root", "password", null, null, false, true, 0
         );
         public static final Uni<Page<Answer>> UNI_PAGE_ANSWER_SINGLETON_TEST = Uni.createFrom()
@@ -213,8 +211,8 @@ public class TestData {
                         }""";
     }
     public static class VALUE_TYPE {
-        public static final ValueType OBJECT_0 = new ValueType(
-                0L, ValueType.NONE, null, null, null, false, true, 0
+        public static final ValueTypeTable OBJECT_0 = new ValueTypeTable(
+                0L, ValueTypeTable.NONE, null, null, null, false, true, 0
         );
         public static final Uni<Page<Answer>> UNI_PAGE_ANSWER_SINGLETON_TEST = Uni.createFrom()
                 .item(
@@ -224,7 +222,7 @@ public class TestData {
                 );
         public static final String JSON_0 = """
                 {"id":0,"valueType":"\
-                """ + ValueType.NONE + """
+                """ + ValueTypeTable.NONE + """
                 ","enabled":false,"visible":true,"flags":0}\
                 """;
         public static final String JSON_ARRAY_SINGLETON_0 = "[" + JSON_0 + "]";
@@ -236,8 +234,8 @@ public class TestData {
     }
 
     public static class VOCABULARY {
-        public static final Vocabulary OBJECT_0 = new Vocabulary(
-                0L, Vocabulary.NONE, null, null, null, null, false, true, 0
+        public static final VocabularyTable OBJECT_0 = new VocabularyTable(
+                0L, VocabularyTable.NONE, null, null, null, null, false, true, 0
         );
         public static final Uni<Page<Answer>> UNI_PAGE_ANSWER_SINGLETON_TEST = Uni.createFrom()
                 .item(
@@ -247,7 +245,7 @@ public class TestData {
                 );
         public static final String JSON_0 = """
                 {"id":0,"word":"\
-                """ + Vocabulary.NONE + """
+                """ + VocabularyTable.NONE + """
                 ","enabled":false,"visible":true,"flags":0}\
                 """;
         public static final String JSON_ARRAY_SINGLETON_0 = "[" + JSON_0 + "]";
@@ -259,8 +257,8 @@ public class TestData {
     }
 
     public static class WORD {
-        public static final Word OBJECT_0 = new Word(
-                Word.NONE, null, null, null, false, true, 0
+        public static final WordTable OBJECT_0 = new WordTable(
+                WordTable.NONE, null, null, null, false, true, 0
         );
         public static final Uni<Page<Answer>> UNI_PAGE_ANSWER_SINGLETON_TEST = Uni.createFrom()
                 .item(
@@ -269,14 +267,14 @@ public class TestData {
                                 .build()
                 );
         public static final Uni<Answer> UNI_ANSWER_API_RESPONSE_NONE_STRING = Uni.createFrom()
-                .item(Answer.of(new ApiResponse<>(Word.NONE)));
+                .item(Answer.of(new ApiResponse<>(WordTable.NONE)));
         public static final String JSON_0 = """
                 {"word":"\
-                """ + Word.NONE + """
+                """ + WordTable.NONE + """
                 ","enabled":false,"visible":true,"flags":0}\
                 """;
         public static final String JSON_ARRAY_SINGLETON_0 = "[" + JSON_0 + "]";
-        public static final String JSON_ID_0 = "{\"id\":\"" + Word.NONE + "\"}";
+        public static final String JSON_ID_0 = "{\"id\":\"" + WordTable.NONE + "\"}";
         public static final String JSON_PAGE_ARRAY_0 = """
                         {"pageNumber":0,"totalElements":0,"nextPage":false,"prevPage":false,"content":\
                         """ + JSON_ARRAY_SINGLETON_0 +"""

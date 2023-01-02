@@ -18,7 +18,7 @@ import org.jboss.logging.Logger;
 import su.svn.daybook.domain.dao.I18nDao;
 import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.messages.Answer;
-import su.svn.daybook.domain.model.I18n;
+import su.svn.daybook.domain.model.I18nTable;
 import su.svn.daybook.models.pagination.Page;
 import su.svn.daybook.models.pagination.PageRequest;
 import su.svn.daybook.services.ExceptionAnswerService;
@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 @ApplicationScoped
-public class I18nService extends AbstractService<Long, I18n> {
+public class I18nService extends AbstractService<Long, I18nTable> {
 
     private static final Logger LOG = Logger.getLogger(I18nService.class);
 
@@ -106,12 +106,12 @@ public class I18nService extends AbstractService<Long, I18n> {
      * @return - a lazy asynchronous action (LAA) with the Answer containing the I18n id as payload or empty payload
      */
     @ConsumeEvent(EventAddress.I18N_ADD)
-    public Uni<Answer> add(I18n o) {
+    public Uni<Answer> add(I18nTable o) {
         LOG.tracef("add(%s)", o);
         return addEntry(o);
     }
 
-    private Uni<Answer> addEntry(I18n entry) {
+    private Uni<Answer> addEntry(I18nTable entry) {
         return i18nDao
                 .insert(entry)
                 .map(o -> apiResponseWithKeyAnswer(201, o))
@@ -130,14 +130,14 @@ public class I18nService extends AbstractService<Long, I18n> {
      * @return - a LAA with the Answer containing I18n id as payload or empty payload
      */
     @ConsumeEvent(EventAddress.I18N_PUT)
-    public Uni<Answer> put(I18n o) {
+    public Uni<Answer> put(I18nTable o) {
         LOG.tracef("put(%s)", o);
         return putEntry(o)
                 .onItem()
                 .transformToUni(answer -> invalidateAndAnswer(o.getId(), answer));
     }
 
-    private Uni<Answer> putEntry(I18n entry) {
+    private Uni<Answer> putEntry(I18nTable entry) {
         return i18nDao
                 .update(entry)
                 .flatMap(this::apiResponseAcceptedUniAnswer)

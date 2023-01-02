@@ -19,7 +19,7 @@ import org.jboss.logging.Logger;
 import su.svn.daybook.domain.dao.WordDao;
 import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.messages.Answer;
-import su.svn.daybook.domain.model.Word;
+import su.svn.daybook.domain.model.WordTable;
 import su.svn.daybook.models.pagination.Page;
 import su.svn.daybook.models.pagination.PageRequest;
 import su.svn.daybook.services.ExceptionAnswerService;
@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 @ApplicationScoped
-public class WordService extends AbstractService<String, Word> {
+public class WordService extends AbstractService<String, WordTable> {
 
     private static final Logger LOG = Logger.getLogger(WordService.class);
 
@@ -105,13 +105,13 @@ public class WordService extends AbstractService<String, Word> {
      * @return - a lazy asynchronous action (LAA) with the Answer containing the Word id as payload or empty payload
      */
     @ConsumeEvent(EventAddress.WORD_ADD)
-    public Uni<Answer> add(Word o) {
+    public Uni<Answer> add(WordTable o) {
         //noinspection DuplicatedCode
         LOG.tracef("add(%s)", o);
         return addEntry(o);
     }
 
-    private Uni<Answer> addEntry(Word entry) {
+    private Uni<Answer> addEntry(WordTable entry) {
         return wordDao
                 .insert(entry)
                 .map(o -> apiResponseWithKeyAnswer(201, o))
@@ -130,13 +130,13 @@ public class WordService extends AbstractService<String, Word> {
      * @return - a LAA with the Answer containing Word id as payload or empty payload
      */
     @ConsumeEvent(EventAddress.WORD_PUT)
-    public Uni<Answer> put(Word o) {
+    public Uni<Answer> put(WordTable o) {
         //noinspection DuplicatedCode
         LOG.tracef("put(%s)", o);
         return putEntry(o);
     }
 
-    private Uni<Answer> putEntry(Word entry) {
+    private Uni<Answer> putEntry(WordTable entry) {
         return wordDao
                 .update(entry)
                 .flatMap(this::apiResponseAcceptedUniAnswer)

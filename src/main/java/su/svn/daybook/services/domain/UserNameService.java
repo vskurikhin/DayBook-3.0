@@ -19,7 +19,7 @@ import org.jboss.logging.Logger;
 import su.svn.daybook.domain.dao.UserNameDao;
 import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.messages.Answer;
-import su.svn.daybook.domain.model.UserName;
+import su.svn.daybook.domain.model.UserNameTable;
 import su.svn.daybook.models.pagination.Page;
 import su.svn.daybook.models.pagination.PageRequest;
 import su.svn.daybook.services.ExceptionAnswerService;
@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.UUID;
 
 @ApplicationScoped
-public class UserNameService extends AbstractService<UUID, UserName> {
+public class UserNameService extends AbstractService<UUID, UserNameTable> {
 
     private static final Logger LOG = Logger.getLogger(UserNameService.class);
 
@@ -104,12 +104,12 @@ public class UserNameService extends AbstractService<UUID, UserName> {
      * @return - a lazy asynchronous action (LAA) with the Answer containing the UserName id as payload or empty payload
      */
     @ConsumeEvent(EventAddress.USER_ADD)
-    public Uni<Answer> add(UserName o) {
+    public Uni<Answer> add(UserNameTable o) {
         LOG.infof("add(%s)", o);
         return addEntry(o);
     }
 
-    private Uni<Answer> addEntry(UserName entry) {
+    private Uni<Answer> addEntry(UserNameTable entry) {
         return userNameDao
                 .insert(entry)
                 .map(o -> apiResponseWithKeyAnswer(201, o))
@@ -128,12 +128,12 @@ public class UserNameService extends AbstractService<UUID, UserName> {
      * @return - a LAA with the Answer containing UserName id as payload or empty payload
      */
     @ConsumeEvent(EventAddress.USER_PUT)
-    public Uni<Answer> put(UserName o) {
+    public Uni<Answer> put(UserNameTable o) {
         LOG.tracef("put(%s)", o);
         return putEntry(o);
     }
 
-    private Uni<Answer> putEntry(UserName entry) {
+    private Uni<Answer> putEntry(UserNameTable entry) {
         return userNameDao
                 .update(entry)
                 .flatMap(this::apiResponseAcceptedUniAnswer)

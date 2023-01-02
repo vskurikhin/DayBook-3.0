@@ -5,18 +5,18 @@ import nl.jqno.equalsverifier.Warning;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-class I18nTest {
+class I18NTableTest {
 
     @Test
     void testConstructors() {
-        Assertions.assertDoesNotThrow(() -> new I18n());
-        Assertions.assertDoesNotThrow(() -> new I18n(
+        Assertions.assertDoesNotThrow(() -> new I18nTable());
+        Assertions.assertDoesNotThrow(() -> new I18nTable(
                 0L, 0L, null, null, null, null, null, false, true, 0
         ));
     }
     @Test
     void testGetters(){
-        var entry = new I18n();
+        var entry = new I18nTable();
         Assertions.assertDoesNotThrow(entry::getId);
         Assertions.assertDoesNotThrow(entry::getLanguageId);
         Assertions.assertDoesNotThrow(entry::getMessage);
@@ -33,7 +33,7 @@ class I18nTest {
 
     @Test
     void testEqualsVerifier() {
-        EqualsVerifier.forClass(I18n.class)
+        EqualsVerifier.forClass(I18nTable.class)
                 .withCachedHashCode("hash", "calculateHashCode", null)
                 .withIgnoredFields("createTime", "updateTime", "hash", "hashIsZero")
                 .suppress(Warning.NO_EXAMPLE_FOR_CACHED_HASHCODE)
@@ -42,13 +42,13 @@ class I18nTest {
 
     @Test
     void testToString() {
-        var entry = new I18n();
+        var entry = new I18nTable();
         Assertions.assertDoesNotThrow(() -> Assertions.assertNotNull(entry.toString()));
     }
 
     @Test
     void testBuilder() {
-        Assertions.assertDoesNotThrow(() -> Assertions.assertNotNull(I18n.builder()
+        Assertions.assertDoesNotThrow(() -> Assertions.assertNotNull(I18nTable.builder()
                 .id(null)
                 .languageId(0L)
                 .message(null)

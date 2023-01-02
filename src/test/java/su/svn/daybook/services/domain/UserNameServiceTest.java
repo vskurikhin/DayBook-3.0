@@ -12,7 +12,7 @@ import su.svn.daybook.TestData;
 import su.svn.daybook.domain.dao.UserNameDao;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.messages.ApiResponse;
-import su.svn.daybook.domain.model.UserName;
+import su.svn.daybook.domain.model.UserNameTable;
 import su.svn.daybook.models.pagination.Page;
 import su.svn.daybook.models.pagination.PageRequest;
 
@@ -30,11 +30,11 @@ class UserNameServiceTest {
 
     static UserNameDao mock;
 
-    static final Uni<Optional<UserName>> UNI_OPTIONAL_TEST = Uni.createFrom().item(Optional.of(TestData.USERNAME.OBJECT_0));
+    static final Uni<Optional<UserNameTable>> UNI_OPTIONAL_TEST = Uni.createFrom().item(Optional.of(TestData.USERNAME.OBJECT_0));
 
-    static final Multi<UserName> MULTI_TEST = Multi.createFrom().item(TestData.USERNAME.OBJECT_0);
+    static final Multi<UserNameTable> MULTI_TEST = Multi.createFrom().item(TestData.USERNAME.OBJECT_0);
 
-    static final Multi<UserName> MULTI_EMPTIES = Multi.createFrom().empty();
+    static final Multi<UserNameTable> MULTI_EMPTIES = Multi.createFrom().empty();
 
     @BeforeEach
     void setUp() {

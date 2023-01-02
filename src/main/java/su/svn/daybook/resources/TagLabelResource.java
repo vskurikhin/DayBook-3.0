@@ -14,7 +14,7 @@ import org.jboss.resteasy.reactive.RestResponse;
 import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
 import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.enums.ResourcePath;
-import su.svn.daybook.domain.model.TagLabel;
+import su.svn.daybook.domain.model.TagLabelTable;
 import su.svn.daybook.models.pagination.PageRequest;
 import su.svn.daybook.services.domain.AbstractService;
 import su.svn.daybook.services.domain.TagLabelService;
@@ -26,7 +26,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 @Path(ResourcePath.TAG_LABEL)
-public class TagLabelResource extends AbstractResource implements Resources<String, TagLabel> {
+public class TagLabelResource extends AbstractResource implements Resources<String, TagLabelTable> {
 
     @Inject
     TagLabelService service;
@@ -34,7 +34,7 @@ public class TagLabelResource extends AbstractResource implements Resources<Stri
     @GET
     @Path(ResourcePath.ALL)
     @Produces("application/json")
-    public Multi<TagLabel> all(@QueryParam("get-all") Boolean getAll) {
+    public Multi<TagLabelTable> all(@QueryParam("get-all") Boolean getAll) {
         return getAll();
     }
 
@@ -54,7 +54,7 @@ public class TagLabelResource extends AbstractResource implements Resources<Stri
     @POST
     @Consumes("application/json")
     @Produces("application/json")
-    public Uni<Response> post(TagLabel entry, @Context UriInfo uriInfo) {
+    public Uni<Response> post(TagLabelTable entry, @Context UriInfo uriInfo) {
         return request(EventAddress.TAG_LABEL_ADD, entry, uriInfo);
     }
 
@@ -62,7 +62,7 @@ public class TagLabelResource extends AbstractResource implements Resources<Stri
     @PUT
     @Consumes("application/json")
     @Produces("application/json")
-    public Uni<Response> put(TagLabel entry, @Context UriInfo uriInfo) {
+    public Uni<Response> put(TagLabelTable entry, @Context UriInfo uriInfo) {
         return request(EventAddress.TAG_LABEL_PUT, entry, uriInfo);
     }
 
@@ -79,7 +79,7 @@ public class TagLabelResource extends AbstractResource implements Resources<Stri
     }
 
     @Override
-    public AbstractService<String, TagLabel> getService() {
+    public AbstractService<String, TagLabelTable> getService() {
         return service;
     }
 }

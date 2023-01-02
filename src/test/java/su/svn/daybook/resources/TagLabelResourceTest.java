@@ -10,8 +10,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import su.svn.daybook.TestData;
 import su.svn.daybook.domain.messages.Answer;
-import su.svn.daybook.domain.messages.ApiResponse;
-import su.svn.daybook.domain.model.TagLabel;
 import su.svn.daybook.models.pagination.PageRequest;
 import su.svn.daybook.services.domain.TagLabelService;
 

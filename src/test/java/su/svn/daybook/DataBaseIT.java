@@ -54,19 +54,20 @@ public class DataBaseIT {
     WordDao wordDao;
 
     @Nested
-    @DisplayName("UserNameDao")
+    @DisplayName("CodifierDao")
     class CodifierDaoTest {
 
         String id;
 
         String str = "str";
 
-        Codifier entry;
+        CodifierTable entry;
 
         @BeforeEach
         void setUp() {
-            entry = Codifier.builder()
+            entry = CodifierTable.builder()
                     .code(str)
+                    .enabled(true)
                     .build();
             Assertions.assertDoesNotThrow(
                     () -> {
@@ -101,8 +102,9 @@ public class DataBaseIT {
 
         @Test
         void test() {
-            var expected1 = Codifier.builder()
+            var expected1 = CodifierTable.builder()
                     .code(id)
+                    .enabled(true)
                     .build();
             Assertions.assertDoesNotThrow(
                     () -> {
@@ -151,9 +153,10 @@ public class DataBaseIT {
                         Assertions.assertEquals(1, test.size());
                     }
             );
-            var expected2 = Codifier.builder()
+            var expected2 = CodifierTable.builder()
                     .code(id)
                     .value("value")
+                    .enabled(true)
                     .build();
             Assertions.assertDoesNotThrow(
                     () -> Assertions.assertEquals(
@@ -200,16 +203,17 @@ public class DataBaseIT {
 
         Long languageId = 0L;
 
-        I18n entry;
+        I18nTable entry;
 
         String str = "str";
 
         @BeforeEach
         void setUp() {
-            entry = I18n.builder()
+            entry = I18nTable.builder()
                     .languageId(languageId)
+                    .enabled(true)
                     .build();
-            var language = Language.builder()
+            var language = LanguageTable.builder()
                     .id(languageId)
                     .build();
             Assertions.assertDoesNotThrow(
@@ -260,9 +264,10 @@ public class DataBaseIT {
 
         @Test
         void test() {
-            var expected1 = I18n.builder()
+            var expected1 = I18nTable.builder()
                     .id(id)
                     .languageId(languageId)
+                    .enabled(true)
                     .build();
             Assertions.assertDoesNotThrow(
                     () -> {
@@ -299,10 +304,11 @@ public class DataBaseIT {
                         Assertions.assertEquals(1, test.size());
                     }
             );
-            var expected2 = I18n.builder()
+            var expected2 = I18nTable.builder()
                     .id(id)
                     .languageId(languageId)
                     .message(str)
+                    .enabled(true)
                     .build();
             Assertions.assertDoesNotThrow(
                     () -> Assertions.assertEquals(
@@ -337,9 +343,10 @@ public class DataBaseIT {
                     }
             );
 
-            var test = I18n.builder()
+            var test = I18nTable.builder()
                     .id(customId)
                     .languageId(languageId)
+                    .enabled(true)
                     .build();
             Assertions.assertDoesNotThrow(
                     () -> Assertions.assertEquals(
@@ -368,14 +375,15 @@ public class DataBaseIT {
 
         Long customId = Long.MIN_VALUE;
 
-        KeyValue entry;
+        KeyValueTable entry;
 
         String str = "str";
 
         @BeforeEach
         void setUp() {
-            entry = KeyValue.builder()
-                    .key(KeyValue.NONE)
+            entry = KeyValueTable.builder()
+                    .key(KeyValueTable.NONE)
+                    .enabled(true)
                     .build();
             Assertions.assertDoesNotThrow(
                     () -> {
@@ -409,9 +417,10 @@ public class DataBaseIT {
 
         @Test
         void test() {
-            var expected1 = KeyValue.builder()
+            var expected1 = KeyValueTable.builder()
                     .id(id)
-                    .key(KeyValue.NONE)
+                    .key(KeyValueTable.NONE)
+                    .enabled(true)
                     .build();
             Assertions.assertDoesNotThrow(
                     () -> {
@@ -425,10 +434,11 @@ public class DataBaseIT {
                         Assertions.assertNull(test.getUpdateTime());
                     }
             );
-            var expected2 = KeyValue.builder()
+            var expected2 = KeyValueTable.builder()
                     .id(id)
-                    .key(KeyValue.NONE)
+                    .key(KeyValueTable.NONE)
                     .value(str)
+                    .enabled(true)
                     .build();
             Assertions.assertDoesNotThrow(
                     () -> Assertions.assertEquals(
@@ -486,9 +496,10 @@ public class DataBaseIT {
                     }
             );
 
-            var custom = KeyValue.builder()
+            var custom = KeyValueTable.builder()
                     .id(customId)
                     .key(UUID.randomUUID().toString())
+                    .enabled(true)
                     .build();
             Assertions.assertDoesNotThrow(
                     () -> Assertions.assertEquals(
@@ -554,14 +565,15 @@ public class DataBaseIT {
 
         Long customId = Long.MIN_VALUE;
 
-        Language entry;
+        LanguageTable entry;
 
         String str = "str";
 
         @BeforeEach
         void setUp() {
-            entry = Language.builder()
+            entry = LanguageTable.builder()
                     .language(str)
+                    .enabled(true)
                     .build();
             Assertions.assertDoesNotThrow(
                     () -> {
@@ -595,9 +607,10 @@ public class DataBaseIT {
 
         @Test
         void test() {
-            var expected1 = Language.builder()
+            var expected1 = LanguageTable.builder()
                     .id(id)
                     .language(str)
+                    .enabled(true)
                     .build();
             Assertions.assertDoesNotThrow(
                     () -> {
@@ -635,9 +648,10 @@ public class DataBaseIT {
                         Assertions.assertEquals(1, test.size());
                     }
             );
-            var expected2 = Language.builder()
+            var expected2 = LanguageTable.builder()
                     .id(id)
                     .language("value")
+                    .enabled(true)
                     .build();
             Assertions.assertDoesNotThrow(
                     () -> Assertions.assertEquals(
@@ -672,9 +686,10 @@ public class DataBaseIT {
                     }
             );
 
-            var custom = Language.builder()
+            var custom = LanguageTable.builder()
                     .id(customId)
                     .language("language")
+                    .enabled(true)
                     .build();
             Assertions.assertDoesNotThrow(
                     () -> Assertions.assertEquals(
@@ -743,19 +758,21 @@ public class DataBaseIT {
 
         Long valueTypeId = 0L;
 
-        Setting entry;
+        SettingTable entry;
 
         String str = "str";
 
         @BeforeEach
         void setUp() {
-            entry = Setting.builder()
+            entry = SettingTable.builder()
                     .key(str)
                     .valueTypeId(valueTypeId)
+                    .enabled(true)
                     .build();
-            var valueType = ValueType.builder()
+            var valueType = ValueTypeTable.builder()
                     .id(valueTypeId)
                     .valueType(str)
+                    .enabled(true)
                     .build();
             Assertions.assertDoesNotThrow(
                     () -> {
@@ -805,10 +822,11 @@ public class DataBaseIT {
 
         @Test
         void test() {
-            var expected1 = Setting.builder()
+            var expected1 = SettingTable.builder()
                     .id(id)
                     .key(str)
                     .valueTypeId(valueTypeId)
+                    .enabled(true)
                     .build();
             Assertions.assertDoesNotThrow(
                     () -> {
@@ -822,11 +840,12 @@ public class DataBaseIT {
                         Assertions.assertNull(test.getUpdateTime());
                     }
             );
-            var expected2 = Setting.builder()
+            var expected2 = SettingTable.builder()
                     .id(id)
                     .key(str)
                     .valueTypeId(valueTypeId)
                     .value("value")
+                    .enabled(true)
                     .build();
             Assertions.assertDoesNotThrow(
                     () -> Assertions.assertEquals(
@@ -884,10 +903,11 @@ public class DataBaseIT {
                     }
             );
 
-            var custom = Setting.builder()
+            var custom = SettingTable.builder()
                     .id(customId)
                     .key("key")
                     .valueTypeId(valueTypeId)
+                    .enabled(true)
                     .build();
             Assertions.assertDoesNotThrow(
                     () -> Assertions.assertEquals(
@@ -940,13 +960,14 @@ public class DataBaseIT {
 
         String str = "str";
 
-        TagLabel entry;
+        TagLabelTable entry;
 
         @BeforeEach
         void setUp() {
-            entry = TagLabel.builder()
+            entry = TagLabelTable.builder()
                     .id(str)
                     .label(str)
+                    .enabled(true)
                     .build();
             Assertions.assertDoesNotThrow(
                     () -> {
@@ -980,9 +1001,10 @@ public class DataBaseIT {
 
         @Test
         void test() {
-            var expected1 = TagLabel.builder()
+            var expected1 = TagLabelTable.builder()
                     .id(id)
                     .label(str)
+                    .enabled(true)
                     .build();
             Assertions.assertDoesNotThrow(
                     () -> {
@@ -996,9 +1018,10 @@ public class DataBaseIT {
                         Assertions.assertNull(test.getUpdateTime());
                     }
             );
-            var expected2 = TagLabel.builder()
+            var expected2 = TagLabelTable.builder()
                     .id(id)
                     .label("value")
+                    .enabled(true)
                     .build();
             Assertions.assertDoesNotThrow(
                     () -> Assertions.assertEquals(
@@ -1055,8 +1078,9 @@ public class DataBaseIT {
                         Assertions.assertEquals(1, test.size());
                     }
             );
-            var custom = TagLabel.builder()
+            var custom = TagLabelTable.builder()
                     .label("label")
+                    .enabled(true)
                     .build();
             var strId = new AtomicReference<String>();
             Assertions.assertDoesNotThrow(
@@ -1096,14 +1120,15 @@ public class DataBaseIT {
 
         UUID customId = UUID.randomUUID();
 
-        UserName entry;
+        UserNameTable entry;
 
         @BeforeEach
         void setUp() {
-            entry = UserName.builder()
+            entry = UserNameTable.builder()
                     .id(id)
                     .userName("user")
                     .password("password")
+                    .enabled(true)
                     .build();
             Assertions.assertDoesNotThrow(
                     () -> Assertions.assertEquals(
@@ -1137,10 +1162,11 @@ public class DataBaseIT {
 
         @Test
         void test() {
-            var expected1 = UserName.builder()
+            var expected1 = UserNameTable.builder()
                     .id(id)
                     .userName("user")
                     .password("password")
+                    .enabled(true)
                     .build();
             Assertions.assertDoesNotThrow(
                     () -> {
@@ -1154,10 +1180,11 @@ public class DataBaseIT {
                         Assertions.assertNull(test.getUpdateTime());
                     }
             );
-            var expected2 = UserName.builder()
+            var expected2 = UserNameTable.builder()
                     .id(id)
                     .userName("none")
                     .password("oops")
+                    .enabled(true)
                     .build();
             Assertions.assertDoesNotThrow(
                     () -> Assertions.assertEquals(
@@ -1214,10 +1241,11 @@ public class DataBaseIT {
                         Assertions.assertEquals(1, test.size());
                     }
             );
-            var custom = UserName.builder()
+            var custom = UserNameTable.builder()
                     .id(customId)
                     .userName("userName")
                     .password("password")
+                    .enabled(true)
                     .build();
             Assertions.assertDoesNotThrow(
                     () -> Assertions.assertEquals(
@@ -1284,13 +1312,14 @@ public class DataBaseIT {
 
         String str = "str";
 
-        ValueType entry;
+        ValueTypeTable entry;
 
         @BeforeEach
         void setUp() {
-            entry = ValueType.builder()
+            entry = ValueTypeTable.builder()
                     .id(id)
                     .valueType(str)
+                    .enabled(true)
                     .build();
             Assertions.assertDoesNotThrow(
                     () -> {
@@ -1324,9 +1353,10 @@ public class DataBaseIT {
 
         @Test
         void test() {
-            var expected1 = ValueType.builder()
+            var expected1 = ValueTypeTable.builder()
                     .id(id)
                     .valueType(str)
+                    .enabled(true)
                     .build();
             Assertions.assertDoesNotThrow(
                     () -> {
@@ -1340,9 +1370,10 @@ public class DataBaseIT {
                         Assertions.assertNull(test.getUpdateTime());
                     }
             );
-            var expected2 = ValueType.builder()
+            var expected2 = ValueTypeTable.builder()
                     .id(id)
                     .valueType("value")
+                    .enabled(true)
                     .build();
             Assertions.assertDoesNotThrow(
                     () -> Assertions.assertEquals(
@@ -1403,24 +1434,26 @@ public class DataBaseIT {
     }
 
     @Nested
-    @DisplayName("VocabularyDao")
+    @DisplayName("VocabularyDao and WordDao")
     class VocabularyDaoAndWordDaoTest {
 
         String veryLongWordIdForTest = "veryLongWordIdForTest";
 
         Long vocabularyId;
 
-        Vocabulary vocabulary;
+        VocabularyTable entry;
 
-        Word word;
+        WordTable word;
 
         @BeforeEach
         void setUp() {
-            vocabulary = Vocabulary.builder()
+            entry = VocabularyTable.builder()
                     .word(veryLongWordIdForTest)
+                    .enabled(true)
                     .build();
-            word = Word.builder()
+            word = WordTable.builder()
                     .word(veryLongWordIdForTest)
+                    .enabled(true)
                     .build();
             Assertions.assertDoesNotThrow(
                     () -> Assertions.assertEquals(
@@ -1432,7 +1465,7 @@ public class DataBaseIT {
             );
 
             Assertions.assertDoesNotThrow(
-                    () -> vocabularyId = vocabularyDao.insert(vocabulary)
+                    () -> vocabularyId = vocabularyDao.insert(entry)
                             .subscribeAsCompletionStage()
                             .get()
                             .orElse(null)
@@ -1477,8 +1510,9 @@ public class DataBaseIT {
 
         @Test
         void testWordDao() {
-            var expected1 = Word.builder()
+            var expected1 = WordTable.builder()
                     .word(veryLongWordIdForTest)
+                    .enabled(true)
                     .build();
             Assertions.assertDoesNotThrow(
                     () -> {
@@ -1492,7 +1526,7 @@ public class DataBaseIT {
                         Assertions.assertNull(test.getUpdateTime());
                     }
             );
-            var expected2 = Word.builder()
+            var expected2 = WordTable.builder()
                     .word(veryLongWordIdForTest)
                     .enabled(true)
                     .visible(true)
@@ -1558,9 +1592,10 @@ public class DataBaseIT {
 
         @Test
         void testVocabularyDao() {
-            var expected1 = Vocabulary.builder()
+            var expected1 = VocabularyTable.builder()
                     .id(1L)
                     .word(veryLongWordIdForTest)
+                    .enabled(true)
                     .build();
             Assertions.assertDoesNotThrow(
                     () -> {
@@ -1574,7 +1609,7 @@ public class DataBaseIT {
                         Assertions.assertNull(test.getUpdateTime());
                     }
             );
-            var expected2 = Vocabulary.builder()
+            var expected2 = VocabularyTable.builder()
                     .id(1L)
                     .word(veryLongWordIdForTest)
                     .value("value")

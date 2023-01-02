@@ -14,7 +14,7 @@ import org.jboss.resteasy.reactive.RestResponse;
 import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
 import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.enums.ResourcePath;
-import su.svn.daybook.domain.model.Vocabulary;
+import su.svn.daybook.domain.model.VocabularyTable;
 import su.svn.daybook.models.pagination.PageRequest;
 import su.svn.daybook.services.domain.AbstractService;
 import su.svn.daybook.services.domain.VocabularyService;
@@ -26,7 +26,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 @Path(ResourcePath.VOCABULARY)
-public class VocabularyResource extends AbstractResource implements Resources<Long, Vocabulary> {
+public class VocabularyResource extends AbstractResource implements Resources<Long, VocabularyTable> {
 
     @Inject
     VocabularyService service;
@@ -34,7 +34,7 @@ public class VocabularyResource extends AbstractResource implements Resources<Lo
     @GET
     @Path(ResourcePath.ALL)
     @Produces("application/json")
-    public Multi<Vocabulary> all(@QueryParam("get-all") Boolean getAll) {
+    public Multi<VocabularyTable> all(@QueryParam("get-all") Boolean getAll) {
         return getAll();
     }
 
@@ -54,7 +54,7 @@ public class VocabularyResource extends AbstractResource implements Resources<Lo
     @POST
     @Consumes("application/json")
     @Produces("application/json")
-    public Uni<Response> post(Vocabulary entry, @Context UriInfo uriInfo) {
+    public Uni<Response> post(VocabularyTable entry, @Context UriInfo uriInfo) {
         return request(EventAddress.VOCABULARY_ADD, entry, uriInfo);
     }
 
@@ -62,7 +62,7 @@ public class VocabularyResource extends AbstractResource implements Resources<Lo
     @PUT
     @Consumes("application/json")
     @Produces("application/json")
-    public Uni<Response> put(Vocabulary entry, @Context UriInfo uriInfo) {
+    public Uni<Response> put(VocabularyTable entry, @Context UriInfo uriInfo) {
         return request(EventAddress.VOCABULARY_PUT, entry, uriInfo);
     }
 
@@ -79,7 +79,7 @@ public class VocabularyResource extends AbstractResource implements Resources<Lo
     }
 
     @Override
-    public AbstractService<Long, Vocabulary> getService() {
+    public AbstractService<Long, VocabularyTable> getService() {
         return service;
     }
 }

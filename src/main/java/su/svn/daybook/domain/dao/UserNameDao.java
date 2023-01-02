@@ -11,8 +11,7 @@ package su.svn.daybook.domain.dao;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import org.jboss.logging.Logger;
-import su.svn.daybook.domain.model.KeyValue;
-import su.svn.daybook.domain.model.UserName;
+import su.svn.daybook.domain.model.UserNameTable;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -27,29 +26,29 @@ public class UserNameDao {
     @Inject
     io.vertx.mutiny.pgclient.PgPool client;
 
-    public Multi<UserName> findAll() {
+    public Multi<UserNameTable> findAll() {
         LOG.trace("findAll");
-        return UserName.findAll(client);
+        return UserNameTable.findAll(client);
     }
 
-    public Uni<Optional<UserName>> findById(UUID id) {
+    public Uni<Optional<UserNameTable>> findById(UUID id) {
         LOG.tracef("findById(%s)", id);
-        return UserName.findById(client, id)
+        return UserNameTable.findById(client, id)
                 .map(Optional::ofNullable);
     }
 
-    public Multi<UserName> findRange(long offset, long limit) {
+    public Multi<UserNameTable> findRange(long offset, long limit) {
         LOG.tracef("findRange(%d, %d)", offset, limit);
-        return UserName.findRange(client, offset, limit);
+        return UserNameTable.findRange(client, offset, limit);
     }
 
-    public Uni<Optional<UUID>> insert(UserName entry) {
+    public Uni<Optional<UUID>> insert(UserNameTable entry) {
         LOG.tracef("insert(%s)", entry);
         return entry.insert(client)
                 .map(Optional::ofNullable);
     }
 
-    public Uni<Optional<UUID>> update(UserName entry) {
+    public Uni<Optional<UUID>> update(UserNameTable entry) {
         LOG.tracef("update(%s)", entry);
         return entry.update(client)
                 .map(Optional::ofNullable);
@@ -57,13 +56,13 @@ public class UserNameDao {
 
     public Uni<Optional<UUID>> delete(UUID id) {
         LOG.tracef("delete(%s)", id);
-        return UserName.delete(client, id)
+        return UserNameTable.delete(client, id)
                 .map(Optional::ofNullable);
     }
 
     public Uni<Optional<Long>> count() {
         LOG.trace("count()");
-        return UserName.count(client)
+        return UserNameTable.count(client)
                 .map(Optional::ofNullable);
     }
 }

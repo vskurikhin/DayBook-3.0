@@ -19,7 +19,7 @@ import org.jboss.logging.Logger;
 import su.svn.daybook.domain.dao.SettingDao;
 import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.messages.Answer;
-import su.svn.daybook.domain.model.Setting;
+import su.svn.daybook.domain.model.SettingTable;
 import su.svn.daybook.models.pagination.Page;
 import su.svn.daybook.models.pagination.PageRequest;
 import su.svn.daybook.services.ExceptionAnswerService;
@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 @ApplicationScoped
-public class SettingService extends AbstractService<Long, Setting> {
+public class SettingService extends AbstractService<Long, SettingTable> {
 
     private static final Logger LOG = Logger.getLogger(SettingService.class);
 
@@ -107,12 +107,12 @@ public class SettingService extends AbstractService<Long, Setting> {
      * @return - a lazy asynchronous action (LAA) with the Answer containing the Setting id as payload or empty payload
      */
     @ConsumeEvent(EventAddress.SETTING_ADD)
-    public Uni<Answer> add(Setting o) {
+    public Uni<Answer> add(SettingTable o) {
         LOG.tracef("add(%s)", o);
         return addEntry(o);
     }
 
-    private Uni<Answer> addEntry(Setting entry) {
+    private Uni<Answer> addEntry(SettingTable entry) {
         return settingDao
                 .insert(entry)
                 .map(o -> apiResponseWithKeyAnswer(201, o))
@@ -131,14 +131,14 @@ public class SettingService extends AbstractService<Long, Setting> {
      * @return - a LAA with the Answer containing Setting id as payload or empty payload
      */
     @ConsumeEvent(EventAddress.SETTING_PUT)
-    public Uni<Answer> put(Setting o) {
+    public Uni<Answer> put(SettingTable o) {
         LOG.tracef("put(%s)", o);
         return putEntry(o)
                 .onItem()
                 .transformToUni(answer -> invalidateAndAnswer(o.getId(), answer));
     }
 
-    private Uni<Answer> putEntry(Setting entry) {
+    private Uni<Answer> putEntry(SettingTable entry) {
         return settingDao.update(entry)
                 .flatMap(this::apiResponseAcceptedUniAnswer)
                 .onItem()

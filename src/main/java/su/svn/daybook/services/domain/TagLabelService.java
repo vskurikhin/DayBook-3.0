@@ -19,7 +19,7 @@ import org.jboss.logging.Logger;
 import su.svn.daybook.domain.dao.TagLabelDao;
 import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.messages.Answer;
-import su.svn.daybook.domain.model.TagLabel;
+import su.svn.daybook.domain.model.TagLabelTable;
 import su.svn.daybook.models.pagination.Page;
 import su.svn.daybook.models.pagination.PageRequest;
 import su.svn.daybook.services.ExceptionAnswerService;
@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 @ApplicationScoped
-public class TagLabelService extends AbstractService<String, TagLabel> {
+public class TagLabelService extends AbstractService<String, TagLabelTable> {
 
     private static final Logger LOG = Logger.getLogger(TagLabelService.class);
 
@@ -103,12 +103,12 @@ public class TagLabelService extends AbstractService<String, TagLabel> {
      * @return - a lazy asynchronous action (LAA) with the Answer containing the TagLabel id as payload or empty payload
      */
     @ConsumeEvent(EventAddress.TAG_LABEL_ADD)
-    public Uni<Answer> add(TagLabel o) {
+    public Uni<Answer> add(TagLabelTable o) {
         LOG.tracef("add(%s)", o);
         return addEntry(o);
     }
 
-    private Uni<Answer> addEntry(TagLabel entry) {
+    private Uni<Answer> addEntry(TagLabelTable entry) {
         return tagLabelDao
                 .insert(entry)
                 .map(o -> apiResponseWithKeyAnswer(201, o))
@@ -127,12 +127,12 @@ public class TagLabelService extends AbstractService<String, TagLabel> {
      * @return - a LAA with the Answer containing TagLabel id as payload or empty payload
      */
     @ConsumeEvent(EventAddress.TAG_LABEL_PUT)
-    public Uni<Answer> put(TagLabel o) {
+    public Uni<Answer> put(TagLabelTable o) {
         LOG.tracef("put(%s)", o);
         return putEntry(o);
     }
 
-    private Uni<Answer> putEntry(TagLabel entry) {
+    private Uni<Answer> putEntry(TagLabelTable entry) {
         return tagLabelDao
                 .update(entry)
                 .flatMap(this::apiResponseAcceptedUniAnswer)

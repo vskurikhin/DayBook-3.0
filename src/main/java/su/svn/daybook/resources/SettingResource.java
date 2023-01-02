@@ -14,8 +14,7 @@ import org.jboss.resteasy.reactive.RestResponse;
 import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
 import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.enums.ResourcePath;
-import su.svn.daybook.domain.model.KeyValue;
-import su.svn.daybook.domain.model.Setting;
+import su.svn.daybook.domain.model.SettingTable;
 import su.svn.daybook.models.pagination.PageRequest;
 import su.svn.daybook.services.domain.AbstractService;
 import su.svn.daybook.services.domain.SettingService;
@@ -27,7 +26,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 @Path(ResourcePath.SETTING)
-public class SettingResource extends AbstractResource implements Resources<Long, Setting> {
+public class SettingResource extends AbstractResource implements Resources<Long, SettingTable> {
 
     @Inject
     SettingService service;
@@ -35,7 +34,7 @@ public class SettingResource extends AbstractResource implements Resources<Long,
     @GET
     @Path(ResourcePath.ALL)
     @Produces("application/json")
-    public Multi<Setting> all(@QueryParam("get-all") Boolean getAll) {
+    public Multi<SettingTable> all(@QueryParam("get-all") Boolean getAll) {
         return getAll();
     }
 
@@ -55,7 +54,7 @@ public class SettingResource extends AbstractResource implements Resources<Long,
     @POST
     @Consumes("application/json")
     @Produces("application/json")
-    public Uni<Response> post(Setting entry, @Context UriInfo uriInfo) {
+    public Uni<Response> post(SettingTable entry, @Context UriInfo uriInfo) {
         return request(EventAddress.SETTING_ADD, entry, uriInfo);
     }
 
@@ -63,7 +62,7 @@ public class SettingResource extends AbstractResource implements Resources<Long,
     @PUT
     @Consumes("application/json")
     @Produces("application/json")
-    public Uni<Response> put(Setting entry, @Context UriInfo uriInfo) {
+    public Uni<Response> put(SettingTable entry, @Context UriInfo uriInfo) {
         return request(EventAddress.SETTING_PUT, entry, uriInfo);
     }
 
@@ -80,7 +79,7 @@ public class SettingResource extends AbstractResource implements Resources<Long,
     }
 
     @Override
-    public AbstractService<Long, Setting> getService() {
+    public AbstractService<Long, SettingTable> getService() {
         return service;
     }
 }

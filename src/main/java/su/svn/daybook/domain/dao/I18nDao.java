@@ -11,7 +11,7 @@ package su.svn.daybook.domain.dao;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import org.jboss.logging.Logger;
-import su.svn.daybook.domain.model.I18n;
+import su.svn.daybook.domain.model.I18nTable;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -25,29 +25,29 @@ public class I18nDao {
     @Inject
     io.vertx.mutiny.pgclient.PgPool client;
 
-    public Multi<I18n> findAll() {
+    public Multi<I18nTable> findAll() {
         LOG.trace("findAll()");
-        return I18n.findAll(client);
+        return I18nTable.findAll(client);
     }
 
-    public Uni<Optional<I18n>> findById(Long id) {
+    public Uni<Optional<I18nTable>> findById(Long id) {
         LOG.tracef("findById(%s)", id);
-        return I18n.findById(client, id)
+        return I18nTable.findById(client, id)
                 .map(Optional::ofNullable);
     }
 
-    public Multi<I18n> findRange(long offset, long limit) {
+    public Multi<I18nTable> findRange(long offset, long limit) {
         LOG.tracef("findRange(%d, %d)", offset, limit);
-        return I18n.findRange(client, offset, limit);
+        return I18nTable.findRange(client, offset, limit);
     }
 
-    public Uni<Optional<Long>> insert(I18n entry) {
+    public Uni<Optional<Long>> insert(I18nTable entry) {
         LOG.tracef("insert(%s)", entry);
         return entry.insert(client)
                 .map(Optional::ofNullable);
     }
 
-    public Uni<Optional<Long>> update(I18n entry) {
+    public Uni<Optional<Long>> update(I18nTable entry) {
         LOG.tracef("update(%s)", entry);
         return entry.update(client)
                 .map(Optional::ofNullable);
@@ -55,13 +55,13 @@ public class I18nDao {
 
     public Uni<Optional<Long>> delete(Long id) {
         LOG.tracef("delete(%s)", id);
-        return I18n.delete(client, id)
+        return I18nTable.delete(client, id)
                 .map(Optional::ofNullable);
     }
 
     public Uni<Optional<Long>> count() {
         LOG.trace("count()");
-        return I18n.count(client)
+        return I18nTable.count(client)
                 .map(Optional::ofNullable);
     }
 }

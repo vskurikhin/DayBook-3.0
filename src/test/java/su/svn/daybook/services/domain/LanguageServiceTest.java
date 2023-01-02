@@ -20,10 +20,9 @@ import su.svn.daybook.TestData;
 import su.svn.daybook.domain.dao.LanguageDao;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.messages.ApiResponse;
-import su.svn.daybook.domain.model.Language;
+import su.svn.daybook.domain.model.LanguageTable;
 import su.svn.daybook.models.pagination.Page;
 import su.svn.daybook.models.pagination.PageRequest;
-import su.svn.daybook.services.domain.LanguageService;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -39,13 +38,13 @@ class LanguageServiceTest {
 
     static LanguageDao mock;
 
-    static final Uni<Optional<Language>> UNI_OPTIONAL_TEST = Uni.createFrom().item(Optional.of(TestData.LANGUAGE.OBJECT_0));
+    static final Uni<Optional<LanguageTable>> UNI_OPTIONAL_TEST = Uni.createFrom().item(Optional.of(TestData.LANGUAGE.OBJECT_0));
 
-    static final Multi<Language> MULTI_TEST = Multi.createFrom().item(TestData.LANGUAGE.OBJECT_0);
+    static final Multi<LanguageTable> MULTI_TEST = Multi.createFrom().item(TestData.LANGUAGE.OBJECT_0);
 
-    static final Multi<Language> MULTI_WITH_NULL = TestData.createMultiWithNull(Language.class);
+    static final Multi<LanguageTable> MULTI_WITH_NULL = TestData.createMultiWithNull(LanguageTable.class);
 
-    static final Multi<Language> MULTI_EMPTIES = TestData.createMultiEmpties(Language.class);
+    static final Multi<LanguageTable> MULTI_EMPTIES = TestData.createMultiEmpties(LanguageTable.class);
 
     @BeforeEach
     void setUp() {

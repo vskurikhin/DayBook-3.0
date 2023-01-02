@@ -14,7 +14,7 @@ import org.jboss.resteasy.reactive.RestResponse;
 import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
 import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.enums.ResourcePath;
-import su.svn.daybook.domain.model.KeyValue;
+import su.svn.daybook.domain.model.KeyValueTable;
 import su.svn.daybook.models.pagination.PageRequest;
 import su.svn.daybook.services.domain.AbstractService;
 import su.svn.daybook.services.domain.KeyValueService;
@@ -26,7 +26,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 @Path(ResourcePath.KEY_VALUE)
-public class KeyValueResource extends AbstractResource implements Resources<Long, KeyValue> {
+public class KeyValueResource extends AbstractResource implements Resources<Long, KeyValueTable> {
 
     @Inject
     KeyValueService service;
@@ -34,7 +34,7 @@ public class KeyValueResource extends AbstractResource implements Resources<Long
     @GET
     @Path(ResourcePath.ALL)
     @Produces("application/json")
-    public Multi<KeyValue> all(@QueryParam("get-all") Boolean getAll) {
+    public Multi<KeyValueTable> all(@QueryParam("get-all") Boolean getAll) {
         return getAll();
     }
 
@@ -54,7 +54,7 @@ public class KeyValueResource extends AbstractResource implements Resources<Long
     @POST
     @Consumes("application/json")
     @Produces("application/json")
-    public Uni<Response> post(KeyValue entry, @Context UriInfo uriInfo) {
+    public Uni<Response> post(KeyValueTable entry, @Context UriInfo uriInfo) {
         return request(EventAddress.KEY_VALUE_ADD, entry, uriInfo);
     }
 
@@ -62,7 +62,7 @@ public class KeyValueResource extends AbstractResource implements Resources<Long
     @PUT
     @Consumes("application/json")
     @Produces("application/json")
-    public Uni<Response> put(KeyValue entry, @Context UriInfo uriInfo) {
+    public Uni<Response> put(KeyValueTable entry, @Context UriInfo uriInfo) {
         return request(EventAddress.KEY_VALUE_PUT, entry, uriInfo);
     }
 
@@ -79,7 +79,7 @@ public class KeyValueResource extends AbstractResource implements Resources<Long
     }
 
     @Override
-    public AbstractService<Long, KeyValue> getService() {
+    public AbstractService<Long, KeyValueTable> getService() {
         return service;
     }
 }

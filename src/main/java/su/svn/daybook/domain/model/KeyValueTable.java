@@ -2,7 +2,7 @@
  * This file was last modified at 2022.01.12 22:58 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
- * ValueType.java
+ * KeyValue.java
  * $Id$
  */
 
@@ -26,59 +26,63 @@ import java.util.List;
 import java.util.Objects;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public final class ValueType implements LongIdentification, Marked, Owned, TimeUpdated, Serializable {
+public final class KeyValueTable implements LongIdentification, Marked, Owned, TimeUpdated, Serializable {
 
-    public static final String NONE = "8af24446-2ca5-4ed3-8d80-f2681feb0ecc";
-    public static final String SELECT_FROM_DICTIONARY_VALUE_TYPE_WHERE_ID_$1 = """
-            SELECT id, value_type, user_name, create_time, update_time, enabled, visible, flags
-              FROM dictionary.value_type
-             WHERE id = $1
+    public static final String NONE = "d94d93d9-d44c-403c-97b1-d071b6974d80";
+    public static final String SELECT_FROM_DICTIONARY_KEY_VALUE_WHERE_ID_$1 = """
+            SELECT id, key, value, user_name, create_time, update_time, enabled, visible, flags
+              FROM dictionary.key_value
+             WHERE id = $1 AND enabled
             """;
-    public static final String SELECT_ALL_FROM_DICTIONARY_VALUE_TYPE_ORDER_BY_ID_ASC = """
-            SELECT id, value_type, user_name, create_time, update_time, enabled, visible, flags
-              FROM dictionary.value_type
+    public static final String SELECT_ALL_FROM_DICTIONARY_KEY_VALUE_ORDER_BY_ID_ASC = """
+            SELECT id, key, value, user_name, create_time, update_time, enabled, visible, flags
+              FROM dictionary.key_value
+             WHERE enabled
              ORDER BY id ASC
             """;
-    public static final String SELECT_ALL_FROM_DICTIONARY_VALUE_TYPE_ORDER_BY_ID_ASC_OFFSET_LIMIT = """
-            SELECT id, value_type, user_name, create_time, update_time, enabled, visible, flags
-              FROM dictionary.value_type
+    public static final String SELECT_ALL_FROM_DICTIONARY_KEY_VALUE_ORDER_BY_ID_ASC_OFFSET_LIMIT = """
+            SELECT id, key, value, user_name, create_time, update_time, enabled, visible, flags
+              FROM dictionary.key_value
+             WHERE enabled
              ORDER BY id ASC OFFSET $1 LIMIT $2
             """;
-    public static final String INSERT_INTO_DICTIONARY_VALUE_TYPE = """
-            INSERT INTO dictionary.value_type
-             (id, value_type, user_name, enabled, visible, flags)
+    public static final String INSERT_INTO_DICTIONARY_KEY_VALUE = """
+            INSERT INTO dictionary.key_value
+             (id, key, value, user_name, enabled, visible, flags)
              VALUES
-             ($1, $2, $3, $4, $5, $6)
+             ($1, $2, $3, $4, $5, $6, $7)
              RETURNING id
             """;
-    public static final String INSERT_INTO_DICTIONARY_VALUE_TYPE_DEFAULT_ID = """
-            INSERT INTO dictionary.value_type
-             (id, value_type, user_name, enabled, visible, flags)
+    public static final String INSERT_INTO_DICTIONARY_KEY_VALUE_DEFAULT_ID = """
+            INSERT INTO dictionary.key_value
+             (id, key, value, user_name, enabled, visible, flags)
              VALUES
-             (DEFAULT, $1, $2, $3, $4, $5)
+             (DEFAULT, $1, $2, $3, $4, $5, $6)
              RETURNING id
             """;
-    public static final String UPDATE_DICTIONARY_VALUE_TYPE_WHERE_ID_$1 = """
-            UPDATE dictionary.value_type SET
-              value_type = $2,
-              user_name = $3,
-              enabled = $4,
-              visible = $5,
-              flags = $6
+    public static final String UPDATE_DICTIONARY_KEY_VALUE_WHERE_ID_$1 = """
+            UPDATE dictionary.key_value SET
+              key = $2,
+              value = $3,
+              user_name = $4,
+              enabled = $5,
+              visible = $6,
+              flags = $7
              WHERE id = $1
              RETURNING id
             """;
-    public static final String DELETE_FROM_DICTIONARY_VALUE_TYPE_WHERE_ID_$1 = """
-            DELETE FROM dictionary.value_type
+    public static final String DELETE_FROM_DICTIONARY_KEY_VALUE_WHERE_ID_$1 = """
+            DELETE FROM dictionary.key_value
              WHERE id = $1
              RETURNING id
             """;
-    public static final String COUNT_DICTIONARY_VALUE_TYPE = "SELECT count(*) FROM dictionary.value_type";
+    public static final String COUNT_DICTIONARY_KEY_VALUE = "SELECT count(*) FROM dictionary.key_value";
     @Serial
-    private static final long serialVersionUID = 1855327022471501329L;
+    private static final long serialVersionUID = 3377791800667728148L;
     public static final String ID = "id";
     private final Long id;
-    private final String valueType;
+    private final String key;
+    private final String value;
     private final String userName;
     private final LocalDateTime createTime;
     private final LocalDateTime updateTime;
@@ -92,9 +96,10 @@ public final class ValueType implements LongIdentification, Marked, Owned, TimeU
     @JsonIgnore
     private transient volatile boolean hashIsZero;
 
-    public ValueType() {
+    public KeyValueTable() {
         this.id = null;
-        this.valueType = NONE;
+        this.key = NONE;
+        this.value = null;
         this.userName = null;
         this.createTime = null;
         this.updateTime = null;
@@ -103,9 +108,10 @@ public final class ValueType implements LongIdentification, Marked, Owned, TimeU
         this.flags = 0;
     }
 
-    public ValueType(
+    public KeyValueTable(
             Long id,
-            @Nonnull String valueType,
+            @Nonnull String key,
+            String value,
             String userName,
             LocalDateTime createTime,
             LocalDateTime updateTime,
@@ -113,7 +119,8 @@ public final class ValueType implements LongIdentification, Marked, Owned, TimeU
             boolean visible,
             int flags) {
         this.id = id;
-        this.valueType = valueType;
+        this.key = key;
+        this.value = value;
         this.userName = userName;
         this.createTime = createTime;
         this.updateTime = updateTime;
@@ -122,10 +129,11 @@ public final class ValueType implements LongIdentification, Marked, Owned, TimeU
         this.flags = flags;
     }
 
-    public static ValueType from(Row row) {
-        return new ValueType(
+    public static KeyValueTable from(Row row) {
+        return new KeyValueTable(
                 row.getLong(ID),
-                row.getString("value_type"),
+                row.getString("key"),
+                row.getString("value"),
                 row.getString("user_name"),
                 row.getLocalDateTime("create_time"),
                 row.getLocalDateTime("update_time"),
@@ -135,55 +143,55 @@ public final class ValueType implements LongIdentification, Marked, Owned, TimeU
         );
     }
 
-    public static Multi<ValueType> findAll(PgPool client) {
+    public static Multi<KeyValueTable> findAll(PgPool client) {
         return client
-                .query(SELECT_ALL_FROM_DICTIONARY_VALUE_TYPE_ORDER_BY_ID_ASC)
+                .query(SELECT_ALL_FROM_DICTIONARY_KEY_VALUE_ORDER_BY_ID_ASC)
                 .execute()
                 .onItem()
                 .transformToMulti(set -> Multi.createFrom().iterable(set))
                 .onItem()
-                .transform(ValueType::from);
+                .transform(KeyValueTable::from);
 
     }
 
-    public static Uni<ValueType> findById(PgPool client, Long id) {
+    public static Uni<KeyValueTable> findById(PgPool client, Long id) {
         return client
-                .preparedQuery(SELECT_FROM_DICTIONARY_VALUE_TYPE_WHERE_ID_$1)
+                .preparedQuery(SELECT_FROM_DICTIONARY_KEY_VALUE_WHERE_ID_$1)
                 .execute(Tuple.of(id))
                 .onItem()
                 .transform(RowSet::iterator)
                 .onItem()
-                .transform(iterator -> iterator.hasNext() ? ValueType.from(iterator.next()) : null);
+                .transform(iterator -> iterator.hasNext() ? KeyValueTable.from(iterator.next()) : null);
     }
 
-    public static Multi<ValueType> findRange(PgPool client, long offset, long limit) {
+    public static Multi<KeyValueTable> findRange(PgPool client, long offset, long limit) {
         return client
-                .preparedQuery(SELECT_ALL_FROM_DICTIONARY_VALUE_TYPE_ORDER_BY_ID_ASC_OFFSET_LIMIT)
+                .preparedQuery(SELECT_ALL_FROM_DICTIONARY_KEY_VALUE_ORDER_BY_ID_ASC_OFFSET_LIMIT)
                 .execute(Tuple.of(offset, limit))
                 .onItem()
                 .transformToMulti(set -> Multi.createFrom().iterable(set))
                 .onItem()
-                .transform(ValueType::from);
+                .transform(KeyValueTable::from);
     }
 
     public static Uni<Long> delete(PgPool client, Long id) {
         return client.withTransaction(
-                connection -> connection.preparedQuery(DELETE_FROM_DICTIONARY_VALUE_TYPE_WHERE_ID_$1)
-                .execute(Tuple.of(id))
-                .onItem()
-                .transform(pgRowSet -> pgRowSet.iterator().next().getLong(ID)));
+                connection -> connection.preparedQuery(DELETE_FROM_DICTIONARY_KEY_VALUE_WHERE_ID_$1)
+                        .execute(Tuple.of(id))
+                        .onItem()
+                        .transform(pgRowSet -> pgRowSet.iterator().next().getLong(ID)));
     }
 
     public static Uni<Long> count(PgPool client) {
         return client
-                .preparedQuery(COUNT_DICTIONARY_VALUE_TYPE)
+                .preparedQuery(COUNT_DICTIONARY_KEY_VALUE)
                 .execute()
                 .onItem()
                 .transform(pgRowSet -> pgRowSet.iterator().next().getLong("count"));
     }
 
-    public static ValueType.Builder builder() {
-        return new ValueType.Builder();
+    public static KeyValueTable.Builder builder() {
+        return new KeyValueTable.Builder();
     }
 
     public Uni<Long> insert(PgPool client) {
@@ -198,30 +206,34 @@ public final class ValueType implements LongIdentification, Marked, Owned, TimeU
 
     public Uni<Long> update(PgPool client) {
         return client.withTransaction(
-                connection -> connection.preparedQuery(UPDATE_DICTIONARY_VALUE_TYPE_WHERE_ID_$1)
+                connection -> connection.preparedQuery(UPDATE_DICTIONARY_KEY_VALUE_WHERE_ID_$1)
                         .execute(Tuple.tuple(listOf()))
                         .onItem()
                         .transform(pgRowSet -> pgRowSet.iterator().next().getLong(ID)));
     }
 
     private String caseInsertSql() {
-        return id != null ? INSERT_INTO_DICTIONARY_VALUE_TYPE : INSERT_INTO_DICTIONARY_VALUE_TYPE_DEFAULT_ID;
+        return id != null ? INSERT_INTO_DICTIONARY_KEY_VALUE : INSERT_INTO_DICTIONARY_KEY_VALUE_DEFAULT_ID;
     }
 
     private Tuple caseInsertTuple() {
-        return id != null ? Tuple.tuple(listOf()) : Tuple.of(valueType, userName, enabled, visible, flags);
+        return id != null ? Tuple.tuple(listOf()) : Tuple.of(key, value, userName, enabled, visible, flags);
     }
 
     private List<Object> listOf() {
-        return Arrays.asList(id, valueType, userName, enabled, visible, flags);
+        return Arrays.asList(id, key, value, userName, enabled, visible, flags);
     }
 
     public Long getId() {
         return id;
     }
 
-    public String getValueType() {
-        return valueType;
+    public String getKey() {
+        return key;
+    }
+
+    public String getValue() {
+        return value;
     }
 
     public String getUserName() {
@@ -260,12 +272,13 @@ public final class ValueType implements LongIdentification, Marked, Owned, TimeU
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        var that = (ValueType) o;
+        var that = (KeyValueTable) o;
         return enabled == that.enabled
                 && visible == that.visible
                 && flags == that.flags
                 && Objects.equals(id, that.id)
-                && Objects.equals(valueType, that.valueType)
+                && Objects.equals(key, that.key)
+                && Objects.equals(value, that.value)
                 && Objects.equals(userName, that.userName);
     }
 
@@ -284,14 +297,15 @@ public final class ValueType implements LongIdentification, Marked, Owned, TimeU
     }
 
     private int calculateHashCode() {
-        return Objects.hash(id, valueType, userName, enabled, visible, flags);
+        return Objects.hash(id, key, value, userName, enabled, visible, flags);
     }
 
     @Override
     public String toString() {
-        return "ValueType{" +
+        return "KeyValue{" +
                 "id=" + id +
-                ", valueType='" + valueType + '\'' +
+                ", key='" + key + '\'' +
+                ", value='" + value + '\'' +
                 ", userName='" + userName + '\'' +
                 ", createTime=" + createTime +
                 ", updateTime=" + updateTime +
@@ -303,7 +317,8 @@ public final class ValueType implements LongIdentification, Marked, Owned, TimeU
 
     public static final class Builder {
         private Long id;
-        private String valueType;
+        private String key;
+        private String value;
         private String userName;
         private LocalDateTime createTime;
         private LocalDateTime updateTime;
@@ -319,8 +334,13 @@ public final class ValueType implements LongIdentification, Marked, Owned, TimeU
             return this;
         }
 
-        public Builder valueType(@Nonnull String valueType) {
-            this.valueType = valueType;
+        public Builder key(@Nonnull String key) {
+            this.key = key;
+            return this;
+        }
+
+        public Builder value(String value) {
+            this.value = value;
             return this;
         }
 
@@ -354,8 +374,8 @@ public final class ValueType implements LongIdentification, Marked, Owned, TimeU
             return this;
         }
 
-        public ValueType build() {
-            return new ValueType(id, valueType, userName, createTime, updateTime, enabled, visible, flags);
+        public KeyValueTable build() {
+            return new KeyValueTable(id, key, value, userName, createTime, updateTime, enabled, visible, flags);
         }
     }
 }
