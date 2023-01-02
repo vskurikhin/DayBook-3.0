@@ -93,7 +93,7 @@ public final class VocabularyTable implements LongIdentification, Marked, Owned,
         this.userName = null;
         this.createTime = null;
         this.updateTime = null;
-        this.enabled = false;
+        this.enabled = true;
         this.visible = true;
         this.flags = 0;
     }

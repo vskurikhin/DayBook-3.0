@@ -90,7 +90,7 @@ public final class WordTable implements StringIdentification, Marked, Owned, Tim
         this.userName = null;
         this.createTime = null;
         this.updateTime = null;
-        this.enabled = false;
+        this.enabled = true;
         this.visible = true;
         this.flags = 0;
     }

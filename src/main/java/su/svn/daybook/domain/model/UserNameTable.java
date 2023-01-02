@@ -89,7 +89,7 @@ public final class UserNameTable implements UUIDIdentification, Marked, Owned, T
         this.password = "password";
         this.createTime = LocalDateTime.now();
         this.updateTime = null;
-        this.enabled = false;
+        this.enabled = true;
         this.visible = true;
         this.flags = 0;
     }

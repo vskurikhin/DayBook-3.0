@@ -103,7 +103,7 @@ public final class KeyValueTable implements LongIdentification, Marked, Owned, T
         this.userName = null;
         this.createTime = null;
         this.updateTime = null;
-        this.enabled = false;
+        this.enabled = true;
         this.visible = true;
         this.flags = 0;
     }
