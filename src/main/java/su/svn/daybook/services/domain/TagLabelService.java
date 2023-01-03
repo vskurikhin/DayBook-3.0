@@ -8,9 +8,7 @@
 
 package su.svn.daybook.services.domain;
 
-import io.quarkus.cache.Cache;
 import io.quarkus.cache.CacheKey;
-import io.quarkus.cache.CacheManager;
 import io.quarkus.cache.CacheResult;
 import io.quarkus.vertx.ConsumeEvent;
 import io.smallrye.mutiny.Multi;
@@ -20,32 +18,33 @@ import su.svn.daybook.domain.dao.TagLabelDao;
 import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.model.TagLabelTable;
+import su.svn.daybook.models.domain.TagLabel;
 import su.svn.daybook.models.pagination.Page;
 import su.svn.daybook.models.pagination.PageRequest;
 import su.svn.daybook.services.ExceptionAnswerService;
-import su.svn.daybook.services.PageService;
+import su.svn.daybook.services.cache.TagLabelCacheProvider;
+import su.svn.daybook.services.mappers.TagLabelMapper;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import java.util.List;
 import java.util.NoSuchElementException;
 
 @ApplicationScoped
-public class TagLabelService extends AbstractService<String, TagLabelTable> {
+public class TagLabelService extends AbstractService<String, TagLabel> {
 
     private static final Logger LOG = Logger.getLogger(TagLabelService.class);
 
     @Inject
-    CacheManager cacheManager;
+    TagLabelCacheProvider tagLabelCacheProvider;
 
     @Inject
     TagLabelDao tagLabelDao;
 
     @Inject
-    ExceptionAnswerService exceptionAnswerService;
+    TagLabelMapper tagLabelMapper;
 
     @Inject
-    PageService pageService;
+    ExceptionAnswerService exceptionAnswerService;
 
     /**
      * This is method a Vertx message consumer and TagLabel provider by id
@@ -55,7 +54,7 @@ public class TagLabelService extends AbstractService<String, TagLabelTable> {
      */
     @ConsumeEvent(EventAddress.TAG_LABEL_GET)
     @CacheResult(cacheName = EventAddress.TAG_LABEL_GET)
-    public Uni<Answer> get(@CacheKey Object o) {
+    public Uni<Answer> get(Object o) {
         LOG.tracef("get(%s)", o);
         try {
             return getEntry(getIdString(o));
@@ -73,15 +72,22 @@ public class TagLabelService extends AbstractService<String, TagLabelTable> {
     public Multi<Answer> getAll() {
         LOG.trace("getAll");
         return tagLabelDao
-                .findAll()
+                .count()
                 .onItem()
-                .transform(this::answerOf);
+                .transformToMulti(count -> getAllIfNotOverSize(count, this::getAllModels));
+    }
+
+
+    private Multi<TagLabel> getAllModels() {
+        return tagLabelDao
+                .findAll()
+                .map(tagLabelMapper::convertToModel);
     }
 
     private Uni<Answer> getEntry(String id) {
-        return tagLabelDao
-                .findById(id)
-                .map(this::apiResponseWithValueAnswer)
+        return tagLabelCacheProvider
+                .get(id)
+                .map(Answer::of)
                 .onFailure(exceptionAnswerService::testNoSuchElementException)
                 .recoverWithUni(exceptionAnswerService::noSuchElementAnswer)
                 .onFailure(exceptionAnswerService::testException)
@@ -89,11 +95,10 @@ public class TagLabelService extends AbstractService<String, TagLabelTable> {
     }
 
     @ConsumeEvent(value = EventAddress.TAG_LABEL_PAGE)
-    @CacheResult(cacheName = EventAddress.TAG_LABEL_PAGE)
-    public Uni<Page<Answer>> getPage(@CacheKey PageRequest pageRequest) {
+    public Uni<Page<Answer>> getPage(PageRequest pageRequest) {
         //noinspection DuplicatedCode
         LOG.tracef("getPage(%s)", pageRequest);
-        return pageService.getPage(pageRequest, tagLabelDao::count, tagLabelDao::findRange, Answer::of);
+        return tagLabelCacheProvider.getPage(pageRequest);
     }
 
     /**
@@ -103,19 +108,18 @@ public class TagLabelService extends AbstractService<String, TagLabelTable> {
      * @return - a lazy asynchronous action (LAA) with the Answer containing the TagLabel id as payload or empty payload
      */
     @ConsumeEvent(EventAddress.TAG_LABEL_ADD)
-    public Uni<Answer> add(TagLabelTable o) {
+    public Uni<Answer> add(TagLabel o) {
         LOG.tracef("add(%s)", o);
-        return addEntry(o);
+        return addEntry(tagLabelMapper.convertToDomain(o));
     }
 
     private Uni<Answer> addEntry(TagLabelTable entry) {
         return tagLabelDao
                 .insert(entry)
                 .map(o -> apiResponseWithKeyAnswer(201, o))
-                .onItem()
-                .transformToUni(this::invalidateAllAndAnswer)
+                .flatMap(tagLabelCacheProvider::invalidate)
                 .onFailure(exceptionAnswerService::testDuplicateKeyException)
-                .recoverWithUni(exceptionAnswerService::notAcceptableDuplicateKeyValueAnswer)
+                .recoverWithUni(exceptionAnswerService::notAcceptableDuplicateKeyValAnswer)
                 .onFailure(exceptionAnswerService::testException)
                 .recoverWithUni(exceptionAnswerService::badRequestUniAnswer);
     }
@@ -127,19 +131,18 @@ public class TagLabelService extends AbstractService<String, TagLabelTable> {
      * @return - a LAA with the Answer containing TagLabel id as payload or empty payload
      */
     @ConsumeEvent(EventAddress.TAG_LABEL_PUT)
-    public Uni<Answer> put(TagLabelTable o) {
+    public Uni<Answer> put(TagLabel o) {
         LOG.tracef("put(%s)", o);
-        return putEntry(o);
+        return putEntry(tagLabelMapper.convertToDomain(o));
     }
 
     private Uni<Answer> putEntry(TagLabelTable entry) {
         return tagLabelDao
                 .update(entry)
                 .flatMap(this::apiResponseAcceptedUniAnswer)
-                .onItem()
-                .transformToUni(answer -> invalidateAndAnswer(entry.getId(), answer))
+                .flatMap(answer -> tagLabelCacheProvider.invalidateById(entry.getId(), answer))
                 .onFailure(exceptionAnswerService::testDuplicateKeyException)
-                .recoverWithUni(exceptionAnswerService::notAcceptableDuplicateKeyValueAnswer)
+                .recoverWithUni(exceptionAnswerService::notAcceptableDuplicateKeyValAnswer)
                 .onFailure(exceptionAnswerService::testNoSuchElementException)
                 .recoverWithUni(get(entry.getId()))
                 .onFailure(exceptionAnswerService::testException)
@@ -167,35 +170,10 @@ public class TagLabelService extends AbstractService<String, TagLabelTable> {
         return tagLabelDao
                 .delete(id)
                 .map(this::apiResponseWithKeyAnswer)
-                .onItem()
-                .transformToUni(answer -> invalidateAndAnswer(id, answer))
+                .flatMap(answer -> tagLabelCacheProvider.invalidateById(id, answer))
                 .onFailure(exceptionAnswerService::testNoSuchElementException)
                 .recoverWithUni(exceptionAnswerService::noSuchElementAnswer)
                 .onFailure(exceptionAnswerService::testException)
                 .recoverWithUni(exceptionAnswerService::badRequestUniAnswer);
-    }
-
-    @Override
-    protected Uni<List<Void>> invalidate(Object o) {
-        LOG.tracef("invalidate(%s)", o);
-
-        var wordGetVoid = cacheManager
-                .getCache(EventAddress.TAG_LABEL_GET)
-                .map(cache -> cache.invalidate(o))
-                .orElse(Uni.createFrom().voidItem());
-        var wordPageVoid = invalidateAllPage();
-
-        return joinCollectFailures(wordGetVoid, wordPageVoid)
-                .onItem()
-                .invoke(voids -> LOG.tracef("invalidate of %d caches", voids.size()));
-    }
-
-    @Override
-    protected Uni<Void> invalidateAllPage() {
-        LOG.trace("invalidateAllPage()");
-        return cacheManager
-                .getCache(EventAddress.TAG_LABEL_PAGE)
-                .map(Cache::invalidateAll)
-                .orElse(Uni.createFrom().voidItem());
     }
 }

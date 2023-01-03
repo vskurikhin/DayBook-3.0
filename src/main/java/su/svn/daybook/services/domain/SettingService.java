@@ -8,10 +8,7 @@
 
 package su.svn.daybook.services.domain;
 
-import io.quarkus.cache.Cache;
 import io.quarkus.cache.CacheKey;
-import io.quarkus.cache.CacheManager;
-import io.quarkus.cache.CacheResult;
 import io.quarkus.vertx.ConsumeEvent;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
@@ -20,32 +17,33 @@ import su.svn.daybook.domain.dao.SettingDao;
 import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.model.SettingTable;
+import su.svn.daybook.models.domain.Setting;
 import su.svn.daybook.models.pagination.Page;
 import su.svn.daybook.models.pagination.PageRequest;
 import su.svn.daybook.services.ExceptionAnswerService;
-import su.svn.daybook.services.PageService;
+import su.svn.daybook.services.cache.SettingCacheProvider;
+import su.svn.daybook.services.mappers.SettingMapper;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import java.util.List;
 import java.util.NoSuchElementException;
 
 @ApplicationScoped
-public class SettingService extends AbstractService<Long, SettingTable> {
+public class SettingService extends AbstractService<Long, Setting> {
 
     private static final Logger LOG = Logger.getLogger(SettingService.class);
 
     @Inject
-    CacheManager cacheManager;
+    SettingCacheProvider settingCacheProvider;
 
     @Inject
     SettingDao settingDao;
 
     @Inject
-    ExceptionAnswerService exceptionAnswerService;
+    SettingMapper settingMapper;
 
     @Inject
-    PageService pageService;
+    ExceptionAnswerService exceptionAnswerService;
 
     /**
      * This is method a Vertx message consumer and Setting provider by id
@@ -54,8 +52,7 @@ public class SettingService extends AbstractService<Long, SettingTable> {
      * @return - a lazy asynchronous action with the Answer containing the Setting as payload or empty payload
      */
     @ConsumeEvent(EventAddress.SETTING_GET)
-    @CacheResult(cacheName = EventAddress.SETTING_GET)
-    public Uni<Answer> get(@CacheKey Object o) {
+    public Uni<Answer> get(Object o) {
         //noinspection DuplicatedCode
         LOG.tracef("get(%s)", o);
         try {
@@ -77,15 +74,21 @@ public class SettingService extends AbstractService<Long, SettingTable> {
     public Multi<Answer> getAll() {
         LOG.trace("getAll");
         return settingDao
-                .findAll()
+                .count()
                 .onItem()
-                .transform(this::answerOf);
+                .transformToMulti(count -> getAllIfNotOverSize(count, this::getAllModels));
+    }
+
+    private Multi<Setting> getAllModels() {
+        return settingDao
+                .findAll()
+                .map(settingMapper::convertToModel);
     }
 
     private Uni<Answer> getEntry(Long id) {
-        return settingDao
-                .findById(id)
-                .map(this::apiResponseWithValueAnswer)
+        return settingCacheProvider
+                .get(id)
+                .map(Answer::of)
                 .onFailure(exceptionAnswerService::testNoSuchElementException)
                 .recoverWithUni(exceptionAnswerService::noSuchElementAnswer)
                 .onFailure(exceptionAnswerService::testException)
@@ -93,11 +96,10 @@ public class SettingService extends AbstractService<Long, SettingTable> {
     }
 
     @ConsumeEvent(value = EventAddress.SETTING_PAGE)
-    @CacheResult(cacheName = EventAddress.SETTING_PAGE)
-    public Uni<Page<Answer>> getPage(@CacheKey PageRequest pageRequest) {
+    public Uni<Page<Answer>> getPage(PageRequest pageRequest) {
         //noinspection DuplicatedCode
         LOG.tracef("getPage(%s)", pageRequest);
-        return pageService.getPage(pageRequest, settingDao::count, settingDao::findRange, Answer::of);
+        return settingCacheProvider.getPage(pageRequest);
     }
 
     /**
@@ -107,19 +109,18 @@ public class SettingService extends AbstractService<Long, SettingTable> {
      * @return - a lazy asynchronous action (LAA) with the Answer containing the Setting id as payload or empty payload
      */
     @ConsumeEvent(EventAddress.SETTING_ADD)
-    public Uni<Answer> add(SettingTable o) {
+    public Uni<Answer> add(Setting o) {
         LOG.tracef("add(%s)", o);
-        return addEntry(o);
+        return addEntry(settingMapper.convertToDomain(o));
     }
 
     private Uni<Answer> addEntry(SettingTable entry) {
         return settingDao
                 .insert(entry)
                 .map(o -> apiResponseWithKeyAnswer(201, o))
-                .onItem()
-                .transformToUni(this::invalidateAllAndAnswer)
+                .flatMap(settingCacheProvider::invalidate)
                 .onFailure(exceptionAnswerService::testDuplicateKeyException)
-                .recoverWithUni(exceptionAnswerService::notAcceptableDuplicateKeyValueAnswer)
+                .recoverWithUni(exceptionAnswerService::notAcceptableDuplicateKeyValAnswer)
                 .onFailure(exceptionAnswerService::testException)
                 .recoverWithUni(exceptionAnswerService::badRequestUniAnswer);
     }
@@ -131,20 +132,18 @@ public class SettingService extends AbstractService<Long, SettingTable> {
      * @return - a LAA with the Answer containing Setting id as payload or empty payload
      */
     @ConsumeEvent(EventAddress.SETTING_PUT)
-    public Uni<Answer> put(SettingTable o) {
+    public Uni<Answer> put(Setting o) {
         LOG.tracef("put(%s)", o);
-        return putEntry(o)
-                .onItem()
-                .transformToUni(answer -> invalidateAndAnswer(o.getId(), answer));
+        return putEntry(settingMapper.convertToDomain(o));
     }
 
     private Uni<Answer> putEntry(SettingTable entry) {
-        return settingDao.update(entry)
+        return settingDao
+                .update(entry)
                 .flatMap(this::apiResponseAcceptedUniAnswer)
-                .onItem()
-                .transformToUni(answer -> invalidateAndAnswer(entry.getId(), answer))
+                .flatMap(answer -> settingCacheProvider.invalidateById(entry.getId(), answer))
                 .onFailure(exceptionAnswerService::testDuplicateKeyException)
-                .recoverWithUni(exceptionAnswerService::notAcceptableDuplicateKeyValueAnswer)
+                .recoverWithUni(exceptionAnswerService::notAcceptableDuplicateKeyValAnswer)
                 .onFailure(exceptionAnswerService::testNoSuchElementException)
                 .recoverWithUni(get(entry.getId()))
                 .onFailure(exceptionAnswerService::testException)
@@ -177,35 +176,10 @@ public class SettingService extends AbstractService<Long, SettingTable> {
         return settingDao
                 .delete(id)
                 .map(this::apiResponseWithKeyAnswer)
-                .onItem()
-                .transformToUni(answer -> invalidateAndAnswer(id, answer))
+                .flatMap(answer -> settingCacheProvider.invalidateById(id, answer))
                 .onFailure(exceptionAnswerService::testNoSuchElementException)
                 .recoverWithUni(exceptionAnswerService::noSuchElementAnswer)
                 .onFailure(exceptionAnswerService::testException)
                 .recoverWithUni(exceptionAnswerService::badRequestUniAnswer);
-    }
-
-    @Override
-    protected Uni<List<Void>> invalidate(Object o) {
-        LOG.tracef("invalidate(%s)", o);
-
-        var wordGetVoid = cacheManager
-                .getCache(EventAddress.SETTING_GET)
-                .map(cache -> cache.invalidate(o))
-                .orElse(Uni.createFrom().voidItem());
-        var wordPageVoid = invalidateAllPage();
-
-        return joinCollectFailures(wordGetVoid, wordPageVoid)
-                .onItem()
-                .invoke(voids -> LOG.tracef("invalidate of %d caches", voids.size()));
-    }
-
-    @Override
-    protected Uni<Void> invalidateAllPage() {
-        LOG.trace("invalidateAllPage()");
-        return cacheManager
-                .getCache(EventAddress.SETTING_PAGE)
-                .map(Cache::invalidateAll)
-                .orElse(Uni.createFrom().voidItem());
     }
 }

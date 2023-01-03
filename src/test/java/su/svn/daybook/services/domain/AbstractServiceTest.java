@@ -45,17 +45,6 @@ class AbstractServiceTest {
             return null;
         }
 
-        @Override
-        protected Uni<List<Void>> invalidate(Object o) {
-            return null;
-        }
-
-        @Override
-        protected Uni<Void> invalidateAllPage() {
-            return null;
-        }
-
-
         public boolean onFailureDuplicatePredicate(Throwable t) {
             if (t instanceof io.vertx.pgclient.PgException) {
                 return t.getMessage().contains("ERROR: duplicate key value violates unique constraint");

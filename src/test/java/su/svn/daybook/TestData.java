@@ -61,13 +61,13 @@ public class TestData {
         public static final Uni<Page<Answer>> UNI_PAGE_ANSWER_SINGLETON_TEST = Uni.createFrom()
                 .item(
                         Page.<Answer>builder()
-                                .content(Collections.singletonList(Answer.of(TABLE_0)))
+                                .content(Collections.singletonList(Answer.of(MODEL_0)))
                                 .build()
                 );
         public static final String JSON_0 = """
                 {"code":"\
                 """ + CodifierTable.NONE + """
-                ","enabled":true,"visible":true,"flags":0}\
+                ","visible":true,"flags":0}\
                 """;
         public static final String JSON_ARRAY_SINGLETON_0 = "[" + JSON_0 + "]";
         public static final String JSON_ID_0 = "{\"id\":\"" + CodifierTable.NONE + "\"}";
@@ -87,11 +87,11 @@ public class TestData {
         public static final Uni<Page<Answer>> UNI_PAGE_ANSWER_SINGLETON_TEST = Uni.createFrom()
                 .item(
                         Page.<Answer>builder()
-                                .content(Collections.singletonList(Answer.of(TABLE_0)))
+                                .content(Collections.singletonList(Answer.of(MODEL_0)))
                                 .build()
                 );
         public static final String JSON_0 = """
-                {"id":0,"languageId":0,"enabled":true,"visible":true,"flags":0}\
+                {"id":0,"languageId":0,"visible":true,"flags":0}\
                 """;
         public static final String JSON_ARRAY_SINGLETON_0 = "[" + JSON_0 + "]";
         public static final String JSON_ID_0 = "{\"id\":0}";
@@ -137,11 +137,11 @@ public class TestData {
         public static final Uni<Page<Answer>> UNI_PAGE_ANSWER_SINGLETON_TEST = Uni.createFrom()
                 .item(
                         Page.<Answer>builder()
-                                .content(Collections.singletonList(Answer.of(TABLE_0)))
+                                .content(Collections.singletonList(Answer.of(MODEL_0)))
                                 .build()
                 );
         public static final String JSON_0 = """
-                {"id":0,"enabled":true,"visible":true,"flags":0}\
+                {"id":0,"visible":true,"flags":0}\
                 """;
         public static final String JSON_ARRAY_SINGLETON_0 = "[" + JSON_0 + "]";
         public static final String JSON_ID_0 = "{\"id\":0}";
@@ -161,13 +161,13 @@ public class TestData {
         public static final Uni<Page<Answer>> UNI_PAGE_ANSWER_SINGLETON_TEST = Uni.createFrom()
                 .item(
                         Page.<Answer>builder()
-                                .content(Collections.singletonList(Answer.of(TABLE_0)))
+                                .content(Collections.singletonList(Answer.of(MODEL_0)))
                                 .build()
                 );
         public static final String JSON_0 = """
                 {"id":0,"key":"\
                 """ + SettingTable.NONE +"""
-                ","valueTypeId":0,"enabled":true,"visible":true,"flags":0}\
+                ","valueTypeId":0,"visible":true,"flags":0}\
                 """;
         public static final String JSON_ARRAY_SINGLETON_0 = "[" + JSON_0 + "]";
         public static final String JSON_ID_0 = "{\"id\":0}";
@@ -190,7 +190,7 @@ public class TestData {
         public static final Uni<Page<Answer>> UNI_PAGE_ANSWER_SINGLETON_TEST = Uni.createFrom()
                 .item(
                         Page.<Answer>builder()
-                                .content(Collections.singletonList(Answer.of(TABLE_0)))
+                                .content(Collections.singletonList(Answer.of(MODEL_0)))
                                 .build()
                 );
         public static final String JSON_0 = """
@@ -198,7 +198,7 @@ public class TestData {
                 """ + ID + """
                 ","label":"\
                 """ + TagLabelTable.NONE + """
-                ","enabled":true,"visible":true,"flags":0}\
+                ","visible":true,"flags":0}\
                 """;
         public static final String JSON_ARRAY_SINGLETON_0 = "[" + JSON_0 + "]";
         public static final String JSON_PAGE_ARRAY_0 = """
@@ -217,11 +217,11 @@ public class TestData {
         public static final Uni<Page<Answer>> UNI_PAGE_ANSWER_SINGLETON_TEST = Uni.createFrom()
                 .item(
                         Page.<Answer>builder()
-                                .content(Collections.singletonList(Answer.of(TABLE_0)))
+                                .content(Collections.singletonList(Answer.of(MODEL_0)))
                                 .build()
                 );
         public static final String JSON_0 = """
-                {"id":"00000000-0000-0000-0000-000000000000","userName":"root","password":"password","enabled":true,"visible":true,"flags":0}\
+                {"id":"00000000-0000-0000-0000-000000000000","userName":"root","password":"password","visible":true,"flags":0}\
                 """;
         public static final String JSON_ARRAY_SINGLETON_0 = "[" + JSON_0 + "]";
         public static final String JSON_ID_0 = """
@@ -242,13 +242,13 @@ public class TestData {
         public static final Uni<Page<Answer>> UNI_PAGE_ANSWER_SINGLETON_TEST = Uni.createFrom()
                 .item(
                         Page.<Answer>builder()
-                                .content(Collections.singletonList(Answer.of(TABLE_0)))
+                                .content(Collections.singletonList(Answer.of(MODEL_0)))
                                 .build()
                 );
         public static final String JSON_0 = """
                 {"id":0,"valueType":"\
                 """ + ValueTypeTable.NONE + """
-                ","enabled":true,"visible":true,"flags":0}\
+                ","visible":true,"flags":0}\
                 """;
         public static final String JSON_ARRAY_SINGLETON_0 = "[" + JSON_0 + "]";
         public static final String JSON_ID_0 = "{\"id\":0}";
@@ -268,13 +268,13 @@ public class TestData {
         public static final Uni<Page<Answer>> UNI_PAGE_ANSWER_SINGLETON_TEST = Uni.createFrom()
                 .item(
                         Page.<Answer>builder()
-                                .content(Collections.singletonList(Answer.of(TABLE_0)))
+                                .content(Collections.singletonList(Answer.of(MODEL_0)))
                                 .build()
                 );
         public static final String JSON_0 = """
                 {"id":0,"word":"\
                 """ + VocabularyTable.NONE + """
-                ","enabled":true,"visible":true,"flags":0}\
+                ","visible":true,"flags":0}\
                 """;
         public static final String JSON_ARRAY_SINGLETON_0 = "[" + JSON_0 + "]";
         public static final String JSON_ID_0 = "{\"id\":0";

@@ -27,21 +27,21 @@ public class PageService {
             @Nonnull Function<T, Answer> toAnswer) {
 
         LOG.tracef("getPage(%s, Supplier, BiFunction)", pageRequest);
-        BiFunction<Long, Short, Uni<List<Answer>>> toMultiAnswer =
+        BiFunction<Long, Short, Uni<List<Answer>>> toUniListAnswer =
                 (Long offset, Short limit) -> toMultiEntries.apply(offset, limit)
                         .onItem()
                         .transform(toAnswer)
                         .collect()
                         .asList();
         return countSupplier.get()
-                .flatMap(o -> getPageUni(pageRequest, toMultiAnswer, o));
+                .flatMap(o -> getPageUni(pageRequest, toUniListAnswer, o));
     }
 
     private Uni<Page<Answer>> getPageUni(
             PageRequest pageRequest,
-            BiFunction<Long, Short, Uni<List<Answer>>> toMultiAnswer,
+            BiFunction<Long, Short, Uni<List<Answer>>> toUniListAnswer,
             Optional<Long> o) {
-        return o.map(count -> fetchPageAnswer(count, pageRequest, toMultiAnswer))
+        return o.map(count -> fetchPageAnswer(count, pageRequest, toUniListAnswer))
                 .orElse(getItem(pageRequest));
     }
 
@@ -53,7 +53,7 @@ public class PageService {
     private Uni<Page<Answer>> fetchPageAnswer(
             long count,
             PageRequest pageRequest,
-            BiFunction<Long, Short, Uni<List<Answer>>> toMultiAnswer) {
+            BiFunction<Long, Short, Uni<List<Answer>>> toUniListAnswer) {
 
         LOG.tracef("fetchPageAnswer(%d, %s, BiFunction)", count, pageRequest);
         var limit = pageRequest.getLimit();
@@ -61,7 +61,7 @@ public class PageService {
         LOG.tracef("fetchPageAnswer: limit=%d, offset=%d", limit, offset);
         var uniCount = Uni.createFrom().item(count);
         var uniPageRequest = Uni.createFrom().item(pageRequest);
-        var uniListAnswer = toMultiAnswer.apply(offset, limit);
+        var uniListAnswer = toUniListAnswer.apply(offset, limit);
 
         return Uni.combine()
                 .all()

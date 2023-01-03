@@ -8,10 +8,6 @@
 
 package su.svn.daybook.services.domain;
 
-import io.quarkus.cache.Cache;
-import io.quarkus.cache.CacheKey;
-import io.quarkus.cache.CacheManager;
-import io.quarkus.cache.CacheResult;
 import io.quarkus.vertx.ConsumeEvent;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
@@ -20,32 +16,33 @@ import su.svn.daybook.domain.dao.ValueTypeDao;
 import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.model.ValueTypeTable;
+import su.svn.daybook.models.domain.ValueType;
 import su.svn.daybook.models.pagination.Page;
 import su.svn.daybook.models.pagination.PageRequest;
 import su.svn.daybook.services.ExceptionAnswerService;
-import su.svn.daybook.services.PageService;
+import su.svn.daybook.services.cache.ValueTypeCacheProvider;
+import su.svn.daybook.services.mappers.ValueTypeMapper;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import java.util.List;
 import java.util.NoSuchElementException;
 
 @ApplicationScoped
-public class ValueTypeService extends AbstractService<Long, ValueTypeTable> {
+public class ValueTypeService extends AbstractService<Long, ValueType> {
 
     private static final Logger LOG = Logger.getLogger(ValueTypeService.class);
 
     @Inject
-    CacheManager cacheManager;
+    ValueTypeCacheProvider valueTypeCacheProvider;
 
     @Inject
     ValueTypeDao valueTypeDao;
 
     @Inject
-    ExceptionAnswerService exceptionAnswerService;
+    ValueTypeMapper valueTypeMapper;
 
     @Inject
-    PageService pageService;
+    ExceptionAnswerService exceptionAnswerService;
 
     /**
      * This is method a Vertx message consumer and ValueType provider by id
@@ -54,8 +51,7 @@ public class ValueTypeService extends AbstractService<Long, ValueTypeTable> {
      * @return - a lazy asynchronous action with the Answer containing the ValueType as payload or empty payload
      */
     @ConsumeEvent(EventAddress.VALUE_TYPE_GET)
-    @CacheResult(cacheName = EventAddress.VALUE_TYPE_GET)
-    public Uni<Answer> get(@CacheKey Object o) {
+    public Uni<Answer> get(Object o) {
         //noinspection DuplicatedCode
         LOG.tracef("get(%s)", o);
         try {
@@ -77,15 +73,21 @@ public class ValueTypeService extends AbstractService<Long, ValueTypeTable> {
     public Multi<Answer> getAll() {
         LOG.trace("getAll");
         return valueTypeDao
-                .findAll()
+                .count()
                 .onItem()
-                .transform(this::answerOf);
+                .transformToMulti(count -> getAllIfNotOverSize(count, this::getAllModels));
+    }
+
+    private Multi<ValueType> getAllModels() {
+        return valueTypeDao
+                .findAll()
+                .map(valueTypeMapper::convertToModel);
     }
 
     private Uni<Answer> getEntry(Long id) {
-        return valueTypeDao
-                .findById(id)
-                .map(this::apiResponseWithValueAnswer)
+        return valueTypeCacheProvider
+                .get(id)
+                .map(Answer::of)
                 .onFailure(exceptionAnswerService::testNoSuchElementException)
                 .recoverWithUni(exceptionAnswerService::noSuchElementAnswer)
                 .onFailure(exceptionAnswerService::testException)
@@ -93,11 +95,10 @@ public class ValueTypeService extends AbstractService<Long, ValueTypeTable> {
     }
 
     @ConsumeEvent(value = EventAddress.VALUE_TYPE_PAGE)
-    @CacheResult(cacheName = EventAddress.VALUE_TYPE_PAGE)
-    public Uni<Page<Answer>> getPage(@CacheKey PageRequest pageRequest) {
+    public Uni<Page<Answer>> getPage(PageRequest pageRequest) {
         //noinspection DuplicatedCode
         LOG.tracef("getPage(%s)", pageRequest);
-        return pageService.getPage(pageRequest, valueTypeDao::count, valueTypeDao::findRange, Answer::of);
+        return valueTypeCacheProvider.getPage(pageRequest);
     }
 
     /**
@@ -107,19 +108,18 @@ public class ValueTypeService extends AbstractService<Long, ValueTypeTable> {
      * @return - a lazy asynchronous action (LAA) with the Answer containing the ValueType id as payload or empty payload
      */
     @ConsumeEvent(EventAddress.VALUE_TYPE_ADD)
-    public Uni<Answer> add(ValueTypeTable o) {
+    public Uni<Answer> add(ValueType o) {
         LOG.tracef("add(%s)", o);
-        return addEntry(o);
+        return addEntry(valueTypeMapper.convertToDomain(o));
     }
 
     private Uni<Answer> addEntry(ValueTypeTable entry) {
         return valueTypeDao
                 .insert(entry)
                 .map(o -> apiResponseWithKeyAnswer(201, o))
-                .onItem()
-                .transformToUni(this::invalidateAllAndAnswer)
+                .flatMap(valueTypeCacheProvider::invalidate)
                 .onFailure(exceptionAnswerService::testDuplicateKeyException)
-                .recoverWithUni(exceptionAnswerService::notAcceptableDuplicateKeyValueAnswer)
+                .recoverWithUni(exceptionAnswerService::notAcceptableDuplicateKeyValAnswer)
                 .onFailure(exceptionAnswerService::testException)
                 .recoverWithUni(exceptionAnswerService::badRequestUniAnswer);
     }
@@ -131,19 +131,18 @@ public class ValueTypeService extends AbstractService<Long, ValueTypeTable> {
      * @return - a LAA with the Answer containing ValueType id as payload or empty payload
      */
     @ConsumeEvent(EventAddress.VALUE_TYPE_PUT)
-    public Uni<Answer> put(ValueTypeTable o) {
+    public Uni<Answer> put(ValueType o) {
         LOG.tracef("put(%s)", o);
-        return putEntry(o);
+        return putEntry(valueTypeMapper.convertToDomain(o));
     }
 
     private Uni<Answer> putEntry(ValueTypeTable entry) {
         return valueTypeDao
                 .update(entry)
                 .flatMap(this::apiResponseAcceptedUniAnswer)
-                .onItem()
-                .transformToUni(answer -> invalidateAndAnswer(entry.getId(), answer))
+                .flatMap(answer -> valueTypeCacheProvider.invalidateById(entry.getId(), answer))
                 .onFailure(exceptionAnswerService::testDuplicateKeyException)
-                .recoverWithUni(exceptionAnswerService::notAcceptableDuplicateKeyValueAnswer)
+                .recoverWithUni(exceptionAnswerService::notAcceptableDuplicateKeyValAnswer)
                 .onFailure(exceptionAnswerService::testNoSuchElementException)
                 .recoverWithUni(get(entry.getId()))
                 .onFailure(exceptionAnswerService::testException)
@@ -175,35 +174,10 @@ public class ValueTypeService extends AbstractService<Long, ValueTypeTable> {
         return valueTypeDao
                 .delete(id)
                 .map(this::apiResponseWithKeyAnswer)
-                .onItem()
-                .transformToUni(answer -> invalidateAndAnswer(id, answer))
+                .flatMap(answer -> valueTypeCacheProvider.invalidateById(id, answer))
                 .onFailure(exceptionAnswerService::testNoSuchElementException)
                 .recoverWithUni(exceptionAnswerService::noSuchElementAnswer)
                 .onFailure(exceptionAnswerService::testException)
                 .recoverWithUni(exceptionAnswerService::badRequestUniAnswer);
-    }
-
-    @Override
-    protected Uni<List<Void>> invalidate(Object o) {
-        LOG.tracef("invalidate(%s)", o);
-
-        var wordGetVoid = cacheManager
-                .getCache(EventAddress.VALUE_TYPE_GET)
-                .map(cache -> cache.invalidate(o))
-                .orElse(Uni.createFrom().voidItem());
-        var wordPageVoid = invalidateAllPage();
-
-        return joinCollectFailures(wordGetVoid, wordPageVoid)
-                .onItem()
-                .invoke(voids -> LOG.tracef("invalidate of %d caches", voids.size()));
-    }
-
-    @Override
-    protected Uni<Void> invalidateAllPage() {
-        LOG.trace("invalidateAllPage()");
-        return cacheManager
-                .getCache(EventAddress.VALUE_TYPE_PAGE)
-                .map(Cache::invalidateAll)
-                .orElse(Uni.createFrom().voidItem());
     }
 }

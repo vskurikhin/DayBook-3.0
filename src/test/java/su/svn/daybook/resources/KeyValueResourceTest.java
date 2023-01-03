@@ -31,8 +31,7 @@ class KeyValueResourceTest {
 
     static Uni<Answer> test = Uni.createFrom()
             .item(1)
-            .onItem()
-            .transform(i -> Answer.of(TestData.KEY_VALUE.MODEL_0));
+            .map(i -> Answer.of(TestData.KEY_VALUE.MODEL_0));
 
     KeyValueService mock;
 

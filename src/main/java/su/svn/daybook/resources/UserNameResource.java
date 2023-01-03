@@ -14,33 +14,40 @@ import org.jboss.resteasy.reactive.RestResponse;
 import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
 import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.enums.ResourcePath;
-import su.svn.daybook.domain.model.UserNameTable;
+import su.svn.daybook.models.domain.UserName;
 import su.svn.daybook.models.pagination.PageRequest;
 import su.svn.daybook.services.domain.AbstractService;
 import su.svn.daybook.services.domain.UserNameService;
 
 import javax.inject.Inject;
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.util.UUID;
 
 @Path(ResourcePath.USER)
-public class UserNameResource extends AbstractResource implements Resources<UUID, UserNameTable> {
+public class UserNameResource extends AbstractResource implements Resources<UUID, UserName> {
 
     @Inject
     UserNameService userNameService;
 
     @Override
-    public AbstractService<UUID, UserNameTable> getService() {
+    public AbstractService<UUID, UserName> getService() {
         return userNameService;
     }
 
     @GET
     @Path(ResourcePath.ALL)
     @Produces("application/json")
-    public Multi<UserNameTable> all(@QueryParam("get-all") Boolean getAll) {
+    public Multi<UserName> all(@QueryParam("get-all") Boolean getAll) {
         return getAll();
     }
 
@@ -60,14 +67,14 @@ public class UserNameResource extends AbstractResource implements Resources<UUID
     @POST
     @Consumes("application/json")
     @Produces("application/json")
-    public Uni<Response> post(UserNameTable entry, @Context UriInfo uriInfo) {
+    public Uni<Response> post(UserName entry, @Context UriInfo uriInfo) {
         return request(EventAddress.USER_ADD, entry, uriInfo);
     }
 
     @PUT
     @Consumes("application/json")
     @Produces("application/json")
-    public Uni<Response> put(UserNameTable entry, @Context UriInfo uriInfo) {
+    public Uni<Response> put(UserName entry, @Context UriInfo uriInfo) {
         return request(EventAddress.USER_PUT, entry, uriInfo);
     }
 

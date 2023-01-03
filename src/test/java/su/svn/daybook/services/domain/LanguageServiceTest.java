@@ -55,17 +55,19 @@ class LanguageServiceTest {
 
     @Test
     void testWhenGetAllThenSingletonList() {
+        Mockito.when(mock.count()).thenReturn(TestData.UNI_OPTIONAL_ONE_LONG);
         Mockito.when(mock.findAll()).thenReturn(MULTI_TEST);
         List<Answer> result = new ArrayList<>();
         Assertions.assertDoesNotThrow(() -> result.addAll(service.getAll()
                 .subscribe()
                 .asStream()
-                .peek(actual -> Assertions.assertEquals(Answer.of(TestData.LANGUAGE.TABLE_0), actual)).toList()));
+                .peek(actual -> Assertions.assertEquals(Answer.of(TestData.LANGUAGE.MODEL_0), actual)).toList()));
         Assertions.assertTrue(result.size() > 0);
     }
 
     @Test
     void testWhenGetAllThenEmpty() {
+        Mockito.when(mock.count()).thenReturn(TestData.UNI_OPTIONAL_ZERO_LONG);
         Mockito.when(mock.findAll()).thenReturn(MULTI_EMPTIES);
         List<Answer> result = new ArrayList<>();
         Assertions.assertDoesNotThrow(() -> result.addAll(service.getAll()
@@ -77,6 +79,7 @@ class LanguageServiceTest {
 
     @Test
     void testWhenGetAllThenNull() {
+        Mockito.when(mock.count()).thenReturn(TestData.UNI_OPTIONAL_ZERO_LONG);
         Mockito.when(mock.findAll()).thenReturn(MULTI_WITH_NULL);
         List<Answer> result = new ArrayList<>();
         Assertions.assertDoesNotThrow(() -> result.addAll(service.getAll()
@@ -99,7 +102,7 @@ class LanguageServiceTest {
                 .pageSize((short) 1)
                 .prevPage(false)
                 .nextPage(false)
-                .content(Collections.singletonList(Answer.of(TestData.LANGUAGE.TABLE_0)))
+                .content(Collections.singletonList(Answer.of(TestData.LANGUAGE.MODEL_0)))
                 .build();
 
         Assertions.assertDoesNotThrow(() -> service.getPage(pageRequest)
@@ -162,7 +165,7 @@ class LanguageServiceTest {
     void testWhenGetThenEntry() {
         Assertions.assertDoesNotThrow(() -> service.get(0L)
                 .onItem()
-                .invoke(actual -> Assertions.assertEquals(Answer.of(TestData.LANGUAGE.TABLE_0), actual))
+                .invoke(actual -> Assertions.assertEquals(Answer.of(TestData.LANGUAGE.MODEL_0), actual))
                 .await()
                 .indefinitely());
     }
@@ -183,7 +186,7 @@ class LanguageServiceTest {
                 .payload(new ApiResponse<>(0L))
                 .build();
         Mockito.when(mock.insert(TestData.LANGUAGE.TABLE_0)).thenReturn(TestData.UNI_OPTIONAL_ZERO_LONG);
-        Assertions.assertDoesNotThrow(() -> service.add(TestData.LANGUAGE.TABLE_0)
+        Assertions.assertDoesNotThrow(() -> service.add(TestData.LANGUAGE.MODEL_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
                 .await()
@@ -193,7 +196,7 @@ class LanguageServiceTest {
     @Test
     void testWhenAddThenEmpty() {
         Mockito.when(mock.insert(TestData.LANGUAGE.TABLE_0)).thenReturn(TestData.UNI_OPTIONAL_EMPTY_LONG);
-        Assertions.assertDoesNotThrow(() -> service.add(TestData.LANGUAGE.TABLE_0)
+        Assertions.assertDoesNotThrow(() -> service.add(TestData.LANGUAGE.MODEL_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(Answer.empty(), actual))
                 .await()
@@ -207,7 +210,7 @@ class LanguageServiceTest {
                 .payload(new ApiResponse<>(0L))
                 .build();
         Mockito.when(mock.update(TestData.LANGUAGE.TABLE_0)).thenReturn(TestData.UNI_OPTIONAL_ZERO_LONG);
-        Assertions.assertDoesNotThrow(() -> service.put(TestData.LANGUAGE.TABLE_0)
+        Assertions.assertDoesNotThrow(() -> service.put(TestData.LANGUAGE.MODEL_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
                 .await()
@@ -217,7 +220,7 @@ class LanguageServiceTest {
     @Test
     void testWhenPutThenEmpty() {
         Mockito.when(mock.update(TestData.LANGUAGE.TABLE_0)).thenReturn(TestData.UNI_OPTIONAL_ZERO_LONG);
-        Assertions.assertThrows(RuntimeException.class, () -> service.put(TestData.LANGUAGE.TABLE_0)
+        Assertions.assertThrows(RuntimeException.class, () -> service.put(TestData.LANGUAGE.MODEL_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(Answer.empty(), actual))
                 .await()

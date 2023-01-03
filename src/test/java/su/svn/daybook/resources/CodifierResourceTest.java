@@ -27,8 +27,7 @@ class CodifierResourceTest {
 
     static Uni<Answer> test = Uni.createFrom()
             .item(1)
-            .onItem()
-            .transform(i -> Answer.of(TestData.CODIFIER.TABLE_0));
+            .map(i -> Answer.of(TestData.CODIFIER.MODEL_0));
 
     CodifierService mock;
 
@@ -40,10 +39,10 @@ class CodifierResourceTest {
         Mockito.when(mock.get(RuntimeException.class.getSimpleName())).thenThrow(RuntimeException.class);
         Mockito.when(mock.get(Integer.toString(Integer.MAX_VALUE))).thenReturn(TestData.UNI_ANSWER_EMPTY);
         Mockito.when(mock.get(Integer.toString(Integer.MIN_VALUE))).thenReturn(TestData.UNI_ANSWER_NULL);
-        Mockito.when(mock.getAll()).thenReturn(Multi.createFrom().item(Answer.of(TestData.CODIFIER.TABLE_0)));
+        Mockito.when(mock.getAll()).thenReturn(Multi.createFrom().item(Answer.of(TestData.CODIFIER.MODEL_0)));
         Mockito.when(mock.getPage(pageRequest)).thenReturn(TestData.CODIFIER.UNI_PAGE_ANSWER_SINGLETON_TEST);
-        Mockito.when(mock.add(TestData.CODIFIER.TABLE_0)).thenReturn(UNI_ANSWER_API_RESPONSE_NONE_STRING);
-        Mockito.when(mock.put(TestData.CODIFIER.TABLE_0)).thenReturn(UNI_ANSWER_API_RESPONSE_NONE_STRING);
+        Mockito.when(mock.add(TestData.CODIFIER.MODEL_0)).thenReturn(UNI_ANSWER_API_RESPONSE_NONE_STRING);
+        Mockito.when(mock.put(TestData.CODIFIER.MODEL_0)).thenReturn(UNI_ANSWER_API_RESPONSE_NONE_STRING);
         Mockito.when(mock.delete(CodifierTable.NONE)).thenReturn(UNI_ANSWER_API_RESPONSE_NONE_STRING);
         QuarkusMock.installMockForType(mock, CodifierService.class);
     }

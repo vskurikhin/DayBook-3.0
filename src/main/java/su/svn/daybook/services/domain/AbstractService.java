@@ -8,9 +8,7 @@ import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.messages.ApiResponse;
 import su.svn.daybook.models.Identification;
 
-import javax.annotation.Nonnull;
 import java.io.Serializable;
-import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
@@ -23,10 +21,6 @@ public abstract class AbstractService<K extends Comparable<? extends Serializabl
 
     public abstract Multi<Answer> getAll();
 
-    protected abstract Uni<List<Void>> invalidate(Object o);
-
-    protected abstract Uni<Void> invalidateAllPage();
-
     protected Publisher<Answer> getAllIfNotOverSize(Optional<Long> count, Supplier<Multi<V>> supplier) {
         if (count.isPresent()) {
             if (-1 < count.get() && count.get() < (Short.MAX_VALUE / 2)) {
@@ -37,11 +31,6 @@ public abstract class AbstractService<K extends Comparable<? extends Serializabl
             throw new IndexOutOfBoundsException("content too long");
         }
         throw new IndexOutOfBoundsException("content too long");
-    }
-
-    protected Answer answerOf(@Nonnull V entry) {
-        LOG.tracef("answerOf(%s)", entry);
-        return Answer.of(entry);
     }
 
     protected Answer apiResponseWithKeyAnswer(Optional<K> o) {
@@ -59,39 +48,12 @@ public abstract class AbstractService<K extends Comparable<? extends Serializabl
                 .build();
     }
 
-    protected Answer apiResponseWithValueAnswer(Optional<V> o) {
-        LOG.tracef("apiResponseWithValueAnswer(%s)", o);
-        return o.isEmpty() ? Answer.empty() : Answer.of(o.get());
-    }
-
     protected Uni<Answer> apiResponseAcceptedUniAnswer(Optional<K> o) {
         LOG.tracef("apiResponseAcceptedUniAnswer(%s)", o);
         if (o.isEmpty()) {
             throw new NoSuchElementException();
         }
         return Uni.createFrom().item(apiResponseWithKeyAnswer(202, o));
-    }
-
-    protected Uni<Answer> invalidateAndAnswer(K key, Answer answer) {
-        return invalidate(key)
-                .onItem()
-                .transform(v -> answer)
-                .onFailure()
-                .recoverWithUni(t -> Uni.createFrom().item(answer));
-    }
-
-    protected Uni<Answer> invalidateAllAndAnswer(Answer answer) {
-        return invalidateAllPage()
-                .onItem()
-                .transform(u -> answer)
-                .onFailure()
-                .recoverWithUni(t -> Uni.createFrom().item(answer));
-    }
-
-    protected Uni<List<Void>> joinCollectFailures(Uni<Void> void1, Uni<Void> void2) {
-        return Uni.join()
-                .all(void1, void2)
-                .andCollectFailures();
     }
 
     public long getIdLong(Object o) {

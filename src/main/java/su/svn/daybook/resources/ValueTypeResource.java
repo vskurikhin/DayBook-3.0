@@ -14,19 +14,26 @@ import org.jboss.resteasy.reactive.RestResponse;
 import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
 import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.enums.ResourcePath;
-import su.svn.daybook.domain.model.ValueTypeTable;
+import su.svn.daybook.models.domain.ValueType;
 import su.svn.daybook.models.pagination.PageRequest;
 import su.svn.daybook.services.domain.AbstractService;
 import su.svn.daybook.services.domain.ValueTypeService;
 
 import javax.inject.Inject;
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 @Path(ResourcePath.VALUE_TYPE)
-public class ValueTypeResource extends AbstractResource implements Resources<Long, ValueTypeTable> {
+public class ValueTypeResource extends AbstractResource implements Resources<Long, ValueType> {
 
     @Inject
     ValueTypeService service;
@@ -34,7 +41,7 @@ public class ValueTypeResource extends AbstractResource implements Resources<Lon
     @GET
     @Path(ResourcePath.ALL)
     @Produces("application/json")
-    public Multi<ValueTypeTable> all(@QueryParam("get-all") Boolean getAll) {
+    public Multi<ValueType> all(@QueryParam("get-all") Boolean getAll) {
         return getAll();
     }
 
@@ -54,7 +61,7 @@ public class ValueTypeResource extends AbstractResource implements Resources<Lon
     @POST
     @Consumes("application/json")
     @Produces("application/json")
-    public Uni<Response> post(ValueTypeTable entry, @Context UriInfo uriInfo) {
+    public Uni<Response> post(ValueType entry, @Context UriInfo uriInfo) {
         return request(EventAddress.VALUE_TYPE_ADD, entry, uriInfo);
     }
 
@@ -62,7 +69,7 @@ public class ValueTypeResource extends AbstractResource implements Resources<Lon
     @PUT
     @Consumes("application/json")
     @Produces("application/json")
-    public Uni<Response> put(ValueTypeTable entry, @Context UriInfo uriInfo) {
+    public Uni<Response> put(ValueType entry, @Context UriInfo uriInfo) {
         return request(EventAddress.VALUE_TYPE_PUT, entry, uriInfo);
     }
 
@@ -79,7 +86,7 @@ public class ValueTypeResource extends AbstractResource implements Resources<Lon
     }
 
     @Override
-    public AbstractService<Long, ValueTypeTable> getService() {
+    public AbstractService<Long, ValueType> getService() {
         return service;
     }
 }

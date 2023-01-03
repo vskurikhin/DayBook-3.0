@@ -31,8 +31,7 @@ class VocabularyResourceTest {
 
     static Uni<Answer> test = Uni.createFrom()
             .item(1)
-            .onItem()
-            .transform(i -> Answer.of(TestData.VOCABULARY.TABLE_0));
+            .map(i -> Answer.of(TestData.VOCABULARY.MODEL_0));
 
     VocabularyService mock;
 
@@ -44,10 +43,10 @@ class VocabularyResourceTest {
         Mockito.when(mock.get(RuntimeException.class.getSimpleName())).thenThrow(RuntimeException.class);
         Mockito.when(mock.get(Integer.toString(Integer.MAX_VALUE))).thenReturn(TestData.UNI_ANSWER_EMPTY);
         Mockito.when(mock.get(Integer.toString(Integer.MIN_VALUE))).thenReturn(TestData.UNI_ANSWER_NULL);
-        Mockito.when(mock.getAll()).thenReturn(Multi.createFrom().item(Answer.of(TestData.VOCABULARY.TABLE_0)));
+        Mockito.when(mock.getAll()).thenReturn(Multi.createFrom().item(Answer.of(TestData.VOCABULARY.MODEL_0)));
         Mockito.when(mock.getPage(pageRequest)).thenReturn(TestData.VOCABULARY.UNI_PAGE_ANSWER_SINGLETON_TEST);
-        Mockito.when(mock.add(TestData.VOCABULARY.TABLE_0)).thenReturn(TestData.UNI_ANSWER_API_RESPONSE_ZERO_LONG);
-        Mockito.when(mock.put(TestData.VOCABULARY.TABLE_0)).thenReturn(TestData.UNI_ANSWER_API_RESPONSE_ZERO_LONG);
+        Mockito.when(mock.add(TestData.VOCABULARY.MODEL_0)).thenReturn(TestData.UNI_ANSWER_API_RESPONSE_ZERO_LONG);
+        Mockito.when(mock.put(TestData.VOCABULARY.MODEL_0)).thenReturn(TestData.UNI_ANSWER_API_RESPONSE_ZERO_LONG);
         Mockito.when(mock.delete("0")).thenReturn(TestData.UNI_ANSWER_API_RESPONSE_ZERO_LONG);
         QuarkusMock.installMockForType(mock, VocabularyService.class);
     }

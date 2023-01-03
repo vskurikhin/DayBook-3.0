@@ -51,17 +51,19 @@ class CodifierServiceTest {
 
     @Test
     void testWhenGetAllThenSingletonList() {
+        Mockito.when(mock.count()).thenReturn(TestData.UNI_OPTIONAL_ONE_LONG);
         Mockito.when(mock.findAll()).thenReturn(MULTI_TEST);
         List<Answer> result = new ArrayList<>();
         Assertions.assertDoesNotThrow(() -> result.addAll(service.getAll()
                 .subscribe()
                 .asStream()
-                .peek(actual -> Assertions.assertEquals(Answer.of(TestData.CODIFIER.TABLE_0), actual)).toList()));
+                .peek(actual -> Assertions.assertEquals(Answer.of(TestData.CODIFIER.MODEL_0), actual)).toList()));
         Assertions.assertTrue(result.size() > 0);
     }
 
     @Test
     void testWhenGetAllThenEmpty() {
+        Mockito.when(mock.count()).thenReturn(TestData.UNI_OPTIONAL_ZERO_LONG);
         Mockito.when(mock.findAll()).thenReturn(MULTI_EMPTIES);
         List<Answer> result = new ArrayList<>();
         Assertions.assertDoesNotThrow(() -> result.addAll(service.getAll()
@@ -73,6 +75,7 @@ class CodifierServiceTest {
 
     @Test
     void testWhenGetAllThenNull() {
+        Mockito.when(mock.count()).thenReturn(TestData.UNI_OPTIONAL_ZERO_LONG);
         Mockito.when(mock.findAll()).thenReturn(MULTI_WITH_NULL);
         List<Answer> result = new ArrayList<>();
         Assertions.assertDoesNotThrow(() -> result.addAll(service.getAll()
@@ -95,7 +98,7 @@ class CodifierServiceTest {
                 .pageSize((short) 1)
                 .prevPage(false)
                 .nextPage(false)
-                .content(Collections.singletonList(Answer.of(TestData.CODIFIER.TABLE_0)))
+                .content(Collections.singletonList(Answer.of(TestData.CODIFIER.MODEL_0)))
                 .build();
 
         List<Page<Answer>> result = new ArrayList<>();
@@ -161,7 +164,7 @@ class CodifierServiceTest {
     void testWhenGetThenEntry() {
         Assertions.assertDoesNotThrow(() -> service.get(CodifierTable.NONE)
                 .onItem()
-                .invoke(actual -> Assertions.assertEquals(Answer.of(TestData.CODIFIER.TABLE_0), actual))
+                .invoke(actual -> Assertions.assertEquals(Answer.of(TestData.CODIFIER.MODEL_0), actual))
                 .await()
                 .indefinitely());
     }
@@ -173,7 +176,7 @@ class CodifierServiceTest {
                 .payload(new ApiResponse<>(CodifierTable.NONE))
                 .build();
         Mockito.when(mock.insert(TestData.CODIFIER.TABLE_0)).thenReturn(UNI_OPTIONAL_NONE_STRING);
-        Assertions.assertDoesNotThrow(() -> service.add(TestData.CODIFIER.TABLE_0)
+        Assertions.assertDoesNotThrow(() -> service.add(TestData.CODIFIER.MODEL_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
                 .await()
@@ -183,7 +186,7 @@ class CodifierServiceTest {
     @Test
     void testWhenAddThenEmpty() {
         Mockito.when(mock.insert(TestData.CODIFIER.TABLE_0)).thenReturn(TestData.UNI_OPTIONAL_EMPTY_STRING);
-        Assertions.assertDoesNotThrow(() -> service.add(TestData.CODIFIER.TABLE_0)
+        Assertions.assertDoesNotThrow(() -> service.add(TestData.CODIFIER.MODEL_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(Answer.empty(), actual))
                 .await()
@@ -197,7 +200,7 @@ class CodifierServiceTest {
                 .payload(new ApiResponse<>(CodifierTable.NONE))
                 .build();
         Mockito.when(mock.update(TestData.CODIFIER.TABLE_0)).thenReturn(UNI_OPTIONAL_NONE_STRING);
-        Assertions.assertDoesNotThrow(() -> service.put(TestData.CODIFIER.TABLE_0)
+        Assertions.assertDoesNotThrow(() -> service.put(TestData.CODIFIER.MODEL_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
                 .await()
@@ -207,7 +210,7 @@ class CodifierServiceTest {
     @Test
     void testWhenPutThenEmpty() {
         Mockito.when(mock.update(TestData.CODIFIER.TABLE_0)).thenReturn(TestData.UNI_OPTIONAL_EMPTY_STRING);
-        Assertions.assertThrows(CompletionException.class, () -> service.put(TestData.CODIFIER.TABLE_0)
+        Assertions.assertThrows(CompletionException.class, () -> service.put(TestData.CODIFIER.MODEL_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(Answer.empty(), actual))
                 .await()

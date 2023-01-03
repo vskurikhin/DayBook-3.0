@@ -1,6 +1,5 @@
 package su.svn.daybook.services;
 
-import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import org.jboss.logging.Logger;
 import su.svn.daybook.domain.messages.Answer;
@@ -79,7 +78,7 @@ public class ExceptionAnswerService {
         );
     }
 
-    public Uni<Answer> notAcceptableDuplicateKeyValueAnswer(Throwable t) {
+    public Uni<Answer> notAcceptableDuplicateKeyValAnswer(Throwable t) {
         LOG.errorf("%s: %s", t.getClass().getName(), t.getMessage());
         return Uni.createFrom().item(
                 Answer.builder()
