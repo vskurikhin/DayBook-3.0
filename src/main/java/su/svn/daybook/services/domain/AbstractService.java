@@ -33,12 +33,12 @@ public abstract class AbstractService<K extends Comparable<? extends Serializabl
         throw new IndexOutOfBoundsException("content too long");
     }
 
-    protected Answer apiResponseWithKeyAnswer(Optional<K> o) {
+    protected Answer apiResponseAnswer(Optional<K> o) {
         LOG.tracef("apiResponseWithKeyAnswer(%s)", o);
         return o.isEmpty() ? Answer.empty() : Answer.of(new ApiResponse<>(o.get()));
     }
 
-    protected Answer apiResponseWithKeyAnswer(int code, Optional<K> o) {
+    protected Answer apiResponseAnswer(int code, Optional<K> o) {
         LOG.tracef("apiResponseWithKeyAnswer(%d, %s)", code, o);
         return o.isEmpty()
                 ? Answer.empty()
@@ -53,7 +53,7 @@ public abstract class AbstractService<K extends Comparable<? extends Serializabl
         if (o.isEmpty()) {
             throw new NoSuchElementException();
         }
-        return Uni.createFrom().item(apiResponseWithKeyAnswer(202, o));
+        return Uni.createFrom().item(apiResponseAnswer(202, o));
     }
 
     public long getIdLong(Object o) {

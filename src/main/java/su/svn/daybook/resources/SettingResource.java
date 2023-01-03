@@ -65,7 +65,6 @@ public class SettingResource extends AbstractResource implements Resources<Long,
         return request(EventAddress.SETTING_ADD, entry, uriInfo);
     }
 
-
     @PUT
     @Consumes("application/json")
     @Produces("application/json")

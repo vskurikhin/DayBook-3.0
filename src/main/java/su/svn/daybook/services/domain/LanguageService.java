@@ -8,7 +8,6 @@
 
 package su.svn.daybook.services.domain;
 
-import io.quarkus.cache.CacheKey;
 import io.quarkus.vertx.ConsumeEvent;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
@@ -117,10 +116,10 @@ public class LanguageService extends AbstractService<Long, Language> {
     private Uni<Answer> addEntry(LanguageTable entry) {
         return languageDao
                 .insert(entry)
-                .map(o -> apiResponseWithKeyAnswer(201, o))
+                .map(o -> apiResponseAnswer(201, o))
                 .flatMap(languageCacheProvider::invalidate)
-                .onFailure(exceptionAnswerService::testDuplicateKeyException)
-                .recoverWithUni(exceptionAnswerService::notAcceptableDuplicateKeyValAnswer)
+                .onFailure(exceptionAnswerService::testDuplicateException)
+                .recoverWithUni(exceptionAnswerService::notAcceptableDuplicateAnswer)
                 .onFailure(exceptionAnswerService::testException)
                 .recoverWithUni(exceptionAnswerService::badRequestUniAnswer);
     }
@@ -142,8 +141,8 @@ public class LanguageService extends AbstractService<Long, Language> {
                 .update(entry)
                 .flatMap(this::apiResponseAcceptedUniAnswer)
                 .flatMap(answer -> languageCacheProvider.invalidateById(entry.getId(), answer))
-                .onFailure(exceptionAnswerService::testDuplicateKeyException)
-                .recoverWithUni(exceptionAnswerService::notAcceptableDuplicateKeyValAnswer)
+                .onFailure(exceptionAnswerService::testDuplicateException)
+                .recoverWithUni(exceptionAnswerService::notAcceptableDuplicateAnswer)
                 .onFailure(exceptionAnswerService::testNoSuchElementException)
                 .recoverWithUni(get(entry.getId()))
                 .onFailure(exceptionAnswerService::testException)
@@ -174,7 +173,7 @@ public class LanguageService extends AbstractService<Long, Language> {
     private Uni<Answer> deleteEntry(Long id) {
         return languageDao
                 .delete(id)
-                .map(this::apiResponseWithKeyAnswer)
+                .map(this::apiResponseAnswer)
                 .flatMap(answer -> languageCacheProvider.invalidateById(id, answer))
                 .onFailure(exceptionAnswerService::testNoSuchElementException)
                 .recoverWithUni(exceptionAnswerService::noSuchElementAnswer)

@@ -113,10 +113,10 @@ public class WordService extends AbstractService<String, Word> {
     private Uni<Answer> addEntry(WordTable entry) {
         return wordDao
                 .insert(entry)
-                .map(o -> apiResponseWithKeyAnswer(201, o))
+                .map(o -> apiResponseAnswer(201, o))
                 .flatMap(wordCacheProvider::invalidate)
-                .onFailure(exceptionAnswerService::testDuplicateKeyException)
-                .recoverWithUni(exceptionAnswerService::notAcceptableDuplicateKeyValAnswer)
+                .onFailure(exceptionAnswerService::testDuplicateException)
+                .recoverWithUni(exceptionAnswerService::notAcceptableDuplicateAnswer)
                 .onFailure(exceptionAnswerService::testException)
                 .recoverWithUni(exceptionAnswerService::badRequestUniAnswer);
     }
@@ -139,8 +139,8 @@ public class WordService extends AbstractService<String, Word> {
                 .update(entry)
                 .flatMap(this::apiResponseAcceptedUniAnswer)
                 .flatMap(answer -> wordCacheProvider.invalidateById(entry.getId(), answer))
-                .onFailure(exceptionAnswerService::testDuplicateKeyException)
-                .recoverWithUni(exceptionAnswerService::notAcceptableDuplicateKeyValAnswer)
+                .onFailure(exceptionAnswerService::testDuplicateException)
+                .recoverWithUni(exceptionAnswerService::notAcceptableDuplicateAnswer)
                 .onFailure(exceptionAnswerService::testNoSuchElementException)
                 .recoverWithUni(get(entry.getId()))
                 .onFailure(exceptionAnswerService::testException)
@@ -168,7 +168,7 @@ public class WordService extends AbstractService<String, Word> {
     private Uni<Answer> deleteEntry(String id) {
         return wordDao
                 .delete(id)
-                .map(this::apiResponseWithKeyAnswer)
+                .map(this::apiResponseAnswer)
                 .flatMap(answer -> wordCacheProvider.invalidateById(id, answer))
                 .onFailure(exceptionAnswerService::testNoSuchElementException)
                 .recoverWithUni(exceptionAnswerService::noSuchElementAnswer)

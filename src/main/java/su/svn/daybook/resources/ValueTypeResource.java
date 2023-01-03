@@ -65,7 +65,6 @@ public class ValueTypeResource extends AbstractResource implements Resources<Lon
         return request(EventAddress.VALUE_TYPE_ADD, entry, uriInfo);
     }
 
-
     @PUT
     @Consumes("application/json")
     @Produces("application/json")

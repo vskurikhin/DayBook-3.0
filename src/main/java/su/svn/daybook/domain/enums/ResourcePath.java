@@ -17,6 +17,7 @@ public enum ResourcePath {
     KeyValue(ResourcePath.KEY_VALUE),
     Language(ResourcePath.LANGUAGE),
     Put(ResourcePath.PUT),
+    Role(ResourcePath.ROLE),
     Setting(ResourcePath.SETTING),
     TagLabel(ResourcePath.TAG_LABEL),
     User(ResourcePath.USER),
@@ -31,6 +32,7 @@ public enum ResourcePath {
     public static final String KEY_VALUE = "/key-value";
     public static final String LANGUAGE = "/lang";
     public static final String PUT = "/put";
+    public static final String ROLE = "/role";
     public static final String SETTING = "/setting";
     public static final String TAG_LABEL = "/tag";
     public static final String USER = "/user";

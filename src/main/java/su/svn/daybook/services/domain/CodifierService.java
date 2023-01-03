@@ -8,7 +8,6 @@
 
 package su.svn.daybook.services.domain;
 
-import io.quarkus.cache.CacheKey;
 import io.quarkus.vertx.ConsumeEvent;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
@@ -113,10 +112,10 @@ public class CodifierService extends AbstractService<String, Codifier> {
     private Uni<Answer> addEntry(CodifierTable entry) {
         return codifierDao
                 .insert(entry)
-                .map(o -> apiResponseWithKeyAnswer(201, o))
+                .map(o -> apiResponseAnswer(201, o))
                 .flatMap(codifierCacheProvider::invalidate)
-                .onFailure(exceptionAnswerService::testDuplicateKeyException)
-                .recoverWithUni(exceptionAnswerService::notAcceptableDuplicateKeyValAnswer)
+                .onFailure(exceptionAnswerService::testDuplicateException)
+                .recoverWithUni(exceptionAnswerService::notAcceptableDuplicateAnswer)
                 .onFailure(exceptionAnswerService::testException)
                 .recoverWithUni(exceptionAnswerService::badRequestUniAnswer);
     }
@@ -138,8 +137,8 @@ public class CodifierService extends AbstractService<String, Codifier> {
                 .update(entry)
                 .flatMap(this::apiResponseAcceptedUniAnswer)
                 .flatMap(answer -> codifierCacheProvider.invalidateById(entry.getId(), answer))
-                .onFailure(exceptionAnswerService::testDuplicateKeyException)
-                .recoverWithUni(exceptionAnswerService::notAcceptableDuplicateKeyValAnswer)
+                .onFailure(exceptionAnswerService::testDuplicateException)
+                .recoverWithUni(exceptionAnswerService::notAcceptableDuplicateAnswer)
                 .onFailure(exceptionAnswerService::testNoSuchElementException)
                 .recoverWithUni(get(entry.getId()))
                 .onFailure(exceptionAnswerService::testException)
@@ -166,7 +165,7 @@ public class CodifierService extends AbstractService<String, Codifier> {
     private Uni<Answer> deleteEntry(String id) {
         return codifierDao
                 .delete(id)
-                .map(this::apiResponseWithKeyAnswer)
+                .map(this::apiResponseAnswer)
                 .flatMap(answer -> codifierCacheProvider.invalidateById(id, answer))
                 .onFailure(exceptionAnswerService::testNoSuchElementException)
                 .recoverWithUni(exceptionAnswerService::noSuchElementAnswer)

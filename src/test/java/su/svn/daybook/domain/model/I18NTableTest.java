@@ -11,7 +11,7 @@ class I18NTableTest {
     void testConstructors() {
         Assertions.assertDoesNotThrow(() -> new I18nTable());
         Assertions.assertDoesNotThrow(() -> new I18nTable(
-                0L, 0L, null, null, null, null, null, false, true, 0
+                0L, 0L, null, null, null, null, null, true, true, 0
         ));
     }
     @Test
@@ -56,7 +56,7 @@ class I18NTableTest {
                 .userName(null)
                 .createTime(null)
                 .updateTime(null)
-                .enabled(false)
+                .enabled(true)
                 .visible(true)
                 .flags(0)
                 .build()));

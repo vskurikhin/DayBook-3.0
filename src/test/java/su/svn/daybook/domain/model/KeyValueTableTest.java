@@ -13,7 +13,7 @@ class KeyValueTableTest {
     void testConstructors() {
         Assertions.assertDoesNotThrow(() -> new KeyValueTable());
         Assertions.assertDoesNotThrow(() -> new KeyValueTable(
-                null, NONE, null, null, null, null, false, true, 0
+                null, NONE, null, null, null, null, true, true, 0
         ));
     }
     @Test
@@ -56,7 +56,7 @@ class KeyValueTableTest {
                 .userName(null)
                 .createTime(null)
                 .updateTime(null)
-                .enabled(false)
+                .enabled(true)
                 .visible(true)
                 .flags(0)
                 .build()));

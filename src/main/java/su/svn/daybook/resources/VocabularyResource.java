@@ -58,7 +58,6 @@ public class VocabularyResource extends AbstractResource implements Resources<Lo
         return request(EventAddress.VOCABULARY_ADD, entry, uriInfo);
     }
 
-
     @PUT
     @Consumes("application/json")
     @Produces("application/json")

@@ -11,7 +11,7 @@ class LanguageTableTest {
     void testConstructors() {
         Assertions.assertDoesNotThrow(() -> new LanguageTable());
         Assertions.assertDoesNotThrow(() -> new LanguageTable(
-                null, null, null, null, null, false, true, 0
+                null, null, null, null, null, true, true, 0
         ));
     }
     @Test
@@ -52,7 +52,7 @@ class LanguageTableTest {
                 .userName(null)
                 .createTime(null)
                 .updateTime(null)
-                .enabled(false)
+                .enabled(true)
                 .visible(true)
                 .flags(0)
                 .build()));

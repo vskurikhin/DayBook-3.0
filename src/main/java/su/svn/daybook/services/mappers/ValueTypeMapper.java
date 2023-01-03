@@ -1,3 +1,11 @@
+/*
+ * This file was last modified at 2022.01.12 22:58 by Victor N. Skurikhin.
+ * This is free and unencumbered software released into the public domain.
+ * For more information, please refer to <http://unlicense.org>
+ * ValueTypeMapper.java
+ * $Id$
+ */
+
 package su.svn.daybook.services.mappers;
 
 import org.jboss.logging.Logger;

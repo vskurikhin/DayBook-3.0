@@ -65,7 +65,6 @@ public class I18nResource extends AbstractResource implements Resources<Long, I1
         return request(EventAddress.I18N_ADD, entry, uriInfo);
     }
 
-
     @PUT
     @Consumes("application/json")
     @Produces("application/json")

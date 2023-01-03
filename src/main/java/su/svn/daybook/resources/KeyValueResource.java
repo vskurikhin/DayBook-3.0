@@ -65,7 +65,6 @@ public class KeyValueResource extends AbstractResource implements Resources<Long
         return request(EventAddress.KEY_VALUE_ADD, entry, uriInfo);
     }
 
-
     @PUT
     @Consumes("application/json")
     @Produces("application/json")

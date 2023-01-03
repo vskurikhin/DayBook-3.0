@@ -29,6 +29,11 @@ public enum EventAddress {
     LanguageGet(EventAddress.LANGUAGE_GET),
     LanguagePage(EventAddress.LANGUAGE_PAGE),
     LanguagePut(EventAddress.LANGUAGE_PUT),
+    RoleAdd(EventAddress.ROLE_ADD),
+    RoleDel(EventAddress.ROLE_DEL),
+    RoleGet(EventAddress.ROLE_GET),
+    RolePage(EventAddress.ROLE_PAGE),
+    RolePut(EventAddress.ROLE_PUT),
     SettingAdd(EventAddress.SETTING_ADD),
     SettingDel(EventAddress.SETTING_DEL),
     SettingGet(EventAddress.SETTING_GET),
@@ -75,6 +80,11 @@ public enum EventAddress {
     public static final String LANGUAGE_DEL = "language_del";
     public static final String LANGUAGE_GET = "language_get";
     public static final String LANGUAGE_PAGE = "language_page";
+    public static final String ROLE_ADD = "role_add";
+    public static final String ROLE_DEL = "role_del";
+    public static final String ROLE_GET = "role_get";
+    public static final String ROLE_PAGE= "role_page";
+    public static final String ROLE_PUT = "role_put";
     public static final String LANGUAGE_PUT = "language_put";
     public static final String SETTING_ADD = "setting_add";
     public static final String SETTING_DEL = "setting_del";

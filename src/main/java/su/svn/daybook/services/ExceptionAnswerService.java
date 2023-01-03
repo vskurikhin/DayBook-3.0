@@ -29,7 +29,7 @@ public class ExceptionAnswerService {
         return Collections.singletonList(Answer.noNumber(t.getMessage()));
     }
 
-    public boolean testDuplicateKeyException(Throwable t) {
+    public boolean testDuplicateException(Throwable t) {
         LOG.tracef("%s: %s [[$s]]", t.getClass().getName(), t.getMessage(), Arrays.toString(t.getStackTrace()));
         if (t instanceof io.vertx.pgclient.PgException) {
             return t.getMessage().contains("ERROR: duplicate key value violates unique constraint");
@@ -78,7 +78,7 @@ public class ExceptionAnswerService {
         );
     }
 
-    public Uni<Answer> notAcceptableDuplicateKeyValAnswer(Throwable t) {
+    public Uni<Answer> notAcceptableDuplicateAnswer(Throwable t) {
         LOG.errorf("%s: %s", t.getClass().getName(), t.getMessage());
         return Uni.createFrom().item(
                 Answer.builder()
