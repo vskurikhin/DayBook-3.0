@@ -7,14 +7,14 @@ import su.svn.daybook.domain.model.TestTable;
 
 import java.util.ArrayList;
 
-class GettersModelTest {
+class GettersAnnotatedModelFiledTest {
 
-    GettersModel<?> getters;
+    GettersAnnotatedModelFiled<?> getters;
 
     @BeforeEach
     void setUp() {
         Assertions.assertDoesNotThrow(() -> {
-            getters = new GettersModel<>(TestTable.class);
+            getters = new GettersAnnotatedModelFiled<>(TestTable.class);
         });
     }
 

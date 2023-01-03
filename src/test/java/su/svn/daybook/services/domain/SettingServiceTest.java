@@ -38,9 +38,9 @@ class SettingServiceTest {
 
     static SettingDao mock;
 
-    static final Uni<Optional<SettingTable>> UNI_OPTIONAL_TEST = Uni.createFrom().item(Optional.of(TestData.SETTING.OBJECT_0));
+    static final Uni<Optional<SettingTable>> UNI_OPTIONAL_TEST = Uni.createFrom().item(Optional.of(TestData.SETTING.TABLE_0));
 
-    static final Multi<SettingTable> MULTI_TEST = Multi.createFrom().item(TestData.SETTING.OBJECT_0);
+    static final Multi<SettingTable> MULTI_TEST = Multi.createFrom().item(TestData.SETTING.TABLE_0);
 
     static final Multi<SettingTable> MULTI_WITH_NULL = TestData.createMultiWithNull(SettingTable.class);
 
@@ -60,7 +60,7 @@ class SettingServiceTest {
         Assertions.assertDoesNotThrow(() -> result.addAll(service.getAll()
                 .subscribe()
                 .asStream()
-                .peek(actual -> Assertions.assertEquals(Answer.of(TestData.SETTING.OBJECT_0), actual)).toList()));
+                .peek(actual -> Assertions.assertEquals(Answer.of(TestData.SETTING.TABLE_0), actual)).toList()));
         Assertions.assertTrue(result.size() > 0);
     }
 
@@ -99,7 +99,7 @@ class SettingServiceTest {
                 .pageSize((short) 1)
                 .prevPage(false)
                 .nextPage(false)
-                .content(Collections.singletonList(Answer.of(TestData.SETTING.OBJECT_0)))
+                .content(Collections.singletonList(Answer.of(TestData.SETTING.TABLE_0)))
                 .build();
 
         Assertions.assertDoesNotThrow(() -> service.getPage(pageRequest)
@@ -162,7 +162,7 @@ class SettingServiceTest {
     void testWhenGetThenEntry() {
         Assertions.assertDoesNotThrow(() -> service.get(0L)
                 .onItem()
-                .invoke(actual -> Assertions.assertEquals(Answer.of(TestData.SETTING.OBJECT_0), actual))
+                .invoke(actual -> Assertions.assertEquals(Answer.of(TestData.SETTING.TABLE_0), actual))
                 .await()
                 .indefinitely());
     }
@@ -182,8 +182,8 @@ class SettingServiceTest {
                 .error(201)
                 .payload(new ApiResponse<>(0L))
                 .build();
-        Mockito.when(mock.insert(TestData.SETTING.OBJECT_0)).thenReturn(TestData.UNI_OPTIONAL_ZERO_LONG);
-        Assertions.assertDoesNotThrow(() -> service.add(TestData.SETTING.OBJECT_0)
+        Mockito.when(mock.insert(TestData.SETTING.TABLE_0)).thenReturn(TestData.UNI_OPTIONAL_ZERO_LONG);
+        Assertions.assertDoesNotThrow(() -> service.add(TestData.SETTING.TABLE_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
                 .await()
@@ -192,8 +192,8 @@ class SettingServiceTest {
 
     @Test
     void testWhenAddThenEmpty() {
-        Mockito.when(mock.insert(TestData.SETTING.OBJECT_0)).thenReturn(TestData.UNI_OPTIONAL_EMPTY_LONG);
-        Assertions.assertDoesNotThrow(() -> service.add(TestData.SETTING.OBJECT_0)
+        Mockito.when(mock.insert(TestData.SETTING.TABLE_0)).thenReturn(TestData.UNI_OPTIONAL_EMPTY_LONG);
+        Assertions.assertDoesNotThrow(() -> service.add(TestData.SETTING.TABLE_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(Answer.empty(), actual))
                 .await()
@@ -206,8 +206,8 @@ class SettingServiceTest {
                 .error(202)
                 .payload(new ApiResponse<>(0L))
                 .build();
-        Mockito.when(mock.update(TestData.SETTING.OBJECT_0)).thenReturn(TestData.UNI_OPTIONAL_ZERO_LONG);
-        Assertions.assertDoesNotThrow(() -> service.put(TestData.SETTING.OBJECT_0)
+        Mockito.when(mock.update(TestData.SETTING.TABLE_0)).thenReturn(TestData.UNI_OPTIONAL_ZERO_LONG);
+        Assertions.assertDoesNotThrow(() -> service.put(TestData.SETTING.TABLE_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
                 .await()
@@ -216,8 +216,8 @@ class SettingServiceTest {
 
     @Test
     void testWhenPutThenEmpty() {
-        Mockito.when(mock.update(TestData.SETTING.OBJECT_0)).thenReturn(TestData.UNI_OPTIONAL_ZERO_LONG);
-        Assertions.assertThrows(RuntimeException.class, () -> service.put(TestData.SETTING.OBJECT_0)
+        Mockito.when(mock.update(TestData.SETTING.TABLE_0)).thenReturn(TestData.UNI_OPTIONAL_ZERO_LONG);
+        Assertions.assertThrows(RuntimeException.class, () -> service.put(TestData.SETTING.TABLE_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(Answer.empty(), actual))
                 .await()

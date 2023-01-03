@@ -93,7 +93,7 @@ public class TagLabelService extends AbstractService<String, TagLabelTable> {
     public Uni<Page<Answer>> getPage(@CacheKey PageRequest pageRequest) {
         //noinspection DuplicatedCode
         LOG.tracef("getPage(%s)", pageRequest);
-        return pageService.getPage(pageRequest, tagLabelDao::count, tagLabelDao::findRange);
+        return pageService.getPage(pageRequest, tagLabelDao::count, tagLabelDao::findRange, Answer::of);
     }
 
     /**

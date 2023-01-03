@@ -9,12 +9,12 @@ import java.util.ArrayList;
 
 class BuildPartsModelTest {
 
-    BuildPartsModel<?> buildParts;
+    BuildPartsAnnotatedModelFiled<?> buildParts;
 
     @BeforeEach
     void setUp() {
         Assertions.assertDoesNotThrow(() -> {
-            buildParts = new BuildPartsModel<>(TestTable.class, TestTable::builder);
+            buildParts = new BuildPartsAnnotatedModelFiled<>(TestTable.class, TestTable::builder);
         });
     }
 

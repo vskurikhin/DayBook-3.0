@@ -355,6 +355,7 @@ public final class SettingTable implements LongIdentification, Marked, Owned, Ti
         private int flags;
 
         private Builder() {
+            this.enabled = true;
         }
 
         public Builder id(Long id) {

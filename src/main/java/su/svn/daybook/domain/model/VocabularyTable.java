@@ -319,6 +319,7 @@ public final class VocabularyTable implements LongIdentification, Marked, Owned,
         private int flags;
 
         private Builder() {
+            this.enabled = true;
         }
 
         public Builder id(Long id) {

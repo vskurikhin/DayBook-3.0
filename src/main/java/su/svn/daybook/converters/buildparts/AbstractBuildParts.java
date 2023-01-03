@@ -1,6 +1,7 @@
 package su.svn.daybook.converters.buildparts;
 
 import su.svn.daybook.converters.records.MethodRecord;
+import su.svn.daybook.models.Identification;
 
 import javax.annotation.Nonnull;
 import java.io.Serializable;
@@ -16,7 +17,8 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-abstract class AbstractBuildParts<P extends Serializable> implements BuildParts {
+abstract class AbstractBuildParts<P extends Identification<? extends Comparable<? extends Serializable>>>
+        implements BuildParts {
 
     private final Class<P> pClass;
 

@@ -21,6 +21,7 @@ import su.svn.daybook.domain.dao.WordDao;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.messages.ApiResponse;
 import su.svn.daybook.domain.model.WordTable;
+import su.svn.daybook.models.domain.Word;
 import su.svn.daybook.models.pagination.Page;
 import su.svn.daybook.models.pagination.PageRequest;
 
@@ -41,9 +42,11 @@ class WordServiceTest {
 
     static final Uni<Optional<String>> UNI_OPTIONAL_NONE_STRING = Uni.createFrom().item(Optional.of(WordTable.NONE));
 
-    static final Uni<Optional<WordTable>> UNI_OPTIONAL_TEST = Uni.createFrom().item(Optional.of(TestData.WORD.OBJECT_0));
+    static final Uni<Optional<WordTable>> UNI_OPTIONAL_TEST = Uni.createFrom().item(Optional.of(TestData.WORD.TABLE_0));
 
-    static final Multi<WordTable> MULTI_TEST = Multi.createFrom().item(TestData.WORD.OBJECT_0);
+    static final Multi<Word> MULTI_MODEL_TEST = Multi.createFrom().item(TestData.WORD.MODEL_0);
+
+    static final Multi<WordTable> MULTI_TABLE_TEST = Multi.createFrom().item(TestData.WORD.TABLE_0);
 
     static final Multi<WordTable> MULTI_WITH_NULL = TestData.createMultiWithNull(WordTable.class);
 
@@ -60,12 +63,12 @@ class WordServiceTest {
     @Test
     void testWhenGetAllThenSingletonList() {
         Mockito.when(mock.count()).thenReturn(TestData.UNI_OPTIONAL_ONE_LONG);
-        Mockito.when(mock.findAll()).thenReturn(MULTI_TEST);
+        Mockito.when(mock.findAll()).thenReturn(MULTI_TABLE_TEST);
         List<Answer> result = new ArrayList<>();
         Assertions.assertDoesNotThrow(() -> result.addAll(service.getAll()
                 .subscribe()
                 .asStream()
-                .peek(actual -> Assertions.assertEquals(Answer.of(TestData.WORD.OBJECT_0), actual)).toList()));
+                .peek(actual -> Assertions.assertEquals(Answer.of(TestData.WORD.MODEL_0), actual)).toList()));
         Assertions.assertTrue(result.size() > 0);
     }
 
@@ -96,7 +99,7 @@ class WordServiceTest {
     @Test
     void testWhenGetPageThenSingletonList() {
 
-        Mockito.when(mock.findRange(0L, Short.MAX_VALUE - 1)).thenReturn(MULTI_TEST);
+        Mockito.when(mock.findRange(0L, Short.MAX_VALUE - 1)).thenReturn(MULTI_TABLE_TEST);
         Mockito.when(mock.count()).thenReturn(TestData.UNI_OPTIONAL_ONE_LONG);
 
         PageRequest pageRequest = new PageRequest(0L, (short) (Short.MAX_VALUE - 1));
@@ -106,7 +109,7 @@ class WordServiceTest {
                 .pageSize((short) 1)
                 .prevPage(false)
                 .nextPage(false)
-                .content(Collections.singletonList(Answer.of(TestData.WORD.OBJECT_0)))
+                .content(Collections.singletonList(Answer.of(TestData.WORD.MODEL_0)))
                 .build();
 
         List<Page<Answer>> result = new ArrayList<>();
@@ -172,7 +175,7 @@ class WordServiceTest {
     void testWhenGetThenEntry() {
         Assertions.assertDoesNotThrow(() -> service.get(WordTable.NONE)
                 .onItem()
-                .invoke(actual -> Assertions.assertEquals(Answer.of(TestData.WORD.OBJECT_0), actual))
+                .invoke(actual -> Assertions.assertEquals(Answer.of(TestData.WORD.MODEL_0), actual))
                 .await()
                 .indefinitely());
     }
@@ -183,8 +186,8 @@ class WordServiceTest {
                 .error(201)
                 .payload(new ApiResponse<>(WordTable.NONE))
                 .build();
-        Mockito.when(mock.insert(TestData.WORD.OBJECT_0)).thenReturn(UNI_OPTIONAL_NONE_STRING);
-        Assertions.assertDoesNotThrow(() -> service.add(TestData.WORD.OBJECT_0)
+        Mockito.when(mock.insert(TestData.WORD.TABLE_0)).thenReturn(UNI_OPTIONAL_NONE_STRING);
+        Assertions.assertDoesNotThrow(() -> service.add(TestData.WORD.MODEL_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
                 .await()
@@ -193,8 +196,8 @@ class WordServiceTest {
 
     @Test
     void testWhenAddThenEmpty() {
-        Mockito.when(mock.insert(TestData.WORD.OBJECT_0)).thenReturn(TestData.UNI_OPTIONAL_EMPTY_STRING);
-        Assertions.assertDoesNotThrow(() -> service.add(TestData.WORD.OBJECT_0)
+        Mockito.when(mock.insert(TestData.WORD.TABLE_0)).thenReturn(TestData.UNI_OPTIONAL_EMPTY_STRING);
+        Assertions.assertDoesNotThrow(() -> service.add(TestData.WORD.MODEL_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(Answer.empty(), actual))
                 .await()
@@ -207,8 +210,8 @@ class WordServiceTest {
                 .error(202)
                 .payload(new ApiResponse<>(WordTable.NONE))
                 .build();
-        Mockito.when(mock.update(TestData.WORD.OBJECT_0)).thenReturn(UNI_OPTIONAL_NONE_STRING);
-        Assertions.assertDoesNotThrow(() -> service.put(TestData.WORD.OBJECT_0)
+        Mockito.when(mock.update(TestData.WORD.TABLE_0)).thenReturn(UNI_OPTIONAL_NONE_STRING);
+        Assertions.assertDoesNotThrow(() -> service.put(TestData.WORD.MODEL_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
                 .await()
@@ -217,8 +220,8 @@ class WordServiceTest {
 
     @Test
     void testWhenPutThenEmpty() {
-        Mockito.when(mock.update(TestData.WORD.OBJECT_0)).thenReturn(TestData.UNI_OPTIONAL_EMPTY_STRING);
-        Assertions.assertThrows(CompletionException.class, () -> service.put(TestData.WORD.OBJECT_0)
+        Mockito.when(mock.update(TestData.WORD.TABLE_0)).thenReturn(TestData.UNI_OPTIONAL_EMPTY_STRING);
+        Assertions.assertThrows(CompletionException.class, () -> service.put(TestData.WORD.MODEL_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(Answer.empty(), actual))
                 .await()

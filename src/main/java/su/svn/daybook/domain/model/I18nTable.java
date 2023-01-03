@@ -352,6 +352,7 @@ public final class I18nTable implements LongIdentification, Marked, Owned, TimeU
         private int flags;
 
         private Builder() {
+            this.enabled = true;
         }
 
         public Builder id(Long id) {

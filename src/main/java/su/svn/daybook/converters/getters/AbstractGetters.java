@@ -2,6 +2,7 @@ package su.svn.daybook.converters.getters;
 
 import su.svn.daybook.converters.records.FieldGetter;
 import su.svn.daybook.converters.records.FieldRecord;
+import su.svn.daybook.models.Identification;
 import su.svn.daybook.utils.AccessorsUtil;
 
 import javax.annotation.Nonnull;
@@ -18,7 +19,8 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-abstract class AbstractGetters<P extends Serializable> implements Getters {
+public abstract class AbstractGetters<P extends Identification<? extends Comparable<? extends Serializable>>>
+        implements Getters {
 
     private final Class<P> pClass;
 

@@ -27,7 +27,7 @@ class UserNameResourceTest {
     static Uni<Answer> test = Uni.createFrom()
             .item(1)
             .onItem()
-            .transform(i -> Answer.of(TestData.USERNAME.OBJECT_0));
+            .transform(i -> Answer.of(TestData.USERNAME.TABLE_0));
 
     @BeforeAll
     public static void setup() {
@@ -36,10 +36,10 @@ class UserNameResourceTest {
         Mockito.when(mock.get(TestData.STRING_ZERO_UUID)).thenReturn(test);
         Mockito.when(mock.get(TestData.RANDOM1_UUID.toString())).thenReturn(TestData.UNI_ANSWER_EMPTY);
         Mockito.when(mock.get(TestData.RANDOM2_UUID.toString())).thenReturn(TestData.UNI_ANSWER_NULL);
-        Mockito.when(mock.getAll()).thenReturn(Multi.createFrom().item(Answer.of(TestData.USERNAME.OBJECT_0)));
+        Mockito.when(mock.getAll()).thenReturn(Multi.createFrom().item(Answer.of(TestData.USERNAME.TABLE_0)));
         Mockito.when(mock.getPage(pageRequest)).thenReturn(TestData.USERNAME.UNI_PAGE_ANSWER_SINGLETON_TEST);
-        Mockito.when(mock.add(TestData.USERNAME.OBJECT_0)).thenReturn(TestData.UNI_ANSWER_API_RESPONSE_ZERO_UUID);
-        Mockito.when(mock.put(TestData.USERNAME.OBJECT_0)).thenReturn(TestData.UNI_ANSWER_API_RESPONSE_ZERO_UUID);
+        Mockito.when(mock.add(TestData.USERNAME.TABLE_0)).thenReturn(TestData.UNI_ANSWER_API_RESPONSE_ZERO_UUID);
+        Mockito.when(mock.put(TestData.USERNAME.TABLE_0)).thenReturn(TestData.UNI_ANSWER_API_RESPONSE_ZERO_UUID);
         Mockito.when(mock.delete(TestData.STRING_ZERO_UUID)).thenReturn(TestData.UNI_ANSWER_API_RESPONSE_ZERO_UUID);
         QuarkusMock.installMockForType(mock, UserNameService.class);
     }

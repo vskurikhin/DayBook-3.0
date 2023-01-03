@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS @schema@.@table@ (
     update_time   TIMESTAMP WITHOUT TIME ZONE             DEFAULT now(),
     enabled       BOOLEAN                                 DEFAULT false,
     visible       BOOLEAN                                 DEFAULT true,
-    flags         INT
+    flags         INT                          NOT NULL   DEFAULT 0
     );
 
 --

@@ -300,6 +300,7 @@ public final class WordTable implements StringIdentification, Marked, Owned, Tim
         private int flags;
 
         private Builder() {
+            this.enabled = true;
         }
 
         public Builder id(@Nonnull String id) {

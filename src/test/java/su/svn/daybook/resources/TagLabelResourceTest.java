@@ -24,7 +24,7 @@ class TagLabelResourceTest {
     static Uni<Answer> test = Uni.createFrom()
             .item(1)
             .onItem()
-            .transform(i -> Answer.of(TestData.TAG_LABEL.OBJECT_0));
+            .transform(i -> Answer.of(TestData.TAG_LABEL.TABLE_0));
 
     TagLabelService mock;
 
@@ -36,10 +36,10 @@ class TagLabelResourceTest {
         Mockito.when(mock.get(RuntimeException.class.getSimpleName())).thenThrow(RuntimeException.class);
         Mockito.when(mock.get(Integer.toString(Integer.MAX_VALUE))).thenReturn(TestData.UNI_ANSWER_EMPTY);
         Mockito.when(mock.get(Integer.toString(Integer.MIN_VALUE))).thenReturn(TestData.UNI_ANSWER_NULL);
-        Mockito.when(mock.getAll()).thenReturn(Multi.createFrom().item(Answer.of(TestData.TAG_LABEL.OBJECT_0)));
+        Mockito.when(mock.getAll()).thenReturn(Multi.createFrom().item(Answer.of(TestData.TAG_LABEL.TABLE_0)));
         Mockito.when(mock.getPage(pageRequest)).thenReturn(TestData.TAG_LABEL.UNI_PAGE_ANSWER_SINGLETON_TEST);
-        Mockito.when(mock.add(TestData.TAG_LABEL.OBJECT_0)).thenReturn(TestData.TAG_LABEL.UNI_ANSWER_API_RESPONSE_ID);
-        Mockito.when(mock.put(TestData.TAG_LABEL.OBJECT_0)).thenReturn(TestData.TAG_LABEL.UNI_ANSWER_API_RESPONSE_ID);
+        Mockito.when(mock.add(TestData.TAG_LABEL.TABLE_0)).thenReturn(TestData.TAG_LABEL.UNI_ANSWER_API_RESPONSE_ID);
+        Mockito.when(mock.put(TestData.TAG_LABEL.TABLE_0)).thenReturn(TestData.TAG_LABEL.UNI_ANSWER_API_RESPONSE_ID);
         Mockito.when(mock.delete(TestData.TAG_LABEL.ID)).thenReturn(TestData.TAG_LABEL.UNI_ANSWER_API_RESPONSE_ID);
         QuarkusMock.installMockForType(mock, TagLabelService.class);
     }
@@ -105,7 +105,7 @@ class TagLabelResourceTest {
     void testEndpointAdd() {
         given()
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
-                .body(TestData.TAG_LABEL.OBJECT_0)
+                .body(TestData.TAG_LABEL.TABLE_0)
                 .when()
                 .post("/tag")
                 .then()

@@ -1,7 +1,7 @@
 package su.svn.daybook.utils;
 
 import org.jboss.logging.Logger;
-import su.svn.daybook.converters.getters.GettersDomain;
+import su.svn.daybook.converters.getters.GettersAnnotatedDomainFiled;
 
 import javax.annotation.Nonnull;
 import java.lang.reflect.Field;
@@ -11,7 +11,7 @@ import java.util.function.Function;
 
 public class AccessorsUtil
 {
-    private static final Logger LOG = Logger.getLogger(GettersDomain.class);
+    private static final Logger LOG = Logger.getLogger(GettersAnnotatedDomainFiled.class);
     public static final String GETTER_PREFIX_GET = "get";
     public static final String GETTER_PREFIX_IS = "is";
     public static final String GETTER_PREFIX_HAS = "has";

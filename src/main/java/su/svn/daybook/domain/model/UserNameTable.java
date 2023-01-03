@@ -301,6 +301,7 @@ public final class UserNameTable implements UUIDIdentification, Marked, Owned, T
         private int flags;
 
         private Builder() {
+            this.enabled = true;
         }
 
         public Builder id(UUID id) {

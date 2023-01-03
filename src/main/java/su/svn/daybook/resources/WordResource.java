@@ -14,7 +14,7 @@ import org.jboss.resteasy.reactive.RestResponse;
 import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
 import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.enums.ResourcePath;
-import su.svn.daybook.domain.model.WordTable;
+import su.svn.daybook.models.domain.Word;
 import su.svn.daybook.models.pagination.PageRequest;
 import su.svn.daybook.services.domain.AbstractService;
 import su.svn.daybook.services.domain.WordService;
@@ -26,7 +26,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 @Path(ResourcePath.WORD)
-public class WordResource extends AbstractResource implements Resources<String, WordTable> {
+public class WordResource extends AbstractResource implements Resources<String, Word> {
 
     @Inject
     WordService service;
@@ -34,7 +34,7 @@ public class WordResource extends AbstractResource implements Resources<String, 
     @GET
     @Path(ResourcePath.ALL)
     @Produces("application/json")
-    public Multi<WordTable> all(@QueryParam("get-all") Boolean getAll) {
+    public Multi<Word> all(@QueryParam("get-all") Boolean getAll) {
         return getAll();
     }
 
@@ -54,14 +54,14 @@ public class WordResource extends AbstractResource implements Resources<String, 
     @POST
     @Consumes("application/json")
     @Produces("application/json")
-    public Uni<Response> post(WordTable entry, @Context UriInfo uriInfo) {
+    public Uni<Response> post(Word entry, @Context UriInfo uriInfo) {
         return request(EventAddress.WORD_ADD, entry, uriInfo);
     }
 
     @PUT
     @Consumes("application/json")
     @Produces("application/json")
-    public Uni<Response> put(WordTable entry, @Context UriInfo uriInfo) {
+    public Uni<Response> put(Word entry, @Context UriInfo uriInfo) {
         return request(EventAddress.WORD_PUT, entry, uriInfo);
     }
 
@@ -78,7 +78,7 @@ public class WordResource extends AbstractResource implements Resources<String, 
     }
 
     @Override
-    public AbstractService<String, WordTable> getService() {
+    public AbstractService<String, Word> getService() {
         return service;
     }
 }

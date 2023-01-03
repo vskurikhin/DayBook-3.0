@@ -68,7 +68,7 @@ public final class TestModel implements LongIdentification, Serializable {
 
     @Override
     public String toString() {
-        return "KeyValue{" +
+        return "TestModel{" +
                 "id=" + id +
                 ", key='" + test + '\'' +
                 '}';

@@ -97,7 +97,7 @@ public class SettingService extends AbstractService<Long, SettingTable> {
     public Uni<Page<Answer>> getPage(@CacheKey PageRequest pageRequest) {
         //noinspection DuplicatedCode
         LOG.tracef("getPage(%s)", pageRequest);
-        return pageService.getPage(pageRequest, settingDao::count, settingDao::findRange);
+        return pageService.getPage(pageRequest, settingDao::count, settingDao::findRange, Answer::of);
     }
 
     /**

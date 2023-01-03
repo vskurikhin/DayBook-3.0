@@ -96,7 +96,7 @@ public class I18nService extends AbstractService<Long, I18nTable> {
     public Uni<Page<Answer>> getPage(PageRequest pageRequest) {
         //noinspection DuplicatedCode
         LOG.tracef("getPage(%s)", pageRequest);
-        return pageService.getPage(pageRequest, i18nDao::count, i18nDao::findRange);
+        return pageService.getPage(pageRequest, i18nDao::count, i18nDao::findRange, Answer::of);
     }
 
     /**

@@ -3,6 +3,7 @@ package su.svn.daybook.converters;
 import su.svn.daybook.annotations.DomainField;
 import su.svn.daybook.converters.records.FieldRecord;
 import su.svn.daybook.converters.records.MethodRecord;
+import su.svn.daybook.models.Identification;
 
 import java.io.Serializable;
 import java.lang.reflect.Field;
@@ -12,7 +13,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public interface DomainCollector<P extends Serializable> {
+public interface CollectorAnnotatedDomainFiled<P extends Identification<? extends Comparable<? extends Serializable>>> {
 
     default Map<String, FieldRecord> collectDomainFields(Class<P> eClass) {
         return Arrays

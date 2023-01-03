@@ -2,16 +2,16 @@ package su.svn.daybook.converters;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import su.svn.daybook.converters.getters.GettersDomain;
+import su.svn.daybook.converters.getters.GettersAnnotatedDomainFiled;
 import su.svn.daybook.models.domain.Codifier;
 
-class GettersDomainFieldTest {
+class GettersAnnotatedDomainFiledFieldTest {
 
-    GettersDomain<?> getters;
+    GettersAnnotatedDomainFiled<?> getters;
 
     @BeforeEach
     void setUp() {
-        getters = new GettersDomain<>(Codifier.class);
+        getters = new GettersAnnotatedDomainFiled<>(Codifier.class);
     }
 
     @Test

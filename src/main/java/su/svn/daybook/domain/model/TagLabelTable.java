@@ -326,6 +326,7 @@ public final class TagLabelTable implements StringIdentification, Marked, Owned,
         private int flags;
 
         private Builder() {
+            this.enabled = true;
         }
 
         public Builder id(String id) {

@@ -337,6 +337,7 @@ public final class KeyValueTable implements LongIdentification, Marked, Owned, T
         private int flags;
 
         private Builder() {
+            this.enabled = true;
         }
 
         public Builder id(Long id) {

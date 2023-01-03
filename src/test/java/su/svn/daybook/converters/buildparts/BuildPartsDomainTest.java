@@ -3,22 +3,18 @@ package su.svn.daybook.converters.buildparts;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import su.svn.daybook.converters.getters.GettersDomain;
-import su.svn.daybook.converters.records.MethodRecord;
 import su.svn.daybook.models.domain.TestModel;
 
 import java.util.ArrayList;
-import java.util.Map;
-import java.util.function.Consumer;
 
 class BuildPartsDomainTest {
 
-    BuildPartsDomain<?> buildParts;
+    BuildPartsAnnotatedDomainFiled<?> buildParts;
 
     @BeforeEach
     void setUp() {
         Assertions.assertDoesNotThrow(() -> {
-            buildParts = new BuildPartsDomain<>(TestModel.class, TestModel::builder);
+            buildParts = new BuildPartsAnnotatedDomainFiled<>(TestModel.class, TestModel::builder);
         });
     }
 

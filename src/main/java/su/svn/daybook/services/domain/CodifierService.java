@@ -92,7 +92,7 @@ public class CodifierService extends AbstractService<String, CodifierTable> {
     public Uni<Page<Answer>> getPage(@CacheKey PageRequest pageRequest) {
         //noinspection DuplicatedCode
         LOG.tracef("getPage(%s)", pageRequest);
-        return pageService.getPage(pageRequest, codifierDao::count, codifierDao::findRange);
+        return pageService.getPage(pageRequest, codifierDao::count, codifierDao::findRange, Answer::of);
     }
 
     /**
