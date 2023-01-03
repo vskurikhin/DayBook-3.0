@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS dictionary.key_value (
     update_time   TIMESTAMP WITHOUT TIME ZONE             DEFAULT now(),
     enabled       BOOLEAN                                 DEFAULT true,
     visible       BOOLEAN                                 DEFAULT true,
-    flags         INT
+    flags         INT                          NOT NULL   DEFAULT 0
     );
 
 --

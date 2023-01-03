@@ -20,18 +20,21 @@ import su.svn.daybook.domain.dao.KeyValueDao;
 import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.model.KeyValueTable;
+import su.svn.daybook.models.domain.KeyValue;
 import su.svn.daybook.models.pagination.Page;
 import su.svn.daybook.models.pagination.PageRequest;
 import su.svn.daybook.services.ExceptionAnswerService;
 import su.svn.daybook.services.PageService;
+import su.svn.daybook.services.mappers.KeyValueMapper;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 @ApplicationScoped
-public class KeyValueService extends AbstractService<Long, KeyValueTable> {
+public class KeyValueService extends AbstractService<Long, KeyValue> {
 
     private static final Logger LOG = Logger.getLogger(KeyValueService.class);
 
@@ -40,6 +43,9 @@ public class KeyValueService extends AbstractService<Long, KeyValueTable> {
 
     @Inject
     KeyValueDao keyValueDao;
+
+    @Inject
+    KeyValueMapper keyValueMapper;
 
     @Inject
     ExceptionAnswerService exceptionAnswerService;
@@ -80,13 +86,22 @@ public class KeyValueService extends AbstractService<Long, KeyValueTable> {
         return keyValueDao
                 .count()
                 .onItem()
-                .transformToMulti(count -> getAllIfNotOverSize(count, () -> keyValueDao.findAll()));
+                .transformToMulti(count -> getAllIfNotOverSize(count, this::getAllModels));
+    }
+
+    private Multi<KeyValue> getAllModels() {
+        return keyValueDao.findAll().map(keyValueMapper::convertToModel);
     }
 
     private Uni<Answer> getEntry(Long id) {
         return keyValueDao
                 .findById(id)
-                .map(this::apiResponseWithValueAnswer)
+                .onItem()
+                .transform(Optional::get)
+                .onItem()
+                .transform(keyValueMapper::convertToModel)
+                .onItem()
+                .transform(Answer::of)
                 .onFailure(exceptionAnswerService::testNoSuchElementException)
                 .recoverWithUni(exceptionAnswerService::noSuchElementAnswer)
                 .onFailure(exceptionAnswerService::testException)
@@ -98,7 +113,11 @@ public class KeyValueService extends AbstractService<Long, KeyValueTable> {
     public Uni<Page<Answer>> getPage(@CacheKey PageRequest pageRequest) {
         //noinspection DuplicatedCode
         LOG.tracef("getPage(%s)", pageRequest);
-        return pageService.getPage(pageRequest, keyValueDao::count, keyValueDao::findRange);
+        return pageService.getPage(pageRequest, keyValueDao::count, keyValueDao::findRange, this::answerOfModel);
+    }
+
+    private Answer answerOfModel(KeyValueTable w) {
+        return Answer.of(keyValueMapper.convertToModel(w));
     }
 
     /**
@@ -108,10 +127,10 @@ public class KeyValueService extends AbstractService<Long, KeyValueTable> {
      * @return - a lazy asynchronous action (LAA) with the Answer containing the KeyValue id as payload or empty payload
      */
     @ConsumeEvent(EventAddress.KEY_VALUE_ADD)
-    public Uni<Answer> add(KeyValueTable o) {
+    public Uni<Answer> add(KeyValue o) {
         //noinspection DuplicatedCode
         LOG.tracef("add(%s)", o);
-        return addEntry(o);
+        return addEntry(keyValueMapper.convertToDomain(o));
     }
 
     private Uni<Answer> addEntry(KeyValueTable entry) {
@@ -133,10 +152,10 @@ public class KeyValueService extends AbstractService<Long, KeyValueTable> {
      * @return - a LAA with the Answer containing KeyValue id as payload or empty payload
      */
     @ConsumeEvent(EventAddress.KEY_VALUE_PUT)
-    public Uni<Answer> put(KeyValueTable o) {
+    public Uni<Answer> put(KeyValue o) {
         //noinspection DuplicatedCode
         LOG.tracef("put(%s)", o);
-        return putEntry(o);
+        return putEntry(keyValueMapper.convertToDomain(o));
     }
 
     private Uni<Answer> putEntry(KeyValueTable entry) {

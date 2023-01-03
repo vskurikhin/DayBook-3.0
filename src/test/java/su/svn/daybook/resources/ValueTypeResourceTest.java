@@ -32,7 +32,7 @@ class ValueTypeResourceTest {
     static Uni<Answer> test = Uni.createFrom()
             .item(1)
             .onItem()
-            .transform(i -> Answer.of(TestData.VALUE_TYPE.OBJECT_0));
+            .transform(i -> Answer.of(TestData.VALUE_TYPE.TABLE_0));
 
     ValueTypeService mock;
 
@@ -47,10 +47,10 @@ class ValueTypeResourceTest {
         Mockito.when(mock.get(Long.toString(Integer.MAX_VALUE))).thenReturn(TestData.UNI_ANSWER_EMPTY);
         Mockito.when(mock.get((long) Integer.MIN_VALUE)).thenReturn(TestData.UNI_ANSWER_NULL);
         Mockito.when(mock.get(Long.toString(Integer.MIN_VALUE))).thenReturn(TestData.UNI_ANSWER_NULL);
-        Mockito.when(mock.getAll()).thenReturn(Multi.createFrom().item(Answer.of(TestData.VALUE_TYPE.OBJECT_0)));
+        Mockito.when(mock.getAll()).thenReturn(Multi.createFrom().item(Answer.of(TestData.VALUE_TYPE.TABLE_0)));
         Mockito.when(mock.getPage(pageRequest)).thenReturn(TestData.VALUE_TYPE.UNI_PAGE_ANSWER_SINGLETON_TEST);
-        Mockito.when(mock.add(TestData.VALUE_TYPE.OBJECT_0)).thenReturn(TestData.UNI_ANSWER_API_RESPONSE_ZERO_LONG);
-        Mockito.when(mock.put(TestData.VALUE_TYPE.OBJECT_0)).thenReturn(TestData.UNI_ANSWER_API_RESPONSE_ZERO_LONG);
+        Mockito.when(mock.add(TestData.VALUE_TYPE.TABLE_0)).thenReturn(TestData.UNI_ANSWER_API_RESPONSE_ZERO_LONG);
+        Mockito.when(mock.put(TestData.VALUE_TYPE.TABLE_0)).thenReturn(TestData.UNI_ANSWER_API_RESPONSE_ZERO_LONG);
         Mockito.when(mock.delete(0L)).thenReturn(TestData.UNI_ANSWER_API_RESPONSE_ZERO_LONG);
         Mockito.when(mock.delete("0")).thenReturn(TestData.UNI_ANSWER_API_RESPONSE_ZERO_LONG);
         QuarkusMock.installMockForType(mock, ValueTypeService.class);

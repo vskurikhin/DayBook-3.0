@@ -97,7 +97,7 @@ public class ValueTypeService extends AbstractService<Long, ValueTypeTable> {
     public Uni<Page<Answer>> getPage(@CacheKey PageRequest pageRequest) {
         //noinspection DuplicatedCode
         LOG.tracef("getPage(%s)", pageRequest);
-        return pageService.getPage(pageRequest, valueTypeDao::count, valueTypeDao::findRange);
+        return pageService.getPage(pageRequest, valueTypeDao::count, valueTypeDao::findRange, Answer::of);
     }
 
     /**

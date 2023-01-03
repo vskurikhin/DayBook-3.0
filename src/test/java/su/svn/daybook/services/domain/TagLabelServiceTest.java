@@ -30,9 +30,9 @@ class TagLabelServiceTest {
 
     static TagLabelDao mock;
 
-    static final Uni<Optional<TagLabelTable>> UNI_OPTIONAL_TEST = Uni.createFrom().item(Optional.of(TestData.TAG_LABEL.OBJECT_0));
+    static final Uni<Optional<TagLabelTable>> UNI_OPTIONAL_TEST = Uni.createFrom().item(Optional.of(TestData.TAG_LABEL.TABLE_0));
 
-    static final Multi<TagLabelTable> MULTI_TEST = Multi.createFrom().item(TestData.TAG_LABEL.OBJECT_0);
+    static final Multi<TagLabelTable> MULTI_TEST = Multi.createFrom().item(TestData.TAG_LABEL.TABLE_0);
 
     static final Multi<TagLabelTable> MULTI_WITH_NULL = TestData.createMultiWithNull(TagLabelTable.class);
 
@@ -52,7 +52,7 @@ class TagLabelServiceTest {
         Assertions.assertDoesNotThrow(() -> result.addAll(service.getAll()
                 .subscribe()
                 .asStream()
-                .peek(actual -> Assertions.assertEquals(Answer.of(TestData.TAG_LABEL.OBJECT_0), actual)).toList()));
+                .peek(actual -> Assertions.assertEquals(Answer.of(TestData.TAG_LABEL.TABLE_0), actual)).toList()));
         Assertions.assertTrue(result.size() > 0);
     }
 
@@ -91,7 +91,7 @@ class TagLabelServiceTest {
                 .pageSize((short) 1)
                 .prevPage(false)
                 .nextPage(false)
-                .content(Collections.singletonList(Answer.of(TestData.TAG_LABEL.OBJECT_0)))
+                .content(Collections.singletonList(Answer.of(TestData.TAG_LABEL.TABLE_0)))
                 .build();
 
         Assertions.assertDoesNotThrow(() -> service.getPage(pageRequest)
@@ -154,7 +154,7 @@ class TagLabelServiceTest {
     void testWhenGetThenEntry() {
         Assertions.assertDoesNotThrow(() -> service.get(TestData.TAG_LABEL.ID)
                 .onItem()
-                .invoke(actual -> Assertions.assertEquals(Answer.of(TestData.TAG_LABEL.OBJECT_0), actual))
+                .invoke(actual -> Assertions.assertEquals(Answer.of(TestData.TAG_LABEL.TABLE_0), actual))
                 .await()
                 .indefinitely());
     }
@@ -165,8 +165,8 @@ class TagLabelServiceTest {
                 .error(201)
                 .payload(new ApiResponse<>(TestData.TAG_LABEL.ID))
                 .build();
-        Mockito.when(mock.insert(TestData.TAG_LABEL.OBJECT_0)).thenReturn(TestData.TAG_LABEL.UNI_OPTIONAL_ID);
-        Assertions.assertDoesNotThrow(() -> service.add(TestData.TAG_LABEL.OBJECT_0)
+        Mockito.when(mock.insert(TestData.TAG_LABEL.TABLE_0)).thenReturn(TestData.TAG_LABEL.UNI_OPTIONAL_ID);
+        Assertions.assertDoesNotThrow(() -> service.add(TestData.TAG_LABEL.TABLE_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
                 .await()
@@ -175,8 +175,8 @@ class TagLabelServiceTest {
 
     @Test
     void testWhenAddThenEmpty() {
-        Mockito.when(mock.insert(TestData.TAG_LABEL.OBJECT_0)).thenReturn(TestData.UNI_OPTIONAL_EMPTY_STRING);
-        Assertions.assertDoesNotThrow(() -> service.add(TestData.TAG_LABEL.OBJECT_0)
+        Mockito.when(mock.insert(TestData.TAG_LABEL.TABLE_0)).thenReturn(TestData.UNI_OPTIONAL_EMPTY_STRING);
+        Assertions.assertDoesNotThrow(() -> service.add(TestData.TAG_LABEL.TABLE_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(Answer.empty(), actual))
                 .await()
@@ -189,8 +189,8 @@ class TagLabelServiceTest {
                 .error(202)
                 .payload(new ApiResponse<>(TestData.TAG_LABEL.ID))
                 .build();
-        Mockito.when(mock.update(TestData.TAG_LABEL.OBJECT_0)).thenReturn(TestData.TAG_LABEL.UNI_OPTIONAL_ID);
-        Assertions.assertDoesNotThrow(() -> service.put(TestData.TAG_LABEL.OBJECT_0)
+        Mockito.when(mock.update(TestData.TAG_LABEL.TABLE_0)).thenReturn(TestData.TAG_LABEL.UNI_OPTIONAL_ID);
+        Assertions.assertDoesNotThrow(() -> service.put(TestData.TAG_LABEL.TABLE_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
                 .await()
@@ -199,8 +199,8 @@ class TagLabelServiceTest {
 
     @Test
     void testWhenPutThenEmpty() {
-        Mockito.when(mock.update(TestData.TAG_LABEL.OBJECT_0)).thenReturn(TestData.UNI_OPTIONAL_EMPTY_STRING);
-        Assertions.assertThrows(RuntimeException.class, () -> service.put(TestData.TAG_LABEL.OBJECT_0)
+        Mockito.when(mock.update(TestData.TAG_LABEL.TABLE_0)).thenReturn(TestData.UNI_OPTIONAL_EMPTY_STRING);
+        Assertions.assertThrows(RuntimeException.class, () -> service.put(TestData.TAG_LABEL.TABLE_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(Answer.empty(), actual))
                 .await()

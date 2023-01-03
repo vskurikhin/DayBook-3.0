@@ -39,9 +39,9 @@ class KeyValueServiceTest {
 
     static KeyValueDao mock;
 
-    static final Uni<Optional<KeyValueTable>> UNI_OPTIONAL_TEST = Uni.createFrom().item(Optional.of(TestData.KEY_VALUE.OBJECT_0));
+    static final Uni<Optional<KeyValueTable>> UNI_OPTIONAL_TEST = Uni.createFrom().item(Optional.of(TestData.KEY_VALUE.TABLE_0));
 
-    static final Multi<KeyValueTable> MULTI_TEST = Multi.createFrom().item(TestData.KEY_VALUE.OBJECT_0);
+    static final Multi<KeyValueTable> MULTI_TEST = Multi.createFrom().item(TestData.KEY_VALUE.TABLE_0);
 
     static final Multi<KeyValueTable> MULTI_WITH_NULL = TestData.createMultiWithNull(KeyValueTable.class);
 
@@ -62,7 +62,7 @@ class KeyValueServiceTest {
         Assertions.assertDoesNotThrow(() -> result.addAll(service.getAll()
                 .subscribe()
                 .asStream()
-                .peek(actual -> Assertions.assertEquals(Answer.of(TestData.KEY_VALUE.OBJECT_0), actual)).toList()));
+                .peek(actual -> Assertions.assertEquals(Answer.of(TestData.KEY_VALUE.MODEL_0), actual)).toList()));
         Assertions.assertTrue(result.size() > 0);
     }
 
@@ -118,7 +118,7 @@ class KeyValueServiceTest {
                 .pageSize((short) 1)
                 .prevPage(false)
                 .nextPage(false)
-                .content(Collections.singletonList(Answer.of(TestData.KEY_VALUE.OBJECT_0)))
+                .content(Collections.singletonList(Answer.of(TestData.KEY_VALUE.MODEL_0)))
                 .build();
 
         Assertions.assertDoesNotThrow(() -> service.getPage(pageRequest)
@@ -181,7 +181,7 @@ class KeyValueServiceTest {
     void testWhenGetThenEntry() {
         Assertions.assertDoesNotThrow(() -> service.get(0L)
                 .onItem()
-                .invoke(actual -> Assertions.assertEquals(Answer.of(TestData.KEY_VALUE.OBJECT_0), actual))
+                .invoke(actual -> Assertions.assertEquals(Answer.of(TestData.KEY_VALUE.MODEL_0), actual))
                 .await()
                 .indefinitely());
     }
@@ -201,8 +201,8 @@ class KeyValueServiceTest {
                 .error(201)
                 .payload(new ApiResponse<>(0L))
                 .build();
-        Mockito.when(mock.insert(TestData.KEY_VALUE.OBJECT_0)).thenReturn(TestData.UNI_OPTIONAL_ZERO_LONG);
-        Assertions.assertDoesNotThrow(() -> service.add(TestData.KEY_VALUE.OBJECT_0)
+        Mockito.when(mock.insert(TestData.KEY_VALUE.TABLE_0)).thenReturn(TestData.UNI_OPTIONAL_ZERO_LONG);
+        Assertions.assertDoesNotThrow(() -> service.add(TestData.KEY_VALUE.MODEL_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
                 .await()
@@ -211,8 +211,8 @@ class KeyValueServiceTest {
 
     @Test
     void testWhenAddThenEmpty() {
-        Mockito.when(mock.insert(TestData.KEY_VALUE.OBJECT_0)).thenReturn(TestData.UNI_OPTIONAL_EMPTY_LONG);
-        Assertions.assertDoesNotThrow(() -> service.add(TestData.KEY_VALUE.OBJECT_0)
+        Mockito.when(mock.insert(TestData.KEY_VALUE.TABLE_0)).thenReturn(TestData.UNI_OPTIONAL_EMPTY_LONG);
+        Assertions.assertDoesNotThrow(() -> service.add(TestData.KEY_VALUE.MODEL_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(Answer.empty(), actual))
                 .await()
@@ -225,8 +225,8 @@ class KeyValueServiceTest {
                 .error(202)
                 .payload(new ApiResponse<>(0L))
                 .build();
-        Mockito.when(mock.update(TestData.KEY_VALUE.OBJECT_0)).thenReturn(TestData.UNI_OPTIONAL_ZERO_LONG);
-        Assertions.assertDoesNotThrow(() -> service.put(TestData.KEY_VALUE.OBJECT_0)
+        Mockito.when(mock.update(TestData.KEY_VALUE.TABLE_0)).thenReturn(TestData.UNI_OPTIONAL_ZERO_LONG);
+        Assertions.assertDoesNotThrow(() -> service.put(TestData.KEY_VALUE.MODEL_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
                 .await()
@@ -235,8 +235,8 @@ class KeyValueServiceTest {
 
     @Test
     void testWhenPutThenEmpty() {
-        Mockito.when(mock.update(TestData.KEY_VALUE.OBJECT_0)).thenReturn(TestData.UNI_OPTIONAL_ZERO_LONG);
-        Assertions.assertThrows(RuntimeException.class, () -> service.put(TestData.KEY_VALUE.OBJECT_0)
+        Mockito.when(mock.update(TestData.KEY_VALUE.TABLE_0)).thenReturn(TestData.UNI_OPTIONAL_ZERO_LONG);
+        Assertions.assertThrows(RuntimeException.class, () -> service.put(TestData.KEY_VALUE.MODEL_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(Answer.empty(), actual))
                 .await()

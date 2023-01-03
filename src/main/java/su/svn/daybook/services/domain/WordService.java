@@ -20,18 +20,21 @@ import su.svn.daybook.domain.dao.WordDao;
 import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.model.WordTable;
+import su.svn.daybook.models.domain.Word;
 import su.svn.daybook.models.pagination.Page;
 import su.svn.daybook.models.pagination.PageRequest;
 import su.svn.daybook.services.ExceptionAnswerService;
 import su.svn.daybook.services.PageService;
+import su.svn.daybook.services.mappers.WordMapper;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 @ApplicationScoped
-public class WordService extends AbstractService<String, WordTable> {
+public class WordService extends AbstractService<String, Word> {
 
     private static final Logger LOG = Logger.getLogger(WordService.class);
 
@@ -40,6 +43,9 @@ public class WordService extends AbstractService<String, WordTable> {
 
     @Inject
     WordDao wordDao;
+
+    @Inject
+    WordMapper wordMapper;
 
     @Inject
     ExceptionAnswerService exceptionAnswerService;
@@ -58,12 +64,7 @@ public class WordService extends AbstractService<String, WordTable> {
     public Uni<Answer> get(@CacheKey Object o) {
         //noinspection DuplicatedCode
         LOG.tracef("get(%s)", o);
-        try {
-            return getEntry(getIdString(o));
-        } catch (NoSuchElementException e) {
-            LOG.errorf("get(%s)", o, e);
-            return Uni.createFrom().item(Answer.empty());
-        }
+        return getEntry(getIdString(o));
     }
 
     /**
@@ -77,17 +78,22 @@ public class WordService extends AbstractService<String, WordTable> {
         return wordDao
                 .count()
                 .onItem()
-                .transformToMulti(count -> getAllIfNotOverSize(count, () -> wordDao.findAll()));
+                .transformToMulti(count -> getAllIfNotOverSize(count, this::getAllModels));
+    }
+
+    private Multi<Word> getAllModels() {
+        return wordDao.findAll().map(wordMapper::convertToModel);
     }
 
     private Uni<Answer> getEntry(String id) {
         return wordDao
                 .findById(id)
-                .map(this::apiResponseWithValueAnswer)
-                .onFailure(exceptionAnswerService::testNoSuchElementException)
-                .recoverWithUni(exceptionAnswerService::noSuchElementAnswer)
-                .onFailure(exceptionAnswerService::testException)
-                .recoverWithUni(exceptionAnswerService::badRequestUniAnswer);
+                .onItem()
+                .transform(Optional::get)
+                .onItem()
+                .transform(wordMapper::convertToModel)
+                .onItem()
+                .transform(Answer::of);
     }
 
     @ConsumeEvent(value = EventAddress.WORD_PAGE)
@@ -95,7 +101,11 @@ public class WordService extends AbstractService<String, WordTable> {
     public Uni<Page<Answer>> getPage(@CacheKey PageRequest pageRequest) {
         //noinspection DuplicatedCode
         LOG.tracef("getPage(%s)", pageRequest);
-        return pageService.getPage(pageRequest, wordDao::count, wordDao::findRange);
+        return pageService.getPage(pageRequest, wordDao::count, wordDao::findRange, this::answerOfModel);
+    }
+
+    private Answer answerOfModel(WordTable w) {
+        return Answer.of(wordMapper.convertToModel(w));
     }
 
     /**
@@ -105,10 +115,10 @@ public class WordService extends AbstractService<String, WordTable> {
      * @return - a lazy asynchronous action (LAA) with the Answer containing the Word id as payload or empty payload
      */
     @ConsumeEvent(EventAddress.WORD_ADD)
-    public Uni<Answer> add(WordTable o) {
+    public Uni<Answer> add(Word o) {
         //noinspection DuplicatedCode
         LOG.tracef("add(%s)", o);
-        return addEntry(o);
+        return addEntry(wordMapper.convertToDomain(o));
     }
 
     private Uni<Answer> addEntry(WordTable entry) {
@@ -130,13 +140,14 @@ public class WordService extends AbstractService<String, WordTable> {
      * @return - a LAA with the Answer containing Word id as payload or empty payload
      */
     @ConsumeEvent(EventAddress.WORD_PUT)
-    public Uni<Answer> put(WordTable o) {
+    public Uni<Answer> put(Word o) {
         //noinspection DuplicatedCode
         LOG.tracef("put(%s)", o);
-        return putEntry(o);
+        return putEntry(wordMapper.convertToDomain(o));
     }
 
     private Uni<Answer> putEntry(WordTable entry) {
+        LOG.infof("putEntry(%s)", entry);
         return wordDao
                 .update(entry)
                 .flatMap(this::apiResponseAcceptedUniAnswer)

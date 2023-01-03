@@ -97,7 +97,7 @@ public class VocabularyService extends AbstractService<Long, VocabularyTable> {
     public Uni<Page<Answer>> getPage(@CacheKey PageRequest pageRequest) {
         //noinspection DuplicatedCode
         LOG.tracef("getPage(%s)", pageRequest);
-        return pageService.getPage(pageRequest, vocabularyDao::count, vocabularyDao::findRange);
+        return pageService.getPage(pageRequest, vocabularyDao::count, vocabularyDao::findRange, Answer::of);
     }
 
     /**

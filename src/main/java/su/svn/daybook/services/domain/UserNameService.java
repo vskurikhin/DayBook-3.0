@@ -94,7 +94,7 @@ public class UserNameService extends AbstractService<UUID, UserNameTable> {
     public Uni<Page<Answer>> getPage(@CacheKey PageRequest pageRequest) {
         //noinspection DuplicatedCode
         LOG.tracef("getPage(%s)", pageRequest);
-        return pageService.getPage(pageRequest, userNameDao::count, userNameDao::findRange);
+        return pageService.getPage(pageRequest, userNameDao::count, userNameDao::findRange, Answer::of);
     }
 
     /**

@@ -7,10 +7,12 @@ import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.models.pagination.Page;
 import su.svn.daybook.models.pagination.PageRequest;
 
+import javax.annotation.Nonnull;
 import javax.enterprise.context.ApplicationScoped;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 @ApplicationScoped
@@ -19,15 +21,16 @@ public class PageService {
     private static final Logger LOG = Logger.getLogger(PageService.class);
 
     public <T> Uni<Page<Answer>> getPage(
-            PageRequest pageRequest,
-            Supplier<Uni<Optional<Long>>> countSupplier,
-            BiFunction<Long, Short, Multi<T>> toMultiEntries) {
+            @Nonnull PageRequest pageRequest,
+            @Nonnull Supplier<Uni<Optional<Long>>> countSupplier,
+            @Nonnull BiFunction<Long, Short, Multi<T>> toMultiEntries,
+            @Nonnull Function<T, Answer> toAnswer) {
 
         LOG.tracef("getPage(%s, Supplier, BiFunction)", pageRequest);
         BiFunction<Long, Short, Uni<List<Answer>>> toMultiAnswer =
                 (Long offset, Short limit) -> toMultiEntries.apply(offset, limit)
                         .onItem()
-                        .transform(Answer::of)
+                        .transform(toAnswer)
                         .collect()
                         .asList();
         return countSupplier.get()

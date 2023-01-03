@@ -16,6 +16,11 @@ import io.vertx.mutiny.pgclient.PgPool;
 import io.vertx.mutiny.sqlclient.Row;
 import io.vertx.mutiny.sqlclient.RowSet;
 import io.vertx.mutiny.sqlclient.Tuple;
+import su.svn.daybook.annotations.ModelField;
+import su.svn.daybook.models.LongIdentification;
+import su.svn.daybook.models.Marked;
+import su.svn.daybook.models.Owned;
+import su.svn.daybook.models.TimeUpdated;
 
 import javax.annotation.Nonnull;
 import java.io.Serial;
@@ -80,14 +85,19 @@ public final class KeyValueTable implements LongIdentification, Marked, Owned, T
     @Serial
     private static final long serialVersionUID = 3377791800667728148L;
     public static final String ID = "id";
+    @ModelField
     private final Long id;
+    @ModelField
     private final String key;
+    @ModelField
     private final String value;
     private final String userName;
     private final LocalDateTime createTime;
     private final LocalDateTime updateTime;
     private final boolean enabled;
+    @ModelField
     private final boolean visible;
+    @ModelField
     private final int flags;
 
     @JsonIgnore
@@ -327,6 +337,7 @@ public final class KeyValueTable implements LongIdentification, Marked, Owned, T
         private int flags;
 
         private Builder() {
+            this.enabled = true;
         }
 
         public Builder id(Long id) {

@@ -97,7 +97,7 @@ public class LanguageService extends AbstractService<Long, LanguageTable> {
     public Uni<Page<Answer>> getPage(@CacheKey PageRequest pageRequest) {
         //noinspection DuplicatedCode
         LOG.tracef("getPage(%s)", pageRequest);
-        return pageService.getPage(pageRequest, languageDao::count, languageDao::findRange);
+        return pageService.getPage(pageRequest, languageDao::count, languageDao::findRange, Answer::of);
     }
 
     /**

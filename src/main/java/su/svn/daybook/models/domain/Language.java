@@ -10,7 +10,8 @@ package su.svn.daybook.models.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import su.svn.daybook.domain.model.LongIdentification;
+import su.svn.daybook.annotations.DomainField;
+import su.svn.daybook.models.LongIdentification;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -22,9 +23,13 @@ public final class Language implements LongIdentification, Serializable {
     public static final String ID = "id";
     @Serial
     private static final long serialVersionUID = -165934844115167751L;
+    @DomainField
     private final Long id;
+    @DomainField
     private final String language;
+    @DomainField
     private final boolean visible;
+    @DomainField
     private final int flags;
 
     @JsonIgnore

@@ -1,4 +1,4 @@
-package su.svn.daybook.domain.model;
+package su.svn.daybook.models;
 
 public interface Marked {
     boolean getEnabled();
