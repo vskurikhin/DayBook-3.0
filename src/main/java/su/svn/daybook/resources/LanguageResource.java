@@ -65,7 +65,6 @@ public class LanguageResource extends AbstractResource implements Resources<Long
         return request(EventAddress.LANGUAGE_ADD, entry, uriInfo);
     }
 
-
     @PUT
     @Consumes("application/json")
     @Produces("application/json")

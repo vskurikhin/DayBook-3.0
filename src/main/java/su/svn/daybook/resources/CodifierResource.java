@@ -65,7 +65,6 @@ public class CodifierResource extends AbstractResource implements Resources<Stri
         return request(EventAddress.CODIFIER_ADD, entry, uriInfo);
     }
 
-
     @PUT
     @Consumes("application/json")
     @Produces("application/json")

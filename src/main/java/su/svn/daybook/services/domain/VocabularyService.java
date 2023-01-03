@@ -116,10 +116,10 @@ public class VocabularyService extends AbstractService<Long, Vocabulary> {
     private Uni<Answer> addEntry(VocabularyTable entry) {
         return vocabularyDao
                 .insert(entry)
-                .map(o -> apiResponseWithKeyAnswer(201, o))
+                .map(o -> apiResponseAnswer(201, o))
                 .flatMap(vocabularyCacheProvider::invalidate)
-                .onFailure(exceptionAnswerService::testDuplicateKeyException)
-                .recoverWithUni(exceptionAnswerService::notAcceptableDuplicateKeyValAnswer)
+                .onFailure(exceptionAnswerService::testDuplicateException)
+                .recoverWithUni(exceptionAnswerService::notAcceptableDuplicateAnswer)
                 .onFailure(exceptionAnswerService::testException)
                 .recoverWithUni(exceptionAnswerService::badRequestUniAnswer);
     }
@@ -141,8 +141,8 @@ public class VocabularyService extends AbstractService<Long, Vocabulary> {
                 .update(entry)
                 .flatMap(this::apiResponseAcceptedUniAnswer)
                 .flatMap(answer -> vocabularyCacheProvider.invalidateById(entry.getId(), answer))
-                .onFailure(exceptionAnswerService::testDuplicateKeyException)
-                .recoverWithUni(exceptionAnswerService::notAcceptableDuplicateKeyValAnswer)
+                .onFailure(exceptionAnswerService::testDuplicateException)
+                .recoverWithUni(exceptionAnswerService::notAcceptableDuplicateAnswer)
                 .onFailure(exceptionAnswerService::testNoSuchElementException)
                 .recoverWithUni(get(entry.getId()))
                 .onFailure(exceptionAnswerService::testException)
@@ -173,7 +173,7 @@ public class VocabularyService extends AbstractService<Long, Vocabulary> {
     private Uni<Answer> deleteEntry(long id) {
         return vocabularyDao
                 .delete(id)
-                .map(this::apiResponseWithKeyAnswer)
+                .map(this::apiResponseAnswer)
                 .flatMap(answer -> vocabularyCacheProvider.invalidateById(id, answer))
                 .onFailure(exceptionAnswerService::testNoSuchElementException)
                 .recoverWithUni(exceptionAnswerService::noSuchElementAnswer)

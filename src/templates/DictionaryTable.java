@@ -2,7 +2,7 @@
  * This file was last modified at 2022.01.12 22:58 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
- * LanguageTable.java
+ * @Name@Table.java
  * $Id$
  */
 
@@ -17,11 +17,12 @@ import io.vertx.mutiny.sqlclient.Row;
 import io.vertx.mutiny.sqlclient.RowSet;
 import io.vertx.mutiny.sqlclient.Tuple;
 import su.svn.daybook.annotations.ModelField;
-import su.svn.daybook.models.LongIdentification;
+import su.svn.daybook.models.@IdType@Identification;
 import su.svn.daybook.models.Marked;
 import su.svn.daybook.models.Owned;
 import su.svn.daybook.models.TimeUpdated;
 
+import javax.annotation.Nonnull;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -30,62 +31,66 @@ import java.util.List;
 import java.util.Objects;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public final class LanguageTable implements LongIdentification, Marked, Owned, TimeUpdated, Serializable {
+public final class @Name@Table implements @IdType@Identification, Marked, Owned, TimeUpdated, Serializable {
 
-    public static final String SELECT_FROM_DICTIONARY_LANGUAGE_WHERE_ID_$1 = """
-            SELECT id, language, user_name, create_time, update_time, enabled, visible, flags
-              FROM dictionary.language
+    public static final String NONE = "@uuid@";
+    public static final String SELECT_FROM_@SCHEMA@_@TABLE@_WHERE_ID_$1 = """
+            SELECT id, @key@, @value@, user_name, create_time, update_time, enabled, visible, flags
+              FROM @schema@.@table@
              WHERE id = $1 AND enabled
             """;
-    public static final String SELECT_ALL_FROM_DICTIONARY_LANGUAGE_ORDER_BY_ID_ASC = """
-            SELECT id, language, user_name, create_time, update_time, enabled, visible, flags
-              FROM dictionary.language
+    public static final String SELECT_ALL_FROM_@SCHEMA@_@TABLE@_ORDER_BY_ID_ASC = """
+            SELECT id, @key@, @value@, user_name, create_time, update_time, enabled, visible, flags
+              FROM @schema@.@table@
              WHERE enabled
              ORDER BY id ASC
             """;
-    public static final String SELECT_ALL_FROM_DICTIONARY_LANGUAGE_ORDER_BY_ID_ASC_OFFSET_LIMIT = """
-            SELECT id, language, user_name, create_time, update_time, enabled, visible, flags
-              FROM dictionary.language
+    public static final String SELECT_ALL_FROM_@SCHEMA@_@TABLE@_ORDER_BY_ID_ASC_OFFSET_LIMIT = """
+            SELECT id, @key@, @value@, user_name, create_time, update_time, enabled, visible, flags
+              FROM @schema@.@table@
              WHERE enabled
              ORDER BY id ASC OFFSET $1 LIMIT $2
             """;
-    public static final String INSERT_INTO_DICTIONARY_LANGUAGE = """
-            INSERT INTO dictionary.language
-             (id, language, user_name, enabled, visible, flags)
+    public static final String INSERT_INTO_@SCHEMA@_@TABLE@ = """
+            INSERT INTO @schema@.@table@
+             (id, @key@, @value@, user_name, enabled, visible, flags)
              VALUES
-             ($1, $2, $3, $4, $5, $6)
+             ($1, $2, $3, $4, $5, $6, $7)
              RETURNING id
             """;
-    public static final String INSERT_INTO_DICTIONARY_LANGUAGE_DEFAULT_ID = """
-            INSERT INTO dictionary.language
-             (id, language, user_name, enabled, visible, flags)
+    public static final String INSERT_INTO_@SCHEMA@_@TABLE@_DEFAULT_ID = """
+            INSERT INTO @schema@.@table@
+             (id, @key@, @value@, user_name, enabled, visible, flags)
              VALUES
-             (DEFAULT, $1, $2, $3, $4, $5)
+             (DEFAULT, $1, $2, $3, $4, $5, $6)
              RETURNING id
             """;
-    public static final String UPDATE_DICTIONARY_LANGUAGE_WHERE_ID_$1 = """
-            UPDATE dictionary.language SET
-              language = $2,
-              user_name = $3,
-              enabled = $4,
-              visible = $5,
-              flags = $6
+    public static final String UPDATE_@SCHEMA@_@TABLE@_WHERE_ID_$1 = """
+            UPDATE @schema@.@table@ SET
+              @key@ = $2,
+              @value@ = $3,
+              user_name = $4,
+              enabled = $5,
+              visible = $6,
+              flags = $7
              WHERE id = $1
              RETURNING id
             """;
-    public static final String DELETE_FROM_DICTIONARY_LANGUAGE_WHERE_ID_$1 = """
-            DELETE FROM dictionary.language
+    public static final String DELETE_FROM_@SCHEMA@_@TABLE@_WHERE_ID_$1 = """
+            DELETE FROM @schema@.@table@
              WHERE id = $1
              RETURNING id
             """;
-    public static final String COUNT_DICTIONARY_LANGUAGE = "SELECT count(*) FROM dictionary.language";
-    public static final String ID = "id";
+    public static final String COUNT_@SCHEMA@_@TABLE@ = "SELECT count(*) FROM @schema@.@table@";
     @Serial
-    private static final long serialVersionUID = -3447138347398739815L;
+    private static final long serialVersionUID = @serialVersionUID@L;
+    public static final String ID = "id";
     @ModelField
-    private final Long id;
+    private final @IdType@ id;
     @ModelField
-    private final String language;
+    private final @KType@ @key@;
+    @ModelField
+    private final @VType@ @value@;
     private final String userName;
     private final LocalDateTime createTime;
     private final LocalDateTime updateTime;
@@ -101,9 +106,10 @@ public final class LanguageTable implements LongIdentification, Marked, Owned, T
     @JsonIgnore
     private transient volatile boolean hashIsZero;
 
-    public LanguageTable() {
+    public @Name@Table() {
         this.id = null;
-        this.language = null;
+        this.@key@ = NONE;
+        this.@value@ = null;
         this.userName = null;
         this.createTime = null;
         this.updateTime = null;
@@ -112,9 +118,10 @@ public final class LanguageTable implements LongIdentification, Marked, Owned, T
         this.flags = 0;
     }
 
-    public LanguageTable(
-            Long id,
-            String language,
+    public @Name@Table(
+            @IdType@ id,
+            @Nonnull @KType@ @key@,
+            @VType@ @value@,
             String userName,
             LocalDateTime createTime,
             LocalDateTime updateTime,
@@ -122,7 +129,8 @@ public final class LanguageTable implements LongIdentification, Marked, Owned, T
             boolean visible,
             int flags) {
         this.id = id;
-        this.language = language;
+        this.@key@ = @key@;
+        this.@value@ = @value@;
         this.userName = userName;
         this.createTime = createTime;
         this.updateTime = updateTime;
@@ -131,10 +139,11 @@ public final class LanguageTable implements LongIdentification, Marked, Owned, T
         this.flags = flags;
     }
 
-    public static LanguageTable from(Row row) {
-        return new LanguageTable(
-                row.getLong(ID),
-                row.getString("language"),
+    public static @Name@Table from(Row row) {
+        return new @Name@Table(
+                row.get@IdType@(ID),
+                row.get@KType@("@key@"),
+                row.get@VType@("@value@"),
                 row.getString("user_name"),
                 row.getLocalDateTime("create_time"),
                 row.getLocalDateTime("update_time"),
@@ -144,92 +153,97 @@ public final class LanguageTable implements LongIdentification, Marked, Owned, T
         );
     }
 
-    public static Multi<LanguageTable> findAll(PgPool client) {
+    public static Multi<@Name@Table> findAll(PgPool client) {
         return client
-                .query(SELECT_ALL_FROM_DICTIONARY_LANGUAGE_ORDER_BY_ID_ASC)
+                .query(SELECT_ALL_FROM_@SCHEMA@_@TABLE@_ORDER_BY_ID_ASC)
                 .execute()
                 .onItem()
                 .transformToMulti(set -> Multi.createFrom().iterable(set))
                 .onItem()
-                .transform(LanguageTable::from);
+                .transform(@Name@Table::from);
+
     }
 
-    public static Uni<LanguageTable> findById(PgPool client, Long id) {
+    public static Uni<@Name@Table> findById(PgPool client, @IdType@ id) {
         return client
-                .preparedQuery(SELECT_FROM_DICTIONARY_LANGUAGE_WHERE_ID_$1)
+                .preparedQuery(SELECT_FROM_@SCHEMA@_@TABLE@_WHERE_ID_$1)
                 .execute(Tuple.of(id))
                 .onItem()
                 .transform(RowSet::iterator)
                 .onItem()
-                .transform(iterator -> iterator.hasNext() ? LanguageTable.from(iterator.next()) : null);
+                .transform(iterator -> iterator.hasNext() ? @Name@Table.from(iterator.next()) : null);
     }
 
-    public static Multi<LanguageTable> findRange(PgPool client, long offset, long limit) {
+    public static Multi<@Name@Table> findRange(PgPool client, long offset, long limit) {
         return client
-                .preparedQuery(SELECT_ALL_FROM_DICTIONARY_LANGUAGE_ORDER_BY_ID_ASC_OFFSET_LIMIT)
+                .preparedQuery(SELECT_ALL_FROM_@SCHEMA@_@TABLE@_ORDER_BY_ID_ASC_OFFSET_LIMIT)
                 .execute(Tuple.of(offset, limit))
                 .onItem()
                 .transformToMulti(set -> Multi.createFrom().iterable(set))
                 .onItem()
-                .transform(LanguageTable::from);
+                .transform(@Name@Table::from);
     }
 
-    public static Uni<Long> delete(PgPool client, Long id) {
+    public static Uni<@IdType@> delete(PgPool client, @IdType@ id) {
         return client.withTransaction(
-                connection -> connection.preparedQuery(DELETE_FROM_DICTIONARY_LANGUAGE_WHERE_ID_$1)
+                connection -> connection.preparedQuery(DELETE_FROM_@SCHEMA@_@TABLE@_WHERE_ID_$1)
                         .execute(Tuple.of(id))
                         .onItem()
-                        .transform(pgRowSet -> pgRowSet.iterator().next().getLong(ID)));
+                        .transform(pgRowSet -> pgRowSet.iterator().next().get@IdType@(ID)));
     }
 
     public static Uni<Long> count(PgPool client) {
         return client
-                .preparedQuery(COUNT_DICTIONARY_LANGUAGE)
+                .preparedQuery(COUNT_@SCHEMA@_@TABLE@)
                 .execute()
                 .onItem()
                 .transform(pgRowSet -> pgRowSet.iterator().next().getLong("count"));
     }
 
-    public static LanguageTable.Builder builder() {
-        return new LanguageTable.Builder();
+    public static @Name@Table.Builder builder() {
+        return new @Name@Table.Builder();
     }
 
-    public Uni<Long> insert(PgPool client) {
+    public Uni<@IdType@> insert(PgPool client) {
         return client.withTransaction(
                 connection -> connection.preparedQuery(caseInsertSql())
                         .execute(caseInsertTuple())
                         .onItem()
                         .transform(RowSet::iterator)
                         .onItem()
-                        .transform(iterator -> iterator.hasNext() ? iterator.next().getLong(ID) : null));
+                        .transform(iterator -> iterator.hasNext() ? iterator.next().get@IdType@(ID) : null));
     }
 
-    public Uni<Long> update(PgPool client) {
+    public Uni<@IdType@> update(PgPool client) {
         return client.withTransaction(
-                connection -> connection.preparedQuery(UPDATE_DICTIONARY_LANGUAGE_WHERE_ID_$1)
+                connection -> connection.preparedQuery(UPDATE_@SCHEMA@_@TABLE@_WHERE_ID_$1)
                         .execute(Tuple.tuple(listOf()))
                         .onItem()
-                        .transform(pgRowSet -> pgRowSet.iterator().next().getLong(ID)));
+                        .transform(pgRowSet -> pgRowSet.iterator().next().get@IdType@(ID)));
     }
 
     private String caseInsertSql() {
-        return id != null ? INSERT_INTO_DICTIONARY_LANGUAGE : INSERT_INTO_DICTIONARY_LANGUAGE_DEFAULT_ID;
+        return id != null ? INSERT_INTO_@SCHEMA@_@TABLE@ : INSERT_INTO_@SCHEMA@_@TABLE@_DEFAULT_ID;
     }
 
     private Tuple caseInsertTuple() {
-        return id != null ? Tuple.tuple(listOf()) : Tuple.of(language, userName, enabled, visible, flags);
+        return id != null ? Tuple.tuple(listOf()) : Tuple.of(@key@, @value@, userName, enabled, visible, flags);
     }
 
     private List<Object> listOf() {
-        return Arrays.asList(id, language, userName, enabled, visible, flags);
+        return Arrays.asList(id, @key@, @value@, userName, enabled, visible, flags);
     }
 
-    public Long getId() {
+    public @IdType@ getId() {
         return id;
     }
 
-    public String getLanguage() {
-        return language;
+    public @KType@ get@Key@() {
+        return @key@;
+    }
+
+    public @VType@ get@Value@() {
+        return @value@;
     }
 
     public String getUserName() {
@@ -268,12 +282,13 @@ public final class LanguageTable implements LongIdentification, Marked, Owned, T
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        var that = (LanguageTable) o;
+        var that = (@Name@Table) o;
         return enabled == that.enabled
                 && visible == that.visible
                 && flags == that.flags
                 && Objects.equals(id, that.id)
-                && Objects.equals(language, that.language)
+                && Objects.equals(@key@, that.@key@)
+                && Objects.equals(@value@, that.@value@)
                 && Objects.equals(userName, that.userName);
     }
 
@@ -292,14 +307,15 @@ public final class LanguageTable implements LongIdentification, Marked, Owned, T
     }
 
     private int calculateHashCode() {
-        return Objects.hash(id, language, userName, enabled, visible, flags);
+        return Objects.hash(id, @key@, @value@, userName, enabled, visible, flags);
     }
 
     @Override
     public String toString() {
-        return "Language{" +
+        return "@Name@{" +
                 "id=" + id +
-                ", language='" + language + '\'' +
+                ", @key@='" + @key@ + '\'' +
+                ", @value@='" + @value@ + '\'' +
                 ", userName='" + userName + '\'' +
                 ", createTime=" + createTime +
                 ", updateTime=" + updateTime +
@@ -310,8 +326,9 @@ public final class LanguageTable implements LongIdentification, Marked, Owned, T
     }
 
     public static final class Builder {
-        private Long id;
-        private String language;
+        private @IdType@ id;
+        private @KType@ @key@;
+        private @VType@ @value@;
         private String userName;
         private LocalDateTime createTime;
         private LocalDateTime updateTime;
@@ -323,13 +340,18 @@ public final class LanguageTable implements LongIdentification, Marked, Owned, T
             this.enabled = true;
         }
 
-        public Builder id(Long id) {
+        public Builder id(@IdType@ id) {
             this.id = id;
             return this;
         }
 
-        public Builder language(String language) {
-            this.language = language;
+        public Builder @key@(@Nonnull @KType@ @key@) {
+            this.@key@ = @key@;
+            return this;
+        }
+
+        public Builder @value@(@VType@ @value@) {
+            this.@value@ = @value@;
             return this;
         }
 
@@ -363,8 +385,8 @@ public final class LanguageTable implements LongIdentification, Marked, Owned, T
             return this;
         }
 
-        public LanguageTable build() {
-            return new LanguageTable(id, language, userName, createTime, updateTime, enabled, visible, flags);
+        public @Name@Table build() {
+            return new @Name@Table(id, @key@, @value@, userName, createTime, updateTime, enabled, visible, flags);
         }
     }
 }

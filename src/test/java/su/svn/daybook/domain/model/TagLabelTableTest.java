@@ -13,7 +13,7 @@ class TagLabelTableTest {
     void testConstructors() {
         Assertions.assertDoesNotThrow(() -> new TagLabelTable());
         Assertions.assertDoesNotThrow(() -> new TagLabelTable(
-                TestData.TAG_LABEL.ID, TagLabelTable.NONE, null, null, null, false, true, 0
+                TestData.TAG_LABEL.ID, TagLabelTable.NONE, null, null, null, true, true, 0
         ));
     }
     @Test
@@ -54,7 +54,7 @@ class TagLabelTableTest {
                 .userName(null)
                 .createTime(null)
                 .updateTime(null)
-                .enabled(false)
+                .enabled(true)
                 .visible(true)
                 .flags(0)
                 .build()));

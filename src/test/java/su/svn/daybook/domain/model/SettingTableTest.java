@@ -13,7 +13,7 @@ class SettingTableTest {
     void testConstructors() {
         Assertions.assertDoesNotThrow(() -> new SettingTable());
         Assertions.assertDoesNotThrow(() -> new SettingTable(
-                0L, NONE, null, 0L, null, null, null, false, true, 0
+                0L, NONE, null, 0L, null, null, null, true, true, 0
         ));
     }
     @Test
@@ -58,7 +58,7 @@ class SettingTableTest {
                 .userName(null)
                 .createTime(null)
                 .updateTime(null)
-                .enabled(false)
+                .enabled(true)
                 .visible(true)
                 .flags(0)
                 .build()));

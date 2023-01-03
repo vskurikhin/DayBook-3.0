@@ -116,10 +116,10 @@ public class I18nService extends AbstractService<Long, I18n> {
     private Uni<Answer> addEntry(I18nTable entry) {
         return i18nDao
                 .insert(entry)
-                .map(o -> apiResponseWithKeyAnswer(201, o))
+                .map(o -> apiResponseAnswer(201, o))
                 .flatMap(i18nCacheProvider::invalidate)
-                .onFailure(exceptionAnswerService::testDuplicateKeyException)
-                .recoverWithUni(exceptionAnswerService::notAcceptableDuplicateKeyValAnswer)
+                .onFailure(exceptionAnswerService::testDuplicateException)
+                .recoverWithUni(exceptionAnswerService::notAcceptableDuplicateAnswer)
                 .onFailure(exceptionAnswerService::testException)
                 .recoverWithUni(exceptionAnswerService::badRequestUniAnswer);
     }
@@ -141,8 +141,8 @@ public class I18nService extends AbstractService<Long, I18n> {
                 .update(entry)
                 .flatMap(this::apiResponseAcceptedUniAnswer)
                 .flatMap(answer -> i18nCacheProvider.invalidateById(entry.getId(), answer))
-                .onFailure(exceptionAnswerService::testDuplicateKeyException)
-                .recoverWithUni(exceptionAnswerService::notAcceptableDuplicateKeyValAnswer)
+                .onFailure(exceptionAnswerService::testDuplicateException)
+                .recoverWithUni(exceptionAnswerService::notAcceptableDuplicateAnswer)
                 .onFailure(exceptionAnswerService::testNoSuchElementException)
                 .recoverWithUni(get(entry.getId()))
                 .onFailure(exceptionAnswerService::testException)
@@ -173,7 +173,7 @@ public class I18nService extends AbstractService<Long, I18n> {
     private Uni<Answer> deleteEntry(Long id) {
         return i18nDao
                 .delete(id)
-                .map(this::apiResponseWithKeyAnswer)
+                .map(this::apiResponseAnswer)
                 .flatMap(answer -> i18nCacheProvider.invalidateById(id, answer))
                 .onFailure(exceptionAnswerService::testNoSuchElementException)
                 .recoverWithUni(exceptionAnswerService::noSuchElementAnswer)

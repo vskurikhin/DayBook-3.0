@@ -14,7 +14,8 @@ import org.jboss.resteasy.reactive.RestResponse;
 import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
 import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.enums.ResourcePath;
-import su.svn.daybook.domain.model.@Name@;
+import su.svn.daybook.models.domain.@Name@;
+import su.svn.daybook.models.pagination.PageRequest;
 import su.svn.daybook.services.domain.AbstractService;
 import su.svn.daybook.services.domain.@Name@Service;
 
@@ -26,6 +27,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
@@ -39,7 +41,7 @@ public class @Name@Resource extends AbstractResource implements Resources<@IdTyp
     @GET
     @Path(ResourcePath.ALL)
     @Produces("application/json")
-    public Multi<@Name@> all() {
+    public Multi<@Name@> all(@QueryParam("get-all") Boolean getAll) {
         return getAll();
     }
 
@@ -50,13 +52,18 @@ public class @Name@Resource extends AbstractResource implements Resources<@IdTyp
         return request(EventAddress.@TABLE@_GET, id, uriInfo);
     }
 
+    @GET
+    @Produces("application/json")
+    public Uni<Response> page(@QueryParam("page") long page, @QueryParam("limit") short limit) {
+        return requestPage(EventAddress.@TABLE@_PAGE, new PageRequest(page, limit));
+    }
+
     @POST
     @Consumes("application/json")
     @Produces("application/json")
     public Uni<Response> post(@Name@ entry, @Context UriInfo uriInfo) {
         return request(EventAddress.@TABLE@_ADD, entry, uriInfo);
     }
-
 
     @PUT
     @Consumes("application/json")

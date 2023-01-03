@@ -20,10 +20,14 @@ import su.svn.daybook.TestData;
 import su.svn.daybook.domain.dao.@Name@Dao;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.messages.ApiResponse;
-import su.svn.daybook.domain.model.@Name@;
+import su.svn.daybook.domain.model.@Name@Table;
+import su.svn.daybook.models.pagination.Page;
+import su.svn.daybook.models.pagination.PageRequest;
 
+import javax.enterprise.context.control.ActivateRequestContext;
 import javax.inject.Inject;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,13 +39,13 @@ class @Name@ServiceTest {
 
     static @Name@Dao mock;
 
-    static final Uni<Optional<@Name@>> UNI_OPTIONAL_TEST = Uni.createFrom().item(Optional.of(TestData.@TABLE@.OBJECT_0));
+    static final Uni<Optional<@Name@Table>> UNI_OPTIONAL_TEST = Uni.createFrom().item(Optional.of(TestData.@TABLE@.TABLE_0));
 
-    static final Multi<@Name@> MULTI_TEST = Multi.createFrom().item(TestData.@TABLE@.OBJECT_0);
+    static final Multi<@Name@Table> MULTI_TEST = Multi.createFrom().item(TestData.@TABLE@.TABLE_0);
 
-    static final Multi<@Name@> MULTI_WITH_NULL = TestData.createMultiWithNull(@Name@.class);
+    static final Multi<@Name@Table> MULTI_WITH_NULL = TestData.createMultiWithNull(@Name@Table.class);
 
-    static final Multi<@Name@> MULTI_EMPTIES = TestData.createMultiEmpties(@Name@.class);
+    static final Multi<@Name@Table> MULTI_EMPTIES = TestData.createMultiEmpties(@Name@Table.class);
 
     @BeforeEach
     void setUp() {
@@ -52,17 +56,34 @@ class @Name@ServiceTest {
 
     @Test
     void testWhenGetAllThenSingletonList() {
+        Mockito.when(mock.count()).thenReturn(TestData.UNI_OPTIONAL_ONE_LONG);
         Mockito.when(mock.findAll()).thenReturn(MULTI_TEST);
         List<Answer> result = new ArrayList<>();
         Assertions.assertDoesNotThrow(() -> result.addAll(service.getAll()
                 .subscribe()
                 .asStream()
-                .peek(actual -> Assertions.assertEquals(Answer.of(TestData.@TABLE@.OBJECT_0), actual)).toList()));
+                .peek(actual -> Assertions.assertEquals(Answer.of(TestData.@TABLE@.MODEL_0), actual)).toList()));
         Assertions.assertTrue(result.size() > 0);
     }
 
     @Test
+    @ActivateRequestContext
+    void testWhenGetAllThenCountMinusOne() {
+        Mockito.when(mock.count()).thenReturn(TestData.UNI_OPTIONAL_MINUS_ONE_LONG);
+        Mockito.when(mock.findAll()).thenReturn(MULTI_EMPTIES);
+        List<Answer> result = new ArrayList<>();
+        Assertions.assertThrows(
+                java.lang.IndexOutOfBoundsException.class,
+                () -> result.addAll(service.getAll()
+                        .subscribe()
+                        .asStream()
+                        .toList()));
+        Assertions.assertEquals(0, result.size());
+    }
+
+    @Test
     void testWhenGetAllThenEmpty() {
+        Mockito.when(mock.count()).thenReturn(TestData.UNI_OPTIONAL_ZERO_LONG);
         Mockito.when(mock.findAll()).thenReturn(MULTI_EMPTIES);
         List<Answer> result = new ArrayList<>();
         Assertions.assertDoesNotThrow(() -> result.addAll(service.getAll()
@@ -74,6 +95,7 @@ class @Name@ServiceTest {
 
     @Test
     void testWhenGetAllThenNull() {
+        Mockito.when(mock.count()).thenReturn(TestData.UNI_OPTIONAL_ZERO_LONG);
         Mockito.when(mock.findAll()).thenReturn(MULTI_WITH_NULL);
         List<Answer> result = new ArrayList<>();
         Assertions.assertDoesNotThrow(() -> result.addAll(service.getAll()
@@ -84,19 +106,82 @@ class @Name@ServiceTest {
     }
 
     @Test
-    void testWhenGetThenEntry() {
-        Assertions.assertDoesNotThrow(() -> service.get(0L)
+    void testWhenGetPageThenSingletonList() {
+
+        Mockito.when(mock.findRange(0L, Short.MAX_VALUE - 1)).thenReturn(MULTI_TEST);
+        Mockito.when(mock.count()).thenReturn(TestData.UNI_OPTIONAL_ONE_LONG);
+
+        PageRequest pageRequest = new PageRequest(0L, (short) (Short.MAX_VALUE - 1));
+        var expected = Page.<Answer>builder()
+                .totalPages(1L)
+                .totalElements(1)
+                .pageSize((short) 1)
+                .prevPage(false)
+                .nextPage(false)
+                .content(Collections.singletonList(Answer.of(TestData.@TABLE@.MODEL_0)))
+                .build();
+
+        Assertions.assertDoesNotThrow(() -> service.getPage(pageRequest)
                 .onItem()
-                .invoke(actual -> Assertions.assertEquals(Answer.of(TestData.@TABLE@.OBJECT_0), actual))
+                .invoke(actual -> Assertions.assertEquals(expected, actual))
                 .await()
-                .indefinitely());
+                .indefinitely()
+        );
     }
 
     @Test
-    void testWhenGetThenNullParameter() {
-        Assertions.assertDoesNotThrow(() -> service.get(null)
+    void testWhenGetPageThenEmpty() {
+
+        Mockito.when(mock.findRange(0L, Short.MAX_VALUE - 2)).thenReturn(MULTI_EMPTIES);
+        Mockito.when(mock.count()).thenReturn(TestData.UNI_OPTIONAL_ZERO_LONG);
+
+        PageRequest pageRequest = new PageRequest(0L, (short) (Short.MAX_VALUE - 2));
+        var expected = Page.<Answer>builder()
+                .totalPages(0L)
+                .totalElements(0)
+                .pageSize((short) 0)
+                .prevPage(false)
+                .nextPage(false)
+                .content(Collections.emptyList())
+                .build();
+
+        Assertions.assertDoesNotThrow(() -> service.getPage(pageRequest)
                 .onItem()
-                .invoke(actual -> Assertions.assertEquals(Answer.empty(), actual))
+                .invoke(actual -> Assertions.assertEquals(expected, actual))
+                .await()
+                .indefinitely()
+        );
+    }
+
+    @Test
+    void testWhenGetPageThenZeroPage() {
+
+        Mockito.when(mock.findRange(0L, 0)).thenReturn(MULTI_EMPTIES);
+        Mockito.when(mock.count()).thenReturn(TestData.UNI_OPTIONAL_ONE_LONG);
+
+        PageRequest pageRequest = new PageRequest(0, (short) 0);
+        var expected = Page.<Answer>builder()
+                .totalPages(0L)
+                .totalElements(1)
+                .pageSize((short) 0)
+                .prevPage(false)
+                .nextPage(false)
+                .content(Collections.emptyList())
+                .build();
+
+        Assertions.assertDoesNotThrow(() -> service.getPage(pageRequest)
+                .onItem()
+                .invoke(actual -> Assertions.assertEquals(expected, actual))
+                .await()
+                .indefinitely()
+        );
+    }
+
+    @Test
+    void testWhenGetThenEntry() {
+        Assertions.assertDoesNotThrow(() -> service.get(0L)
+                .onItem()
+                .invoke(actual -> Assertions.assertEquals(Answer.of(TestData.@TABLE@.MODEL_0), actual))
                 .await()
                 .indefinitely());
     }
@@ -116,8 +201,8 @@ class @Name@ServiceTest {
                 .error(201)
                 .payload(new ApiResponse<>(0L))
                 .build();
-        Mockito.when(mock.insert(TestData.@TABLE@.OBJECT_0)).thenReturn(TestData.UNI_OPTIONAL_ZERO_LONG);
-        Assertions.assertDoesNotThrow(() -> service.add(TestData.@TABLE@.OBJECT_0)
+        Mockito.when(mock.insert(TestData.@TABLE@.TABLE_0)).thenReturn(TestData.UNI_OPTIONAL_ZERO_LONG);
+        Assertions.assertDoesNotThrow(() -> service.add(TestData.@TABLE@.MODEL_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
                 .await()
@@ -126,8 +211,8 @@ class @Name@ServiceTest {
 
     @Test
     void testWhenAddThenEmpty() {
-        Mockito.when(mock.insert(TestData.@TABLE@.OBJECT_0)).thenReturn(TestData.UNI_OPTIONAL_EMPTY_LONG);
-        Assertions.assertDoesNotThrow(() -> service.add(TestData.@TABLE@.OBJECT_0)
+        Mockito.when(mock.insert(TestData.@TABLE@.TABLE_0)).thenReturn(TestData.UNI_OPTIONAL_EMPTY_LONG);
+        Assertions.assertDoesNotThrow(() -> service.add(TestData.@TABLE@.MODEL_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(Answer.empty(), actual))
                 .await()
@@ -140,8 +225,8 @@ class @Name@ServiceTest {
                 .error(202)
                 .payload(new ApiResponse<>(0L))
                 .build();
-        Mockito.when(mock.update(TestData.@TABLE@.OBJECT_0)).thenReturn(TestData.UNI_OPTIONAL_ZERO_LONG);
-        Assertions.assertDoesNotThrow(() -> service.put(TestData.@TABLE@.OBJECT_0)
+        Mockito.when(mock.update(TestData.@TABLE@.TABLE_0)).thenReturn(TestData.UNI_OPTIONAL_ZERO_LONG);
+        Assertions.assertDoesNotThrow(() -> service.put(TestData.@TABLE@.MODEL_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
                 .await()
@@ -150,8 +235,8 @@ class @Name@ServiceTest {
 
     @Test
     void testWhenPutThenEmpty() {
-        Mockito.when(mock.update(TestData.@TABLE@.OBJECT_0)).thenReturn(TestData.UNI_OPTIONAL_ZERO_LONG);
-        Assertions.assertThrows(RuntimeException.class, () -> service.put(TestData.@TABLE@.OBJECT_0)
+        Mockito.when(mock.update(TestData.@TABLE@.TABLE_0)).thenReturn(TestData.UNI_OPTIONAL_ZERO_LONG);
+        Assertions.assertThrows(RuntimeException.class, () -> service.put(TestData.@TABLE@.MODEL_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(Answer.empty(), actual))
                 .await()

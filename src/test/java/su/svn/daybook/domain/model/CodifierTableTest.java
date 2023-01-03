@@ -13,7 +13,7 @@ class CodifierTableTest {
     void testConstructors() {
         Assertions.assertDoesNotThrow(() -> new CodifierTable());
         Assertions.assertDoesNotThrow(() -> new CodifierTable(
-                NONE, null, null, null, null, false, true, 0
+                NONE, null, null, null, null, true, true, 0
         ));
     }
 
@@ -57,7 +57,7 @@ class CodifierTableTest {
                 .userName(null)
                 .createTime(null)
                 .updateTime(null)
-                .enabled(false)
+                .enabled(true)
                 .visible(true)
                 .flags(0)
                 .build()));

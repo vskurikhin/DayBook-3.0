@@ -15,12 +15,13 @@ import org.jboss.logging.Logger;
 import su.svn.daybook.domain.dao.@Name@Dao;
 import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.messages.Answer;
-import su.svn.daybook.domain.model.@Name@;
+import su.svn.daybook.domain.model.@Name@Table;
+import su.svn.daybook.models.domain.@Name@;
 import su.svn.daybook.models.pagination.Page;
 import su.svn.daybook.models.pagination.PageRequest;
-import su.svn.daybook.models.pagination.PageRequestCodec;
 import su.svn.daybook.services.ExceptionAnswerService;
-import su.svn.daybook.services.PageService;
+import su.svn.daybook.services.cache.@Name@CacheProvider;
+import su.svn.daybook.services.mappers.@Name@Mapper;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -32,13 +33,16 @@ public class @Name@Service extends AbstractService<@IdType@, @Name@> {
     private static final Logger LOG = Logger.getLogger(@Name@Service.class);
 
     @Inject
+    @Name@CacheProvider @name@CacheProvider;
+
+    @Inject
     @Name@Dao @name@Dao;
 
     @Inject
-    ExceptionAnswerService exceptionAnswerService;
+    @Name@Mapper @name@Mapper;
 
     @Inject
-    PageService pageService;
+    ExceptionAnswerService exceptionAnswerService;
 
     /**
      * This is method a Vertx message consumer and @Name@ provider by id
@@ -67,34 +71,35 @@ public class @Name@Service extends AbstractService<@IdType@, @Name@> {
      * @return - the Answer's Multi-flow with all entries of @Name@
      */
     public Multi<Answer> getAll() {
+        //noinspection DuplicatedCode
         LOG.trace("getAll()");
-        return @name@Dao.findAll()
+        return @name@Dao
+                .count()
                 .onItem()
-                .transform(this::answerOf);
+                .transformToMulti(count -> getAllIfNotOverSize(count, this::getAllModels));
+    }
+
+    private Multi<@Name@> getAllModels() {
+        return @name@Dao
+                .findAll()
+                .map(@name@Mapper::convertToModel);
     }
 
     private Uni<Answer> getEntry(@IdType@ id) {
-        return @name@Dao.findById(id)
-                .map(this::apiResponseWithValueAnswer)
+        return @name@CacheProvider
+                .get(id)
+                .map(Answer::of)
                 .onFailure(exceptionAnswerService::testNoSuchElementException)
-                .recoverWithUni(this::noSuchElementAnswer)
+                .recoverWithUni(exceptionAnswerService::noSuchElementAnswer)
                 .onFailure(exceptionAnswerService::testException)
-                .recoverWithUni(this::badRequestAnswer);
+                .recoverWithUni(exceptionAnswerService::badRequestUniAnswer);
     }
 
-    @ConsumeEvent(value = EventAddress.@TABLE@_PAGE, codec = PageRequestCodec.class)
+    @ConsumeEvent(EventAddress.@TABLE@_PAGE)
     public Uni<Page<Answer>> getPage(PageRequest pageRequest) {
         //noinspection DuplicatedCode
         LOG.tracef("getPage(%s)", pageRequest);
-        try {
-            return pageService.getPage(pageRequest, @name@Dao::count, @name@Dao::findRange);
-        } catch (NumberFormatException e) {
-            LOG.errorf("getPage(%s)", pageRequest, e);
-            return exceptionAnswerService.getUniPageAnswerNoNumber(e);
-        } catch (NoSuchElementException e) {
-            LOG.errorf("getPage(%s)", pageRequest, e);
-            return pageService.getUniPageAnswerEmpty();
-        }
+        return @name@CacheProvider.getPage(pageRequest);
     }
 
     /**
@@ -105,17 +110,20 @@ public class @Name@Service extends AbstractService<@IdType@, @Name@> {
      */
     @ConsumeEvent(EventAddress.@TABLE@_ADD)
     public Uni<Answer> add(@Name@ o) {
+        //noinspection DuplicatedCode
         LOG.tracef("add(%s)", o);
-        return addEntry(o);
+        return addEntry(@name@Mapper.convertToDomain(o));
     }
 
-    private Uni<Answer> addEntry(@Name@ entry) {
-        return @name@Dao.insert(entry)
-                .map(o -> apiResponseWithKeyAnswer(201, o))
-                .onFailure(exceptionAnswerService::testDuplicateKeyException)
-                .recoverWithUni(this::notAcceptableDuplicateKeyValueAnswer)
+    private Uni<Answer> addEntry(@Name@Table entry) {
+        return @name@Dao
+                .insert(entry)
+                .map(o -> apiResponseWith@Key@Answer(201, o))
+                .flatMap(@name@CacheProvider::invalidate)
+                .onFailure(exceptionAnswerService::testDuplicateException)
+                .recoverWithUni(exceptionAnswerService::notAcceptableDuplicateAnswer)
                 .onFailure(exceptionAnswerService::testException)
-                .recoverWithUni(this::badRequestAnswer);
+                .recoverWithUni(exceptionAnswerService::badRequestUniAnswer);
     }
 
     /**
@@ -126,19 +134,22 @@ public class @Name@Service extends AbstractService<@IdType@, @Name@> {
      */
     @ConsumeEvent(EventAddress.@TABLE@_PUT)
     public Uni<Answer> put(@Name@ o) {
+        //noinspection DuplicatedCode
         LOG.tracef("put(%s)", o);
-        return putEntry(o);
+        return putEntry(@name@Mapper.convertToDomain(o));
     }
 
-    private Uni<Answer> putEntry(@Name@ entry) {
-        return @name@Dao.update(entry)
+    private Uni<Answer> putEntry(@Name@Table entry) {
+        return @name@Dao
+                .update(entry)
                 .flatMap(this::apiResponseAcceptedUniAnswer)
-                .onFailure(exceptionAnswerService::testDuplicateKeyException)
-                .recoverWithUni(this::notAcceptableDuplicateKeyValueAnswer)
+                .flatMap(answer -> @name@CacheProvider.invalidateById(entry.getId(), answer))
+                .onFailure(exceptionAnswerService::testDuplicateException)
+                .recoverWithUni(exceptionAnswerService::notAcceptableDuplicateAnswer)
                 .onFailure(exceptionAnswerService::testNoSuchElementException)
                 .recoverWithUni(get(entry.getId()))
                 .onFailure(exceptionAnswerService::testException)
-                .recoverWithUni(this::badRequestAnswer);
+                .recoverWithUni(exceptionAnswerService::badRequestUniAnswer);
     }
 
     /**
@@ -163,11 +174,13 @@ public class @Name@Service extends AbstractService<@IdType@, @Name@> {
     }
 
     private Uni<Answer> deleteEntry(@IdType@ id) {
-        return @name@Dao.delete(id)
-                .map(this::apiResponseWithKeyAnswer)
+        return @name@Dao
+                .delete(id)
+                .map(this::apiResponseWith@Key@Answer)
+                .flatMap(answer -> @name@CacheProvider.invalidateById(id, answer))
                 .onFailure(exceptionAnswerService::testNoSuchElementException)
-                .recoverWithUni(this::noSuchElementAnswer)
+                .recoverWithUni(exceptionAnswerService::noSuchElementAnswer)
                 .onFailure(exceptionAnswerService::testException)
-                .recoverWithUni(this::badRequestAnswer);
+                .recoverWithUni(exceptionAnswerService::badRequestUniAnswer);
     }
 }

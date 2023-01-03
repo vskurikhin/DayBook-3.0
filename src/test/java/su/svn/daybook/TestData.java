@@ -151,6 +151,30 @@ public class TestData {
                         }""";
     }
 
+    /* public static class ROLE {
+        public static final Role MODEL_0 = new Role(
+                ZERO_UUID, Role.NONE, null, true, 0
+        );
+        public static final RoleTable TABLE_0 = new RoleTable(
+                ZERO_UUID, Role.NONE, null, null, null, null, true, true, 0
+        );
+        public static final Uni<Page<Answer>> UNI_PAGE_ANSWER_SINGLETON_TEST = Uni.createFrom()
+                .item(
+                        Page.<Answer>builder()
+                                .content(Collections.singletonList(Answer.of(MODEL_0)))
+                                .build()
+                );
+        public static final String JSON_0 = """
+                {"id":"00000000-0000-0000-0000-000000000000","visible":true,"flags":0}\
+                """;
+        public static final String JSON_ARRAY_SINGLETON_0 = "[" + JSON_0 + "]";
+        public static final String JSON_ID_0 = "{\"id\":0}";
+        public static final String JSON_PAGE_ARRAY_0 = """
+                        {"pageNumber":0,"totalElements":0,"nextPage":false,"prevPage":false,"content":\
+                        """ + JSON_ARRAY_SINGLETON_0 +"""
+                        }""";
+    } */
+
     public static class SETTING {
         public static final Setting MODEL_0 = new Setting(
                 0L, SettingTable.NONE, null, 0L, true, 0

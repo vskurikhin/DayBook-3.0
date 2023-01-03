@@ -2,35 +2,35 @@
  * This file was last modified at 2022.01.12 22:58 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
- * WordCacheProvider.java
+ * @Name@CacheProvider.java
  * $Id$
  */
 
 package su.svn.daybook.services.cache;
 
-import io.quarkus.cache.CacheKey;
+import io.quarkus.cache.Cache@Key@;
 import io.quarkus.cache.CacheManager;
 import io.quarkus.cache.CacheResult;
 import io.smallrye.mutiny.Uni;
 import org.jboss.logging.Logger;
-import su.svn.daybook.domain.dao.WordDao;
+import su.svn.daybook.domain.dao.@Name@Dao;
 import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.messages.Answer;
-import su.svn.daybook.domain.model.WordTable;
-import su.svn.daybook.models.domain.Word;
+import su.svn.daybook.domain.model.@Name@Table;
+import su.svn.daybook.models.domain.@Name@;
 import su.svn.daybook.models.pagination.Page;
 import su.svn.daybook.models.pagination.PageRequest;
 import su.svn.daybook.services.PageService;
-import su.svn.daybook.services.mappers.WordMapper;
+import su.svn.daybook.services.mappers.@Name@Mapper;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.util.Optional;
 
 @ApplicationScoped
-public class WordCacheProvider extends AbstractCacheProvider<String> {
+public class @Name@CacheProvider extends AbstractCacheProvider<@IdType@> {
 
-    private static final Logger LOG = Logger.getLogger(WordCacheProvider.class);
+    private static final Logger LOG = Logger.getLogger(@Name@CacheProvider.class);
 
     @Inject
     CacheManager cacheManager;
@@ -39,28 +39,28 @@ public class WordCacheProvider extends AbstractCacheProvider<String> {
     PageService pageService;
 
     @Inject
-    WordDao wordDao;
+    @Name@Dao @name@Dao;
 
     @Inject
-    WordMapper wordMapper;
+    @Name@Mapper @name@Mapper;
 
-    public WordCacheProvider() {
-        super(EventAddress.WORD_GET, EventAddress.WORD_PAGE, LOG);
+    public @Name@CacheProvider() {
+        super(EventAddress.@TABLE@_GET, EventAddress.@TABLE@_PAGE, LOG);
     }
 
-    @CacheResult(cacheName = EventAddress.WORD_GET)
-    public Uni<Word> get(@CacheKey String id) {
+    @CacheResult(cacheName = EventAddress.@TABLE@_GET)
+    public Uni<@Name@> get(@CacheKey @IdType@ id) {
         LOG.tracef("get(%s)", id);
-        return wordDao
+        return @name@Dao
                 .findById(id)
                 .map(Optional::get)
-                .map(wordMapper::convertToModel);
+                .map(@name@Mapper::convertToModel);
     }
 
-    @CacheResult(cacheName = EventAddress.WORD_PAGE)
+    @CacheResult(cacheName = EventAddress.@TABLE@_PAGE)
     public Uni<Page<Answer>> getPage(@CacheKey PageRequest pageRequest) {
         LOG.tracef("getPage(%s)", pageRequest);
-        return pageService.getPage(pageRequest, wordDao::count, wordDao::findRange, this::answerOfModel);
+        return pageService.getPage(pageRequest, @name@Dao::count, @name@Dao::findRange, this::answerOfModel);
     }
 
     @Override
@@ -69,7 +69,7 @@ public class WordCacheProvider extends AbstractCacheProvider<String> {
     }
 
     @Override
-    public Uni<Answer> invalidateById(String id, Answer answer) {
+    public Uni<Answer> invalidateById(@IdType@ id, Answer answer) {
         return invalidateCacheById(id).map(l -> answer);
     }
 
@@ -78,7 +78,7 @@ public class WordCacheProvider extends AbstractCacheProvider<String> {
         return cacheManager;
     }
 
-    private Answer answerOfModel(WordTable table) {
-        return Answer.of(wordMapper.convertToModel(table));
+    private Answer answerOfModel(@Name@Table table) {
+        return Answer.of(@name@Mapper.convertToModel(table));
     }
 }
