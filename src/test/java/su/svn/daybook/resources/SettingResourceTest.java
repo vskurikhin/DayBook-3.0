@@ -31,8 +31,7 @@ class SettingResourceTest {
 
     static Uni<Answer> test = Uni.createFrom()
             .item(1)
-            .onItem()
-            .transform(i -> Answer.of(TestData.SETTING.TABLE_0));
+            .map(i -> Answer.of(TestData.SETTING.MODEL_0));
 
     SettingService mock;
 
@@ -47,10 +46,10 @@ class SettingResourceTest {
         Mockito.when(mock.get(Long.toString(Integer.MAX_VALUE))).thenReturn(TestData.UNI_ANSWER_EMPTY);
         Mockito.when(mock.get((long) Integer.MIN_VALUE)).thenReturn(TestData.UNI_ANSWER_NULL);
         Mockito.when(mock.get(Long.toString(Integer.MIN_VALUE))).thenReturn(TestData.UNI_ANSWER_NULL);
-        Mockito.when(mock.getAll()).thenReturn(Multi.createFrom().item(Answer.of(TestData.SETTING.TABLE_0)));
+        Mockito.when(mock.getAll()).thenReturn(Multi.createFrom().item(Answer.of(TestData.SETTING.MODEL_0)));
         Mockito.when(mock.getPage(pageRequest)).thenReturn(TestData.SETTING.UNI_PAGE_ANSWER_SINGLETON_TEST);
-        Mockito.when(mock.add(TestData.SETTING.TABLE_0)).thenReturn(TestData.UNI_ANSWER_API_RESPONSE_ZERO_LONG);
-        Mockito.when(mock.put(TestData.SETTING.TABLE_0)).thenReturn(TestData.UNI_ANSWER_API_RESPONSE_ZERO_LONG);
+        Mockito.when(mock.add(TestData.SETTING.MODEL_0)).thenReturn(TestData.UNI_ANSWER_API_RESPONSE_ZERO_LONG);
+        Mockito.when(mock.put(TestData.SETTING.MODEL_0)).thenReturn(TestData.UNI_ANSWER_API_RESPONSE_ZERO_LONG);
         Mockito.when(mock.delete(0L)).thenReturn(TestData.UNI_ANSWER_API_RESPONSE_ZERO_LONG);
         Mockito.when(mock.delete("0")).thenReturn(TestData.UNI_ANSWER_API_RESPONSE_ZERO_LONG);
         QuarkusMock.installMockForType(mock, SettingService.class);

@@ -24,7 +24,7 @@ class InvokerBuildPartMethod
     }
 
     void invokeBuilderFor(Map.Entry<String, MethodRecord> entry, X essence) {
-        log.infof("invokeBuilderFor(%s, %s)", entry, essence);
+        log.tracef("invokeBuilderFor(%s, %s)", entry, essence);
         var buildPart = entry.getValue();
         if (buildPart != null) {
             var fieldName = entry.getKey();

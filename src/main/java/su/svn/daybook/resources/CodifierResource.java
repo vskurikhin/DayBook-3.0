@@ -14,19 +14,26 @@ import org.jboss.resteasy.reactive.RestResponse;
 import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
 import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.enums.ResourcePath;
-import su.svn.daybook.domain.model.CodifierTable;
+import su.svn.daybook.models.domain.Codifier;
 import su.svn.daybook.models.pagination.PageRequest;
 import su.svn.daybook.services.domain.AbstractService;
 import su.svn.daybook.services.domain.CodifierService;
 
 import javax.inject.Inject;
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 @Path(ResourcePath.CODIFIER)
-public class CodifierResource extends AbstractResource implements Resources<String, CodifierTable> {
+public class CodifierResource extends AbstractResource implements Resources<String, Codifier> {
 
     @Inject
     CodifierService service;
@@ -34,7 +41,7 @@ public class CodifierResource extends AbstractResource implements Resources<Stri
     @GET
     @Path(ResourcePath.ALL)
     @Produces("application/json")
-    public Multi<CodifierTable> all(@QueryParam("get-all") Boolean getAll) {
+    public Multi<Codifier> all(@QueryParam("get-all") Boolean getAll) {
         return getAll();
     }
 
@@ -54,7 +61,7 @@ public class CodifierResource extends AbstractResource implements Resources<Stri
     @POST
     @Consumes("application/json")
     @Produces("application/json")
-    public Uni<Response> post(CodifierTable entry, @Context UriInfo uriInfo) {
+    public Uni<Response> post(Codifier entry, @Context UriInfo uriInfo) {
         return request(EventAddress.CODIFIER_ADD, entry, uriInfo);
     }
 
@@ -62,7 +69,7 @@ public class CodifierResource extends AbstractResource implements Resources<Stri
     @PUT
     @Consumes("application/json")
     @Produces("application/json")
-    public Uni<Response> put(CodifierTable entry, @Context UriInfo uriInfo) {
+    public Uni<Response> put(Codifier entry, @Context UriInfo uriInfo) {
         return request(EventAddress.CODIFIER_PUT, entry, uriInfo);
     }
 
@@ -79,7 +86,7 @@ public class CodifierResource extends AbstractResource implements Resources<Stri
     }
 
     @Override
-    public AbstractService<String, CodifierTable> getService() {
+    public AbstractService<String, Codifier> getService() {
         return service;
     }
 }

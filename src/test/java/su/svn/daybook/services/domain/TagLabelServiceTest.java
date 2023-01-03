@@ -47,17 +47,19 @@ class TagLabelServiceTest {
 
     @Test
     void testWhenGetAllThenSingletonList() {
+        Mockito.when(mock.count()).thenReturn(TestData.UNI_OPTIONAL_ONE_LONG);
         Mockito.when(mock.findAll()).thenReturn(MULTI_TEST);
         List<Answer> result = new ArrayList<>();
         Assertions.assertDoesNotThrow(() -> result.addAll(service.getAll()
                 .subscribe()
                 .asStream()
-                .peek(actual -> Assertions.assertEquals(Answer.of(TestData.TAG_LABEL.TABLE_0), actual)).toList()));
+                .peek(actual -> Assertions.assertEquals(Answer.of(TestData.TAG_LABEL.MODEL_0), actual)).toList()));
         Assertions.assertTrue(result.size() > 0);
     }
 
     @Test
     void testWhenGetAllThenEmpty() {
+        Mockito.when(mock.count()).thenReturn(TestData.UNI_OPTIONAL_ZERO_LONG);
         Mockito.when(mock.findAll()).thenReturn(MULTI_EMPTIES);
         List<Answer> result = new ArrayList<>();
         Assertions.assertDoesNotThrow(() -> result.addAll(service.getAll()
@@ -69,6 +71,7 @@ class TagLabelServiceTest {
 
     @Test
     void testWhenGetAllThenNull() {
+        Mockito.when(mock.count()).thenReturn(TestData.UNI_OPTIONAL_ZERO_LONG);
         Mockito.when(mock.findAll()).thenReturn(MULTI_WITH_NULL);
         List<Answer> result = new ArrayList<>();
         Assertions.assertDoesNotThrow(() -> result.addAll(service.getAll()
@@ -91,7 +94,7 @@ class TagLabelServiceTest {
                 .pageSize((short) 1)
                 .prevPage(false)
                 .nextPage(false)
-                .content(Collections.singletonList(Answer.of(TestData.TAG_LABEL.TABLE_0)))
+                .content(Collections.singletonList(Answer.of(TestData.TAG_LABEL.MODEL_0)))
                 .build();
 
         Assertions.assertDoesNotThrow(() -> service.getPage(pageRequest)
@@ -154,31 +157,7 @@ class TagLabelServiceTest {
     void testWhenGetThenEntry() {
         Assertions.assertDoesNotThrow(() -> service.get(TestData.TAG_LABEL.ID)
                 .onItem()
-                .invoke(actual -> Assertions.assertEquals(Answer.of(TestData.TAG_LABEL.TABLE_0), actual))
-                .await()
-                .indefinitely());
-    }
-
-    @Test
-    void testWhenAddThenId() {
-        var expected = Answer.builder()
-                .error(201)
-                .payload(new ApiResponse<>(TestData.TAG_LABEL.ID))
-                .build();
-        Mockito.when(mock.insert(TestData.TAG_LABEL.TABLE_0)).thenReturn(TestData.TAG_LABEL.UNI_OPTIONAL_ID);
-        Assertions.assertDoesNotThrow(() -> service.add(TestData.TAG_LABEL.TABLE_0)
-                .onItem()
-                .invoke(actual -> Assertions.assertEquals(expected, actual))
-                .await()
-                .indefinitely());
-    }
-
-    @Test
-    void testWhenAddThenEmpty() {
-        Mockito.when(mock.insert(TestData.TAG_LABEL.TABLE_0)).thenReturn(TestData.UNI_OPTIONAL_EMPTY_STRING);
-        Assertions.assertDoesNotThrow(() -> service.add(TestData.TAG_LABEL.TABLE_0)
-                .onItem()
-                .invoke(actual -> Assertions.assertEquals(Answer.empty(), actual))
+                .invoke(actual -> Assertions.assertEquals(Answer.of(TestData.TAG_LABEL.MODEL_0), actual))
                 .await()
                 .indefinitely());
     }
@@ -190,7 +169,7 @@ class TagLabelServiceTest {
                 .payload(new ApiResponse<>(TestData.TAG_LABEL.ID))
                 .build();
         Mockito.when(mock.update(TestData.TAG_LABEL.TABLE_0)).thenReturn(TestData.TAG_LABEL.UNI_OPTIONAL_ID);
-        Assertions.assertDoesNotThrow(() -> service.put(TestData.TAG_LABEL.TABLE_0)
+        Assertions.assertDoesNotThrow(() -> service.put(TestData.TAG_LABEL.MODEL_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
                 .await()
@@ -200,7 +179,7 @@ class TagLabelServiceTest {
     @Test
     void testWhenPutThenEmpty() {
         Mockito.when(mock.update(TestData.TAG_LABEL.TABLE_0)).thenReturn(TestData.UNI_OPTIONAL_EMPTY_STRING);
-        Assertions.assertThrows(RuntimeException.class, () -> service.put(TestData.TAG_LABEL.TABLE_0)
+        Assertions.assertThrows(RuntimeException.class, () -> service.put(TestData.TAG_LABEL.MODEL_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(Answer.empty(), actual))
                 .await()

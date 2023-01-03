@@ -56,17 +56,19 @@ class VocabularyServiceTest {
 
     @Test
     void testWhenGetAllThenSingletonList() {
+        Mockito.when(mock.count()).thenReturn(TestData.UNI_OPTIONAL_ONE_LONG);
         Mockito.when(mock.findAll()).thenReturn(MULTI_TEST);
         List<Answer> result = new ArrayList<>();
         Assertions.assertDoesNotThrow(() -> result.addAll(service.getAll()
                 .subscribe()
                 .asStream()
-                .peek(actual -> Assertions.assertEquals(Answer.of(TestData.VOCABULARY.TABLE_0), actual)).toList()));
+                .peek(actual -> Assertions.assertEquals(Answer.of(TestData.VOCABULARY.MODEL_0), actual)).toList()));
         Assertions.assertTrue(result.size() > 0);
     }
 
     @Test
     void testWhenGetAllThenEmpty() {
+        Mockito.when(mock.count()).thenReturn(TestData.UNI_OPTIONAL_ZERO_LONG);
         Mockito.when(mock.findAll()).thenReturn(MULTI_EMPTIES);
         List<Answer> result = new ArrayList<>();
         Assertions.assertDoesNotThrow(() -> result.addAll(service.getAll()
@@ -78,6 +80,7 @@ class VocabularyServiceTest {
 
     @Test
     void testWhenGetAllThenNull() {
+        Mockito.when(mock.count()).thenReturn(TestData.UNI_OPTIONAL_ZERO_LONG);
         Mockito.when(mock.findAll()).thenReturn(MULTI_WITH_NULL);
         List<Answer> result = new ArrayList<>();
         Assertions.assertDoesNotThrow(() -> result.addAll(service.getAll()
@@ -100,7 +103,7 @@ class VocabularyServiceTest {
                 .pageSize((short) 1)
                 .prevPage(false)
                 .nextPage(false)
-                .content(Collections.singletonList(Answer.of(TestData.VOCABULARY.TABLE_0)))
+                .content(Collections.singletonList(Answer.of(TestData.VOCABULARY.MODEL_0)))
                 .build();
 
         Assertions.assertDoesNotThrow(() -> service.getPage(pageRequest)
@@ -163,7 +166,7 @@ class VocabularyServiceTest {
     void testWhenGetThenEntry() {
         Assertions.assertDoesNotThrow(() -> service.get("0")
                 .onItem()
-                .invoke(actual -> Assertions.assertEquals(Answer.of(TestData.VOCABULARY.TABLE_0), actual))
+                .invoke(actual -> Assertions.assertEquals(Answer.of(TestData.VOCABULARY.MODEL_0), actual))
                 .await()
                 .indefinitely());
     }
@@ -184,7 +187,7 @@ class VocabularyServiceTest {
                 .payload(new ApiResponse<>(0L))
                 .build();
         Mockito.when(mock.insert(TestData.VOCABULARY.TABLE_0)).thenReturn(TestData.UNI_OPTIONAL_ZERO_LONG);
-        Assertions.assertDoesNotThrow(() -> service.add(TestData.VOCABULARY.TABLE_0)
+        Assertions.assertDoesNotThrow(() -> service.add(TestData.VOCABULARY.MODEL_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
                 .await()
@@ -194,7 +197,7 @@ class VocabularyServiceTest {
     @Test
     void testWhenAddThenEmpty() {
         Mockito.when(mock.insert(TestData.VOCABULARY.TABLE_0)).thenReturn(TestData.UNI_OPTIONAL_EMPTY_LONG);
-        Assertions.assertDoesNotThrow(() -> service.add(TestData.VOCABULARY.TABLE_0)
+        Assertions.assertDoesNotThrow(() -> service.add(TestData.VOCABULARY.MODEL_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(Answer.empty(), actual))
                 .await()
@@ -208,7 +211,7 @@ class VocabularyServiceTest {
                 .payload(new ApiResponse<>(0L))
                 .build();
         Mockito.when(mock.update(TestData.VOCABULARY.TABLE_0)).thenReturn(TestData.UNI_OPTIONAL_ZERO_LONG);
-        Assertions.assertDoesNotThrow(() -> service.put(TestData.VOCABULARY.TABLE_0)
+        Assertions.assertDoesNotThrow(() -> service.put(TestData.VOCABULARY.MODEL_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
                 .await()
@@ -218,7 +221,7 @@ class VocabularyServiceTest {
     @Test
     void testWhenPutThenEmpty() {
         Mockito.when(mock.update(TestData.VOCABULARY.TABLE_0)).thenReturn(TestData.UNI_OPTIONAL_EMPTY_LONG);
-        Assertions.assertThrows(CompletionException.class, () -> service.put(TestData.VOCABULARY.TABLE_0)
+        Assertions.assertThrows(CompletionException.class, () -> service.put(TestData.VOCABULARY.MODEL_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(Answer.empty(), actual))
                 .await()

@@ -55,12 +55,13 @@ class ValueTypeServiceTest {
 
     @Test
     void testWhenGetAllThenSingletonList() {
+        Mockito.when(mock.count()).thenReturn(TestData.UNI_OPTIONAL_ONE_LONG);
         Mockito.when(mock.findAll()).thenReturn(MULTI_TEST);
         List<Answer> result = new ArrayList<>();
         Assertions.assertDoesNotThrow(() -> result.addAll(service.getAll()
                 .subscribe()
                 .asStream()
-                .peek(actual -> Assertions.assertEquals(Answer.of(TestData.VALUE_TYPE.TABLE_0), actual)).toList()));
+                .peek(actual -> Assertions.assertEquals(Answer.of(TestData.VALUE_TYPE.MODEL_0), actual)).toList()));
         Assertions.assertTrue(result.size() > 0);
     }
 
@@ -77,7 +78,7 @@ class ValueTypeServiceTest {
                 .pageSize((short) 1)
                 .prevPage(false)
                 .nextPage(false)
-                .content(Collections.singletonList(Answer.of(TestData.VALUE_TYPE.TABLE_0)))
+                .content(Collections.singletonList(Answer.of(TestData.VALUE_TYPE.MODEL_0)))
                 .build();
 
         Assertions.assertDoesNotThrow(() -> service.getPage(pageRequest)
@@ -138,6 +139,7 @@ class ValueTypeServiceTest {
 
     @Test
     void testWhenGetAllThenEmpty() {
+        Mockito.when(mock.count()).thenReturn(TestData.UNI_OPTIONAL_ZERO_LONG);
         Mockito.when(mock.findAll()).thenReturn(MULTI_EMPTIES);
         List<Answer> result = new ArrayList<>();
         Assertions.assertDoesNotThrow(() -> result.addAll(service.getAll()
@@ -149,6 +151,7 @@ class ValueTypeServiceTest {
 
     @Test
     void testWhenGetAllThenNull() {
+        Mockito.when(mock.count()).thenReturn(TestData.UNI_OPTIONAL_ZERO_LONG);
         Mockito.when(mock.findAll()).thenReturn(MULTI_WITH_NULL);
         List<Answer> result = new ArrayList<>();
         Assertions.assertDoesNotThrow(() -> result.addAll(service.getAll()
@@ -162,7 +165,7 @@ class ValueTypeServiceTest {
     void testWhenGetThenEntry() {
         Assertions.assertDoesNotThrow(() -> service.get(0L)
                 .onItem()
-                .invoke(actual -> Assertions.assertEquals(Answer.of(TestData.VALUE_TYPE.TABLE_0), actual))
+                .invoke(actual -> Assertions.assertEquals(Answer.of(TestData.VALUE_TYPE.MODEL_0), actual))
                 .await()
                 .indefinitely());
     }
@@ -183,7 +186,7 @@ class ValueTypeServiceTest {
                 .payload(new ApiResponse<>(0L))
                 .build();
         Mockito.when(mock.insert(TestData.VALUE_TYPE.TABLE_0)).thenReturn(TestData.UNI_OPTIONAL_ZERO_LONG);
-        Assertions.assertDoesNotThrow(() -> service.add(TestData.VALUE_TYPE.TABLE_0)
+        Assertions.assertDoesNotThrow(() -> service.add(TestData.VALUE_TYPE.MODEL_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
                 .await()
@@ -193,7 +196,7 @@ class ValueTypeServiceTest {
     @Test
     void testWhenAddThenEmpty() {
         Mockito.when(mock.insert(TestData.VALUE_TYPE.TABLE_0)).thenReturn(TestData.UNI_OPTIONAL_EMPTY_LONG);
-        Assertions.assertDoesNotThrow(() -> service.add(TestData.VALUE_TYPE.TABLE_0)
+        Assertions.assertDoesNotThrow(() -> service.add(TestData.VALUE_TYPE.MODEL_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(Answer.empty(), actual))
                 .await()
@@ -207,7 +210,7 @@ class ValueTypeServiceTest {
                 .payload(new ApiResponse<>(0L))
                 .build();
         Mockito.when(mock.update(TestData.VALUE_TYPE.TABLE_0)).thenReturn(TestData.UNI_OPTIONAL_ZERO_LONG);
-        Assertions.assertDoesNotThrow(() -> service.put(TestData.VALUE_TYPE.TABLE_0)
+        Assertions.assertDoesNotThrow(() -> service.put(TestData.VALUE_TYPE.MODEL_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
                 .await()
@@ -217,7 +220,7 @@ class ValueTypeServiceTest {
     @Test
     void testWhenPutThenEmpty() {
         Mockito.when(mock.update(TestData.VALUE_TYPE.TABLE_0)).thenReturn(TestData.UNI_OPTIONAL_ZERO_LONG);
-        Assertions.assertThrows(RuntimeException.class, () -> service.put(TestData.VALUE_TYPE.TABLE_0)
+        Assertions.assertThrows(RuntimeException.class, () -> service.put(TestData.VALUE_TYPE.MODEL_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(Answer.empty(), actual))
                 .await()

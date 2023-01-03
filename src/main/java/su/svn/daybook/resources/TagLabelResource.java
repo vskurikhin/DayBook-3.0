@@ -14,19 +14,26 @@ import org.jboss.resteasy.reactive.RestResponse;
 import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
 import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.enums.ResourcePath;
-import su.svn.daybook.domain.model.TagLabelTable;
+import su.svn.daybook.models.domain.TagLabel;
 import su.svn.daybook.models.pagination.PageRequest;
 import su.svn.daybook.services.domain.AbstractService;
 import su.svn.daybook.services.domain.TagLabelService;
 
 import javax.inject.Inject;
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 @Path(ResourcePath.TAG_LABEL)
-public class TagLabelResource extends AbstractResource implements Resources<String, TagLabelTable> {
+public class TagLabelResource extends AbstractResource implements Resources<String, TagLabel> {
 
     @Inject
     TagLabelService service;
@@ -34,7 +41,7 @@ public class TagLabelResource extends AbstractResource implements Resources<Stri
     @GET
     @Path(ResourcePath.ALL)
     @Produces("application/json")
-    public Multi<TagLabelTable> all(@QueryParam("get-all") Boolean getAll) {
+    public Multi<TagLabel> all(@QueryParam("get-all") Boolean getAll) {
         return getAll();
     }
 
@@ -54,15 +61,14 @@ public class TagLabelResource extends AbstractResource implements Resources<Stri
     @POST
     @Consumes("application/json")
     @Produces("application/json")
-    public Uni<Response> post(TagLabelTable entry, @Context UriInfo uriInfo) {
+    public Uni<Response> post(TagLabel entry, @Context UriInfo uriInfo) {
         return request(EventAddress.TAG_LABEL_ADD, entry, uriInfo);
     }
-
 
     @PUT
     @Consumes("application/json")
     @Produces("application/json")
-    public Uni<Response> put(TagLabelTable entry, @Context UriInfo uriInfo) {
+    public Uni<Response> put(TagLabel entry, @Context UriInfo uriInfo) {
         return request(EventAddress.TAG_LABEL_PUT, entry, uriInfo);
     }
 
@@ -79,7 +85,7 @@ public class TagLabelResource extends AbstractResource implements Resources<Stri
     }
 
     @Override
-    public AbstractService<String, TagLabelTable> getService() {
+    public AbstractService<String, TagLabel> getService() {
         return service;
     }
 }

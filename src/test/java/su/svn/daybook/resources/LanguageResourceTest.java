@@ -31,8 +31,7 @@ class LanguageResourceTest {
 
     static Uni<Answer> test = Uni.createFrom()
             .item(1)
-            .onItem()
-            .transform(i -> Answer.of(TestData.LANGUAGE.TABLE_0));
+            .map(i -> Answer.of(TestData.LANGUAGE.MODEL_0));
 
     LanguageService mock;
 
@@ -47,10 +46,10 @@ class LanguageResourceTest {
         Mockito.when(mock.get(Long.toString(Integer.MAX_VALUE))).thenReturn(TestData.UNI_ANSWER_EMPTY);
         Mockito.when(mock.get((long) Integer.MIN_VALUE)).thenReturn(TestData.UNI_ANSWER_NULL);
         Mockito.when(mock.get(Long.toString(Integer.MIN_VALUE))).thenReturn(TestData.UNI_ANSWER_NULL);
-        Mockito.when(mock.getAll()).thenReturn(Multi.createFrom().item(Answer.of(TestData.LANGUAGE.TABLE_0)));
+        Mockito.when(mock.getAll()).thenReturn(Multi.createFrom().item(Answer.of(TestData.LANGUAGE.MODEL_0)));
         Mockito.when(mock.getPage(pageRequest)).thenReturn(TestData.LANGUAGE.UNI_PAGE_ANSWER_SINGLETON_TEST);
-        Mockito.when(mock.add(TestData.LANGUAGE.TABLE_0)).thenReturn(TestData.UNI_ANSWER_API_RESPONSE_ZERO_LONG);
-        Mockito.when(mock.put(TestData.LANGUAGE.TABLE_0)).thenReturn(TestData.UNI_ANSWER_API_RESPONSE_ZERO_LONG);
+        Mockito.when(mock.add(TestData.LANGUAGE.MODEL_0)).thenReturn(TestData.UNI_ANSWER_API_RESPONSE_ZERO_LONG);
+        Mockito.when(mock.put(TestData.LANGUAGE.MODEL_0)).thenReturn(TestData.UNI_ANSWER_API_RESPONSE_ZERO_LONG);
         Mockito.when(mock.delete(0L)).thenReturn(TestData.UNI_ANSWER_API_RESPONSE_ZERO_LONG);
         Mockito.when(mock.delete("0")).thenReturn(TestData.UNI_ANSWER_API_RESPONSE_ZERO_LONG);
         QuarkusMock.installMockForType(mock, LanguageService.class);

@@ -14,19 +14,26 @@ import org.jboss.resteasy.reactive.RestResponse;
 import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
 import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.enums.ResourcePath;
-import su.svn.daybook.domain.model.LanguageTable;
+import su.svn.daybook.models.domain.Language;
 import su.svn.daybook.models.pagination.PageRequest;
 import su.svn.daybook.services.domain.AbstractService;
 import su.svn.daybook.services.domain.LanguageService;
 
 import javax.inject.Inject;
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 @Path(ResourcePath.LANGUAGE)
-public class LanguageResource extends AbstractResource implements Resources<Long, LanguageTable> {
+public class LanguageResource extends AbstractResource implements Resources<Long, Language> {
 
     @Inject
     LanguageService service;
@@ -34,7 +41,7 @@ public class LanguageResource extends AbstractResource implements Resources<Long
     @GET
     @Path(ResourcePath.ALL)
     @Produces("application/json")
-    public Multi<LanguageTable> all(@QueryParam("get-all") Boolean getAll) {
+    public Multi<Language> all(@QueryParam("get-all") Boolean getAll) {
         return getAll();
     }
 
@@ -54,7 +61,7 @@ public class LanguageResource extends AbstractResource implements Resources<Long
     @POST
     @Consumes("application/json")
     @Produces("application/json")
-    public Uni<Response> post(LanguageTable entry, @Context UriInfo uriInfo) {
+    public Uni<Response> post(Language entry, @Context UriInfo uriInfo) {
         return request(EventAddress.LANGUAGE_ADD, entry, uriInfo);
     }
 
@@ -62,7 +69,7 @@ public class LanguageResource extends AbstractResource implements Resources<Long
     @PUT
     @Consumes("application/json")
     @Produces("application/json")
-    public Uni<Response> put(LanguageTable entry, @Context UriInfo uriInfo) {
+    public Uni<Response> put(Language entry, @Context UriInfo uriInfo) {
         return request(EventAddress.LANGUAGE_PUT, entry, uriInfo);
     }
 
@@ -79,7 +86,7 @@ public class LanguageResource extends AbstractResource implements Resources<Long
     }
 
     @Override
-    public AbstractService<Long, LanguageTable> getService() {
+    public AbstractService<Long, Language> getService() {
         return service;
     }
 }

@@ -58,7 +58,7 @@ public abstract class AbstractMapper
     @Nullable
     @SuppressWarnings("unchecked")
     protected D convertModelToDomain(M model) {
-        log.infof("convertModelToDomain(%s)", model);
+        log.tracef("convertModelToDomain(%s)", model);
         buildPartsDomain.forEach(entry -> domainInvoker.invokeBuilderFor(entry, model));
         try {
             return (D) domainBuilderMethodBuild.invoke(domainBuilder);
@@ -71,7 +71,7 @@ public abstract class AbstractMapper
     @Nullable
     @SuppressWarnings("unchecked")
     protected M convertDomainToModel(D domain) {
-        log.infof("convertDomainToModel(%s)", domain);
+        log.tracef("convertDomainToModel(%s)", domain);
         buildPartsModel.forEach(entry -> modelInvoker.invokeBuilderFor(entry, domain));
         try {
             return (M) modelBuilderMethodBuild.invoke(modelBuilder);

@@ -8,9 +8,6 @@
 
 package su.svn.daybook.services.domain;
 
-import io.quarkus.cache.Cache;
-import io.quarkus.cache.CacheManager;
-import io.quarkus.cache.CacheResult;
 import io.quarkus.vertx.ConsumeEvent;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
@@ -19,32 +16,33 @@ import su.svn.daybook.domain.dao.I18nDao;
 import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.model.I18nTable;
+import su.svn.daybook.models.domain.I18n;
 import su.svn.daybook.models.pagination.Page;
 import su.svn.daybook.models.pagination.PageRequest;
 import su.svn.daybook.services.ExceptionAnswerService;
-import su.svn.daybook.services.PageService;
+import su.svn.daybook.services.cache.I18nCacheProvider;
+import su.svn.daybook.services.mappers.I18nMapper;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import java.util.List;
 import java.util.NoSuchElementException;
 
 @ApplicationScoped
-public class I18nService extends AbstractService<Long, I18nTable> {
+public class I18nService extends AbstractService<Long, I18n> {
 
     private static final Logger LOG = Logger.getLogger(I18nService.class);
 
     @Inject
-    CacheManager cacheManager;
+    I18nCacheProvider i18nCacheProvider;
 
     @Inject
     I18nDao i18nDao;
 
     @Inject
-    ExceptionAnswerService exceptionAnswerService;
+    I18nMapper i18nMapper;
 
     @Inject
-    PageService pageService;
+    ExceptionAnswerService exceptionAnswerService;
 
     /**
      * This is method a Vertx message consumer and I18n provider by id
@@ -53,7 +51,6 @@ public class I18nService extends AbstractService<Long, I18nTable> {
      * @return - a lazy asynchronous action with the Answer containing the I18n as payload or empty payload
      */
     @ConsumeEvent(EventAddress.I18N_GET)
-    @CacheResult(cacheName = EventAddress.I18N_GET)
     public Uni<Answer> get(Object o) {
         //noinspection DuplicatedCode
         LOG.tracef("get(%s)", o);
@@ -76,15 +73,21 @@ public class I18nService extends AbstractService<Long, I18nTable> {
     public Multi<Answer> getAll() {
         LOG.trace("getAll");
         return i18nDao
-                .findAll()
+                .count()
                 .onItem()
-                .transform(this::answerOf);
+                .transformToMulti(count -> getAllIfNotOverSize(count, this::getAllModels));
+    }
+
+    private Multi<I18n> getAllModels() {
+        return i18nDao
+                .findAll()
+                .map(i18nMapper::convertToModel);
     }
 
     private Uni<Answer> getEntry(Long id) {
-        return i18nDao
-                .findById(id)
-                .map(this::apiResponseWithValueAnswer)
+        return i18nCacheProvider
+                .get(id)
+                .map(Answer::of)
                 .onFailure(exceptionAnswerService::testNoSuchElementException)
                 .recoverWithUni(exceptionAnswerService::noSuchElementAnswer)
                 .onFailure(exceptionAnswerService::testException)
@@ -92,11 +95,10 @@ public class I18nService extends AbstractService<Long, I18nTable> {
     }
 
     @ConsumeEvent(value = EventAddress.I18N_PAGE)
-    @CacheResult(cacheName = EventAddress.I18N_PAGE)
     public Uni<Page<Answer>> getPage(PageRequest pageRequest) {
         //noinspection DuplicatedCode
         LOG.tracef("getPage(%s)", pageRequest);
-        return pageService.getPage(pageRequest, i18nDao::count, i18nDao::findRange, Answer::of);
+        return i18nCacheProvider.getPage(pageRequest);
     }
 
     /**
@@ -106,19 +108,18 @@ public class I18nService extends AbstractService<Long, I18nTable> {
      * @return - a lazy asynchronous action (LAA) with the Answer containing the I18n id as payload or empty payload
      */
     @ConsumeEvent(EventAddress.I18N_ADD)
-    public Uni<Answer> add(I18nTable o) {
+    public Uni<Answer> add(I18n o) {
         LOG.tracef("add(%s)", o);
-        return addEntry(o);
+        return addEntry(i18nMapper.convertToDomain(o));
     }
 
     private Uni<Answer> addEntry(I18nTable entry) {
         return i18nDao
                 .insert(entry)
                 .map(o -> apiResponseWithKeyAnswer(201, o))
-                .onItem()
-                .transformToUni(this::invalidateAllAndAnswer)
+                .flatMap(i18nCacheProvider::invalidate)
                 .onFailure(exceptionAnswerService::testDuplicateKeyException)
-                .recoverWithUni(exceptionAnswerService::notAcceptableDuplicateKeyValueAnswer)
+                .recoverWithUni(exceptionAnswerService::notAcceptableDuplicateKeyValAnswer)
                 .onFailure(exceptionAnswerService::testException)
                 .recoverWithUni(exceptionAnswerService::badRequestUniAnswer);
     }
@@ -130,21 +131,18 @@ public class I18nService extends AbstractService<Long, I18nTable> {
      * @return - a LAA with the Answer containing I18n id as payload or empty payload
      */
     @ConsumeEvent(EventAddress.I18N_PUT)
-    public Uni<Answer> put(I18nTable o) {
+    public Uni<Answer> put(I18n o) {
         LOG.tracef("put(%s)", o);
-        return putEntry(o)
-                .onItem()
-                .transformToUni(answer -> invalidateAndAnswer(o.getId(), answer));
+        return putEntry(i18nMapper.convertToDomain(o));
     }
 
     private Uni<Answer> putEntry(I18nTable entry) {
         return i18nDao
                 .update(entry)
                 .flatMap(this::apiResponseAcceptedUniAnswer)
-                .onItem()
-                .transformToUni(answer -> invalidateAndAnswer(entry.getId(), answer))
+                .flatMap(answer -> i18nCacheProvider.invalidateById(entry.getId(), answer))
                 .onFailure(exceptionAnswerService::testDuplicateKeyException)
-                .recoverWithUni(exceptionAnswerService::notAcceptableDuplicateKeyValueAnswer)
+                .recoverWithUni(exceptionAnswerService::notAcceptableDuplicateKeyValAnswer)
                 .onFailure(exceptionAnswerService::testNoSuchElementException)
                 .recoverWithUni(get(entry.getId()))
                 .onFailure(exceptionAnswerService::testException)
@@ -176,35 +174,10 @@ public class I18nService extends AbstractService<Long, I18nTable> {
         return i18nDao
                 .delete(id)
                 .map(this::apiResponseWithKeyAnswer)
-                .onItem()
-                .transformToUni(answer -> invalidateAndAnswer(id, answer))
+                .flatMap(answer -> i18nCacheProvider.invalidateById(id, answer))
                 .onFailure(exceptionAnswerService::testNoSuchElementException)
                 .recoverWithUni(exceptionAnswerService::noSuchElementAnswer)
                 .onFailure(exceptionAnswerService::testException)
                 .recoverWithUni(exceptionAnswerService::badRequestUniAnswer);
-    }
-
-    @Override
-    protected Uni<List<Void>> invalidate(Object o) {
-        LOG.tracef("invalidate(%s)", o);
-
-        var wordGetVoid = cacheManager
-                .getCache(EventAddress.I18N_GET)
-                .map(cache -> cache.invalidate(o))
-                .orElse(Uni.createFrom().voidItem());
-        var wordPageVoid = invalidateAllPage();
-
-        return joinCollectFailures(wordGetVoid, wordPageVoid)
-                .onItem()
-                .invoke(voids -> LOG.tracef("invalidate of %d caches", voids.size()));
-    }
-
-    @Override
-    protected Uni<Void> invalidateAllPage() {
-        LOG.trace("invalidateAllPage()");
-        return cacheManager
-                .getCache(EventAddress.I18N_PAGE)
-                .map(Cache::invalidateAll)
-                .orElse(Uni.createFrom().voidItem());
     }
 }
