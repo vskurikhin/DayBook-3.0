@@ -54,7 +54,7 @@ public final class PageRequest implements Serializable {
     @Override
     public String toString() {
         return "PageRequest{" +
-                "offset=" + pageNumber +
+                "pageNumber=" + pageNumber +
                 ", limit=" + limit +
                 '}';
     }
