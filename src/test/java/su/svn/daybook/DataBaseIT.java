@@ -39,6 +39,9 @@ public class DataBaseIT {
     LanguageDao languageDao;
 
     @Inject
+    RoleDao roleDao;
+
+    @Inject
     SettingDao settingDao;
 
     @Inject
@@ -739,6 +742,191 @@ public class DataBaseIT {
             Assertions.assertDoesNotThrow(
                     () -> Assertions.assertEquals(
                             customId, languageDao.delete(customId)
+                                    .subscribeAsCompletionStage()
+                                    .get()
+                                    .orElse(null)
+                    )
+            );
+
+        }
+    }
+
+    @Nested
+    @DisplayName("RoleDao")
+    class RoleDaoTest {
+
+        UUID id = new UUID(0, 1);
+
+        UUID customId = UUID.randomUUID();
+
+        RoleTable entry;
+
+        @BeforeEach
+        void setUp() {
+            entry = RoleTable.builder()
+                    .id(id)
+                    .role("role")
+                    .build();
+            Assertions.assertDoesNotThrow(
+                    () -> Assertions.assertEquals(
+                            id, roleDao.insert(entry)
+                                    .subscribeAsCompletionStage()
+                                    .get()
+                                    .orElse(null)
+                    )
+            );
+        }
+
+        @AfterEach
+        void tearDown() {
+            Assertions.assertDoesNotThrow(
+                    () -> Assertions.assertEquals(
+                            id, roleDao.delete(id)
+                                    .subscribeAsCompletionStage()
+                                    .get()
+                                    .orElse(null)
+                    )
+            );
+            Assertions.assertDoesNotThrow(
+                    () -> Assertions.assertEquals(
+                            0, roleDao.count()
+                                    .subscribeAsCompletionStage()
+                                    .get()
+                                    .orElse(null)
+                    )
+            );
+        }
+
+        @Test
+        void test() {
+            var expected1 = RoleTable.builder()
+                    .id(id)
+                    .role("role")
+                    .build();
+            Assertions.assertDoesNotThrow(
+                    () -> {
+                        var test = roleDao.findById(id)
+                                .subscribeAsCompletionStage()
+                                .get()
+                                .orElse(null);
+                        Assertions.assertNotNull(test);
+                        Assertions.assertEquals(expected1, test);
+                        Assertions.assertNotNull(test.getCreateTime());
+                        Assertions.assertNull(test.getUpdateTime());
+                    }
+            );
+            var expected2 = RoleTable.builder()
+                    .id(id)
+                    .role("none")
+                    .description("oops")
+                    .build();
+            Assertions.assertDoesNotThrow(
+                    () -> Assertions.assertEquals(
+                            id, roleDao.update(expected2)
+                                    .subscribeAsCompletionStage()
+                                    .get()
+                                    .orElse(null)
+                    )
+            );
+            Assertions.assertDoesNotThrow(
+                    () -> {
+                        var test = roleDao.findById(id)
+                                .subscribeAsCompletionStage()
+                                .get()
+                                .orElse(null);
+                        Assertions.assertNotNull(test);
+                        Assertions.assertEquals(expected2, test);
+                        Assertions.assertNotNull(test.getCreateTime());
+                        Assertions.assertNotNull(test.getUpdateTime());
+                    }
+            );
+            Assertions.assertDoesNotThrow(
+                    () -> {
+                        var test = roleDao.findAll()
+                                .collect()
+                                .asList()
+                                .subscribeAsCompletionStage()
+                                .get();
+                        Assertions.assertNotNull(test);
+                        Assertions.assertFalse(test.isEmpty());
+                        Assertions.assertEquals(1, test.size());
+                    }
+            );
+            Assertions.assertDoesNotThrow(
+                    () -> {
+                        var test = roleDao.findRange(0, 0)
+                                .collect()
+                                .asList()
+                                .subscribeAsCompletionStage()
+                                .get();
+                        Assertions.assertNotNull(test);
+                        Assertions.assertTrue(test.isEmpty());
+                    }
+            );
+            Assertions.assertDoesNotThrow(
+                    () -> {
+                        var test = roleDao.findRange(0, 1)
+                                .collect()
+                                .asList()
+                                .subscribeAsCompletionStage()
+                                .get();
+                        Assertions.assertNotNull(test);
+                        Assertions.assertFalse(test.isEmpty());
+                        Assertions.assertEquals(1, test.size());
+                    }
+            );
+            var custom = RoleTable.builder()
+                    .id(customId)
+                    .role("null")
+                    .build();
+            Assertions.assertDoesNotThrow(
+                    () -> Assertions.assertEquals(
+                            customId, roleDao.insert(custom)
+                                    .subscribeAsCompletionStage()
+                                    .get()
+                                    .orElse(null))
+            );
+            Assertions.assertDoesNotThrow(
+                    () -> {
+                        var test = roleDao.findRange(1, 1)
+                                .collect()
+                                .asList()
+                                .subscribeAsCompletionStage()
+                                .get();
+                        Assertions.assertNotNull(test);
+                        Assertions.assertFalse(test.isEmpty());
+                        Assertions.assertEquals(1, test.size());
+                        Assertions.assertEquals(custom, test.get(0));
+                    }
+            );
+            Assertions.assertDoesNotThrow(
+                    () -> {
+                        var test = roleDao.findRange(0, Long.MAX_VALUE)
+                                .collect()
+                                .asList()
+                                .subscribeAsCompletionStage()
+                                .get();
+                        Assertions.assertNotNull(test);
+                        Assertions.assertFalse(test.isEmpty());
+                        Assertions.assertEquals(2, test.size());
+                    }
+            );
+
+            Assertions.assertDoesNotThrow(
+                    () -> {
+                        var test = roleDao.findRange(1, 1)
+                                .collect()
+                                .asList()
+                                .subscribeAsCompletionStage()
+                                .get();
+                        Assertions.assertNotNull(test);
+                        Assertions.assertFalse(test.isEmpty());
+                        Assertions.assertEquals(1, test.size());
+                    }
+            );
+            Assertions.assertDoesNotThrow(
+                    () -> Assertions.assertEquals(
+                            customId, roleDao.delete(customId)
                                     .subscribeAsCompletionStage()
                                     .get()
                                     .orElse(null)

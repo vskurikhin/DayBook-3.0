@@ -3,6 +3,6 @@
 -- For more information, please refer to <http://unlicense.org>
 -- alter_user.sql
 
-GRANT ALL PRIVILEGES ON DATABASE dbuser TO db;
+GRANT ALL PRIVILEGES ON DATABASE db TO dbuser;
 ALTER USER dbuser PASSWORD 'password';
 ALTER USER dbuser SUPERUSER;
