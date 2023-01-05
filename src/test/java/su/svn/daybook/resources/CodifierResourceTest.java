@@ -49,6 +49,7 @@ class CodifierResourceTest {
 
     @Test
     void testEndpointGet() {
+        System.out.println("Answer.of(TestData.CODIFIER.MODEL_0) = " + Answer.of(TestData.CODIFIER.MODEL_0));
         given()
                 .when()
                 .get("/code/" + CodifierTable.NONE)

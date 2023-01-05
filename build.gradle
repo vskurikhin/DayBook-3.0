@@ -13,6 +13,7 @@ import org.apache.tools.ant.filters.ReplaceTokens
 //file:noinspection GradlePackageUpdate
 
 plugins {
+    id 'application'
     id 'io.quarkus'
     id 'java'
     id 'org.liquibase.gradle' version '2.0.4'
@@ -21,6 +22,10 @@ plugins {
 repositories {
     mavenCentral()
     mavenLocal()
+}
+
+application {
+    mainClassName = project.hasProperty("mainClass") ? project.getProperty("mainClass") : "NULL"
 }
 
 ext.libVers = [
@@ -44,6 +49,8 @@ dependencies {
     implementation "io.quarkus:quarkus-reactive-pg-client"
     implementation "io.quarkus:quarkus-resteasy-reactive"
     implementation "io.quarkus:quarkus-resteasy-reactive-jackson"
+    implementation "io.quarkus:quarkus-smallrye-jwt"
+    implementation "io.quarkus:quarkus-smallrye-jwt-build"
     implementation "io.quarkus:quarkus-smallrye-openapi"
     implementation "io.quarkus:quarkus-vertx"
     implementation "io.quarkus:quarkus-websockets"

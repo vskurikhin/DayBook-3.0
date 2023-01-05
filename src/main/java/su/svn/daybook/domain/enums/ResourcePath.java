@@ -11,6 +11,7 @@ package su.svn.daybook.domain.enums;
 public enum ResourcePath {
     Null(null),
     All(ResourcePath.ALL),
+    Auth(ResourcePath.AUTH),
     Codifier(ResourcePath.CODIFIER),
     I18n(ResourcePath.I18N),
     Id(ResourcePath.ID),
@@ -26,11 +27,13 @@ public enum ResourcePath {
     Word(ResourcePath.WORD);
 
     public static final String ALL = "/_";
+    public static final String AUTH = "/auth";
     public static final String CODIFIER = "/code";
     public static final String I18N = "/i18n";
     public static final String ID = "/{id}";
     public static final String KEY_VALUE = "/key-value";
     public static final String LANGUAGE = "/lang";
+    public static final String LOGIN = "/login";
     public static final String PUT = "/put";
     public static final String ROLE = "/role";
     public static final String SETTING = "/setting";
