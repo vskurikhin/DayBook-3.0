@@ -10,12 +10,21 @@ package su.svn.daybook;
 
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
+import io.smallrye.mutiny.Uni;
 import org.junit.jupiter.api.*;
 import su.svn.daybook.domain.dao.*;
+import su.svn.daybook.domain.messages.Answer;
+import su.svn.daybook.domain.messages.ApiResponse;
 import su.svn.daybook.domain.model.*;
+import su.svn.daybook.domain.transact.UserTransactionalJob;
+import su.svn.daybook.models.domain.User;
 import su.svn.daybook.resources.PostgresDatabaseTestResource;
+import su.svn.daybook.services.domain.UserService;
 
 import javax.inject.Inject;
+import java.util.Collections;
+import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -25,9 +34,6 @@ public class DataBaseIT {
 
     @Inject
     CodifierDao codifierDao;
-
-    @Inject
-    UserNameDao userNameDao;
 
     @Inject
     I18nDao i18nDao;
@@ -46,6 +52,18 @@ public class DataBaseIT {
 
     @Inject
     TagLabelDao tagLabelDao;
+
+    @Inject
+    UserNameDao userNameDao;
+
+    @Inject
+    UserService userService;
+
+    @Inject
+    UserTransactionalJob userTransactionalJob;
+
+    @Inject
+    UserViewDao userViewDao;
 
     @Inject
     ValueTypeDao valueTypeDao;
@@ -911,6 +929,26 @@ public class DataBaseIT {
                         Assertions.assertEquals(2, test.size());
                     }
             );
+//            Assertions.assertDoesNotThrow(
+//                    () -> {
+//                        var test = roleDao.countNotExists(Arrays.asList("ok", "one", "null"))
+//                                .subscribeAsCompletionStage()
+//                                .get()
+//                                .orElse(null);
+//                        Assertions.assertNotNull(test);
+//                        Assertions.assertEquals(2, test);
+//                    }
+//            );
+//            Assertions.assertDoesNotThrow(
+//                    () -> {
+//                        var test = roleDao.countNotExists(Arrays.asList("ok", "one", "none", "nil"))
+//                                .subscribeAsCompletionStage()
+//                                .get()
+//                                .orElse(null);
+//                        Assertions.assertNotNull(test);
+//                        Assertions.assertEquals(3, test);
+//                    }
+//            );
 
             Assertions.assertDoesNotThrow(
                     () -> {
@@ -1493,6 +1531,354 @@ public class DataBaseIT {
     }
 
     @Nested
+    @DisplayName("UserService")
+    class UserServiceTest {
+
+        UUID id = new UUID(0, 0);
+        UUID id1 = new UUID(0, 1);
+        UUID id2 = new UUID(0, 2);
+
+        UUID customId = UUID.randomUUID();
+
+        RoleTable role1;
+
+        RoleTable role2;
+
+        User user;
+
+        @BeforeEach
+        void setUp() {
+            role1 = RoleTable.builder().id(id1).role("role1").build();
+            Assertions.assertDoesNotThrow(
+                    () -> Assertions.assertEquals(id1, subscribeAsCompletionStageOptional(roleDao.insert(role1)))
+            );
+            role2 = RoleTable.builder().id(id2).role("role2").build();
+            Assertions.assertDoesNotThrow(
+                    () -> Assertions.assertEquals(id2, subscribeAsCompletionStageOptional(roleDao.insert(role2)))
+            );
+            user = User.builder()
+                    .id(id)
+                    .userName("user")
+                    .password("password")
+                    .roles(Collections.emptySet())
+                    .build();
+        }
+
+        @AfterEach
+        void tearDown() {
+            checkUserNameTableIsEmpty();
+            Assertions.assertDoesNotThrow(
+                    () -> Assertions.assertEquals(id2, subscribeAsCompletionStageOptional(roleDao.delete(id2)))
+            );
+            Assertions.assertDoesNotThrow(
+                    () -> Assertions.assertEquals(id1, subscribeAsCompletionStageOptional(roleDao.delete(id1)))
+            );
+            Assertions.assertDoesNotThrow(
+                    () -> Assertions.assertEquals(0, subscribeAsCompletionStageOptional(roleDao.count()))
+            );
+        }
+
+        @Test
+        void test() {
+            var expected = Answer.builder()
+                    .error(201)
+                    .payload(new ApiResponse<>(TestData.ZERO_UUID))
+                    .build();
+            Assertions.assertDoesNotThrow(() -> {
+                var actual = subscribeAsCompletionStageAnswer(userService.add(user));
+                Assertions.assertEquals(expected, actual);
+            });
+            // Thread.sleep(15_000);
+            deleteUserName();
+            checkUserNameTableIsEmpty();
+            // Thread.sleep(25_000);
+            for (var a : new String[][]{{"role1"}, {"role1", "role2"}}) {
+                var set = Set.of(a);
+                System.out.println("set = " + set);
+                user = User.builder()
+                        .id(id)
+                        .userName("user")
+                        .password("password")
+                        .roles(set)
+                        .build();
+                Assertions.assertDoesNotThrow(() -> {
+                    var actual = subscribeAsCompletionStageAnswer(userService.add(user));
+                    Assertions.assertEquals(expected, actual);
+                    var userView = subscribeAsCompletionStageOptional(userViewDao.findById(id));
+                    Assertions.assertNotNull(userView);
+                    Assertions.assertEquals(set.size(), userView.getRoles().size());
+                });
+                Assertions.assertDoesNotThrow(() -> {
+                    var actual = subscribeAsCompletionStageAnswer(userService.delete(user.getId()));
+                    Assertions.assertNotNull(actual);
+                    if (actual.getPayload() instanceof ApiResponse apiResponse) {
+                        Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(
+                                id, UUID.fromString(apiResponse.getId().toString())
+                        ));
+                    }
+                });
+                checkUserNameTableIsEmpty();
+            }
+            var expected2 = Answer.builder()
+                    .error(202)
+                    .payload(new ApiResponse<>(TestData.ZERO_UUID))
+                    .build();
+            for (var a : new String[][]{{"role1"}, {"role1", "role2"}}) {
+                Assertions.assertDoesNotThrow(() -> {
+                    var actual = subscribeAsCompletionStageAnswer(userService.add(user));
+                    Assertions.assertEquals(expected, actual);
+                });
+                var set = Set.of(a);
+                System.out.println("set = " + set);
+                user = User.builder()
+                        .id(id)
+                        .userName("user")
+                        .password(set.stream().findFirst().get())
+                        .roles(set)
+                        .build();
+                Assertions.assertDoesNotThrow(() -> {
+                    var actual = subscribeAsCompletionStageAnswer(userService.put(user));
+                    Assertions.assertEquals(expected2, actual);
+                    var userView = subscribeAsCompletionStageOptional(userViewDao.findById(id));
+                    Assertions.assertNotNull(userView);
+                    Assertions.assertEquals(set.size(), userView.getRoles().size());
+                });
+                // Thread.sleep(25_000);
+                Assertions.assertDoesNotThrow(() -> {
+                    var actual = subscribeAsCompletionStageAnswer(userService.delete(user.getId()));
+                    Assertions.assertNotNull(actual);
+                    if (actual.getPayload() instanceof ApiResponse apiResponse) {
+                        Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(
+                                id, UUID.fromString(apiResponse.getId().toString())
+                        ));
+                    }
+                });
+                checkUserNameTableIsEmpty();
+            }
+            var custom = User.builder()
+                    .userName("userName")
+                    .password("password")
+                    .roles(Set.of("role1", "role2"))
+                    .build();
+            Assertions.assertDoesNotThrow(() -> {
+                Answer actual = subscribeAsCompletionStageAnswer(userService.add(custom));
+                if (actual.getPayload() instanceof ApiResponse apiResponse) {
+                    customId = UUID.fromString(apiResponse.getId().toString());
+                    Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(
+                            customId, subscribeAsCompletionStageOptional(userNameDao.delete(customId))
+                    ));
+                }
+            });
+        }
+
+        private void checkUserNameTableIsEmpty() {
+            Assertions.assertDoesNotThrow(
+                    () -> Assertions.assertEquals(0, subscribeAsCompletionStageOptional(userNameDao.count()))
+            );
+        }
+
+        private void deleteUserName() {
+            Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(
+                    id, subscribeAsCompletionStageOptional(userNameDao.delete(id))
+            ));
+        }
+    }
+//
+//    @Nested
+//    @DisplayName("UserTransactionalJob")
+//    class UserTransactionalJobTest {
+//
+//        UUID id = new UUID(0, 0);
+//        UUID id1 = new UUID(0, 1);
+//        UUID id2 = new UUID(0, 2);
+//
+//        UUID customId = UUID.randomUUID();
+//
+//        RoleTable role1;
+//
+//        RoleTable role2;
+//
+//        UserNameTable userName;
+//
+//        @BeforeEach
+//        void setUp() {
+//            role1 = RoleTable.builder()
+//                    .id(id1)
+//                    .role("role1")
+//                    .build();
+//            Assertions.assertDoesNotThrow(
+//                    () -> Assertions.assertEquals(
+//                            id1, roleDao.insert(role1)
+//                                    .subscribeAsCompletionStage()
+//                                    .get()
+//                                    .orElse(null)
+//                    )
+//            );
+//            role2 = RoleTable.builder()
+//                    .id(id2)
+//                    .role("role2")
+//                    .build();
+//            Assertions.assertDoesNotThrow(
+//                    () -> Assertions.assertEquals(
+//                            id2, roleDao.insert(role2)
+//                                    .subscribeAsCompletionStage()
+//                                    .get()
+//                                    .orElse(null)
+//                    )
+//            );
+//            userName = UserNameTable.builder()
+//                    .id(id)
+//                    .userName("user")
+//                    .password("password")
+//                    .enabled(true)
+//                    .build();
+//        }
+//
+//        @AfterEach
+//        void tearDown() {
+//            checkUserNameTableIsEmpty();
+//            Assertions.assertDoesNotThrow(
+//                    () -> Assertions.assertEquals(
+//                            id2, roleDao.delete(id2)
+//                                    .subscribeAsCompletionStage()
+//                                    .get()
+//                                    .orElse(null)
+//                    )
+//            );
+//            Assertions.assertDoesNotThrow(
+//                    () -> Assertions.assertEquals(
+//                            id1, roleDao.delete(id1)
+//                                    .subscribeAsCompletionStage()
+//                                    .get()
+//                                    .orElse(null)
+//                    )
+//            );
+//            Assertions.assertDoesNotThrow(
+//                    () -> Assertions.assertEquals(
+//                            0, roleDao.count()
+//                                    .subscribeAsCompletionStage()
+//                                    .get()
+//                                    .orElse(null)
+//                    )
+//            );
+//        }
+//
+//        @Test
+//        void test() {
+//            Assertions.assertDoesNotThrow(
+//                    () -> {
+//                        var test = userTransactionalJob
+//                                .insert(userName, Collections.emptySet(), UserNameTable::getUserName)
+//                                .subscribeAsCompletionStage()
+//                                .get()
+//                                .orElse(null);
+//                        Assertions.assertNotNull(test);
+//                        Assertions.assertEquals(id, test);
+//                        var userView = userViewDao
+//                                .findById(id)
+//                                .subscribeAsCompletionStage()
+//                                .get()
+//                                .orElse(null);
+//                        Assertions.assertNotNull(userView);
+//                        Assertions.assertEquals(0, userView.getRoles().size());
+//                    }
+//            );
+//            deleteUserName();
+//            checkUserNameTableIsEmpty();
+//            Assertions.assertDoesNotThrow(
+//                    () -> {
+//                        var test = userTransactionalJob
+//                                .insert(userName, Collections.singleton("role1"), UserNameTable::getUserName)
+//                                .subscribeAsCompletionStage()
+//                                .get()
+//                                .orElse(null);
+//                        Assertions.assertNotNull(test);
+//                        Assertions.assertEquals(id, test);
+//                        var userView = userViewDao
+//                                .findById(id)
+//                                .subscribeAsCompletionStage()
+//                                .get()
+//                                .orElse(null);
+//                        Assertions.assertNotNull(userView);
+//                        Assertions.assertEquals(1, userView.getRoles().size());
+//                    }
+//            );
+//            deleteUserName();
+//            checkUserNameTableIsEmpty();
+//            Assertions.assertDoesNotThrow(
+//                    () -> {
+//                        var test = userTransactionalJob
+//                                .insert(userName, Set.of("role1", "role2"), UserNameTable::getUserName)
+//                                .subscribeAsCompletionStage()
+//                                .get()
+//                                .orElse(null);
+//                        Assertions.assertNotNull(test);
+//                        Assertions.assertEquals(id, test);
+//                        var userView = userViewDao
+//                                .findById(id)
+//                                .subscribeAsCompletionStage()
+//                                .get()
+//                                .orElse(null);
+//                        Assertions.assertNotNull(userView);
+//                        Assertions.assertEquals(2, userView.getRoles().size());
+//                    }
+//            );
+//            deleteUserName();
+//            checkUserNameTableIsEmpty();
+//            Assertions.assertThrows(java.util.concurrent.ExecutionException.class,
+//                    () -> userTransactionalJob
+//                            .insert(userName, Set.of("role1", "role2", "role3"), UserNameTable::getUserName)
+//                            .subscribeAsCompletionStage()
+//                            .get()
+//            );
+//            checkUserNameTableIsEmpty();
+//            var custom = UserNameTable.builder()
+//                    .userName("userName")
+//                    .password("password")
+//                    .enabled(true)
+//                    .build();
+//            Assertions.assertDoesNotThrow(
+//                    () -> {
+//                        customId = userTransactionalJob.insert(custom, Set.of("role1", "role2"), UserNameTable::getUserName)
+//                                .subscribeAsCompletionStage()
+//                                .get()
+//                                .orElse(null);
+//                    }
+//            );
+//            Assertions.assertDoesNotThrow(
+//                    () -> Assertions.assertEquals(
+//                            customId, userNameDao.delete(customId)
+//                                    .subscribeAsCompletionStage()
+//                                    .get()
+//                                    .orElse(null)
+//                    )
+//            );
+//        }
+//
+//        private void checkUserNameTableIsEmpty() {
+//            Assertions.assertDoesNotThrow(
+//                    () -> Assertions.assertEquals(
+//                            0, userNameDao.count()
+//                                    .subscribeAsCompletionStage()
+//                                    .get()
+//                                    .orElse(null)
+//                    )
+//            );
+//        }
+//
+//        private void deleteUserName() {
+//            Assertions.assertDoesNotThrow(
+//                    () -> Assertions.assertEquals(
+//                            id, userNameDao.delete(id)
+//                                    .subscribeAsCompletionStage()
+//                                    .get()
+//                                    .orElse(null)
+//                    )
+//            );
+//        }
+//    }
+
+    @Nested
     @DisplayName("ValueTypeDao")
     class ValueTypeDaoTest {
 
@@ -1860,5 +2246,19 @@ public class DataBaseIT {
                     }
             );
         }
+    }
+
+
+    private Answer subscribeAsCompletionStageAnswer(Uni<Answer> uni) throws Exception {
+        var result = uni.subscribeAsCompletionStage();
+        Assertions.assertNotNull(result);
+        return result.get();
+    }
+
+
+    private <T> T subscribeAsCompletionStageOptional(Uni<Optional<T>> uni) throws Exception {
+        var result = uni.subscribeAsCompletionStage();
+        Assertions.assertNotNull(result);
+        return result.get().orElse(null);
     }
 }

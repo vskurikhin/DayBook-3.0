@@ -118,7 +118,7 @@ public class @Name@Service extends AbstractService<@IdType@, @Name@> {
     private Uni<Answer> addEntry(@Name@Table entry) {
         return @name@Dao
                 .insert(entry)
-                .map(o -> apiResponseWith@Key@Answer(201, o))
+                .map(o -> apiResponseAnswer(201, o))
                 .flatMap(@name@CacheProvider::invalidate)
                 .onFailure(exceptionAnswerService::testDuplicateException)
                 .recoverWithUni(exceptionAnswerService::notAcceptableDuplicateAnswer)
@@ -176,7 +176,7 @@ public class @Name@Service extends AbstractService<@IdType@, @Name@> {
     private Uni<Answer> deleteEntry(@IdType@ id) {
         return @name@Dao
                 .delete(id)
-                .map(this::apiResponseWith@Key@Answer)
+                .map(this::apiResponseAnswer)
                 .flatMap(answer -> @name@CacheProvider.invalidateById(id, answer))
                 .onFailure(exceptionAnswerService::testNoSuchElementException)
                 .recoverWithUni(exceptionAnswerService::noSuchElementAnswer)

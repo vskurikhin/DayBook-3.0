@@ -8,7 +8,7 @@
 
 package su.svn.daybook.services.cache;
 
-import io.quarkus.cache.Cache@Key@;
+import io.quarkus.cache.CacheKey;
 import io.quarkus.cache.CacheManager;
 import io.quarkus.cache.CacheResult;
 import io.smallrye.mutiny.Uni;

@@ -1,8 +1,8 @@
 /*
- * This file was last modified at 2022.01.12 22:58 by Victor N. Skurikhin.
+ * This file was last modified at 2023.01.05 18:24 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
- * @Name@.java
+ * UserHasRoles.java
  * $Id$
  */
 
@@ -11,7 +11,7 @@ package su.svn.daybook.models.domain;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import su.svn.daybook.annotations.DomainField;
-import su.svn.daybook.models.@IdType@Identification;
+import su.svn.daybook.models.LongIdentification;
 
 import javax.annotation.Nonnull;
 import java.io.Serial;
@@ -19,18 +19,18 @@ import java.io.Serializable;
 import java.util.Objects;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public final class @Name@ implements @IdType@Identification, Serializable {
+public final class UserHasRoles implements LongIdentification, Serializable {
 
-    public static final String NONE = "@uuid@";
+    public static final String NONE = "4acd4523-e27d-43e7-88dc-f40637c98bf1";
     public static final String ID = "id";
     @Serial
-    private static final long serialVersionUID = @serialVersionUID@L;
+    private static final long serialVersionUID = 4722484157347652332L;
     @DomainField
-    private final @IdType@ id;
+    private final Long id;
     @DomainField(nullable = false)
-    private final @KType@ @key@;
+    private final String userName;
     @DomainField
-    private final @VType@ @value@;
+    private final String role;
     @DomainField
     private final boolean visible;
     @DomainField
@@ -42,41 +42,41 @@ public final class @Name@ implements @IdType@Identification, Serializable {
     @JsonIgnore
     private transient volatile boolean hashIsZero;
 
-    public @Name@() {
+    public UserHasRoles() {
         this.id = null;
-        this.@key@ = NONE;
-        this.@value@ = null;
+        this.userName = NONE;
+        this.role = null;
         this.visible = true;
         this.flags = 0;
     }
 
-    public @Name@(
-            @IdType@ id,
-            @Nonnull @KType@ @key@,
-            @VType@ @value@,
+    public UserHasRoles(
+            Long id,
+            @Nonnull String userName,
+            String role,
             boolean visible,
             int flags) {
         this.id = id;
-        this.@key@ = @key@;
-        this.@value@ = @value@;
+        this.userName = userName;
+        this.role = role;
         this.visible = visible;
         this.flags = flags;
     }
 
-    public static @Name@.Builder builder() {
-        return new @Name@.Builder();
+    public static UserHasRoles.Builder builder() {
+        return new UserHasRoles.Builder();
     }
 
-    public @IdType@ getId() {
+    public Long getId() {
         return id;
     }
 
-    public @KType@ get@Key@() {
-        return @key@;
+    public String getUserName() {
+        return userName;
     }
 
-    public @VType@ get@Value@() {
-        return @value@;
+    public String getRole() {
+        return role;
     }
 
     public boolean getVisible() {
@@ -95,12 +95,12 @@ public final class @Name@ implements @IdType@Identification, Serializable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        var that = (@Name@) o;
+        var that = (UserHasRoles) o;
         return visible == that.visible
                 && flags == that.flags
                 && Objects.equals(id, that.id)
-                && Objects.equals(@key@, that.@key@)
-                && Objects.equals(@value@, that.@value@);
+                && Objects.equals(userName, that.userName)
+                && Objects.equals(role, that.role);
     }
 
     @Override
@@ -118,42 +118,42 @@ public final class @Name@ implements @IdType@Identification, Serializable {
     }
 
     private int calculateHashCode() {
-        return Objects.hash(id, @key@, @value@, visible, flags);
+        return Objects.hash(id, userName, role, visible, flags);
     }
 
     @Override
     public String toString() {
-        return "@Name@{" +
+        return "UserHasRoles{" +
                 "id=" + id +
-                ", @key@='" + @key@ + '\'' +
-                ", @value@='" + @value@ + '\'' +
+                ", userName='" + userName + '\'' +
+                ", role='" + role + '\'' +
                 ", visible=" + visible +
                 ", flags=" + flags +
                 '}';
     }
 
     public static final class Builder {
-        private @IdType@ id;
-        private @KType@ @key@;
-        private @VType@ @value@;
+        private Long id;
+        private String userName;
+        private String role;
         private boolean visible;
         private int flags;
 
         private Builder() {
         }
 
-        public Builder id(@IdType@ id) {
+        public Builder id(Long id) {
             this.id = id;
             return this;
         }
 
-        public Builder @key@(@Nonnull @KType@ @key@) {
-            this.@key@ = @key@;
+        public Builder userName(@Nonnull String userName) {
+            this.userName = userName;
             return this;
         }
 
-        public Builder @value@(@VType@ @value@) {
-            this.@value@ = @value@;
+        public Builder role(String role) {
+            this.role = role;
             return this;
         }
 
@@ -167,8 +167,8 @@ public final class @Name@ implements @IdType@Identification, Serializable {
             return this;
         }
 
-        public @Name@ build() {
-            return new @Name@(id, @key@, @value@, visible, flags);
+        public UserHasRoles build() {
+            return new UserHasRoles(id, userName, role, visible, flags);
         }
     }
 }

@@ -1,5 +1,7 @@
 package su.svn.daybook.models;
 
-public interface Identification<I> {
+import java.io.Serializable;
+
+public interface Identification<I extends Comparable<? extends Serializable>> {
     I getId();
 }

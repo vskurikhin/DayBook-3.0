@@ -60,6 +60,7 @@ dependencies {
     liquibaseRuntime group: 'org.postgresql', name: 'postgresql', version: libVers.drv_org_postgresql
 
     testImplementation "io.quarkus:quarkus-junit5"
+    testImplementation "io.quarkus:quarkus-junit5-mockito"
     testImplementation "io.rest-assured:rest-assured"
     testImplementation "io.zonky.test:embedded-postgres:$libVers.embedded_postgres"
     testImplementation "nl.jqno.equalsverifier:equalsverifier:$libVers.equalsverifier"
@@ -178,7 +179,7 @@ private void genDictionary(template, projectDir, to, sufix = "") {
     def key = this.getProjectProperty('key', 'key').toString()
     def keyType = this.getProjectProperty('KType', 'String').toString()
     def value = this.getProjectProperty('value', 'value').toString()
-    def valueType = this.getProjectProperty('valueType', 'String').toString()
+    def valueType = this.getProjectProperty('VType', 'String').toString()
     def uuid = UUID.randomUUID().toString()
     copy {
         from template

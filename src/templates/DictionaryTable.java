@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.Objects;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public final class @Name@Table implements @IdType@Identification, Marked, Owned, TimeUpdated, Serializable {
+public final class @Name@Table implements CasesOf@IdType@, Marked, Owned, TimeUpdated, Serializable {
 
     public static final String NONE = "@uuid@";
     public static final String SELECT_FROM_@SCHEMA@_@TABLE@_WHERE_ID_$1 = """
@@ -226,8 +226,10 @@ public final class @Name@Table implements @IdType@Identification, Marked, Owned,
         return id != null ? INSERT_INTO_@SCHEMA@_@TABLE@ : INSERT_INTO_@SCHEMA@_@TABLE@_DEFAULT_ID;
     }
 
-    private Tuple caseInsertTuple() {
-        return id != null ? Tuple.tuple(listOf()) : Tuple.of(@key@, @value@, userName, enabled, visible, flags);
+    public Tuple caseInsertTuple() {
+        return id != null
+                ? Tuple.tuple(listOf())
+                : Tuple.of(@key@, @value@, userName, enabled, visible, flags);
     }
 
     private List<Object> listOf() {

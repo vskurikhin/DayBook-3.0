@@ -14,8 +14,11 @@
 --
 
 --
-SELECT version();
---
+-- INSERT INTO security.user_name (user_name, password)
+-- VALUES ('user1', 'pass1'), ('user2', 'pass2'), ('user3', 'pass3');
+-- INSERT INTO security.role (role) VALUES ('GUEST'), ('ADMIN'), ('USER');
+-- INSERT INTO security.user_has_roles (user_name, role) VALUES ('user1', 'ADMIN'), ('user1', 'USER'), ('user2', 'USER');
+-- INSERT INTO security.user_has_roles (user_name, role) VALUES ('root', 'ADMIN'), ('root', 'USER'), ('root', 'GUEST');
 
 --
---rollback SELECT version();
+--rollback DELETE FROM security.user_has_roles WHERE user_name = 'user1'; DELETE FROM security.user_has_roles WHERE user_name = 'user2'; DELETE FROM security.role WHERE role IN ('GUEST', 'ADMIN', 'USER'); DELETE FROM security.user_name WHERE user_name = 'user3'; DELETE FROM security.user_name WHERE user_name = 'user2'; DELETE FROM security.user_name WHERE user_name = 'user1';
