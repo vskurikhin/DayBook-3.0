@@ -1,8 +1,8 @@
 /*
- * This file was last modified at 2022.01.12 22:58 by Victor N. Skurikhin.
+ * This file was last modified at 2023.01.05 18:24 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
- * @Name@.java
+ * User.java
  * $Id$
  */
 
@@ -11,26 +11,34 @@ package su.svn.daybook.models.domain;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import su.svn.daybook.annotations.DomainField;
-import su.svn.daybook.models.@IdType@Identification;
+import su.svn.daybook.models.UUIDIdentification;
 
 import javax.annotation.Nonnull;
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public final class @Name@ implements @IdType@Identification, Serializable {
+public final class User implements UUIDIdentification, Serializable {
 
-    public static final String NONE = "@uuid@";
+    public static final String NONE = "4acd4523-e27d-43e7-88dc-f40637c98bf1";
     public static final String ID = "id";
     @Serial
-    private static final long serialVersionUID = @serialVersionUID@L;
+    private static final long serialVersionUID = -5637024055159017594L;
     @DomainField
-    private final @IdType@ id;
+    private final UUID id;
     @DomainField(nullable = false)
-    private final @KType@ @key@;
+    private final String userName;
+    @DomainField(nullable = false)
+    private transient final String password;
+    // TODO converter @DomainField
     @DomainField
-    private final @VType@ @value@;
+    private final Set<String> roles;
     @DomainField
     private final boolean visible;
     @DomainField
@@ -42,41 +50,48 @@ public final class @Name@ implements @IdType@Identification, Serializable {
     @JsonIgnore
     private transient volatile boolean hashIsZero;
 
-    public @Name@() {
+    public User() {
         this.id = null;
-        this.@key@ = NONE;
-        this.@value@ = null;
+        this.userName = "guest";
+        this.password = "password";
+        this.roles = Collections.emptySet();
         this.visible = true;
         this.flags = 0;
     }
 
-    public @Name@(
-            @IdType@ id,
-            @Nonnull @KType@ @key@,
-            @VType@ @value@,
+    public User(
+            UUID id,
+            @Nonnull String userName,
+            @Nonnull String password,
+            @Nonnull Collection<String> roles,
             boolean visible,
             int flags) {
         this.id = id;
-        this.@key@ = @key@;
-        this.@value@ = @value@;
+        this.userName = userName;
+        this.password = password;
+        this.roles = new LinkedHashSet<>(roles);
         this.visible = visible;
         this.flags = flags;
     }
 
-    public static @Name@.Builder builder() {
-        return new @Name@.Builder();
+    public static User.Builder builder() {
+        return new User.Builder();
     }
 
-    public @IdType@ getId() {
+    public UUID getId() {
         return id;
     }
 
-    public @KType@ get@Key@() {
-        return @key@;
+    public String getUserName() {
+        return userName;
     }
 
-    public @VType@ get@Value@() {
-        return @value@;
+    public String getPassword() {
+        return password;
+    }
+
+    public Set<String> getRoles() {
+        return roles;
     }
 
     public boolean getVisible() {
@@ -95,12 +110,13 @@ public final class @Name@ implements @IdType@Identification, Serializable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        var that = (@Name@) o;
+        var that = (User) o;
         return visible == that.visible
                 && flags == that.flags
                 && Objects.equals(id, that.id)
-                && Objects.equals(@key@, that.@key@)
-                && Objects.equals(@value@, that.@value@);
+                && Objects.equals(userName, that.userName)
+                && Objects.equals(password, that.password)
+                && Objects.equals(roles, that.roles);
     }
 
     @Override
@@ -118,42 +134,49 @@ public final class @Name@ implements @IdType@Identification, Serializable {
     }
 
     private int calculateHashCode() {
-        return Objects.hash(id, @key@, @value@, visible, flags);
+        return Objects.hash(id, userName, password, roles, visible, flags);
     }
 
     @Override
     public String toString() {
-        return "@Name@{" +
+        return "User{" +
                 "id=" + id +
-                ", @key@='" + @key@ + '\'' +
-                ", @value@='" + @value@ + '\'' +
+                ", userName='" + userName + '\'' +
+                ", password='" + password + '\'' +
+                ", roles='" + roles + '\'' +
                 ", visible=" + visible +
                 ", flags=" + flags +
                 '}';
     }
 
     public static final class Builder {
-        private @IdType@ id;
-        private @KType@ @key@;
-        private @VType@ @value@;
+        private UUID id;
+        private String userName;
+        private String password;
+        private Collection<String> roles;
         private boolean visible;
         private int flags;
 
         private Builder() {
         }
 
-        public Builder id(@IdType@ id) {
+        public Builder id(UUID id) {
             this.id = id;
             return this;
         }
 
-        public Builder @key@(@Nonnull @KType@ @key@) {
-            this.@key@ = @key@;
+        public Builder userName(@Nonnull String userName) {
+            this.userName = userName;
             return this;
         }
 
-        public Builder @value@(@VType@ @value@) {
-            this.@value@ = @value@;
+        public Builder password(String password) {
+            this.password = password;
+            return this;
+        }
+
+        public Builder roles(@Nonnull Collection<String> roles) {
+            this.roles = roles;
             return this;
         }
 
@@ -167,8 +190,8 @@ public final class @Name@ implements @IdType@Identification, Serializable {
             return this;
         }
 
-        public @Name@ build() {
-            return new @Name@(id, @key@, @value@, visible, flags);
+        public User build() {
+            return new User(id, userName, password, roles, visible, flags);
         }
     }
 }

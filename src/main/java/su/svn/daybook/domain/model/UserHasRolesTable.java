@@ -1,13 +1,14 @@
 /*
- * This file was last modified at 2021.12.06 19:31 by Victor N. Skurikhin.
+ * This file was last modified at 2023.01.05 18:24 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
- * UserNameTable.java
+ * UserHasRolesTable.java
  * $Id$
  */
 
 package su.svn.daybook.domain.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
@@ -16,6 +17,7 @@ import io.vertx.mutiny.sqlclient.Row;
 import io.vertx.mutiny.sqlclient.RowSet;
 import io.vertx.mutiny.sqlclient.Tuple;
 import su.svn.daybook.annotations.ModelField;
+import su.svn.daybook.models.LongIdentification;
 import su.svn.daybook.models.Marked;
 import su.svn.daybook.models.Owned;
 import su.svn.daybook.models.TimeUpdated;
@@ -24,69 +26,75 @@ import javax.annotation.Nonnull;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public final class UserNameTable implements CasesOfUUID, Marked, Owned, TimeUpdated, Serializable {
+public final class UserHasRolesTable implements LongIdentification, Marked, Owned, TimeUpdated, Serializable {
 
-    public static final String SELECT_FROM_SECURITY_USER_NAME_WHERE_ID_$1 = """
-            SELECT id, user_name, password, create_time, update_time, enabled, visible, flags
-              FROM security.user_name
+    public static final String NONE = "4acd4523-e27d-43e7-88dc-f40637c98bf1";
+    public static final String SELECT_FROM_SECURITY_USER_HAS_ROLES_WHERE_ID_$1 = """
+            SELECT id, user_name, role, create_time, update_time, enabled, visible, flags
+              FROM security.user_has_roles
              WHERE id = $1 AND enabled
             """;
-    public static final String SELECT_ALL_FROM_SECURITY_USER_NAME_ORDER_BY_ID_ASC = """
-            SELECT id, user_name, password, create_time, update_time, enabled, visible, flags
-              FROM security.user_name
+    public static final String SELECT_ALL_FROM_SECURITY_USER_HAS_ROLES_ORDER_BY_ID_ASC = """
+            SELECT id, user_name, role, create_time, update_time, enabled, visible, flags
+              FROM security.user_has_roles
              WHERE enabled
              ORDER BY id ASC
             """;
-    public static final String SELECT_ALL_FROM_SECURITY_USER_NAME_ORDER_BY_ID_ASC_OFFSET_LIMIT = """
-            SELECT id, user_name, password, create_time, update_time, enabled, visible, flags
-              FROM security.user_name
+    public static final String SELECT_ALL_FROM_SECURITY_USER_HAS_ROLES_ORDER_BY_ID_ASC_OFFSET_LIMIT = """
+            SELECT id, user_name, role, create_time, update_time, enabled, visible, flags
+              FROM security.user_has_roles
              WHERE enabled
              ORDER BY id ASC OFFSET $1 LIMIT $2
             """;
-    public static final String INSERT_INTO_SECURITY_USER_NAME = """
-            INSERT INTO security.user_name
-             (id, user_name, password, enabled, visible, flags)
+    public static final String INSERT_INTO_SECURITY_USER_HAS_ROLES = """
+            INSERT INTO security.user_has_roles
+             (id, user_name, role, enabled, visible, flags)
              VALUES
              ($1, $2, $3, $4, $5, $6)
              RETURNING id
             """;
-    public static final String INSERT_INTO_SECURITY_USER_NAME_DEFAULT_ID = """
-            INSERT INTO security.user_name
-             (id, user_name, password, enabled, visible, flags)
+    public static final String INSERT_INTO_SECURITY_USER_HAS_ROLES_DEFAULT_ID = """
+            INSERT INTO security.user_has_roles
+             (id, user_name, role, enabled, visible, flags)
              VALUES
              (DEFAULT, $1, $2, $3, $4, $5)
              RETURNING id
             """;
-    public static final String UPDATE_SECURITY_USER_NAME_WHERE_ID_$1 = """
-            UPDATE security.user_name SET
+    public static final String UPDATE_SECURITY_USER_HAS_ROLES_WHERE_ID_$1 = """
+            UPDATE security.user_has_roles SET
               user_name = $2,
-              password = $3,
+              role = $3,
               enabled = $4,
               visible = $5,
               flags = $6
              WHERE id = $1
              RETURNING id
             """;
-    public static final String DELETE_FROM_SECURITY_USER_NAME_WHERE_ID_$1 = """
-            DELETE FROM security.user_name
+    public static final String DELETE_FROM_SECURITY_USER_HAS_ROLES_WHERE_USER_NAME_$1 = """
+            DELETE FROM security.user_has_roles
+             WHERE user_name = $1
+             RETURNING id
+            """;
+    public static final String DELETE_FROM_SECURITY_USER_HAS_ROLES_WHERE_ID_$1 = """
+            DELETE FROM security.user_has_roles
              WHERE id = $1
              RETURNING id
             """;
-    public static final String COUNT_SECURITY_USER_NAME = "SELECT count(*) FROM security.user_name";
+    public static final String COUNT_SECURITY_USER_HAS_ROLES = "SELECT count(*) FROM security.user_has_roles";
     @Serial
-    private static final long serialVersionUID = 3526532892030791269L;
+    private static final long serialVersionUID = 1351016300272270368L;
     public static final String ID = "id";
-    public static final String COUNT = "count";
     @ModelField
-    private final UUID id;
+    private final Long id;
     @ModelField
     private final String userName;
     @ModelField
-    private final String password;
+    private final String role;
     private final LocalDateTime createTime;
     private final LocalDateTime updateTime;
     private final boolean enabled;
@@ -95,25 +103,27 @@ public final class UserNameTable implements CasesOfUUID, Marked, Owned, TimeUpda
     @ModelField
     private final int flags;
 
+    @JsonIgnore
     private transient volatile int hash;
 
+    @JsonIgnore
     private transient volatile boolean hashIsZero;
 
-    public UserNameTable() {
-        this.id = UUID.randomUUID();
-        this.userName = "guest";
-        this.password = "password";
-        this.createTime = LocalDateTime.now();
+    public UserHasRolesTable() {
+        this.id = null;
+        this.userName = NONE;
+        this.role = NONE;
+        this.createTime = null;
         this.updateTime = null;
         this.enabled = true;
         this.visible = true;
         this.flags = 0;
     }
 
-    public UserNameTable(
-            @Nonnull UUID id,
+    public UserHasRolesTable(
+            Long id,
             @Nonnull String userName,
-            @Nonnull String password,
+            @Nonnull String role,
             LocalDateTime createTime,
             LocalDateTime updateTime,
             boolean enabled,
@@ -121,7 +131,7 @@ public final class UserNameTable implements CasesOfUUID, Marked, Owned, TimeUpda
             int flags) {
         this.id = id;
         this.userName = userName;
-        this.password = password;
+        this.role = role;
         this.createTime = createTime;
         this.updateTime = updateTime;
         this.enabled = enabled;
@@ -129,11 +139,11 @@ public final class UserNameTable implements CasesOfUUID, Marked, Owned, TimeUpda
         this.flags = flags;
     }
 
-    public static UserNameTable from(Row row) {
-        return new UserNameTable(
-                row.getUUID(ID),
+    public static UserHasRolesTable from(Row row) {
+        return new UserHasRolesTable(
+                row.getLong(ID),
                 row.getString("user_name"),
-                row.getString("password"),
+                row.getString("role"),
                 row.getLocalDateTime("create_time"),
                 row.getLocalDateTime("update_time"),
                 row.getBoolean("enabled"),
@@ -142,91 +152,83 @@ public final class UserNameTable implements CasesOfUUID, Marked, Owned, TimeUpda
         );
     }
 
-    public static Multi<UserNameTable> findAll(PgPool client) {
+    public static Multi<UserHasRolesTable> findAll(PgPool client) {
         return client
-                .query(SELECT_ALL_FROM_SECURITY_USER_NAME_ORDER_BY_ID_ASC)
+                .query(SELECT_ALL_FROM_SECURITY_USER_HAS_ROLES_ORDER_BY_ID_ASC)
                 .execute()
                 .onItem()
                 .transformToMulti(set -> Multi.createFrom().iterable(set))
-                .onItem()
-                .transform(UserNameTable::from);
+                .map(UserHasRolesTable::from);
 
     }
 
-    public static Uni<UserNameTable> findById(PgPool client, UUID id) {
+    public static Uni<UserHasRolesTable> findById(PgPool client, Long id) {
         return client
-                .preparedQuery(SELECT_FROM_SECURITY_USER_NAME_WHERE_ID_$1)
+                .preparedQuery(SELECT_FROM_SECURITY_USER_HAS_ROLES_WHERE_ID_$1)
                 .execute(Tuple.of(id))
-                .onItem()
-                .transform(RowSet::iterator)
-                .onItem()
-                .transform(iterator -> iterator.hasNext() ? UserNameTable.from(iterator.next()) : null);
+                .map(RowSet::iterator)
+                .map(iterator -> iterator.hasNext() ? UserHasRolesTable.from(iterator.next()) : null);
     }
 
-    public static Multi<UserNameTable> findRange(PgPool client, long offset, long limit) {
+    public static Multi<UserHasRolesTable> findRange(PgPool client, long offset, long limit) {
         return client
-                .preparedQuery(SELECT_ALL_FROM_SECURITY_USER_NAME_ORDER_BY_ID_ASC_OFFSET_LIMIT)
+                .preparedQuery(SELECT_ALL_FROM_SECURITY_USER_HAS_ROLES_ORDER_BY_ID_ASC_OFFSET_LIMIT)
                 .execute(Tuple.of(offset, limit))
                 .onItem()
                 .transformToMulti(set -> Multi.createFrom().iterable(set))
-                .onItem()
-                .transform(UserNameTable::from);
+                .map(UserHasRolesTable::from);
     }
 
-    public static Uni<UUID> delete(PgPool client, UUID id) {
+    public static Uni<Long> delete(PgPool client, Long id) {
         return client.withTransaction(
-                connection -> connection.preparedQuery(DELETE_FROM_SECURITY_USER_NAME_WHERE_ID_$1)
+                connection -> connection.preparedQuery(DELETE_FROM_SECURITY_USER_HAS_ROLES_WHERE_ID_$1)
                         .execute(Tuple.of(id))
                         .onItem()
-                        .transform(pgRowSet -> pgRowSet.iterator().next().getUUID(ID)));
+                        .transform(pgRowSet -> pgRowSet.iterator().next().getLong(ID)));
     }
 
     public static Uni<Long> count(PgPool client) {
         return client
-                .preparedQuery(COUNT_SECURITY_USER_NAME)
+                .preparedQuery(COUNT_SECURITY_USER_HAS_ROLES)
                 .execute()
-                .onItem()
-                .transform(pgRowSet -> pgRowSet.iterator().next().getLong(COUNT));
+                .map(pgRowSet -> pgRowSet.iterator().next().getLong("count"));
     }
 
-    public static Builder builder() {
-        return new Builder();
+    public static UserHasRolesTable.Builder builder() {
+        return new UserHasRolesTable.Builder();
     }
 
-    public Uni<UUID> insert(PgPool client) {
+    public Uni<Long> insert(PgPool client) {
         return client.withTransaction(
                 connection -> connection.preparedQuery(caseInsertSql())
                         .execute(caseInsertTuple())
                         .onItem()
                         .transform(RowSet::iterator)
                         .onItem()
-                        .transform(iterator -> iterator.hasNext() ? iterator.next().getUUID(ID) : null)
-        );
+                        .transform(iterator -> iterator.hasNext() ? iterator.next().getLong(ID) : null));
     }
 
-    public Uni<UUID> update(PgPool client) {
+    public Uni<Long> update(PgPool client) {
         return client.withTransaction(
-                connection -> connection.preparedQuery(UPDATE_SECURITY_USER_NAME_WHERE_ID_$1)
-                        .execute(Tuple.of(id, userName, password, enabled, visible, flags))
+                connection -> connection.preparedQuery(UPDATE_SECURITY_USER_HAS_ROLES_WHERE_ID_$1)
+                        .execute(Tuple.tuple(listOf()))
                         .onItem()
-                        .transform(pgRowSet -> pgRowSet.iterator().next().getUUID(ID)));
+                        .transform(pgRowSet -> pgRowSet.iterator().next().getLong(ID)));
     }
 
     private String caseInsertSql() {
-        return id != null ? INSERT_INTO_SECURITY_USER_NAME : INSERT_INTO_SECURITY_USER_NAME_DEFAULT_ID;
+        return id != null ? INSERT_INTO_SECURITY_USER_HAS_ROLES : INSERT_INTO_SECURITY_USER_HAS_ROLES_DEFAULT_ID;
     }
 
-    public Tuple caseInsertTuple() {
-        return id != null
-                ? Tuple.of(id, userName, password, enabled, visible, flags)
-                : Tuple.of(userName, password, enabled, visible, flags);
+    private Tuple caseInsertTuple() {
+        return id != null ? Tuple.tuple(listOf()) : Tuple.of(userName, role, enabled, visible, flags);
     }
 
-    public Tuple updateTuple() {
-        return Tuple.of(id, userName, password, enabled, visible, flags);
+    private List<Object> listOf() {
+        return Arrays.asList(id, userName, role, enabled, visible, flags);
     }
 
-    public UUID getId() {
+    public Long getId() {
         return id;
     }
 
@@ -234,8 +236,8 @@ public final class UserNameTable implements CasesOfUUID, Marked, Owned, TimeUpda
         return userName;
     }
 
-    public String getPassword() {
-        return password;
+    public String getRole() {
+        return role;
     }
 
     public LocalDateTime getCreateTime() {
@@ -270,13 +272,13 @@ public final class UserNameTable implements CasesOfUUID, Marked, Owned, TimeUpda
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        var that = (UserNameTable) o;
+        var that = (UserHasRolesTable) o;
         return enabled == that.enabled
                 && visible == that.visible
                 && flags == that.flags
                 && Objects.equals(id, that.id)
                 && Objects.equals(userName, that.userName)
-                && Objects.equals(password, that.password);
+                && Objects.equals(role, that.role);
     }
 
     @Override
@@ -294,15 +296,15 @@ public final class UserNameTable implements CasesOfUUID, Marked, Owned, TimeUpda
     }
 
     private int calculateHashCode() {
-        return Objects.hash(id, userName, password, enabled, visible, flags);
+        return Objects.hash(id, userName, role, enabled, visible, flags);
     }
 
     @Override
     public String toString() {
-        return "UserName{" +
+        return "UserHasRoles{" +
                 "id=" + id +
                 ", userName='" + userName + '\'' +
-                ", password='" + password + '\'' +
+                ", role='" + role + '\'' +
                 ", createTime=" + createTime +
                 ", updateTime=" + updateTime +
                 ", enabled=" + enabled +
@@ -312,9 +314,9 @@ public final class UserNameTable implements CasesOfUUID, Marked, Owned, TimeUpda
     }
 
     public static final class Builder {
-        private UUID id;
+        private Long id;
         private String userName;
-        private String password;
+        private String role;
         private LocalDateTime createTime;
         private LocalDateTime updateTime;
         private boolean enabled;
@@ -325,18 +327,18 @@ public final class UserNameTable implements CasesOfUUID, Marked, Owned, TimeUpda
             this.enabled = true;
         }
 
-        public Builder id(UUID id) {
+        public Builder id(Long id) {
             this.id = id;
             return this;
         }
 
-        public Builder userName(String userName) {
+        public Builder userName(@Nonnull String userName) {
             this.userName = userName;
             return this;
         }
 
-        public Builder password(String password) {
-            this.password = password;
+        public Builder role(@Nonnull String role) {
+            this.role = role;
             return this;
         }
 
@@ -365,8 +367,8 @@ public final class UserNameTable implements CasesOfUUID, Marked, Owned, TimeUpda
             return this;
         }
 
-        public UserNameTable build() {
-            return new UserNameTable(id, userName, password, createTime, updateTime, enabled, visible, flags);
+        public UserHasRolesTable build() {
+            return new UserHasRolesTable(id, userName, role, createTime, updateTime, enabled, visible, flags);
         }
     }
 }

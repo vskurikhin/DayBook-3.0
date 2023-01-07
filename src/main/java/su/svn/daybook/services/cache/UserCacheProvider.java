@@ -13,15 +13,15 @@ import io.quarkus.cache.CacheManager;
 import io.quarkus.cache.CacheResult;
 import io.smallrye.mutiny.Uni;
 import org.jboss.logging.Logger;
-import su.svn.daybook.domain.dao.UserNameDao;
+import su.svn.daybook.domain.dao.UserViewDao;
 import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.messages.Answer;
-import su.svn.daybook.domain.model.UserNameTable;
-import su.svn.daybook.models.domain.UserName;
+import su.svn.daybook.domain.model.UserView;
+import su.svn.daybook.models.domain.User;
 import su.svn.daybook.models.pagination.Page;
 import su.svn.daybook.models.pagination.PageRequest;
 import su.svn.daybook.services.PageService;
-import su.svn.daybook.services.mappers.UserNameMapper;
+import su.svn.daybook.services.mappers.UserMapper;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -29,9 +29,9 @@ import java.util.Optional;
 import java.util.UUID;
 
 @ApplicationScoped
-public class UserNameCacheProvider extends AbstractCacheProvider<UUID> {
+public class UserCacheProvider extends AbstractCacheProvider<UUID> {
 
-    private static final Logger LOG = Logger.getLogger(UserNameCacheProvider.class);
+    private static final Logger LOG = Logger.getLogger(UserCacheProvider.class);
 
     @Inject
     CacheManager cacheManager;
@@ -40,28 +40,28 @@ public class UserNameCacheProvider extends AbstractCacheProvider<UUID> {
     PageService pageService;
 
     @Inject
-    UserNameDao wordDao;
+    UserViewDao userViewDao;
 
     @Inject
-    UserNameMapper wordMapper;
+    UserMapper userMapper;
 
-    public UserNameCacheProvider() {
+    public UserCacheProvider() {
         super(EventAddress.USER_GET, EventAddress.USER_PAGE, LOG);
     }
 
     @CacheResult(cacheName = EventAddress.USER_GET)
-    public Uni<UserName> get(@CacheKey UUID id) {
+    public Uni<User> get(@CacheKey UUID id) {
         LOG.tracef("get(%s)", id);
-        return wordDao
+        return userViewDao
                 .findById(id)
                 .map(Optional::get)
-                .map(wordMapper::convertToModel);
+                .map(userMapper::convertToModel);
     }
 
     @CacheResult(cacheName = EventAddress.USER_PAGE)
     public Uni<Page<Answer>> getPage(@CacheKey PageRequest pageRequest) {
         LOG.tracef("getPage(%s)", pageRequest);
-        return pageService.getPage(pageRequest, wordDao::count, wordDao::findRange, this::answerOfModel);
+        return pageService.getPage(pageRequest, userViewDao::count, userViewDao::findRange, this::answerOfModel);
     }
 
     @Override
@@ -79,7 +79,7 @@ public class UserNameCacheProvider extends AbstractCacheProvider<UUID> {
         return cacheManager;
     }
 
-    private Answer answerOfModel(UserNameTable table) {
-        return Answer.of(wordMapper.convertToModel(table));
+    private Answer answerOfModel(UserView table) {
+        return Answer.of(userMapper.convertToModel(table));
     }
 }

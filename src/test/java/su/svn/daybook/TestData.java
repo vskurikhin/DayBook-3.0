@@ -13,6 +13,7 @@ import io.smallrye.mutiny.Uni;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.messages.ApiResponse;
 import su.svn.daybook.domain.model.*;
+import su.svn.daybook.domain.model.UserNameTable;
 import su.svn.daybook.models.domain.*;
 import su.svn.daybook.models.pagination.Page;
 
@@ -233,12 +234,29 @@ public class TestData {
                         }""";
     }
 
-    public static class USERNAME {
-        public static final UserName MODEL_0 = new UserName(
-                ZERO_UUID, "root", "password", true, 0
-        );
-        public static final UserNameTable TABLE_0 = new UserNameTable(
-                ZERO_UUID, "root", "password", null, null, true, true, 0
+    public static class USER {
+        public static class NAME {
+
+            public static final UserName MODEL_0 = new UserName(
+                    ZERO_UUID, "root", "password", true, 0
+            );
+            public static final Uni<Page<Answer>> UNI_PAGE_ANSWER_SINGLETON_TEST = Uni.createFrom()
+                    .item(
+                            Page.<Answer>builder()
+                                    .content(Collections.singletonList(Answer.of(MODEL_0)))
+                                    .build()
+                    );
+            public static final UserNameTable TABLE_0 = new UserNameTable(
+                    ZERO_UUID, "root", "password", null, null, true, true, 0
+            );
+        }
+        public static class VIEW {
+            public static final UserView TABLE_0 = new UserView(
+                    ZERO_UUID, "guest", "password", Collections.emptySet(), null, null, true, true, 0
+            );
+        }
+        public static final su.svn.daybook.models.domain.User MODEL_0 = new su.svn.daybook.models.domain.User(
+                ZERO_UUID, "guest", null, Collections.emptySet(), true, 0
         );
         public static final Uni<Page<Answer>> UNI_PAGE_ANSWER_SINGLETON_TEST = Uni.createFrom()
                 .item(
@@ -246,8 +264,12 @@ public class TestData {
                                 .content(Collections.singletonList(Answer.of(MODEL_0)))
                                 .build()
                 );
+
         public static final String JSON_0 = """
-                {"id":"00000000-0000-0000-0000-000000000000","userName":"root","password":"password","visible":true,"flags":0}\
+                {"id":"00000000-0000-0000-0000-000000000000","userName":"guest","roles":[],"visible":true,"flags":0}\
+                """;
+        public static final String JSON_0_1 = """
+                {"id":"00000000-0000-0000-0000-000000000000","userName":"guest","password":null,"roles":[],"visible":true,"flags":0}\
                 """;
         public static final String JSON_ARRAY_SINGLETON_0 = "[" + JSON_0 + "]";
         public static final String JSON_ID_0 = """
@@ -258,6 +280,7 @@ public class TestData {
                         """ + JSON_ARRAY_SINGLETON_0 +"""
                         }""";
     }
+
     public static class VALUE_TYPE {
         public static final ValueType MODEL_0 = new ValueType(
                 0L, ValueTypeTable.NONE, true, 0
