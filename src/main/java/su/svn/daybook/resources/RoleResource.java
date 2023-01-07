@@ -14,10 +14,12 @@ import org.jboss.resteasy.reactive.RestResponse;
 import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
 import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.enums.ResourcePath;
+import su.svn.daybook.models.domain.Codifier;
 import su.svn.daybook.models.domain.Role;
 import su.svn.daybook.models.pagination.PageRequest;
-import su.svn.daybook.services.domain.AbstractService;
-import su.svn.daybook.services.domain.RoleService;
+import su.svn.daybook.services.models.AbstractService;
+import su.svn.daybook.services.models.CodifierService;
+import su.svn.daybook.services.models.RoleService;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -34,17 +36,7 @@ import javax.ws.rs.core.UriInfo;
 import java.util.UUID;
 
 @Path(ResourcePath.ROLE)
-public class RoleResource extends AbstractResource implements Resources<UUID, Role> {
-
-    @Inject
-    RoleService service;
-
-    @GET
-    @Path(ResourcePath.ALL)
-    @Produces("application/json")
-    public Multi<Role> all(@QueryParam("get-all") Boolean getAll) {
-        return getAll();
-    }
+public class RoleResource extends AbstractResource implements Resource<UUID, Role> {
 
     @GET
     @Path(ResourcePath.ID)
@@ -85,8 +77,22 @@ public class RoleResource extends AbstractResource implements Resources<UUID, Ro
         return badRequest(x);
     }
 
-    @Override
-    public AbstractService<UUID, Role> getService() {
-        return service;
+    @Path(ResourcePath.ROLES)
+    public static class RoleResources implements Resources<UUID, Role> {
+
+        @Inject
+        RoleService service;
+
+        @GET
+        @Path("/")
+        @Produces("application/json")
+        public Multi<Role> all() {
+            return getAll();
+        }
+
+        @Override
+        public AbstractService<UUID, Role> getService() {
+            return service;
+        }
     }
 }

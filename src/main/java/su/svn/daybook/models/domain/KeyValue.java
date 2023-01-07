@@ -10,27 +10,30 @@ package su.svn.daybook.models.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import io.vertx.core.json.JsonObject;
 import su.svn.daybook.annotations.DomainField;
-import su.svn.daybook.models.LongIdentification;
+import su.svn.daybook.models.UUIDIdentification;
 
 import javax.annotation.Nonnull;
 import java.io.Serial;
 import java.io.Serializable;
+import java.math.BigInteger;
 import java.util.Objects;
+import java.util.UUID;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public final class KeyValue implements LongIdentification, Serializable {
+public final class KeyValue implements UUIDIdentification, Serializable {
 
     public static final String NONE = "d94d93d9-d44c-403c-97b1-d071b6974d80";
     public static final String ID = "id";
     @Serial
     private static final long serialVersionUID = 3421670798382710094L;
     @DomainField
-    private final Long id;
+    private final UUID id;
     @DomainField(nullable = false)
-    private final String key;
+    private final BigInteger key;
     @DomainField
-    private final String value;
+    private final JsonObject value;
     @DomainField
     private final boolean visible;
     @DomainField
@@ -44,16 +47,16 @@ public final class KeyValue implements LongIdentification, Serializable {
 
     public KeyValue() {
         this.id = null;
-        this.key = NONE;
+        this.key = BigInteger.ZERO;
         this.value = null;
         this.visible = true;
         this.flags = 0;
     }
 
     public KeyValue(
-            Long id,
-            @Nonnull String key,
-            String value,
+            UUID id,
+            @Nonnull BigInteger key,
+            JsonObject value,
             boolean visible,
             int flags) {
         this.id = id;
@@ -67,15 +70,15 @@ public final class KeyValue implements LongIdentification, Serializable {
         return new KeyValue.Builder();
     }
 
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 
-    public String getKey() {
+    public BigInteger getKey() {
         return key;
     }
 
-    public String getValue() {
+    public JsonObject getValue() {
         return value;
     }
 
@@ -133,26 +136,26 @@ public final class KeyValue implements LongIdentification, Serializable {
     }
 
     public static final class Builder {
-        private Long id;
-        private String key;
-        private String value;
+        private UUID id;
+        private BigInteger key;
+        private JsonObject value;
         private boolean visible;
         private int flags;
 
         private Builder() {
         }
 
-        public Builder id(Long id) {
+        public Builder id(UUID id) {
             this.id = id;
             return this;
         }
 
-        public Builder key(@Nonnull String key) {
+        public Builder key(@Nonnull BigInteger key) {
             this.key = key;
             return this;
         }
 
-        public Builder value(String value) {
+        public Builder value(JsonObject value) {
             this.value = value;
             return this;
         }

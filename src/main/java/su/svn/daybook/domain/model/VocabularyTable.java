@@ -294,7 +294,7 @@ public final class VocabularyTable implements LongIdentification, Marked, Owned,
 
     @Override
     public String toString() {
-        return "Vocabulary{" +
+        return "VocabularyTable{" +
                 "id=" + id +
                 ", word='" + word + '\'' +
                 ", value='" + value + '\'' +

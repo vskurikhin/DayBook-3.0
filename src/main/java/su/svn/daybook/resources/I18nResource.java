@@ -16,8 +16,8 @@ import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.enums.ResourcePath;
 import su.svn.daybook.models.domain.I18n;
 import su.svn.daybook.models.pagination.PageRequest;
-import su.svn.daybook.services.domain.AbstractService;
-import su.svn.daybook.services.domain.I18nService;
+import su.svn.daybook.services.models.AbstractService;
+import su.svn.daybook.services.models.I18nService;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -33,17 +33,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 @Path(ResourcePath.I18N)
-public class I18nResource extends AbstractResource implements Resources<Long, I18n> {
-
-    @Inject
-    I18nService service;
-
-    @GET
-    @Path(ResourcePath.ALL)
-    @Produces("application/json")
-    public Multi<I18n> all(@QueryParam("get-all") Boolean getAll) {
-        return getAll();
-    }
+public class I18nResource extends AbstractResource implements Resource<Long, I18n> {
 
     @GET
     @Path(ResourcePath.ID)
@@ -84,8 +74,22 @@ public class I18nResource extends AbstractResource implements Resources<Long, I1
         return badRequest(x);
     }
 
-    @Override
-    public AbstractService<Long, I18n> getService() {
-        return service;
+    @Path(ResourcePath.I18NS)
+    public static class I18nResources implements Resources<Long, I18n> {
+
+        @Inject
+        I18nService service;
+
+        @GET
+        @Path("/")
+        @Produces("application/json")
+        public Multi<I18n> all() {
+            return getAll();
+        }
+
+        @Override
+        public AbstractService<Long, I18n> getService() {
+            return service;
+        }
     }
 }

@@ -261,7 +261,7 @@ public final class UserView implements UUIDIdentification, Marked, Owned, TimeUp
 
     @Override
     public String toString() {
-        return "UserView{" +
+        return "UserViewTable{" +
                 "id=" + id +
                 ", userName='" + userName + '\'' +
                 ", password='" + password + '\'' +

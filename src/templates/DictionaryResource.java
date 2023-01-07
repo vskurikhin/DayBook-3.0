@@ -16,8 +16,8 @@ import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.enums.ResourcePath;
 import su.svn.daybook.models.domain.@Name@;
 import su.svn.daybook.models.pagination.PageRequest;
-import su.svn.daybook.services.domain.AbstractService;
-import su.svn.daybook.services.domain.@Name@Service;
+import su.svn.daybook.services.models.AbstractService;
+import su.svn.daybook.services.models.@Name@Service;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -31,19 +31,10 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import java.util.UUID;
 
 @Path(ResourcePath.@TABLE@)
-public class @Name@Resource extends AbstractResource implements Resources<@IdType@, @Name@> {
-
-    @Inject
-    @Name@Service service;
-
-    @GET
-    @Path(ResourcePath.ALL)
-    @Produces("application/json")
-    public Multi<@Name@> all(@QueryParam("get-all") Boolean getAll) {
-        return getAll();
-    }
+public class @Name@Resource extends AbstractResource implements Resource<@IdType@, @Name@> {
 
     @GET
     @Path(ResourcePath.ID)
@@ -54,7 +45,7 @@ public class @Name@Resource extends AbstractResource implements Resources<@IdTyp
 
     @GET
     @Produces("application/json")
-    public Uni<Response> page(@QueryParam("page") long page, @QueryParam("limit") short limit) {
+    public Uni<Response> page(@QueryParam("page") Long page, @QueryParam("limit") Short limit) {
         return requestPage(EventAddress.@TABLE@_PAGE, new PageRequest(page, limit));
     }
 
@@ -84,8 +75,22 @@ public class @Name@Resource extends AbstractResource implements Resources<@IdTyp
         return badRequest(x);
     }
 
-    @Override
-    public AbstractService<@IdType@, @Name@> getService() {
-        return service;
+    @Path(ResourcePath.@TABLE@S)
+    public static class @Name@Resources implements Resources<@IdType@, @Name@> {
+
+        @Inject
+        @Name@Service service;
+
+        @GET
+        @Path("/")
+        @Produces("application/json")
+        public Multi<@Name@> all() {
+            return getAll();
+        }
+
+        @Override
+        public AbstractService<@IdType@, @Name@> getService() {
+            return service;
+        }
     }
 }

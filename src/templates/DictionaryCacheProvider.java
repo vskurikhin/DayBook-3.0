@@ -13,19 +13,17 @@ import io.quarkus.cache.CacheManager;
 import io.quarkus.cache.CacheResult;
 import io.smallrye.mutiny.Uni;
 import org.jboss.logging.Logger;
-import su.svn.daybook.domain.dao.@Name@Dao;
 import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.messages.Answer;
-import su.svn.daybook.domain.model.@Name@Table;
 import su.svn.daybook.models.domain.@Name@;
 import su.svn.daybook.models.pagination.Page;
 import su.svn.daybook.models.pagination.PageRequest;
 import su.svn.daybook.services.PageService;
-import su.svn.daybook.services.mappers.@Name@Mapper;
+import su.svn.daybook.services.domain.@Name@DataService;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import java.util.Optional;
+import java.util.UUID;
 
 @ApplicationScoped
 public class @Name@CacheProvider extends AbstractCacheProvider<@IdType@> {
@@ -39,28 +37,22 @@ public class @Name@CacheProvider extends AbstractCacheProvider<@IdType@> {
     PageService pageService;
 
     @Inject
-    @Name@Dao @name@Dao;
-
-    @Inject
-    @Name@Mapper @name@Mapper;
+    @Name@DataService @name@DataService;
 
     public @Name@CacheProvider() {
         super(EventAddress.@TABLE@_GET, EventAddress.@TABLE@_PAGE, LOG);
     }
 
     @CacheResult(cacheName = EventAddress.@TABLE@_GET)
-    public Uni<@Name@> get(@CacheKey @IdType@ id) {
+    public Uni<@Name@> get(@Cache@Key@ @IdType@ id) {
         LOG.tracef("get(%s)", id);
-        return @name@Dao
-                .findById(id)
-                .map(Optional::get)
-                .map(@name@Mapper::convertToModel);
+        return @name@DataService.get(id);
     }
 
     @CacheResult(cacheName = EventAddress.@TABLE@_PAGE)
-    public Uni<Page<Answer>> getPage(@CacheKey PageRequest pageRequest) {
+    public Uni<Page<Answer>> getPage(@Cache@Key@ PageRequest pageRequest) {
         LOG.tracef("getPage(%s)", pageRequest);
-        return pageService.getPage(pageRequest, @name@Dao::count, @name@Dao::findRange, this::answerOfModel);
+        return pageService.getPage(pageRequest, @name@DataService::count, @name@DataService::findRange, Answer::of);
     }
 
     @Override
@@ -76,9 +68,5 @@ public class @Name@CacheProvider extends AbstractCacheProvider<@IdType@> {
     @Override
     protected CacheManager getCacheManager() {
         return cacheManager;
-    }
-
-    private Answer answerOfModel(@Name@Table table) {
-        return Answer.of(@name@Mapper.convertToModel(table));
     }
 }

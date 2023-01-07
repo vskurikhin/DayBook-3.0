@@ -316,7 +316,7 @@ public final class RoleTable implements UUIDIdentification, Marked, Owned, TimeU
 
     @Override
     public String toString() {
-        return "Role{" +
+        return "RoleTable{" +
                 "id=" + id +
                 ", role='" + role + '\'' +
                 ", description='" + description + '\'' +

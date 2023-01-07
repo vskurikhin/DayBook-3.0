@@ -12,12 +12,12 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
+import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.pgclient.PgPool;
 import io.vertx.mutiny.sqlclient.Row;
 import io.vertx.mutiny.sqlclient.RowSet;
 import io.vertx.mutiny.sqlclient.Tuple;
 import su.svn.daybook.annotations.ModelField;
-import su.svn.daybook.models.LongIdentification;
 import su.svn.daybook.models.Marked;
 import su.svn.daybook.models.Owned;
 import su.svn.daybook.models.TimeUpdated;
@@ -25,13 +25,15 @@ import su.svn.daybook.models.TimeUpdated;
 import javax.annotation.Nonnull;
 import java.io.Serial;
 import java.io.Serializable;
+import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public final class KeyValueTable implements LongIdentification, Marked, Owned, TimeUpdated, Serializable {
+public final class KeyValueTable implements CasesOfUUID, Marked, Owned, TimeUpdated, Serializable {
 
     public static final String NONE = "d94d93d9-d44c-403c-97b1-d071b6974d80";
     public static final String SELECT_FROM_DICTIONARY_KEY_VALUE_WHERE_ID_$1 = """
@@ -85,12 +87,13 @@ public final class KeyValueTable implements LongIdentification, Marked, Owned, T
     @Serial
     private static final long serialVersionUID = 3377791800667728148L;
     public static final String ID = "id";
+    public static final String COUNT = "count";
     @ModelField
-    private final Long id;
+    private final UUID id;
     @ModelField
-    private final String key;
+    private final BigInteger key;
     @ModelField
-    private final String value;
+    private final JsonObject value;
     private final String userName;
     private final LocalDateTime createTime;
     private final LocalDateTime updateTime;
@@ -108,7 +111,7 @@ public final class KeyValueTable implements LongIdentification, Marked, Owned, T
 
     public KeyValueTable() {
         this.id = null;
-        this.key = NONE;
+        this.key = BigInteger.ZERO;
         this.value = null;
         this.userName = null;
         this.createTime = null;
@@ -119,9 +122,9 @@ public final class KeyValueTable implements LongIdentification, Marked, Owned, T
     }
 
     public KeyValueTable(
-            Long id,
-            @Nonnull String key,
-            String value,
+            UUID id,
+            @Nonnull BigInteger key,
+            JsonObject value,
             String userName,
             LocalDateTime createTime,
             LocalDateTime updateTime,
@@ -141,9 +144,9 @@ public final class KeyValueTable implements LongIdentification, Marked, Owned, T
 
     public static KeyValueTable from(Row row) {
         return new KeyValueTable(
-                row.getLong(ID),
-                row.getString("key"),
-                row.getString("value"),
+                row.getUUID(ID),
+                row.getBigDecimal("key").toBigInteger(),
+                row.getJsonObject("value"),
                 row.getString("user_name"),
                 row.getLocalDateTime("create_time"),
                 row.getLocalDateTime("update_time"),
@@ -164,7 +167,7 @@ public final class KeyValueTable implements LongIdentification, Marked, Owned, T
 
     }
 
-    public static Uni<KeyValueTable> findById(PgPool client, Long id) {
+    public static Uni<KeyValueTable> findById(PgPool client, UUID id) {
         return client
                 .preparedQuery(SELECT_FROM_DICTIONARY_KEY_VALUE_WHERE_ID_$1)
                 .execute(Tuple.of(id))
@@ -184,12 +187,12 @@ public final class KeyValueTable implements LongIdentification, Marked, Owned, T
                 .transform(KeyValueTable::from);
     }
 
-    public static Uni<Long> delete(PgPool client, Long id) {
+    public static Uni<UUID> delete(PgPool client, UUID id) {
         return client.withTransaction(
                 connection -> connection.preparedQuery(DELETE_FROM_DICTIONARY_KEY_VALUE_WHERE_ID_$1)
                         .execute(Tuple.of(id))
                         .onItem()
-                        .transform(pgRowSet -> pgRowSet.iterator().next().getLong(ID)));
+                        .transform(pgRowSet -> pgRowSet.iterator().next().getUUID(ID)));
     }
 
     public static Uni<Long> count(PgPool client) {
@@ -197,52 +200,58 @@ public final class KeyValueTable implements LongIdentification, Marked, Owned, T
                 .preparedQuery(COUNT_DICTIONARY_KEY_VALUE)
                 .execute()
                 .onItem()
-                .transform(pgRowSet -> pgRowSet.iterator().next().getLong("count"));
+                .transform(pgRowSet -> pgRowSet.iterator().next().getLong(COUNT));
     }
 
     public static KeyValueTable.Builder builder() {
         return new KeyValueTable.Builder();
     }
 
-    public Uni<Long> insert(PgPool client) {
+    public Uni<UUID> insert(PgPool client) {
         return client.withTransaction(
                 connection -> connection.preparedQuery(caseInsertSql())
                         .execute(caseInsertTuple())
                         .onItem()
                         .transform(RowSet::iterator)
                         .onItem()
-                        .transform(iterator -> iterator.hasNext() ? iterator.next().getLong(ID) : null));
+                        .transform(iterator -> iterator.hasNext() ? iterator.next().getUUID(ID) : null));
     }
 
-    public Uni<Long> update(PgPool client) {
+    public Uni<UUID> update(PgPool client) {
         return client.withTransaction(
                 connection -> connection.preparedQuery(UPDATE_DICTIONARY_KEY_VALUE_WHERE_ID_$1)
                         .execute(Tuple.tuple(listOf()))
                         .onItem()
-                        .transform(pgRowSet -> pgRowSet.iterator().next().getLong(ID)));
+                        .transform(pgRowSet -> pgRowSet.iterator().next().getUUID(ID)));
     }
 
     private String caseInsertSql() {
         return id != null ? INSERT_INTO_DICTIONARY_KEY_VALUE : INSERT_INTO_DICTIONARY_KEY_VALUE_DEFAULT_ID;
     }
 
-    private Tuple caseInsertTuple() {
+    @Override
+    public Tuple caseInsertTuple() {
         return id != null ? Tuple.tuple(listOf()) : Tuple.of(key, value, userName, enabled, visible, flags);
+    }
+
+    @Override
+    public Tuple updateTuple() {
+        return Tuple.tuple(listOf());
     }
 
     private List<Object> listOf() {
         return Arrays.asList(id, key, value, userName, enabled, visible, flags);
     }
 
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 
-    public String getKey() {
+    public BigInteger getKey() {
         return key;
     }
 
-    public String getValue() {
+    public JsonObject getValue() {
         return value;
     }
 
@@ -312,7 +321,7 @@ public final class KeyValueTable implements LongIdentification, Marked, Owned, T
 
     @Override
     public String toString() {
-        return "KeyValue{" +
+        return "KeyValueTable{" +
                 "id=" + id +
                 ", key='" + key + '\'' +
                 ", value='" + value + '\'' +
@@ -326,9 +335,9 @@ public final class KeyValueTable implements LongIdentification, Marked, Owned, T
     }
 
     public static final class Builder {
-        private Long id;
-        private String key;
-        private String value;
+        private UUID id;
+        private BigInteger key;
+        private JsonObject value;
         private String userName;
         private LocalDateTime createTime;
         private LocalDateTime updateTime;
@@ -340,17 +349,17 @@ public final class KeyValueTable implements LongIdentification, Marked, Owned, T
             this.enabled = true;
         }
 
-        public Builder id(Long id) {
+        public Builder id(UUID id) {
             this.id = id;
             return this;
         }
 
-        public Builder key(@Nonnull String key) {
+        public Builder key(@Nonnull BigInteger key) {
             this.key = key;
             return this;
         }
 
-        public Builder value(String value) {
+        public Builder value(JsonObject value) {
             this.value = value;
             return this;
         }

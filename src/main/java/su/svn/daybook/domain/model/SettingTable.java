@@ -328,7 +328,7 @@ public final class SettingTable implements LongIdentification, Marked, Owned, Ti
 
     @Override
     public String toString() {
-        return "Setting{" +
+        return "SettingTable{" +
                 "id=" + id +
                 ", key='" + key + '\'' +
                 ", value='" + value + '\'' +

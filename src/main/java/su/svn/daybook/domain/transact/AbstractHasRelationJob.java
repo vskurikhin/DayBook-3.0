@@ -47,19 +47,19 @@ abstract class AbstractHasRelationJob
     protected abstract @Nonnull String sqlUpdateHasRelation4();
 
     public Uni<Optional<K>> insert(D table, Collection<T> collection, Function<D, E> getEntry) {
-        log.infof("insert(%s, %s, D -> E)", table, collection);
+        log.tracef("insert(%s, %s, D -> E)", table, collection);
         var helper = new HasRelationJobHelper<>(this, collection, table, getEntry.apply(table));
         return pool.withTransaction(helper::checkAndInsert);
     }
 
     public Uni<Optional<K>> update(D table, Collection<T> collection, Function<D, E> getEntry) {
-        log.infof("update(%s, %s, D -> E)", table, collection);
+        log.tracef("update(%s, %s, D -> E)", table, collection);
         var helper = new HasRelationJobHelper<>(this, collection, table, getEntry.apply(table));
         return pool.withTransaction(helper::checkAndUpdate);
     }
 
     public Uni<Optional<K>> delete(D table, Function<D, E> getEntry) {
-        log.infof("delete(%s, D -> E)", table);
+        log.tracef("delete(%s, D -> E)", table);
         var helper = new HasRelationJobHelper<>(this, Collections.emptySet(), table, getEntry.apply(table));
         return pool.withTransaction(helper::delete);
     }

@@ -16,6 +16,7 @@ import su.svn.daybook.domain.model.KeyValueTable;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.util.Optional;
+import java.util.UUID;
 
 @ApplicationScoped
 public class KeyValueDao {
@@ -30,7 +31,7 @@ public class KeyValueDao {
         return KeyValueTable.findAll(client);
     }
 
-    public Uni<Optional<KeyValueTable>> findById(Long id) {
+    public Uni<Optional<KeyValueTable>> findById(UUID id) {
         LOG.tracef("findById(%s)", id);
         return KeyValueTable.findById(client, id)
                 .map(Optional::ofNullable);
@@ -41,19 +42,19 @@ public class KeyValueDao {
         return KeyValueTable.findRange(client, offset, limit);
     }
 
-    public Uni<Optional<Long>> insert(KeyValueTable entry) {
+    public Uni<Optional<UUID>> insert(KeyValueTable entry) {
         LOG.tracef("insert(%s)", entry);
         return entry.insert(client)
                 .map(Optional::ofNullable);
     }
 
-    public Uni<Optional<Long>> update(KeyValueTable entry) {
+    public Uni<Optional<UUID>> update(KeyValueTable entry) {
         LOG.tracef("update(%s)", entry);
         return entry.update(client)
                 .map(Optional::ofNullable);
     }
 
-    public Uni<Optional<Long>> delete(Long id) {
+    public Uni<Optional<UUID>> delete(UUID id) {
         LOG.tracef("delete(%s)", id);
         return KeyValueTable.delete(client, id)
                 .map(Optional::ofNullable);

@@ -299,7 +299,7 @@ public final class UserNameTable implements CasesOfUUID, Marked, Owned, TimeUpda
 
     @Override
     public String toString() {
-        return "UserName{" +
+        return "UserNameTable{" +
                 "id=" + id +
                 ", userName='" + userName + '\'' +
                 ", password='" + password + '\'' +

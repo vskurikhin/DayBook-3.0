@@ -13,10 +13,6 @@ public class ExceptionAnswerService {
 
     private static final Logger LOG = Logger.getLogger(ExceptionAnswerService.class);
 
-    public Uni<Answer> getUniAnswerNoNumber(NumberFormatException e) {
-        return Uni.createFrom().item(Answer.noNumber(e.getMessage()));
-    }
-
     public boolean testDuplicateException(Throwable t) {
         LOG.tracef("%s: %s [[%s]]", t.getClass().getName(), t.getMessage(), Arrays.toString(t.getStackTrace()));
         if (t instanceof io.vertx.pgclient.PgException) {
@@ -59,7 +55,7 @@ public class ExceptionAnswerService {
     }
 
     public Uni<Answer> badRequestUniAnswer(Throwable t) {
-        LOG.errorf("%s: %s", t.getClass().getName(), t.getMessage());
+        LOG.errorf("%s: %s", String.valueOf(t.getClass().getName()), String.valueOf(t.getMessage()));
         return Uni.createFrom().item(
                 Answer.builder()
                         .message("bad request")
@@ -70,7 +66,7 @@ public class ExceptionAnswerService {
     }
 
     public Uni<Answer> notAcceptableDuplicateAnswer(Throwable t) {
-        LOG.errorf("%s: %s", t.getClass().getName(), t.getMessage());
+        LOG.errorf("%s: %s", String.valueOf(t.getClass().getName()), String.valueOf(t.getMessage()));
         return Uni.createFrom().item(
                 Answer.builder()
                         .message("duplicate key value")
@@ -81,7 +77,7 @@ public class ExceptionAnswerService {
     }
 
     public Uni<Answer> noSuchElementAnswer(Throwable t) {
-        LOG.errorf("%s: %s", t.getClass().getName(), t.getMessage());
+        LOG.errorf("%s: %s", String.valueOf(t.getClass().getName()), String.valueOf(t.getMessage()));
         return Uni.createFrom().item(
                 Answer.builder()
                         .message("no such element")

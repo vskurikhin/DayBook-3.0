@@ -10,7 +10,6 @@ import su.svn.daybook.models.pagination.PageRequest;
 import javax.annotation.Nonnull;
 import javax.enterprise.context.ApplicationScoped;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -22,13 +21,14 @@ public class PageService {
 
     public <T> Uni<Page<Answer>> getPage(
             @Nonnull PageRequest pageRequest,
-            @Nonnull Supplier<Uni<Optional<Long>>> countSupplier,
+            @Nonnull Supplier<Uni<Long>> countSupplier,
             @Nonnull BiFunction<Long, Short, Multi<T>> toMultiEntries,
             @Nonnull Function<T, Answer> toAnswer) {
 
         LOG.tracef("getPage(%s, Supplier, BiFunction)", pageRequest);
         BiFunction<Long, Short, Uni<List<Answer>>> toUniListAnswer =
-                (Long offset, Short limit) -> toMultiEntries.apply(offset, limit)
+                (Long offset, Short limit) -> toMultiEntries
+                        .apply(offset, limit)
                         .onItem()
                         .transform(toAnswer)
                         .collect()
@@ -40,14 +40,8 @@ public class PageService {
     private Uni<Page<Answer>> getPageUni(
             PageRequest pageRequest,
             BiFunction<Long, Short, Uni<List<Answer>>> toUniListAnswer,
-            Optional<Long> o) {
-        return o.map(count -> fetchPageAnswer(count, pageRequest, toUniListAnswer))
-                .orElse(getItem(pageRequest));
-    }
-
-    private Uni<Page<Answer>> getItem(PageRequest pageRequest) {
-        return Uni.createFrom()
-                .item(Page.<Answer>builder().pageNumber(pageRequest.getPageNumber()).build());
+            Long count) {
+        return  fetchPageAnswer(count, pageRequest, toUniListAnswer);
     }
 
     private Uni<Page<Answer>> fetchPageAnswer(

@@ -23,14 +23,14 @@ class ApiResponseTest {
     void testConstructors() {
         Assertions.assertDoesNotThrow(() -> new ApiResponse<>());
         Assertions.assertDoesNotThrow(() -> new ApiResponse<>(
-                TestData.ZERO_UUID, new Object()
+                TestData.uuid.ZERO, new Object()
         ));
         Assertions.assertDoesNotThrow(() -> ApiResponse.message(null));
     }
 
     @Test
     void testGetters(){
-        var entry = new ApiResponse<>(TestData.ZERO_UUID);
+        var entry = new ApiResponse<>(TestData.uuid.ZERO);
         Assertions.assertDoesNotThrow(entry::getId);
         Assertions.assertDoesNotThrow(entry::getError);
         Assertions.assertDoesNotThrow(entry::getMessage);
@@ -45,19 +45,19 @@ class ApiResponseTest {
                 .suppress(Warning.NO_EXAMPLE_FOR_CACHED_HASHCODE)
                 .verify();
         Assertions.assertEquals(0, (new ApiResponse<>(new ForHashCode())).hashCode());
-        Assertions.assertNotEquals(0, (new ApiResponse<>(TestData.ZERO_UUID)).hashCode());
+        Assertions.assertNotEquals(0, (new ApiResponse<>(TestData.uuid.ZERO)).hashCode());
     }
 
     @Test
     void testToString() {
-        var entry = new ApiResponse<>(TestData.STRING_ZERO_UUID);
+        var entry = new ApiResponse<>(TestData.uuid.STRING_ZERO);
         Assertions.assertDoesNotThrow(() -> Assertions.assertNotNull(entry.toString()));
     }
 
     @Test
     void testBuilder() {
         Assertions.assertDoesNotThrow(() -> Assertions.assertNotNull(ApiResponse.builder()
-                .id(TestData.ZERO_UUID)
+                .id(TestData.uuid.ZERO)
                 .error(0)
                 .message(null)
                 .payload(new Object())

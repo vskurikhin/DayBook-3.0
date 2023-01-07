@@ -297,7 +297,7 @@ public final class LanguageTable implements LongIdentification, Marked, Owned, T
 
     @Override
     public String toString() {
-        return "Language{" +
+        return "LanguageTable{" +
                 "id=" + id +
                 ", language='" + language + '\'' +
                 ", userName='" + userName + '\'' +

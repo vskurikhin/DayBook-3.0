@@ -13,19 +13,16 @@ import io.quarkus.cache.CacheManager;
 import io.quarkus.cache.CacheResult;
 import io.smallrye.mutiny.Uni;
 import org.jboss.logging.Logger;
-import su.svn.daybook.domain.dao.I18nDao;
 import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.messages.Answer;
-import su.svn.daybook.domain.model.I18nTable;
 import su.svn.daybook.models.domain.I18n;
 import su.svn.daybook.models.pagination.Page;
 import su.svn.daybook.models.pagination.PageRequest;
 import su.svn.daybook.services.PageService;
-import su.svn.daybook.services.mappers.I18nMapper;
+import su.svn.daybook.services.domain.I18nDataService;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import java.util.Optional;
 
 @ApplicationScoped
 public class I18nCacheProvider extends AbstractCacheProvider<Long> {
@@ -39,10 +36,7 @@ public class I18nCacheProvider extends AbstractCacheProvider<Long> {
     PageService pageService;
 
     @Inject
-    I18nDao i18nDao;
-
-    @Inject
-    I18nMapper i18nMapper;
+    I18nDataService i18nDataService;
 
     public I18nCacheProvider() {
         super(EventAddress.I18N_GET, EventAddress.I18N_PAGE, LOG);
@@ -51,16 +45,13 @@ public class I18nCacheProvider extends AbstractCacheProvider<Long> {
     @CacheResult(cacheName = EventAddress.I18N_GET)
     public Uni<I18n> get(@CacheKey Long id) {
         LOG.tracef("get(%s)", id);
-        return i18nDao
-                .findById(id)
-                .map(Optional::get)
-                .map(i18nMapper::convertToModel);
+        return i18nDataService.get(id);
     }
 
     @CacheResult(cacheName = EventAddress.I18N_PAGE)
     public Uni<Page<Answer>> getPage(@CacheKey PageRequest pageRequest) {
         LOG.tracef("getPage(%s)", pageRequest);
-        return pageService.getPage(pageRequest, i18nDao::count, i18nDao::findRange, this::answerOfModel);
+        return pageService.getPage(pageRequest, i18nDataService::count, i18nDataService::findRange, Answer::of);
     }
 
     @Override
@@ -76,9 +67,5 @@ public class I18nCacheProvider extends AbstractCacheProvider<Long> {
     @Override
     protected CacheManager getCacheManager() {
         return cacheManager;
-    }
-
-    private Answer answerOfModel(I18nTable table) {
-        return Answer.of(i18nMapper.convertToModel(table));
     }
 }

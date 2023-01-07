@@ -16,8 +16,8 @@ import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.enums.ResourcePath;
 import su.svn.daybook.models.domain.Word;
 import su.svn.daybook.models.pagination.PageRequest;
-import su.svn.daybook.services.domain.AbstractService;
-import su.svn.daybook.services.domain.WordService;
+import su.svn.daybook.services.models.AbstractService;
+import su.svn.daybook.services.models.WordService;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -33,17 +33,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 @Path(ResourcePath.WORD)
-public class WordResource extends AbstractResource implements Resources<String, Word> {
-
-    @Inject
-    WordService service;
-
-    @GET
-    @Path(ResourcePath.ALL)
-    @Produces("application/json")
-    public Multi<Word> all(@QueryParam("get-all") Boolean getAll) {
-        return getAll();
-    }
+public class WordResource extends AbstractResource {
 
     @GET
     @Path(ResourcePath.ID)
@@ -84,8 +74,21 @@ public class WordResource extends AbstractResource implements Resources<String, 
         return badRequest(x);
     }
 
-    @Override
-    public AbstractService<String, Word> getService() {
-        return service;
+    public static class WordResources implements Resources<String, Word> {
+
+        @Inject
+        WordService service;
+
+        @GET
+        @Path("/")
+        @Produces("application/json")
+        public Multi<Word> all() {
+            return getAll();
+        }
+
+        @Override
+        public AbstractService<String, Word> getService() {
+            return service;
+        }
     }
 }

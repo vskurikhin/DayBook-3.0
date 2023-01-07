@@ -16,8 +16,8 @@ import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.enums.ResourcePath;
 import su.svn.daybook.models.domain.KeyValue;
 import su.svn.daybook.models.pagination.PageRequest;
-import su.svn.daybook.services.domain.AbstractService;
-import su.svn.daybook.services.domain.KeyValueService;
+import su.svn.daybook.services.models.AbstractService;
+import su.svn.daybook.services.models.KeyValueService;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -31,24 +31,15 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import java.util.UUID;
 
 @Path(ResourcePath.KEY_VALUE)
-public class KeyValueResource extends AbstractResource implements Resources<Long, KeyValue> {
-
-    @Inject
-    KeyValueService service;
-
-    @GET
-    @Path(ResourcePath.ALL)
-    @Produces("application/json")
-    public Multi<KeyValue> all(@QueryParam("get-all") Boolean getAll) {
-        return getAll();
-    }
+public class KeyValueResource extends AbstractResource implements Resource<UUID, KeyValue> {
 
     @GET
     @Path(ResourcePath.ID)
     @Produces("application/json")
-    public Uni<Response> get(Long id, @Context UriInfo uriInfo) {
+    public Uni<Response> get(UUID id, @Context UriInfo uriInfo) {
         return request(EventAddress.KEY_VALUE_GET, id, uriInfo);
     }
 
@@ -75,7 +66,7 @@ public class KeyValueResource extends AbstractResource implements Resources<Long
     @DELETE
     @Path(ResourcePath.ID)
     @Produces("application/json")
-    public Uni<Response> delete(Long id, @Context UriInfo uriInfo) {
+    public Uni<Response> delete(UUID id, @Context UriInfo uriInfo) {
         return request(EventAddress.KEY_VALUE_DEL, id, uriInfo);
     }
 
@@ -84,8 +75,22 @@ public class KeyValueResource extends AbstractResource implements Resources<Long
         return badRequest(x);
     }
 
-    @Override
-    public AbstractService<Long, KeyValue> getService() {
-        return service;
+    @Path(ResourcePath.KEY_VALUES)
+    public static class KeyValueResources implements Resources<UUID, KeyValue> {
+
+        @Inject
+        KeyValueService service;
+
+        @GET
+        @Path("/")
+        @Produces("application/json")
+        public Multi<KeyValue> all() {
+            return getAll();
+        }
+
+        @Override
+        public AbstractService<UUID, KeyValue> getService() {
+            return service;
+        }
     }
 }

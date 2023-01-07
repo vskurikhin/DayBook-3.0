@@ -19,7 +19,7 @@ import org.mockito.Mockito;
 import su.svn.daybook.TestData;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.models.pagination.PageRequest;
-import su.svn.daybook.services.domain.KeyValueService;
+import su.svn.daybook.services.models.KeyValueService;
 
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
@@ -39,19 +39,15 @@ class KeyValueResourceTest {
     void setUp() {
         PageRequest pageRequest = new PageRequest(0, (short) 1);
         mock = Mockito.mock(KeyValueService.class);
-        Mockito.when(mock.get(0L)).thenReturn(test);
-        Mockito.when(mock.get("0")).thenReturn(test);
-        Mockito.when(mock.get(1L)).thenThrow(RuntimeException.class);
-        Mockito.when(mock.get((long) Integer.MAX_VALUE)).thenReturn(TestData.UNI_ANSWER_EMPTY);
-        Mockito.when(mock.get(Long.toString(Integer.MAX_VALUE))).thenReturn(TestData.UNI_ANSWER_EMPTY);
-        Mockito.when(mock.get((long) Integer.MIN_VALUE)).thenReturn(TestData.UNI_ANSWER_NULL);
-        Mockito.when(mock.get(Long.toString(Integer.MIN_VALUE))).thenReturn(TestData.UNI_ANSWER_NULL);
+        Mockito.when(mock.get(TestData.uuid.ZERO)).thenReturn(test);
+        Mockito.when(mock.get(TestData.uuid.ONE)).thenThrow(RuntimeException.class);
+        Mockito.when(mock.get(TestData.uuid.RANDOM1)).thenReturn(TestData.UNI_ANSWER_EMPTY);
+        Mockito.when(mock.get(TestData.uuid.RANDOM2)).thenReturn(TestData.UNI_ANSWER_NULL);
         Mockito.when(mock.getAll()).thenReturn(Multi.createFrom().item(Answer.of(TestData.KEY_VALUE.MODEL_0)));
         Mockito.when(mock.getPage(pageRequest)).thenReturn(TestData.KEY_VALUE.UNI_PAGE_ANSWER_SINGLETON_TEST);
-        Mockito.when(mock.add(TestData.KEY_VALUE.MODEL_0)).thenReturn(TestData.UNI_ANSWER_API_RESPONSE_ZERO_LONG);
-        Mockito.when(mock.put(TestData.KEY_VALUE.MODEL_0)).thenReturn(TestData.UNI_ANSWER_API_RESPONSE_ZERO_LONG);
-        Mockito.when(mock.delete(0L)).thenReturn(TestData.UNI_ANSWER_API_RESPONSE_ZERO_LONG);
-        Mockito.when(mock.delete("0")).thenReturn(TestData.UNI_ANSWER_API_RESPONSE_ZERO_LONG);
+        Mockito.when(mock.add(TestData.KEY_VALUE.MODEL_0)).thenReturn(TestData.uuid.UNI_ANSWER_API_RESPONSE_ZERO);
+        Mockito.when(mock.put(TestData.KEY_VALUE.MODEL_0)).thenReturn(TestData.uuid.UNI_ANSWER_API_RESPONSE_ZERO);
+        Mockito.when(mock.delete(TestData.uuid.ZERO)).thenReturn(TestData.uuid.UNI_ANSWER_API_RESPONSE_ZERO);
         QuarkusMock.installMockForType(mock, KeyValueService.class);
     }
 
@@ -59,7 +55,7 @@ class KeyValueResourceTest {
     void testEndpointGet() {
         given()
                 .when()
-                .get("/key-value/0")
+                .get("/key-value/" + TestData.uuid.STRING_ZERO)
                 .then()
                 .statusCode(200)
                 .body(CoreMatchers.startsWith(TestData.KEY_VALUE.JSON_0));
@@ -69,7 +65,7 @@ class KeyValueResourceTest {
     void testEndpointGetThenRuntimeException() {
         given()
                 .when()
-                .get("/key-value/1")
+                .get("/key-value/" + TestData.uuid.ONE)
                 .then()
                 .statusCode(400);
     }
@@ -78,7 +74,7 @@ class KeyValueResourceTest {
     void testEndpointGetWhenEmpty() {
         given()
                 .when()
-                .get("/key-value/" + Integer.MAX_VALUE)
+                .get("/key-value/" + TestData.uuid.RANDOM1)
                 .then()
                 .statusCode(404);
     }
@@ -87,7 +83,7 @@ class KeyValueResourceTest {
     void testEndpointGetWhenNull() {
         given()
                 .when()
-                .get("/key-value/" + Integer.MIN_VALUE)
+                .get("/key-value/" + TestData.uuid.RANDOM2)
                 .then()
                 .statusCode(406);
     }
@@ -96,7 +92,7 @@ class KeyValueResourceTest {
     void testEndpointGetAll() {
         given()
                 .when()
-                .get("/key-value/_?get-all")
+                .get("/key-values")
                 .then()
                 .statusCode(200)
                 .body(CoreMatchers.startsWith(TestData.KEY_VALUE.JSON_ARRAY_SINGLETON_0));
@@ -121,7 +117,7 @@ class KeyValueResourceTest {
                 .post("/key-value")
                 .then()
                 .statusCode(200)
-                .body(CoreMatchers.startsWith("{\"id\":0"));
+                .body(CoreMatchers.startsWith(TestData.KEY_VALUE.JSON_ID_0_200));
     }
 
     @Test
@@ -133,16 +129,16 @@ class KeyValueResourceTest {
                 .put("/key-value")
                 .then()
                 .statusCode(200)
-                .body(CoreMatchers.startsWith(TestData.KEY_VALUE.JSON_ID_0));
+                .body(CoreMatchers.startsWith(TestData.KEY_VALUE.JSON_ID_0_200));
     }
 
     @Test
     void testEndpointDelete() {
         given()
                 .when()
-                .delete("/key-value/0")
+                .delete("/key-value/" + TestData.uuid.STRING_ZERO)
                 .then()
                 .statusCode(200)
-                .body(CoreMatchers.startsWith(TestData.KEY_VALUE.JSON_ID_0));
+                .body(CoreMatchers.startsWith(TestData.KEY_VALUE.JSON_ID_0_200));
     }
 }

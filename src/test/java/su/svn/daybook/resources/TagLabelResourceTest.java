@@ -11,7 +11,7 @@ import org.mockito.Mockito;
 import su.svn.daybook.TestData;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.models.pagination.PageRequest;
-import su.svn.daybook.services.domain.TagLabelService;
+import su.svn.daybook.services.models.TagLabelService;
 
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
@@ -94,7 +94,7 @@ class TagLabelResourceTest {
     void testEndpointGetAll() {
         given()
                 .when()
-                .get("/tag/_?get-all")
+                .get("/tags")
                 .then()
                 .statusCode(200)
                 .body(CoreMatchers.startsWith(TestData.TAG_LABEL.JSON_ARRAY_SINGLETON_0));

@@ -11,6 +11,7 @@ package su.svn.daybook;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
 import io.smallrye.mutiny.Uni;
+import io.vertx.core.json.JsonObject;
 import org.junit.jupiter.api.*;
 import su.svn.daybook.domain.dao.*;
 import su.svn.daybook.domain.messages.Answer;
@@ -19,9 +20,10 @@ import su.svn.daybook.domain.model.*;
 import su.svn.daybook.domain.transact.UserTransactionalJob;
 import su.svn.daybook.models.domain.User;
 import su.svn.daybook.resources.PostgresDatabaseTestResource;
-import su.svn.daybook.services.domain.UserService;
+import su.svn.daybook.services.models.UserService;
 
 import javax.inject.Inject;
+import java.math.BigInteger;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
@@ -392,18 +394,18 @@ public class DataBaseIT {
     @DisplayName("KeyValueDao")
     class KeyValueDaoTest {
 
-        Long id;
+        UUID id;
 
-        Long customId = Long.MIN_VALUE;
+        UUID customId = TestData.uuid.ONE;
 
         KeyValueTable entry;
 
-        String str = "str";
+        JsonObject str = new JsonObject("{}");
 
         @BeforeEach
         void setUp() {
             entry = KeyValueTable.builder()
-                    .key(KeyValueTable.NONE)
+                    .key(BigInteger.ZERO)
                     .enabled(true)
                     .build();
             Assertions.assertDoesNotThrow(
@@ -440,7 +442,7 @@ public class DataBaseIT {
         void test() {
             var expected1 = KeyValueTable.builder()
                     .id(id)
-                    .key(KeyValueTable.NONE)
+                    .key(BigInteger.ZERO)
                     .enabled(true)
                     .build();
             Assertions.assertDoesNotThrow(
@@ -457,7 +459,7 @@ public class DataBaseIT {
             );
             var expected2 = KeyValueTable.builder()
                     .id(id)
-                    .key(KeyValueTable.NONE)
+                    .key(BigInteger.ZERO)
                     .value(str)
                     .enabled(true)
                     .build();
@@ -519,7 +521,7 @@ public class DataBaseIT {
 
             var custom = KeyValueTable.builder()
                     .id(customId)
-                    .key(UUID.randomUUID().toString())
+                    .key(BigInteger.TEN)
                     .enabled(true)
                     .build();
             Assertions.assertDoesNotThrow(
@@ -1581,8 +1583,9 @@ public class DataBaseIT {
         @Test
         void test() {
             var expected = Answer.builder()
+                    .message(Answer.DEFAULT_MESSAGE)
                     .error(201)
-                    .payload(new ApiResponse<>(TestData.ZERO_UUID))
+                    .payload(new ApiResponse<>(TestData.uuid.ZERO, 201))
                     .build();
             Assertions.assertDoesNotThrow(() -> {
                 var actual = subscribeAsCompletionStageAnswer(userService.add(user));
@@ -1609,8 +1612,14 @@ public class DataBaseIT {
                     Assertions.assertEquals(set.size(), userView.getRoles().size());
                 });
                 Assertions.assertDoesNotThrow(() -> {
+                    var expected200 = Answer.builder()
+                            .message(Answer.DEFAULT_MESSAGE)
+                            .error(200)
+                            .payload(new ApiResponse<>(TestData.uuid.ZERO, 200))
+                            .build();
                     var actual = subscribeAsCompletionStageAnswer(userService.delete(user.getId()));
                     Assertions.assertNotNull(actual);
+                    Assertions.assertEquals(expected200, actual);
                     if (actual.getPayload() instanceof ApiResponse apiResponse) {
                         Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(
                                 id, UUID.fromString(apiResponse.getId().toString())
@@ -1620,8 +1629,9 @@ public class DataBaseIT {
                 checkUserNameTableIsEmpty();
             }
             var expected2 = Answer.builder()
+                    .message(Answer.DEFAULT_MESSAGE)
                     .error(202)
-                    .payload(new ApiResponse<>(TestData.ZERO_UUID))
+                    .payload(new ApiResponse<>(TestData.uuid.ZERO, 202))
                     .build();
             for (var a : new String[][]{{"role1"}, {"role1", "role2"}}) {
                 Assertions.assertDoesNotThrow(() -> {
