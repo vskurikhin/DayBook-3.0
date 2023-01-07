@@ -2,7 +2,7 @@
  * This file was last modified at 2022.01.12 22:58 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
- * @Name@Table.java
+ * SessionTable.java
  * $Id$
  */
 
@@ -25,74 +25,73 @@ import javax.annotation.Nonnull;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.time.ZoneOffset;
+import java.util.*;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public final class @Name@Table implements CasesOf@IdType@, Marked, Owned, TimeUpdated, Serializable {
+public final class SessionTable implements CasesOfUUID, Marked, Owned, TimeUpdated, Serializable {
 
-    public static final String NONE = "@uuid@";
-    public static final String SELECT_FROM_@SCHEMA@_@TABLE@_WHERE_ID_$1 = """
-            SELECT id, @key@, @value@, user_name, create_time, update_time, enabled, visible, flags
-              FROM @schema@.@table@
+    public static final String NONE = "3de2845b-eb5f-49e5-a1b4-ed90abd92c52";
+    public static final String SELECT_FROM_SECURITY_SESSION_WHERE_ID_$1 = """
+            SELECT id, user_name, roles, valid_time, create_time, update_time, enabled, visible, flags
+              FROM security.session
              WHERE id = $1 AND enabled
             """;
-    public static final String SELECT_ALL_FROM_@SCHEMA@_@TABLE@_ORDER_BY_ID_ASC = """
-            SELECT id, @key@, @value@, user_name, create_time, update_time, enabled, visible, flags
-              FROM @schema@.@table@
+    public static final String SELECT_ALL_FROM_SECURITY_SESSION_ORDER_BY_ID_ASC = """
+            SELECT id, user_name, roles, valid_time, create_time, update_time, enabled, visible, flags
+              FROM security.session
              WHERE enabled
              ORDER BY id ASC
             """;
-    public static final String SELECT_ALL_FROM_@SCHEMA@_@TABLE@_ORDER_BY_ID_ASC_OFFSET_LIMIT = """
-            SELECT id, @key@, @value@, user_name, create_time, update_time, enabled, visible, flags
-              FROM @schema@.@table@
+    public static final String SELECT_ALL_FROM_SECURITY_SESSION_ORDER_BY_ID_ASC_OFFSET_LIMIT = """
+            SELECT id, user_name, roles, valid_time, create_time, update_time, enabled, visible, flags
+              FROM security.session
              WHERE enabled
              ORDER BY id ASC OFFSET $1 LIMIT $2
             """;
-    public static final String INSERT_INTO_@SCHEMA@_@TABLE@ = """
-            INSERT INTO @schema@.@table@
-             (id, @key@, @value@, user_name, enabled, visible, flags)
+    public static final String INSERT_INTO_SECURITY_SESSION = """
+            INSERT INTO security.session
+             (id, user_name, roles, valid_time, enabled, visible, flags)
              VALUES
              ($1, $2, $3, $4, $5, $6, $7)
              RETURNING id
             """;
-    public static final String INSERT_INTO_@SCHEMA@_@TABLE@_DEFAULT_ID = """
-            INSERT INTO @schema@.@table@
-             (id, @key@, @value@, user_name, enabled, visible, flags)
+    public static final String INSERT_INTO_SECURITY_SESSION_DEFAULT_ID = """
+            INSERT INTO security.session
+             (id, user_name, roles, valid_time, enabled, visible, flags)
              VALUES
              (DEFAULT, $1, $2, $3, $4, $5, $6)
              RETURNING id
             """;
-    public static final String UPDATE_@SCHEMA@_@TABLE@_WHERE_ID_$1 = """
-            UPDATE @schema@.@table@ SET
-              @key@ = $2,
-              @value@ = $3,
-              user_name = $4,
+    public static final String UPDATE_SECURITY_SESSION_WHERE_ID_$1 = """
+            UPDATE security.session SET
+              user_name = $2,
+              roles = $3,
+              valid_time = $4,
               enabled = $5,
               visible = $6,
               flags = $7
              WHERE id = $1
              RETURNING id
             """;
-    public static final String DELETE_FROM_@SCHEMA@_@TABLE@_WHERE_ID_$1 = """
-            DELETE FROM @schema@.@table@
+    public static final String DELETE_FROM_SECURITY_SESSION_WHERE_ID_$1 = """
+            DELETE FROM security.session
              WHERE id = $1
              RETURNING id
             """;
-    public static final String COUNT_@SCHEMA@_@TABLE@ = "SELECT count(*) FROM @schema@.@table@";
+    public static final String COUNT_SECURITY_SESSION = "SELECT count(*) FROM security.session";
     @Serial
-    private static final long serialVersionUID = @serialVersionUID@L;
+    private static final long serialVersionUID = -3840183181082947551L;
     public static final String ID = "id";
     public static final String COUNT = "count";
     @ModelField
-    private final @IdType@ id;
-    @ModelField
-    private final @KType@ @key@;
-    @ModelField
-    private final @VType@ @value@;
+    private final UUID id;
+    @ModelField(nullable = false)
     private final String userName;
+    @ModelField(nullable = false)
+    private final Set<String> roles;
+    @ModelField(nullable = false)
+    private final LocalDateTime validTime;
     private final LocalDateTime createTime;
     private final LocalDateTime updateTime;
     private final boolean enabled;
@@ -107,11 +106,11 @@ public final class @Name@Table implements CasesOf@IdType@, Marked, Owned, TimeUp
     @JsonIgnore
     private transient volatile boolean hashIsZero;
 
-    public @Name@Table() {
+    public SessionTable() {
         this.id = null;
-        this.@key@ = @KType@.ZERO;
-        this.@value@ = null;
-        this.userName = null;
+        this.userName = SessionTable.NONE;
+        this.roles = Collections.emptySet();
+        this.validTime = LocalDateTime.ofEpochSecond(0, 0, ZoneOffset.UTC);
         this.createTime = null;
         this.updateTime = null;
         this.enabled = true;
@@ -119,20 +118,20 @@ public final class @Name@Table implements CasesOf@IdType@, Marked, Owned, TimeUp
         this.flags = 0;
     }
 
-    public @Name@Table(
-            @IdType@ id,
-            @Nonnull @KType@ @key@,
-            @VType@ @value@,
-            String userName,
+    public SessionTable(
+            UUID id,
+            @Nonnull String userName,
+            @Nonnull Set<String> roles,
+            @Nonnull LocalDateTime validTime,
             LocalDateTime createTime,
             LocalDateTime updateTime,
             boolean enabled,
             boolean visible,
             int flags) {
         this.id = id;
-        this.@key@ = @key@;
-        this.@value@ = @value@;
         this.userName = userName;
+        this.roles = roles;
+        this.validTime = validTime;
         this.createTime = createTime;
         this.updateTime = updateTime;
         this.enabled = enabled;
@@ -140,12 +139,12 @@ public final class @Name@Table implements CasesOf@IdType@, Marked, Owned, TimeUp
         this.flags = flags;
     }
 
-    public static @Name@Table from(Row row) {
-        return new @Name@Table(
-                row.get@IdType@(ID),
-                row.get@KType@("@key@"),
-                row.get@VType@("@value@"),
+    public static SessionTable from(Row row) {
+        return new SessionTable(
+                row.getUUID(ID),
                 row.getString("user_name"),
+                Set.of(row.getArrayOfStrings("roles")),
+                row.getLocalDateTime("valid_time"),
                 row.getLocalDateTime("create_time"),
                 row.getLocalDateTime("update_time"),
                 row.getBoolean("enabled"),
@@ -154,82 +153,84 @@ public final class @Name@Table implements CasesOf@IdType@, Marked, Owned, TimeUp
         );
     }
 
-    public static Multi<@Name@Table> findAll(PgPool client) {
+    public static Multi<SessionTable> findAll(PgPool client) {
         return client
-                .query(SELECT_ALL_FROM_@SCHEMA@_@TABLE@_ORDER_BY_ID_ASC)
+                .query(SELECT_ALL_FROM_SECURITY_SESSION_ORDER_BY_ID_ASC)
                 .execute()
                 .onItem()
                 .transformToMulti(set -> Multi.createFrom().iterable(set))
                 .onItem()
-                .transform(@Name@Table::from);
+                .transform(SessionTable::from);
 
     }
 
-    public static Uni<@Name@Table> findById(PgPool client, @IdType@ id) {
+    public static Uni<SessionTable> findById(PgPool client, UUID id) {
         return client
-                .preparedQuery(SELECT_FROM_@SCHEMA@_@TABLE@_WHERE_ID_$1)
+                .preparedQuery(SELECT_FROM_SECURITY_SESSION_WHERE_ID_$1)
                 .execute(Tuple.of(id))
                 .onItem()
                 .transform(RowSet::iterator)
                 .onItem()
-                .transform(iterator -> iterator.hasNext() ? @Name@Table.from(iterator.next()) : null);
+                .transform(iterator -> iterator.hasNext() ? SessionTable.from(iterator.next()) : null);
     }
 
-    public static Multi<@Name@Table> findRange(PgPool client, long offset, long limit) {
+    public static Multi<SessionTable> findRange(PgPool client, long offset, long limit) {
         return client
-                .preparedQuery(SELECT_ALL_FROM_@SCHEMA@_@TABLE@_ORDER_BY_ID_ASC_OFFSET_LIMIT)
+                .preparedQuery(SELECT_ALL_FROM_SECURITY_SESSION_ORDER_BY_ID_ASC_OFFSET_LIMIT)
                 .execute(Tuple.of(offset, limit))
                 .onItem()
                 .transformToMulti(set -> Multi.createFrom().iterable(set))
                 .onItem()
-                .transform(@Name@Table::from);
+                .transform(SessionTable::from);
     }
 
-    public static Uni<@IdType@> delete(PgPool client, @IdType@ id) {
+    public static Uni<UUID> delete(PgPool client, UUID id) {
         return client.withTransaction(
-                connection -> connection.preparedQuery(DELETE_FROM_@SCHEMA@_@TABLE@_WHERE_ID_$1)
+                connection -> connection.preparedQuery(DELETE_FROM_SECURITY_SESSION_WHERE_ID_$1)
                         .execute(Tuple.of(id))
                         .onItem()
-                        .transform(pgRowSet -> pgRowSet.iterator().next().get@IdType@(ID)));
+                        .transform(pgRowSet -> pgRowSet.iterator().next().getUUID(ID)));
     }
 
     public static Uni<Long> count(PgPool client) {
         return client
-                .preparedQuery(COUNT_@SCHEMA@_@TABLE@)
+                .preparedQuery(COUNT_SECURITY_SESSION)
                 .execute()
                 .onItem()
                 .transform(pgRowSet -> pgRowSet.iterator().next().getLong(COUNT));
     }
 
-    public static @Name@Table.Builder builder() {
-        return new @Name@Table.Builder();
+    public static Builder builder() {
+        return new Builder();
     }
 
-    public Uni<@IdType@> insert(PgPool client) {
+    public Uni<UUID> insert(PgPool client) {
         return client.withTransaction(
                 connection -> connection.preparedQuery(caseInsertSql())
                         .execute(caseInsertTuple())
                         .onItem()
                         .transform(RowSet::iterator)
                         .onItem()
-                        .transform(iterator -> iterator.hasNext() ? iterator.next().get@IdType@(ID) : null));
+                        .transform(iterator -> iterator.hasNext() ? iterator.next().getUUID(ID) : null));
     }
 
-    public Uni<@IdType@> update(PgPool client) {
+    public Uni<UUID> update(PgPool client) {
         return client.withTransaction(
-                connection -> connection.preparedQuery(UPDATE_@SCHEMA@_@TABLE@_WHERE_ID_$1)
+                connection -> connection.preparedQuery(UPDATE_SECURITY_SESSION_WHERE_ID_$1)
                         .execute(updateTuple())
                         .onItem()
-                        .transform(pgRowSet -> pgRowSet.iterator().next().get@IdType@(ID)));
+                        .transform(pgRowSet -> pgRowSet.iterator().next().getUUID(ID)));
     }
 
     private String caseInsertSql() {
-        return id != null ? INSERT_INTO_@SCHEMA@_@TABLE@ : INSERT_INTO_@SCHEMA@_@TABLE@_DEFAULT_ID;
+        return id != null ? INSERT_INTO_SECURITY_SESSION : INSERT_INTO_SECURITY_SESSION_DEFAULT_ID;
     }
 
     @Override
     public Tuple caseInsertTuple() {
-        return id != null ? Tuple.tuple(listOf()) : Tuple.of(@key@, @value@, userName, enabled, visible, flags);
+        return id != null
+                ? Tuple.tuple(listOf())
+                : Tuple.of(userName, roles.toArray(), validTime, enabled, visible, flags);
     }
 
     @Override
@@ -238,23 +239,23 @@ public final class @Name@Table implements CasesOf@IdType@, Marked, Owned, TimeUp
     }
 
     private List<Object> listOf() {
-        return Arrays.asList(id, @key@, @value@, userName, enabled, visible, flags);
+        return Arrays.asList(id, userName, roles.toArray(), validTime, enabled, visible, flags);
     }
 
-    public @IdType@ getId() {
+    public UUID getId() {
         return id;
-    }
-
-    public @KType@ get@Key@() {
-        return @key@;
-    }
-
-    public @VType@ get@Value@() {
-        return @value@;
     }
 
     public String getUserName() {
         return userName;
+    }
+
+    public Set<String> getRoles() {
+        return roles;
+    }
+
+    public LocalDateTime getValidTime() {
+        return validTime;
     }
 
     public LocalDateTime getCreateTime() {
@@ -289,14 +290,14 @@ public final class @Name@Table implements CasesOf@IdType@, Marked, Owned, TimeUp
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        var that = (@Name@Table) o;
+        var that = (SessionTable) o;
         return enabled == that.enabled
                 && visible == that.visible
                 && flags == that.flags
                 && Objects.equals(id, that.id)
-                && Objects.equals(@key@, that.@key@)
-                && Objects.equals(@value@, that.@value@)
-                && Objects.equals(userName, that.userName);
+                && Objects.equals(userName, that.userName)
+                && Objects.equals(roles, that.roles)
+                && Objects.equals(validTime, that.validTime);
     }
 
     @Override
@@ -314,16 +315,16 @@ public final class @Name@Table implements CasesOf@IdType@, Marked, Owned, TimeUp
     }
 
     private int calculateHashCode() {
-        return Objects.hash(id, @key@, @value@, userName, enabled, visible, flags);
+        return Objects.hash(id, userName, roles, validTime, enabled, visible, flags);
     }
 
     @Override
     public String toString() {
-        return "@Name@Table{" +
+        return "SessionTable{" +
                 "id=" + id +
-                ", @key@='" + @key@ + '\'' +
-                ", @value@='" + @value@ + '\'' +
                 ", userName='" + userName + '\'' +
+                ", roles='" + roles + '\'' +
+                ", validTime='" + validTime + '\'' +
                 ", createTime=" + createTime +
                 ", updateTime=" + updateTime +
                 ", enabled=" + enabled +
@@ -333,10 +334,10 @@ public final class @Name@Table implements CasesOf@IdType@, Marked, Owned, TimeUp
     }
 
     public static final class Builder {
-        private @IdType@ id;
-        private @KType@ @key@;
-        private @VType@ @value@;
+        private UUID id;
         private String userName;
+        private Set<String> roles;
+        private LocalDateTime validTime;
         private LocalDateTime createTime;
         private LocalDateTime updateTime;
         private boolean enabled;
@@ -344,26 +345,27 @@ public final class @Name@Table implements CasesOf@IdType@, Marked, Owned, TimeUp
         private int flags;
 
         private Builder() {
+            this.roles = Collections.emptySet();
             this.enabled = true;
         }
 
-        public Builder id(@IdType@ id) {
+        public Builder id(UUID id) {
             this.id = id;
             return this;
         }
 
-        public Builder @key@(@Nonnull @KType@ @key@) {
-            this.@key@ = @key@;
-            return this;
-        }
-
-        public Builder @value@(@VType@ @value@) {
-            this.@value@ = @value@;
-            return this;
-        }
-
-        public Builder userName(String userName) {
+        public Builder userName(@Nonnull String userName) {
             this.userName = userName;
+            return this;
+        }
+
+        public Builder roles(@Nonnull Set<String> roles) {
+            this.roles = roles;
+            return this;
+        }
+
+        public Builder validTime(@Nonnull LocalDateTime validTime) {
+            this.validTime = validTime;
             return this;
         }
 
@@ -392,8 +394,8 @@ public final class @Name@Table implements CasesOf@IdType@, Marked, Owned, TimeUp
             return this;
         }
 
-        public @Name@Table build() {
-            return new @Name@Table(id, @key@, @value@, userName, createTime, updateTime, enabled, visible, flags);
+        public SessionTable build() {
+            return new SessionTable(id, userName, roles, validTime, createTime, updateTime, enabled, visible, flags);
         }
     }
 }

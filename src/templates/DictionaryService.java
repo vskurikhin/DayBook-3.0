@@ -111,7 +111,7 @@ public class @Name@Service extends AbstractService<@IdType@, @Name@> {
                 .map(Answer::of);
     }
 
-    @ConsumeEvent(@value@ = EventAddress.@TABLE@_PAGE)
+    @ConsumeEvent(EventAddress.@TABLE@_PAGE)
     public Uni<Page<Answer>> getPage(PageRequest pageRequest) {
         //noinspection DuplicatedCode
         LOG.tracef("getPage(%s)", pageRequest);

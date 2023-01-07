@@ -18,11 +18,18 @@ public enum ResourcePath {
     Language(ResourcePath.LANGUAGE),
     Put(ResourcePath.PUT),
     Role(ResourcePath.ROLE),
+    Session(ResourcePath.SESSION),
+    Sessions(ResourcePath.SESSIONS),
     Setting(ResourcePath.SETTING),
+    Settings(ResourcePath.SETTINGS),
     TagLabel(ResourcePath.TAG_LABEL),
+    TagLabels(ResourcePath.TAG_LABELS),
     User(ResourcePath.USER),
+    Users(ResourcePath.USERS),
     ValueType(ResourcePath.VALUE_TYPE),
+    ValueTypes(ResourcePath.VALUE_TYPES),
     Vocabulary(ResourcePath.VOCABULARY),
+    Vocabularies(ResourcePath.VOCABULARIES),
     Word(ResourcePath.WORD);
 
     public static final String ALL = "/_";
@@ -38,6 +45,8 @@ public enum ResourcePath {
     public static final String PUT = "/put";
     public static final String ROLE = "/role";
     public static final String ROLES = "/roles";
+    public static final String SESSION = "/session";
+    public static final String SESSIONS = "/sessions";
     public static final String SETTING = "/setting";
     public static final String SETTINGS = "/settings";
     public static final String TAG_LABEL = "/tag";
