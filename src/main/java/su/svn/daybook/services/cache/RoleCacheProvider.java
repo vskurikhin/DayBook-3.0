@@ -13,19 +13,16 @@ import io.quarkus.cache.CacheManager;
 import io.quarkus.cache.CacheResult;
 import io.smallrye.mutiny.Uni;
 import org.jboss.logging.Logger;
-import su.svn.daybook.domain.dao.RoleDao;
 import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.messages.Answer;
-import su.svn.daybook.domain.model.RoleTable;
 import su.svn.daybook.models.domain.Role;
 import su.svn.daybook.models.pagination.Page;
 import su.svn.daybook.models.pagination.PageRequest;
 import su.svn.daybook.services.PageService;
-import su.svn.daybook.services.mappers.RoleMapper;
+import su.svn.daybook.services.domain.RoleDataService;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import java.util.Optional;
 import java.util.UUID;
 
 @ApplicationScoped
@@ -40,10 +37,7 @@ public class RoleCacheProvider extends AbstractCacheProvider<UUID> {
     PageService pageService;
 
     @Inject
-    RoleDao roleDao;
-
-    @Inject
-    RoleMapper roleMapper;
+    RoleDataService roleDataService;
 
     public RoleCacheProvider() {
         super(EventAddress.ROLE_GET, EventAddress.ROLE_PAGE, LOG);
@@ -52,16 +46,13 @@ public class RoleCacheProvider extends AbstractCacheProvider<UUID> {
     @CacheResult(cacheName = EventAddress.ROLE_GET)
     public Uni<Role> get(@CacheKey UUID id) {
         LOG.tracef("get(%s)", id);
-        return roleDao
-                .findById(id)
-                .map(Optional::get)
-                .map(roleMapper::convertToModel);
+        return roleDataService.get(id);
     }
 
     @CacheResult(cacheName = EventAddress.ROLE_PAGE)
     public Uni<Page<Answer>> getPage(@CacheKey PageRequest pageRequest) {
         LOG.tracef("getPage(%s)", pageRequest);
-        return pageService.getPage(pageRequest, roleDao::count, roleDao::findRange, this::answerOfModel);
+        return pageService.getPage(pageRequest, roleDataService::count, roleDataService::findRange, Answer::of);
     }
 
     @Override
@@ -77,9 +68,5 @@ public class RoleCacheProvider extends AbstractCacheProvider<UUID> {
     @Override
     protected CacheManager getCacheManager() {
         return cacheManager;
-    }
-
-    private Answer answerOfModel(RoleTable table) {
-        return Answer.of(roleMapper.convertToModel(table));
     }
 }

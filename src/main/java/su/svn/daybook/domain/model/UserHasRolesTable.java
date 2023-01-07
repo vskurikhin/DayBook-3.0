@@ -301,7 +301,7 @@ public final class UserHasRolesTable implements LongIdentification, Marked, Owne
 
     @Override
     public String toString() {
-        return "UserHasRoles{" +
+        return "UserHasRolesTable{" +
                 "id=" + id +
                 ", userName='" + userName + '\'' +
                 ", role='" + role + '\'' +

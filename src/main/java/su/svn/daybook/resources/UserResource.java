@@ -16,26 +16,25 @@ import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.enums.ResourcePath;
 import su.svn.daybook.models.domain.User;
 import su.svn.daybook.models.pagination.PageRequest;
-import su.svn.daybook.services.domain.AbstractService;
-import su.svn.daybook.services.domain.UserService;
+import su.svn.daybook.services.models.AbstractService;
+import su.svn.daybook.services.models.UserService;
 
 import javax.inject.Inject;
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.util.UUID;
 
 @Path(ResourcePath.USER)
-public class UserResource extends AbstractResource implements Resources<UUID, User> {
-
-    @Inject
-    UserService userService;
-
-    @Override
-    public AbstractService<UUID, User> getService() {
-        return userService;
-    }
+public class UserResource extends AbstractResource implements Resource<UUID, User> {
 
     @GET
     @Path(ResourcePath.ID)
@@ -43,7 +42,6 @@ public class UserResource extends AbstractResource implements Resources<UUID, Us
     public Uni<Response> get(UUID id, @Context UriInfo uriInfo) {
         return request(EventAddress.USER_GET, id, uriInfo);
     }
-
 
     @GET
     @Produces("application/json")
@@ -72,14 +70,26 @@ public class UserResource extends AbstractResource implements Resources<UUID, Us
         return request(EventAddress.USER_DEL, id, uriInfo);
     }
 
-    @GET
-    @Path(ResourcePath.ALL)
-    public Multi<User> all(@QueryParam("get-all") Boolean getAll) {
-        return getAll();
-    }
-
     @ServerExceptionMapper
     public RestResponse<String> exception(Throwable x) {
         return badRequest(x);
+    }
+
+    @Path(ResourcePath.USERS)
+    public static class UserResources implements Resources<UUID, User> {
+
+        @Inject
+        UserService service;
+
+        @GET
+        @Path("/")
+        @Produces("application/json")
+        public Multi<User> all() {
+            return getAll();
+        }
+
+        public AbstractService<UUID, User> getService() {
+            return service;
+        }
     }
 }

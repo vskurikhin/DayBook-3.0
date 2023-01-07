@@ -279,7 +279,7 @@ public final class WordTable implements StringIdentification, Marked, Owned, Tim
 
     @Override
     public String toString() {
-        return "Word{" +
+        return "WordTableTable{" +
                 "word='" + word + '\'' +
                 ", userName='" + userName + '\'' +
                 ", createTime=" + createTime +

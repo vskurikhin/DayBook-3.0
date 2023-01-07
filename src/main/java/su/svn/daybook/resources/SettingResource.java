@@ -16,8 +16,8 @@ import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.enums.ResourcePath;
 import su.svn.daybook.models.domain.Setting;
 import su.svn.daybook.models.pagination.PageRequest;
-import su.svn.daybook.services.domain.AbstractService;
-import su.svn.daybook.services.domain.SettingService;
+import su.svn.daybook.services.models.AbstractService;
+import su.svn.daybook.services.models.SettingService;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -33,17 +33,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 @Path(ResourcePath.SETTING)
-public class SettingResource extends AbstractResource implements Resources<Long, Setting> {
-
-    @Inject
-    SettingService service;
-
-    @GET
-    @Path(ResourcePath.ALL)
-    @Produces("application/json")
-    public Multi<Setting> all(@QueryParam("get-all") Boolean getAll) {
-        return getAll();
-    }
+public class SettingResource extends AbstractResource implements Resource<Long, Setting> {
 
     @GET
     @Path(ResourcePath.ID)
@@ -84,8 +74,22 @@ public class SettingResource extends AbstractResource implements Resources<Long,
         return badRequest(x);
     }
 
-    @Override
-    public AbstractService<Long, Setting> getService() {
-        return service;
+    @Path(ResourcePath.SETTINGS)
+    public static class SettingResources implements Resources<Long, Setting> {
+
+        @Inject
+        SettingService service;
+
+        @GET
+        @Path("/")
+        @Produces("application/json")
+        public Multi<Setting> all() {
+            return getAll();
+        }
+
+        @Override
+        public AbstractService<Long, Setting> getService() {
+            return service;
+        }
     }
 }

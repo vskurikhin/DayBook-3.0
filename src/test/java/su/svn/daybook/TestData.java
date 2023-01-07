@@ -17,24 +17,18 @@ import su.svn.daybook.domain.model.UserNameTable;
 import su.svn.daybook.models.domain.*;
 import su.svn.daybook.models.pagination.Page;
 
+import java.math.BigInteger;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
 
 public class TestData {
 
-    public static final String STRING_ZERO_UUID = "00000000-0000-0000-0000-000000000000";
-
     public static final String NO_SUCH_ELEMENT = "no such element";
 
-    public static final UUID ZERO_UUID = new UUID(0, 0);
-    public static final UUID RANDOM1_UUID = UUID.randomUUID();
-    public static final UUID RANDOM2_UUID = UUID.randomUUID();
     public static final Uni<Optional<Long>> UNI_OPTIONAL_EMPTY_LONG = Uni.createFrom().item(Optional.empty());
     public static final Uni<Optional<String>> UNI_OPTIONAL_EMPTY_STRING = Uni.createFrom().item(Optional.empty());
-    public static Uni<Answer> UNI_ANSWER_API_RESPONSE_ZERO_UUID = Uni.createFrom().item(Answer.of(new ApiResponse<>(ZERO_UUID)));
-    public static Uni<Optional<UUID>> UNI_OPTIONAL_ZERO_UUID = Uni.createFrom().item(Optional.of(ZERO_UUID));
-    public static Uni<Optional<UUID>> UNI_OPTIONAL_EMPTY_UUID = Uni.createFrom().item(Optional.empty());
+    public static Uni<Answer> UNI_ANSWER_API_RESPONSE_ZERO_UUID = Uni.createFrom().item(Answer.of(new ApiResponse<>(uuid.ZERO)));
     public static Answer ANSWER_ERROR_NoNumber = new Answer("For input string: \"noNumber\"", 404);
     public static Uni<Answer> UNI_ANSWER_EMPTY = Uni.createFrom().item(Answer.empty());
     public static Uni<Answer> UNI_ANSWER_NULL = Uni.createFrom().item(() -> null);
@@ -50,6 +44,17 @@ public class TestData {
 
     public static <T> Multi<T> createMultiWithNull(Class<T> t) {
         return Multi.createFrom().item(() -> null);
+    }
+
+    public static class uuid {
+        public static final String STRING_ZERO = "00000000-0000-0000-0000-000000000000";
+        public static final UUID ZERO = new UUID(0, 0);
+        public static final UUID ONE = new UUID(0, 1);
+        public static final UUID RANDOM1 = UUID.randomUUID();
+        public static final UUID RANDOM2 = UUID.randomUUID();
+        public static Uni<Answer> UNI_ANSWER_API_RESPONSE_ZERO = Uni.createFrom().item(Answer.of(new ApiResponse<>(uuid.ZERO, 200)));
+        public static Uni<Optional<UUID>> UNI_OPTIONAL_EMPTY = Uni.createFrom().item(Optional.empty());
+        public static Uni<Optional<UUID>> UNI_OPTIONAL_ZERO = Uni.createFrom().item(Optional.of(ZERO));
     }
 
     public static class CODIFIER {
@@ -104,10 +109,10 @@ public class TestData {
 
     public static class KEY_VALUE {
         public static final KeyValue MODEL_0 = new KeyValue(
-                0L, KeyValueTable.NONE, null, true, 0
+                uuid.ZERO, BigInteger.ZERO, null, true, 0
         );
         public static final KeyValueTable TABLE_0 = new KeyValueTable(
-                0L, KeyValueTable.NONE, null, null, null, null, true, true, 0
+                uuid.ZERO, BigInteger.ZERO, null, null, null, null, true, true, 0
         );
         public static final Uni<Page<Answer>> UNI_PAGE_ANSWER_SINGLETON_TEST = Uni.createFrom()
                 .item(
@@ -116,12 +121,13 @@ public class TestData {
                                 .build()
                 );
         public static final String JSON_0 = """
-                {"id":0,"key":"\
-                """ + KeyValueTable.NONE +"""
-                ","visible":true,"flags":0}\
+                {"id":"\
+                """ + uuid.ZERO +"""
+                ","key":0,"visible":true,"flags":0}\
                 """;
         public static final String JSON_ARRAY_SINGLETON_0 = "[" + JSON_0 + "]";
-        public static final String JSON_ID_0 = "{\"id\":0}";
+        public static final String JSON_ID_0 = "{\"id\":\"" + uuid.ZERO + "\"}";
+        public static final String JSON_ID_0_200 = "{\"id\":\"00000000-0000-0000-0000-000000000000\",\"error\":200}";
         public static final String JSON_PAGE_ARRAY_0 = """
                         {"pageNumber":0,"totalElements":0,"nextPage":false,"prevPage":false,"content":\
                         """ + JSON_ARRAY_SINGLETON_0 +"""
@@ -154,10 +160,10 @@ public class TestData {
 
     public static class ROLE {
         public static final Role MODEL_0 = new Role(
-                ZERO_UUID, Role.NONE, null, true, 0
+                uuid.ZERO, Role.NONE, null, true, 0
         );
         public static final RoleTable TABLE_0 = new RoleTable(
-                ZERO_UUID, Role.NONE, null, null, null, null, true, true, 0
+                uuid.ZERO, Role.NONE, null, null, null, null, true, true, 0
         );
         public static final Uni<Page<Answer>> UNI_PAGE_ANSWER_SINGLETON_TEST = Uni.createFrom()
                 .item(
@@ -238,7 +244,7 @@ public class TestData {
         public static class NAME {
 
             public static final UserName MODEL_0 = new UserName(
-                    ZERO_UUID, "root", "password", true, 0
+                    uuid.ZERO, "root", "password", true, 0
             );
             public static final Uni<Page<Answer>> UNI_PAGE_ANSWER_SINGLETON_TEST = Uni.createFrom()
                     .item(
@@ -247,16 +253,16 @@ public class TestData {
                                     .build()
                     );
             public static final UserNameTable TABLE_0 = new UserNameTable(
-                    ZERO_UUID, "root", "password", null, null, true, true, 0
+                    uuid.ZERO, "root", "password", null, null, true, true, 0
             );
         }
         public static class VIEW {
             public static final UserView TABLE_0 = new UserView(
-                    ZERO_UUID, "guest", "password", Collections.emptySet(), null, null, true, true, 0
+                    uuid.ZERO, "guest", "password", Collections.emptySet(), null, null, true, true, 0
             );
         }
         public static final su.svn.daybook.models.domain.User MODEL_0 = new su.svn.daybook.models.domain.User(
-                ZERO_UUID, "guest", null, Collections.emptySet(), true, 0
+                uuid.ZERO, "guest", null, Collections.emptySet(), true, 0
         );
         public static final Uni<Page<Answer>> UNI_PAGE_ANSWER_SINGLETON_TEST = Uni.createFrom()
                 .item(

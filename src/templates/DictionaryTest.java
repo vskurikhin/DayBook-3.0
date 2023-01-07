@@ -5,15 +5,13 @@ import nl.jqno.equalsverifier.Warning;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import static su.svn.daybook.models.domain.@Name@.NONE;
-
 class @Name@Test {
 
     @Test
     void testConstructors() {
         Assertions.assertDoesNotThrow(() -> new @Name@());
         Assertions.assertDoesNotThrow(() -> new @Name@(
-                null, NONE, null, true, 0
+                null, @KType@.ZERO, null, true, 0
         ));
     }
 
@@ -47,7 +45,7 @@ class @Name@Test {
     void testBuilder() {
         Assertions.assertDoesNotThrow(() -> Assertions.assertNotNull(@Name@.builder()
                 .id(null)
-                .@key@(NONE)
+                .@key@(@KType@.ZERO)
                 .@value@(null)
                 .visible(true)
                 .flags(0)

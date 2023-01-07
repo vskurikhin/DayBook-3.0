@@ -13,7 +13,7 @@ import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.messages.ApiResponse;
 import su.svn.daybook.domain.model.CodifierTable;
 import su.svn.daybook.models.pagination.PageRequest;
-import su.svn.daybook.services.domain.CodifierService;
+import su.svn.daybook.services.models.CodifierService;
 
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
@@ -88,7 +88,7 @@ class CodifierResourceTest {
     void testEndpointGetAll() {
         given()
                 .when()
-                .get("/code/_?get-all")
+                .get("/codes")
                 .then()
                 .statusCode(200)
                 .body(CoreMatchers.startsWith(TestData.CODIFIER.JSON_ARRAY_SINGLETON_0));

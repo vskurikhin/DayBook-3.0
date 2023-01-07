@@ -13,19 +13,16 @@ import io.quarkus.cache.CacheManager;
 import io.quarkus.cache.CacheResult;
 import io.smallrye.mutiny.Uni;
 import org.jboss.logging.Logger;
-import su.svn.daybook.domain.dao.UserViewDao;
 import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.messages.Answer;
-import su.svn.daybook.domain.model.UserView;
 import su.svn.daybook.models.domain.User;
 import su.svn.daybook.models.pagination.Page;
 import su.svn.daybook.models.pagination.PageRequest;
 import su.svn.daybook.services.PageService;
-import su.svn.daybook.services.mappers.UserMapper;
+import su.svn.daybook.services.domain.UserDataService;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import java.util.Optional;
 import java.util.UUID;
 
 @ApplicationScoped
@@ -40,10 +37,7 @@ public class UserCacheProvider extends AbstractCacheProvider<UUID> {
     PageService pageService;
 
     @Inject
-    UserViewDao userViewDao;
-
-    @Inject
-    UserMapper userMapper;
+    UserDataService userDataService;
 
     public UserCacheProvider() {
         super(EventAddress.USER_GET, EventAddress.USER_PAGE, LOG);
@@ -52,16 +46,13 @@ public class UserCacheProvider extends AbstractCacheProvider<UUID> {
     @CacheResult(cacheName = EventAddress.USER_GET)
     public Uni<User> get(@CacheKey UUID id) {
         LOG.tracef("get(%s)", id);
-        return userViewDao
-                .findById(id)
-                .map(Optional::get)
-                .map(userMapper::convertToModel);
+        return userDataService.get(id);
     }
 
     @CacheResult(cacheName = EventAddress.USER_PAGE)
     public Uni<Page<Answer>> getPage(@CacheKey PageRequest pageRequest) {
         LOG.tracef("getPage(%s)", pageRequest);
-        return pageService.getPage(pageRequest, userViewDao::count, userViewDao::findRange, this::answerOfModel);
+        return pageService.getPage(pageRequest, userDataService::count, userDataService::findRange, Answer::of);
     }
 
     @Override
@@ -77,9 +68,5 @@ public class UserCacheProvider extends AbstractCacheProvider<UUID> {
     @Override
     protected CacheManager getCacheManager() {
         return cacheManager;
-    }
-
-    private Answer answerOfModel(UserView table) {
-        return Answer.of(userMapper.convertToModel(table));
     }
 }

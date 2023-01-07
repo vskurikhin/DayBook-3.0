@@ -325,7 +325,7 @@ public final class I18nTable implements LongIdentification, Marked, Owned, TimeU
 
     @Override
     public String toString() {
-        return "I18n{" +
+        return "I18nTable{" +
                 "id=" + id +
                 ", languageId='" + languageId + '\'' +
                 ", message='" + message + '\'' +

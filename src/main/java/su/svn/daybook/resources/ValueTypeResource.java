@@ -16,8 +16,8 @@ import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.enums.ResourcePath;
 import su.svn.daybook.models.domain.ValueType;
 import su.svn.daybook.models.pagination.PageRequest;
-import su.svn.daybook.services.domain.AbstractService;
-import su.svn.daybook.services.domain.ValueTypeService;
+import su.svn.daybook.services.models.AbstractService;
+import su.svn.daybook.services.models.ValueTypeService;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -33,17 +33,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 @Path(ResourcePath.VALUE_TYPE)
-public class ValueTypeResource extends AbstractResource implements Resources<Long, ValueType> {
-
-    @Inject
-    ValueTypeService service;
-
-    @GET
-    @Path(ResourcePath.ALL)
-    @Produces("application/json")
-    public Multi<ValueType> all(@QueryParam("get-all") Boolean getAll) {
-        return getAll();
-    }
+public class ValueTypeResource extends AbstractResource implements Resource<Long, ValueType> {
 
     @GET
     @Path(ResourcePath.ID)
@@ -84,8 +74,22 @@ public class ValueTypeResource extends AbstractResource implements Resources<Lon
         return badRequest(x);
     }
 
-    @Override
-    public AbstractService<Long, ValueType> getService() {
-        return service;
+    @Path(ResourcePath.VALUE_TYPES)
+    public static class I18nResources implements Resources<Long, ValueType> {
+
+        @Inject
+        ValueTypeService service;
+
+        @GET
+        @Path("/")
+        @Produces("application/json")
+        public Multi<ValueType> all() {
+            return getAll();
+        }
+
+        @Override
+        public AbstractService<Long, ValueType> getService() {
+            return service;
+        }
     }
 }

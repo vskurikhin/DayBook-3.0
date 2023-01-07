@@ -14,6 +14,7 @@ import su.svn.daybook.domain.model.@Name@Table;
 import su.svn.daybook.models.domain.@Name@;
 
 import javax.enterprise.context.ApplicationScoped;
+import java.util.UUID;
 
 @ApplicationScoped
 public class @Name@Mapper extends AbstractMapper<@IdType@, @Name@, @Name@Table> {

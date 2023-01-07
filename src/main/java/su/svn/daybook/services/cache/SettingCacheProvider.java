@@ -13,19 +13,16 @@ import io.quarkus.cache.CacheManager;
 import io.quarkus.cache.CacheResult;
 import io.smallrye.mutiny.Uni;
 import org.jboss.logging.Logger;
-import su.svn.daybook.domain.dao.SettingDao;
 import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.messages.Answer;
-import su.svn.daybook.domain.model.SettingTable;
 import su.svn.daybook.models.domain.Setting;
 import su.svn.daybook.models.pagination.Page;
 import su.svn.daybook.models.pagination.PageRequest;
 import su.svn.daybook.services.PageService;
-import su.svn.daybook.services.mappers.SettingMapper;
+import su.svn.daybook.services.domain.SettingDataService;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import java.util.Optional;
 
 @ApplicationScoped
 public class SettingCacheProvider extends AbstractCacheProvider<Long> {
@@ -39,10 +36,7 @@ public class SettingCacheProvider extends AbstractCacheProvider<Long> {
     PageService pageService;
 
     @Inject
-    SettingDao settingDao;
-
-    @Inject
-    SettingMapper settingMapper;
+    SettingDataService settingDataService;
 
     public SettingCacheProvider() {
         super(EventAddress.SETTING_GET, EventAddress.SETTING_PAGE, LOG);
@@ -51,16 +45,13 @@ public class SettingCacheProvider extends AbstractCacheProvider<Long> {
     @CacheResult(cacheName = EventAddress.SETTING_GET)
     public Uni<Setting> get(@CacheKey Long id) {
         LOG.tracef("get(%s)", id);
-        return settingDao
-                .findById(id)
-                .map(Optional::get)
-                .map(settingMapper::convertToModel);
+        return settingDataService.get(id);
     }
 
     @CacheResult(cacheName = EventAddress.SETTING_PAGE)
     public Uni<Page<Answer>> getPage(@CacheKey PageRequest pageRequest) {
         LOG.tracef("getPage(%s)", pageRequest);
-        return pageService.getPage(pageRequest, settingDao::count, settingDao::findRange, this::answerOfModel);
+        return pageService.getPage(pageRequest, settingDataService::count, settingDataService::findRange, Answer::of);
     }
 
     @Override
@@ -76,9 +67,5 @@ public class SettingCacheProvider extends AbstractCacheProvider<Long> {
     @Override
     protected CacheManager getCacheManager() {
         return cacheManager;
-    }
-
-    private Answer answerOfModel(SettingTable table) {
-        return Answer.of(settingMapper.convertToModel(table));
     }
 }

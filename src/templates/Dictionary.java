@@ -17,6 +17,7 @@ import javax.annotation.Nonnull;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
+import java.util.UUID;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public final class @Name@ implements @IdType@Identification, Serializable {
@@ -44,7 +45,7 @@ public final class @Name@ implements @IdType@Identification, Serializable {
 
     public @Name@() {
         this.id = null;
-        this.@key@ = NONE;
+        this.@key@ = @KType@.ZERO;
         this.@value@ = null;
         this.visible = true;
         this.flags = 0;

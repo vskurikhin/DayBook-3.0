@@ -6,7 +6,7 @@
  * $Id$
  */
 
-package su.svn.daybook.services.domain;
+package su.svn.daybook.services.models;
 
 import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
@@ -50,7 +50,7 @@ class @Name@ServiceTest {
     @BeforeEach
     void setUp() {
         mock = Mockito.mock(@Name@Dao.class);
-        Mockito.when(mock.findById(0L)).thenReturn(UNI_OPTIONAL_TEST);
+        Mockito.when(mock.findById(TestData.uuid.ZERO)).thenReturn(UNI_OPTIONAL_TEST);
         QuarkusMock.installMockForType(mock, @Name@Dao.class);
     }
 
@@ -179,7 +179,7 @@ class @Name@ServiceTest {
 
     @Test
     void testWhenGetThenEntry() {
-        Assertions.assertDoesNotThrow(() -> service.get(0L)
+        Assertions.assertDoesNotThrow(() -> service.get(TestData.uuid.ZERO)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(Answer.of(TestData.@TABLE@.MODEL_0), actual))
                 .await()
@@ -187,21 +187,13 @@ class @Name@ServiceTest {
     }
 
     @Test
-    void testWhenGetThenNoNumber() {
-        Assertions.assertDoesNotThrow(() -> service.get("noNumber")
-                .onItem()
-                .invoke(actual -> Assertions.assertEquals(Answer.noNumber("For input string: \"noNumber\""), actual))
-                .await()
-                .indefinitely());
-    }
-
-    @Test
     void testWhenAddThenId() {
         var expected = Answer.builder()
+                .message(Answer.DEFAULT_MESSAGE)
                 .error(201)
-                .payload(new ApiResponse<>(0L))
+                .payload(new ApiResponse<>(TestData.uuid.ZERO, 201))
                 .build();
-        Mockito.when(mock.insert(TestData.@TABLE@.TABLE_0)).thenReturn(TestData.UNI_OPTIONAL_ZERO_LONG);
+        Mockito.when(mock.insert(TestData.@TABLE@.TABLE_0)).thenReturn(TestData.uuid.UNI_OPTIONAL_ZERO);
         Assertions.assertDoesNotThrow(() -> service.add(TestData.@TABLE@.MODEL_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
@@ -211,10 +203,15 @@ class @Name@ServiceTest {
 
     @Test
     void testWhenAddThenEmpty() {
-        Mockito.when(mock.insert(TestData.@TABLE@.TABLE_0)).thenReturn(TestData.UNI_OPTIONAL_EMPTY_LONG);
+        var expected = Answer.builder()
+                .message("bad request")
+                .error(400)
+                .payload("No @value@ present for entry: " + TestData.@TABLE@.TABLE_0)
+                .build();
+        Mockito.when(mock.insert(TestData.@TABLE@.TABLE_0)).thenReturn(TestData.uuid.UNI_OPTIONAL_EMPTY);
         Assertions.assertDoesNotThrow(() -> service.add(TestData.@TABLE@.MODEL_0)
                 .onItem()
-                .invoke(actual -> Assertions.assertEquals(Answer.empty(), actual))
+                .invoke(actual -> Assertions.assertEquals(expected, actual))
                 .await()
                 .indefinitely());
     }
@@ -222,10 +219,11 @@ class @Name@ServiceTest {
     @Test
     void testWhenPutThenId() {
         var expected = Answer.builder()
+                .message(Answer.DEFAULT_MESSAGE)
                 .error(202)
-                .payload(new ApiResponse<>(0L))
+                .payload(new ApiResponse<>(TestData.uuid.ZERO, 202))
                 .build();
-        Mockito.when(mock.update(TestData.@TABLE@.TABLE_0)).thenReturn(TestData.UNI_OPTIONAL_ZERO_LONG);
+        Mockito.when(mock.update(TestData.@TABLE@.TABLE_0)).thenReturn(TestData.uuid.UNI_OPTIONAL_ZERO);
         Assertions.assertDoesNotThrow(() -> service.put(TestData.@TABLE@.MODEL_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
@@ -235,7 +233,7 @@ class @Name@ServiceTest {
 
     @Test
     void testWhenPutThenEmpty() {
-        Mockito.when(mock.update(TestData.@TABLE@.TABLE_0)).thenReturn(TestData.UNI_OPTIONAL_ZERO_LONG);
+        Mockito.when(mock.update(TestData.@TABLE@.TABLE_0)).thenReturn(TestData.uuid.UNI_OPTIONAL_ZERO);
         Assertions.assertThrows(RuntimeException.class, () -> service.put(TestData.@TABLE@.MODEL_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(Answer.empty(), actual))
@@ -245,9 +243,9 @@ class @Name@ServiceTest {
 
     @Test
     void testWhenDeleteThenId() {
-        Mockito.when(mock.delete(0L)).thenReturn(TestData.UNI_OPTIONAL_ZERO_LONG);
-        var expected = Answer.of(new ApiResponse<>(0L));
-        Assertions.assertDoesNotThrow(() -> service.delete(0L)
+        Mockito.when(mock.delete(TestData.uuid.ZERO)).thenReturn(TestData.uuid.UNI_OPTIONAL_ZERO);
+        var expected = Answer.of(new ApiResponse<>(TestData.uuid.ZERO, 200));
+        Assertions.assertDoesNotThrow(() -> service.delete(TestData.uuid.ZERO)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
                 .await()
@@ -255,19 +253,15 @@ class @Name@ServiceTest {
     }
 
     @Test
-    void testWhenDeleteThenNoNumber() {
-        Assertions.assertDoesNotThrow(() -> service.delete("noNumber")
-                .onItem()
-                .invoke(actual -> Assertions.assertEquals(Answer.noNumber("For input string: \"noNumber\""), actual))
-                .await()
-                .indefinitely());
-    }
-
-    @Test
     void testWhenDeleteThenNullParameter() {
+        var expected = Answer.builder()
+                .message(Answer.NO_SUCH_ELEMENT)
+                .error(404)
+                .payload("No @value@ present for id: null")
+                .build();
         Assertions.assertDoesNotThrow(() -> service.delete(null)
                 .onItem()
-                .invoke(actual -> Assertions.assertEquals(Answer.empty(), actual))
+                .invoke(actual -> Assertions.assertEquals(expected, actual))
                 .await()
                 .indefinitely());
     }

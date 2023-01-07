@@ -303,7 +303,7 @@ public final class TagLabelTable implements StringIdentification, Marked, Owned,
 
     @Override
     public String toString() {
-        return "TagLabel{" +
+        return "TagLabelTable{" +
                 "id=" + id +
                 ", label='" + label + '\'' +
                 ", userName='" + userName + '\'' +
