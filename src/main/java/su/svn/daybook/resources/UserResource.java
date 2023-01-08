@@ -19,6 +19,7 @@ import su.svn.daybook.models.pagination.PageRequest;
 import su.svn.daybook.services.models.AbstractService;
 import su.svn.daybook.services.models.UserService;
 
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -51,6 +52,7 @@ public class UserResource extends AbstractResource implements Resource<UUID, Use
     }
 
     @POST
+    @RolesAllowed("ADMIN")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Uni<Response> post(User entry, @Context UriInfo uriInfo) {
@@ -58,6 +60,7 @@ public class UserResource extends AbstractResource implements Resource<UUID, Use
     }
 
     @PUT
+    @RolesAllowed({"ADMIN", "USER"})
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Uni<Response> put(User entry, @Context UriInfo uriInfo) {

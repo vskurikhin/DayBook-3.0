@@ -13,6 +13,9 @@ import io.smallrye.jwt.build.JwtClaimsBuilder;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import javax.enterprise.context.ApplicationScoped;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -39,6 +42,13 @@ public class TokenService {
         claimsBuilder.groups(groups);
 
         return claimsBuilder.jws().sign();
+    }
+
+    public LocalDateTime validTime() {
+        return LocalDateTime.ofInstant(
+                Instant.ofEpochMilli(System.currentTimeMillis() + 1000 * duration),
+                ZoneId.systemDefault()
+        );
     }
 
     public static int currentTimeInSecs() {

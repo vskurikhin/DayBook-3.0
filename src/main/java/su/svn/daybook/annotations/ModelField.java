@@ -12,6 +12,8 @@ public @interface ModelField {
 
     boolean nullable() default true;
 
+    boolean onlyBuildPart() default false;
+
     String buildPartPrefix() default "";
 
     String getterPrefix() default "get";

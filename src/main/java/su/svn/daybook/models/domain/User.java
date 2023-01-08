@@ -34,9 +34,8 @@ public final class User implements UUIDIdentification, Serializable {
     private final UUID id;
     @DomainField(nullable = false)
     private final String userName;
-    @DomainField(nullable = false)
+    @DomainField(getterOnly = true)
     private transient final String password;
-    // TODO converter @DomainField
     @DomainField
     private final Set<String> roles;
     @DomainField

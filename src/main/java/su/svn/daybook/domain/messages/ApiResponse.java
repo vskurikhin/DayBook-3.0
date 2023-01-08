@@ -28,6 +28,7 @@ public final class ApiResponse<I extends Comparable<? extends Serializable>> {
 
     private final Object payload;
 
+    @JsonIgnore
     private transient final Class<?> payloadClass;
 
     @JsonIgnore
@@ -52,6 +53,10 @@ public final class ApiResponse<I extends Comparable<? extends Serializable>> {
         this(id, null, null, payload);
     }
 
+    public ApiResponse(I id, int error, Object payload) {
+        this(id, null, error, payload);
+    }
+
     private ApiResponse(I id, String message, Integer error, Object payload) {
         this.id = id;
         this.message = message;
@@ -64,6 +69,14 @@ public final class ApiResponse<I extends Comparable<? extends Serializable>> {
         }
         this.payload = payload;
         this.payloadClass = payload != null ? payload.getClass() : null;
+    }
+
+    public static ApiResponse<String> auth(int error) {
+        return new ApiResponse<>(null, null, error, null);
+    }
+
+    public static ApiResponse<String> auth(Object payload) {
+        return new ApiResponse<>(null, null, 202, payload);
     }
 
     public static ApiResponse<String> message(String message) {

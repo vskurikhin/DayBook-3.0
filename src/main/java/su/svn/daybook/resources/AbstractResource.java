@@ -81,7 +81,12 @@ abstract class AbstractResource {
     }
 
     protected RestResponse<String> badRequest(Throwable x) {
-        return RestResponse.status(Response.Status.BAD_REQUEST, errorJson(x));
+        LOG.errorf("badRequest: %s", x.getClass().getSimpleName());
+        return switch (x.getClass().getSimpleName()) {
+            case "AuthenticationFailedException", "ForbiddenException", "ParseException"
+                    -> RestResponse.status(Response.Status.FORBIDDEN, errorJson(x));
+            default -> RestResponse.status(Response.Status.BAD_REQUEST, errorJson(x));
+        };
     }
 
     private String errorJson(Throwable x) {
@@ -96,6 +101,7 @@ abstract class AbstractResource {
             case 200 -> Response.ok(answer.getPayload()).location(createUri(uriInfo, answer.getPayload()));
             case 201 -> Response.created(createUri(uriInfo, answer.getPayload())).entity(answer.getPayload());
             case 202 -> Response.accepted(answer.getPayload()).location(createUri(uriInfo, answer.getPayload()));
+            case 401 -> Response.status(Response.Status.UNAUTHORIZED).entity(answer);
             case 404 -> Response.status(Response.Status.NOT_FOUND).entity(answer);
             case 406 -> Response.status(Response.Status.NOT_ACCEPTABLE).entity(answer);
             default -> Response.status(Response.Status.BAD_REQUEST).entity(answer);
@@ -108,12 +114,12 @@ abstract class AbstractResource {
         LOG.tracef("path: %s, count: %d, m.group(1): %s", path, matcher.groupCount(), matcher.group(1));
         if (payload instanceof ApiResponse<?> api) {
             var builder = uriInfo.getRequestUriBuilder();
-            return builder.replacePath(path+ "/" + api.getId().toString())
+            return builder.replacePath(path+ "/" + String.valueOf(api.getId()))
                     .buildFromMap(Collections.emptyMap());
         }
         if (payload instanceof Identification<?> entry) {
             var builder = uriInfo.getRequestUriBuilder();
-            return builder.replacePath(path + "/" + entry.getId().toString())
+            return builder.replacePath(path + "/" + String.valueOf(entry.getId()))
                     .buildFromMap(Collections.emptyMap());
         }
         return uriInfo.getRequestUri();
