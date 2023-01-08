@@ -13,6 +13,7 @@ import org.apache.tools.ant.filters.ReplaceTokens
 //file:noinspection GradlePackageUpdate
 
 plugins {
+    id 'application'
     id 'io.quarkus'
     id 'java'
     id 'org.liquibase.gradle' version '2.0.4'
@@ -21,6 +22,10 @@ plugins {
 repositories {
     mavenCentral()
     mavenLocal()
+}
+
+application {
+    mainClassName = project.hasProperty("mainClass") ? project.getProperty("mainClass") : "NULL"
 }
 
 ext.libVers = [
@@ -44,6 +49,8 @@ dependencies {
     implementation "io.quarkus:quarkus-reactive-pg-client"
     implementation "io.quarkus:quarkus-resteasy-reactive"
     implementation "io.quarkus:quarkus-resteasy-reactive-jackson"
+    implementation "io.quarkus:quarkus-smallrye-jwt"
+    implementation "io.quarkus:quarkus-smallrye-jwt-build"
     implementation "io.quarkus:quarkus-smallrye-openapi"
     implementation "io.quarkus:quarkus-vertx"
     implementation "io.quarkus:quarkus-websockets"
@@ -124,6 +131,23 @@ test {
     systemProperty "java.util.logging.manager", "org.jboss.logmanager.LogManager"
     testLogging.showStandardStreams = false
 }
+
+task startOpenSSLGenRsa(type: Exec) {
+    workingDir = "src/main/resources"
+    executable "openssl"
+    args "genrsa",  "-out", "rsaPrivateKey.pem", "2048"
+}
+task startOpenSSLPubKey(type: Exec) {
+    workingDir = "src/main/resources"
+    executable "openssl"
+    args "rsa", "-pubout", "-in", "rsaPrivateKey.pem", "-out", "publicKey.pem"
+}
+task startOpenSSLPrivKey(type: Exec) {
+    workingDir = "src/main/resources"
+    executable "openssl"
+    args "pkcs8", "-topk8", "-nocrypt", "-inform", "pem", "-in", "rsaPrivateKey.pem", "-outform", "pem", "-out", "privateKey.pem"
+}
+tasks.processResources.dependsOn("startOpenSSLGenRsa", "startOpenSSLPubKey", "startOpenSSLPrivKey")
 
 static def getEnv(key, defaultValue) {
     return System.getenv(key) ?: defaultValue

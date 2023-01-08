@@ -32,6 +32,7 @@ class ApiResponseTest {
     void testGetters(){
         var entry = new ApiResponse<>(TestData.uuid.ZERO);
         Assertions.assertDoesNotThrow(entry::getId);
+        Assertions.assertDoesNotThrow(entry::getCode);
         Assertions.assertDoesNotThrow(entry::getError);
         Assertions.assertDoesNotThrow(entry::getMessage);
         Assertions.assertDoesNotThrow(entry::getPayload);
@@ -58,6 +59,7 @@ class ApiResponseTest {
     void testBuilder() {
         Assertions.assertDoesNotThrow(() -> Assertions.assertNotNull(ApiResponse.builder()
                 .id(TestData.uuid.ZERO)
+                .code(0)
                 .error(0)
                 .message(null)
                 .payload(new Object())

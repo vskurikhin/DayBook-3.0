@@ -43,14 +43,14 @@ class InvokerBuildPartMethod
                     }
                 } else {
                     var format = "invokeBuilderFor(%s, %s): for field: %s buildPartMethod is null";
-                    log.warnf(format, entry, essence, fieldName);
+                    log.tracef(format, entry, essence, fieldName);
                 }
             } else {
                 var format = "invokeBuilderFor(%s, %s): for field: %s fieldGetter is null";
-                log.warnf(format, entry, essence, fieldName);
+                log.tracef(format, entry, essence, fieldName);
             }
         } else {
-            log.warnf("invokeBuilderFor(%s, %s): buildPart is null", entry, essence);
+            log.tracef("invokeBuilderFor(%s, %s): buildPart is null", entry, essence);
         }
     }
 }

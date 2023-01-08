@@ -1,3 +1,11 @@
+/*
+ * This file was last modified at 2023.01.08 12:58 by Victor N. Skurikhin.
+ * This is free and unencumbered software released into the public domain.
+ * For more information, please refer to <http://unlicense.org>
+ * PageRequest.java
+ * $Id$
+ */
+
 package su.svn.daybook.models.pagination;
 
 import java.io.Serial;

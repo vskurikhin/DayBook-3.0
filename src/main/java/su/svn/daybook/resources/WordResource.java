@@ -29,6 +29,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
@@ -37,34 +38,34 @@ public class WordResource extends AbstractResource {
 
     @GET
     @Path(ResourcePath.ID)
-    @Produces("application/json")
+    @Produces(MediaType.APPLICATION_JSON)
     public Uni<Response> get(String id, @Context UriInfo uriInfo) {
         return request(EventAddress.WORD_GET, id, uriInfo);
     }
 
     @GET
-    @Produces("application/json")
+    @Produces(MediaType.APPLICATION_JSON)
     public Uni<Response> page(@QueryParam("page") Long page, @QueryParam("limit") Short limit) {
         return requestPage(EventAddress.WORD_PAGE, new PageRequest(page, limit));
     }
 
     @POST
-    @Consumes("application/json")
-    @Produces("application/json")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     public Uni<Response> post(Word entry, @Context UriInfo uriInfo) {
         return request(EventAddress.WORD_ADD, entry, uriInfo);
     }
 
     @PUT
-    @Consumes("application/json")
-    @Produces("application/json")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     public Uni<Response> put(Word entry, @Context UriInfo uriInfo) {
         return request(EventAddress.WORD_PUT, entry, uriInfo);
     }
 
     @DELETE
     @Path(ResourcePath.ID)
-    @Produces("application/json")
+    @Produces(MediaType.APPLICATION_JSON)
     public Uni<Response> delete(String id, @Context UriInfo uriInfo) {
         return request(EventAddress.WORD_DEL, id, uriInfo);
     }
@@ -80,8 +81,8 @@ public class WordResource extends AbstractResource {
         WordService service;
 
         @GET
-        @Path("/")
-        @Produces("application/json")
+        @Path(ResourcePath.ALL)
+        @Produces(MediaType.APPLICATION_JSON)
         public Multi<Word> all() {
             return getAll();
         }

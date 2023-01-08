@@ -59,9 +59,9 @@ public abstract class AbstractGetters<P extends Identification<? extends Compara
                 .collect(Collectors.toMap(Method::getName, Function.identity()));
         final Map<String, FieldGetter> result = new HashMap<>();
         for (var field : fields.entrySet()) {
-            var domainColumnGetterFactory = new FieldGetterFactory(field, methods, field.getValue().getterPrefix());
-            if (domainColumnGetterFactory.isMethodExists()) {
-                result.put(field.getKey(), domainColumnGetterFactory.create());
+            var fieldGetterFactory = new FieldGetterFactory(field, methods, field.getValue().getterPrefix());
+            if (fieldGetterFactory.isMethodExists()) {
+                result.put(field.getKey(), fieldGetterFactory.create());
             } else {
                 var getterFactory = new FieldGetterFactory(field, methods, AccessorsUtil.GETTER_PREFIX_GET);
                 if (getterFactory.isMethodExists()) {
@@ -89,7 +89,6 @@ public abstract class AbstractGetters<P extends Identification<? extends Compara
                 .stream()
                 .filter(Objects::nonNull)
                 .filter(entry -> AccessorsUtil.isMethodNameEndsWithFieldName(methodName, entry.getKey()))
-                .filter(f -> !"".equals(f.getValue().getterPrefix()))
                 .filter(f -> !"prefix".equals(f.getValue().getterPrefix()))
                 .map(entry -> entry.getValue().getterPrefix())
                 .collect(Collectors.toSet());

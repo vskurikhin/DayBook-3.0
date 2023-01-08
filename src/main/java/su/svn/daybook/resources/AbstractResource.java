@@ -30,18 +30,14 @@ abstract class AbstractResource {
 
     protected Uni<Response> request(String address, Object o, UriInfo uriInfo) {
         return bus.<Answer>request(address, o)
-                .onItem()
-                .transform(msg -> createResponseBuilder(uriInfo, msg))
-                .onItem()
-                .transform(Response.ResponseBuilder::build);
+                .map(msg -> createResponseBuilder(uriInfo, msg))
+                .map(Response.ResponseBuilder::build);
     }
 
     protected Uni<Response> requestPage(String address, Object o) {
         return bus.<Page<Answer>>request(address, o)
-                .onItem()
-                .transform(this::createPageResponseBuilder)
-                .onItem()
-                .transform(Response.ResponseBuilder::build);
+                .map(this::createPageResponseBuilder)
+                .map(Response.ResponseBuilder::build);
     }
 
     protected Response.ResponseBuilder createResponseBuilder(UriInfo uriInfo, Message<Answer> message) {

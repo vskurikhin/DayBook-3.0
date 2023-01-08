@@ -41,30 +41,6 @@ public abstract class AbstractService<K extends Comparable<? extends Serializabl
         throw new IndexOutOfBoundsException("content too long");
     }
 
-    protected Answer apiResponseAnswer(Optional<K> o) {
-        LOG.tracef("apiResponseWithKeyAnswer(%s)", o);
-        return o.isEmpty() ? Answer.empty() : Answer.of(new ApiResponse<>(o.get()));
-    }
-
-    protected Answer apiResponseAnswer(int code, Optional<K> o) {
-        LOG.tracef("apiResponseWithKeyAnswer(%d, %s)", code, o);
-        return o.isEmpty()
-                ? Answer.empty()
-                : Answer.builder()
-                .error(code)
-                .payload(new ApiResponse<>(o.get()))
-                .build();
-    }
-
-    protected Uni<Answer> apiResponseAcceptedUniAnswer(Optional<K> o) {
-        LOG.tracef("apiResponseAcceptedUniAnswer(%s)", o);
-        if (o.isEmpty()) {
-            throw new NoSuchElementException();
-        }
-        return Uni.createFrom().item(apiResponseAnswer(202, o));
-    }
-
-
     protected Answer apiResponseOkAnswer(K id) {
         return Answer.of(new ApiResponse<>(id, 200));
     }
@@ -75,51 +51,5 @@ public abstract class AbstractService<K extends Comparable<? extends Serializabl
 
     protected Answer apiResponseAcceptedAnswer(K id) {
         return Answer.from(new ApiResponse<>(id, 202), 202);
-    }
-
-
-    protected Uni<Answer> apiResponseOkUniAnswer(K id) {
-        return Uni
-                .createFrom()
-                .item(Answer.of(new ApiResponse<>(200, id)));
-    }
-
-    protected Uni<Answer> apiResponseCreatedUniAnswer(K id) {
-        return Uni
-                .createFrom()
-                .item(Answer.of(new ApiResponse<>(201, id)));
-    }
-
-    protected Uni<Answer> apiResponseAcceptedUniAnswer(K id) {
-        return Uni
-                .createFrom()
-                .item(Answer.of(new ApiResponse<>(202, id)));
-    }
-
-    public long getIdLong(Object o) {
-        if (o instanceof Long id) {
-            return id;
-        }
-        if (o instanceof String s) {
-            return Long.parseLong(s);
-        }
-        throw new NoSuchElementException();
-    }
-
-    public String getIdString(Object o) {
-        if (o instanceof String s) {
-            return s;
-        }
-        throw new NoSuchElementException();
-    }
-
-    public UUID getIdUUID(Object o) {
-        if (o instanceof UUID id) {
-            return id;
-        }
-        if (o instanceof String s) {
-            return UUID.fromString(s);
-        }
-        throw new NoSuchElementException();
     }
 }

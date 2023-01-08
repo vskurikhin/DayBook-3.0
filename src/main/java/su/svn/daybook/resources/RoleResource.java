@@ -31,6 +31,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.util.UUID;
@@ -40,34 +41,34 @@ public class RoleResource extends AbstractResource implements Resource<UUID, Rol
 
     @GET
     @Path(ResourcePath.ID)
-    @Produces("application/json")
+    @Produces(MediaType.APPLICATION_JSON)
     public Uni<Response> get(UUID id, @Context UriInfo uriInfo) {
         return request(EventAddress.ROLE_GET, id, uriInfo);
     }
 
     @GET
-    @Produces("application/json")
+    @Produces(MediaType.APPLICATION_JSON)
     public Uni<Response> page(@QueryParam("page") Long page, @QueryParam("limit") Short limit) {
         return requestPage(EventAddress.ROLE_PAGE, new PageRequest(page, limit));
     }
 
     @POST
-    @Consumes("application/json")
-    @Produces("application/json")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     public Uni<Response> post(Role entry, @Context UriInfo uriInfo) {
         return request(EventAddress.ROLE_ADD, entry, uriInfo);
     }
 
     @PUT
-    @Consumes("application/json")
-    @Produces("application/json")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     public Uni<Response> put(Role entry, @Context UriInfo uriInfo) {
         return request(EventAddress.ROLE_PUT, entry, uriInfo);
     }
 
     @DELETE
     @Path(ResourcePath.ID)
-    @Produces("application/json")
+    @Produces(MediaType.APPLICATION_JSON)
     public Uni<Response> delete(UUID id, @Context UriInfo uriInfo) {
         return request(EventAddress.ROLE_DEL, id, uriInfo);
     }
@@ -84,8 +85,8 @@ public class RoleResource extends AbstractResource implements Resource<UUID, Rol
         RoleService service;
 
         @GET
-        @Path("/")
-        @Produces("application/json")
+        @Path(ResourcePath.ALL)
+        @Produces(MediaType.APPLICATION_JSON)
         public Multi<Role> all() {
             return getAll();
         }

@@ -40,6 +40,9 @@ class FieldGetterFactory {
     }
 
     private String constructMethodName(String fieldName, String getterPrefix) {
+        if (0 == getterPrefix.length()) {
+            return fieldName;
+        }
         return getterPrefix + fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
     }
 }

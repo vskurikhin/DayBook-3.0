@@ -29,6 +29,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.util.UUID;
@@ -38,34 +39,34 @@ public class UserResource extends AbstractResource implements Resource<UUID, Use
 
     @GET
     @Path(ResourcePath.ID)
-    @Produces("application/json")
+    @Produces(MediaType.APPLICATION_JSON)
     public Uni<Response> get(UUID id, @Context UriInfo uriInfo) {
         return request(EventAddress.USER_GET, id, uriInfo);
     }
 
     @GET
-    @Produces("application/json")
+    @Produces(MediaType.APPLICATION_JSON)
     public Uni<Response> page(@QueryParam("page") Long page, @QueryParam("limit") Short limit) {
         return requestPage(EventAddress.USER_PAGE, new PageRequest(page, limit));
     }
 
     @POST
-    @Consumes("application/json")
-    @Produces("application/json")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     public Uni<Response> post(User entry, @Context UriInfo uriInfo) {
         return request(EventAddress.USER_ADD, entry, uriInfo);
     }
 
     @PUT
-    @Consumes("application/json")
-    @Produces("application/json")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     public Uni<Response> put(User entry, @Context UriInfo uriInfo) {
         return request(EventAddress.USER_PUT, entry, uriInfo);
     }
 
     @DELETE
     @Path(ResourcePath.ID)
-    @Produces("application/json")
+    @Produces(MediaType.APPLICATION_JSON)
     public Uni<Response> delete(UUID id, @Context UriInfo uriInfo) {
         return request(EventAddress.USER_DEL, id, uriInfo);
     }
@@ -82,8 +83,8 @@ public class UserResource extends AbstractResource implements Resource<UUID, Use
         UserService service;
 
         @GET
-        @Path("/")
-        @Produces("application/json")
+        @Path(ResourcePath.ALL)
+        @Produces(MediaType.APPLICATION_JSON)
         public Multi<User> all() {
             return getAll();
         }

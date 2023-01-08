@@ -35,7 +35,6 @@ public class TestData {
     public static final Uni<Optional<Long>> UNI_OPTIONAL_EMPTY_LONG = Uni.createFrom().item(Optional.empty());
     public static final Uni<Optional<String>> UNI_OPTIONAL_EMPTY_STRING = Uni.createFrom().item(Optional.empty());
     public static Uni<Answer> UNI_ANSWER_API_RESPONSE_ZERO_UUID = Uni.createFrom().item(Answer.of(new ApiResponse<>(uuid.ZERO)));
-    public static Answer ANSWER_ERROR_NoNumber = new Answer("For input string: \"noNumber\"", 404);
     public static Uni<Answer> UNI_ANSWER_EMPTY = Uni.createFrom().item(Answer.empty());
     public static Uni<Answer> UNI_ANSWER_NULL = Uni.createFrom().item(() -> null);
     public static Uni<Answer> UNI_ANSWER_API_RESPONSE_ZERO_LONG = Uni.createFrom().item(Answer.of(new ApiResponse<>(0L)));
@@ -142,7 +141,7 @@ public class TestData {
                 """;
         public static final String JSON_ARRAY_SINGLETON_0 = "[" + JSON_0 + "]";
         public static final String JSON_ID_0 = "{\"id\":\"" + uuid.ZERO + "\"}";
-        public static final String JSON_ID_0_200 = "{\"id\":\"00000000-0000-0000-0000-000000000000\",\"error\":200}";
+        public static final String JSON_ID_0_200 = "{\"id\":\"00000000-0000-0000-0000-000000000000\",\"code\":200}";
         public static final String JSON_PAGE_ARRAY_0 = """
                         {"pageNumber":0,"totalElements":0,"nextPage":false,"prevPage":false,"content":\
                         """ + JSON_ARRAY_SINGLETON_0 +"""

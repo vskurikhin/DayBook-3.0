@@ -1,9 +1,9 @@
 #!/bin/sh
 
-E=4
+E=2
 D=3
 
-for C in 10
+for C in 10 22 50
 do
   T=$(($E % 11))
   echo "T="$T",C="$C
