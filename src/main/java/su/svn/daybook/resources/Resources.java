@@ -12,7 +12,7 @@ import io.smallrye.mutiny.Multi;
 import org.jboss.logging.Logger;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.models.Identification;
-import su.svn.daybook.services.domain.AbstractService;
+import su.svn.daybook.services.models.AbstractService;
 
 import java.io.Serializable;
 import java.util.Objects;

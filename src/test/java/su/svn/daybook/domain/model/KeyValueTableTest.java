@@ -5,7 +5,7 @@ import nl.jqno.equalsverifier.Warning;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import static su.svn.daybook.domain.model.KeyValueTable.NONE;
+import java.math.BigInteger;
 
 class KeyValueTableTest {
 
@@ -13,7 +13,7 @@ class KeyValueTableTest {
     void testConstructors() {
         Assertions.assertDoesNotThrow(() -> new KeyValueTable());
         Assertions.assertDoesNotThrow(() -> new KeyValueTable(
-                null, NONE, null, null, null, null, true, true, 0
+                null, BigInteger.ZERO, null, null, null, null, true, true, 0
         ));
     }
     @Test
@@ -51,7 +51,7 @@ class KeyValueTableTest {
     void testBuilder() {
         Assertions.assertDoesNotThrow(() -> Assertions.assertNotNull(KeyValueTable.builder()
                 .id(null)
-                .key(NONE)
+                .key(BigInteger.ZERO)
                 .value(null)
                 .userName(null)
                 .createTime(null)

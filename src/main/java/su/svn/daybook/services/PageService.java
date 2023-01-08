@@ -10,7 +10,6 @@ import su.svn.daybook.models.pagination.PageRequest;
 import javax.annotation.Nonnull;
 import javax.enterprise.context.ApplicationScoped;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -22,13 +21,14 @@ public class PageService {
 
     public <T> Uni<Page<Answer>> getPage(
             @Nonnull PageRequest pageRequest,
-            @Nonnull Supplier<Uni<Optional<Long>>> countSupplier,
+            @Nonnull Supplier<Uni<Long>> countSupplier,
             @Nonnull BiFunction<Long, Short, Multi<T>> toMultiEntries,
             @Nonnull Function<T, Answer> toAnswer) {
 
         LOG.tracef("getPage(%s, Supplier, BiFunction)", pageRequest);
         BiFunction<Long, Short, Uni<List<Answer>>> toUniListAnswer =
-                (Long offset, Short limit) -> toMultiEntries.apply(offset, limit)
+                (Long offset, Short limit) -> toMultiEntries
+                        .apply(offset, limit)
                         .onItem()
                         .transform(toAnswer)
                         .collect()
@@ -40,14 +40,8 @@ public class PageService {
     private Uni<Page<Answer>> getPageUni(
             PageRequest pageRequest,
             BiFunction<Long, Short, Uni<List<Answer>>> toUniListAnswer,
-            Optional<Long> o) {
-        return o.map(count -> fetchPageAnswer(count, pageRequest, toUniListAnswer))
-                .orElse(getItem(pageRequest));
-    }
-
-    private Uni<Page<Answer>> getItem(PageRequest pageRequest) {
-        return Uni.createFrom()
-                .item(Page.<Answer>builder().pageNumber(pageRequest.pageNumber()).build());
+            Long count) {
+        return  fetchPageAnswer(count, pageRequest, toUniListAnswer);
     }
 
     private Uni<Page<Answer>> fetchPageAnswer(
@@ -56,8 +50,8 @@ public class PageService {
             BiFunction<Long, Short, Uni<List<Answer>>> toUniListAnswer) {
 
         LOG.tracef("fetchPageAnswer(%d, %s, BiFunction)", count, pageRequest);
-        var limit = pageRequest.limit();
-        var offset = pageRequest.pageNumber() * limit;
+        var limit = pageRequest.getLimit();
+        var offset = pageRequest.getPageNumber() * limit;
         LOG.tracef("fetchPageAnswer: limit=%d, offset=%d", limit, offset);
         var uniCount = Uni.createFrom().item(count);
         var uniPageRequest = Uni.createFrom().item(pageRequest);
@@ -73,7 +67,7 @@ public class PageService {
 
     private Page<Answer> preparePageAnswer(PageRequest request, List<Answer> posts, long totalElements) {
 
-        var pageNumber = request.pageNumber();
+        var pageNumber = request.getPageNumber();
         var totalPages = request.calculateTotalPages(totalElements);
         var currentPageSize = posts.size();
         var hasPrevPage = pageNumber > 0 && totalElements > 0;

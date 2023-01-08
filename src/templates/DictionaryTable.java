@@ -17,7 +17,6 @@ import io.vertx.mutiny.sqlclient.Row;
 import io.vertx.mutiny.sqlclient.RowSet;
 import io.vertx.mutiny.sqlclient.Tuple;
 import su.svn.daybook.annotations.ModelField;
-import su.svn.daybook.models.@IdType@Identification;
 import su.svn.daybook.models.Marked;
 import su.svn.daybook.models.Owned;
 import su.svn.daybook.models.TimeUpdated;
@@ -29,9 +28,10 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public final class @Name@Table implements @IdType@Identification, Marked, Owned, TimeUpdated, Serializable {
+public final class @Name@Table implements CasesOf@IdType@, Marked, Owned, TimeUpdated, Serializable {
 
     public static final String NONE = "@uuid@";
     public static final String SELECT_FROM_@SCHEMA@_@TABLE@_WHERE_ID_$1 = """
@@ -85,6 +85,7 @@ public final class @Name@Table implements @IdType@Identification, Marked, Owned,
     @Serial
     private static final long serialVersionUID = @serialVersionUID@L;
     public static final String ID = "id";
+    public static final String COUNT = "count";
     @ModelField
     private final @IdType@ id;
     @ModelField
@@ -108,7 +109,7 @@ public final class @Name@Table implements @IdType@Identification, Marked, Owned,
 
     public @Name@Table() {
         this.id = null;
-        this.@key@ = NONE;
+        this.@key@ = @KType@.ZERO;
         this.@value@ = null;
         this.userName = null;
         this.createTime = null;
@@ -197,7 +198,7 @@ public final class @Name@Table implements @IdType@Identification, Marked, Owned,
                 .preparedQuery(COUNT_@SCHEMA@_@TABLE@)
                 .execute()
                 .onItem()
-                .transform(pgRowSet -> pgRowSet.iterator().next().getLong("count"));
+                .transform(pgRowSet -> pgRowSet.iterator().next().getLong(COUNT));
     }
 
     public static @Name@Table.Builder builder() {
@@ -217,7 +218,7 @@ public final class @Name@Table implements @IdType@Identification, Marked, Owned,
     public Uni<@IdType@> update(PgPool client) {
         return client.withTransaction(
                 connection -> connection.preparedQuery(UPDATE_@SCHEMA@_@TABLE@_WHERE_ID_$1)
-                        .execute(Tuple.tuple(listOf()))
+                        .execute(updateTuple())
                         .onItem()
                         .transform(pgRowSet -> pgRowSet.iterator().next().get@IdType@(ID)));
     }
@@ -226,8 +227,14 @@ public final class @Name@Table implements @IdType@Identification, Marked, Owned,
         return id != null ? INSERT_INTO_@SCHEMA@_@TABLE@ : INSERT_INTO_@SCHEMA@_@TABLE@_DEFAULT_ID;
     }
 
-    private Tuple caseInsertTuple() {
+    @Override
+    public Tuple caseInsertTuple() {
         return id != null ? Tuple.tuple(listOf()) : Tuple.of(@key@, @value@, userName, enabled, visible, flags);
+    }
+
+    @Override
+    public Tuple updateTuple() {
+        return Tuple.tuple(listOf());
     }
 
     private List<Object> listOf() {
@@ -312,7 +319,7 @@ public final class @Name@Table implements @IdType@Identification, Marked, Owned,
 
     @Override
     public String toString() {
-        return "@Name@{" +
+        return "@Name@Table{" +
                 "id=" + id +
                 ", @key@='" + @key@ + '\'' +
                 ", @value@='" + @value@ + '\'' +

@@ -290,7 +290,7 @@ public final class CodifierTable implements StringIdentification, Marked, Owned,
 
     @Override
     public String toString() {
-        return "Codifier{" +
+        return "CodifierTable{" +
                 "code='" + code + '\'' +
                 ", value='" + value + '\'' +
                 ", userName='" + userName + '\'' +

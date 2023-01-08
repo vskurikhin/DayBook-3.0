@@ -16,8 +16,8 @@ import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.enums.ResourcePath;
 import su.svn.daybook.models.domain.Language;
 import su.svn.daybook.models.pagination.PageRequest;
-import su.svn.daybook.services.domain.AbstractService;
-import su.svn.daybook.services.domain.LanguageService;
+import su.svn.daybook.services.models.AbstractService;
+import su.svn.daybook.services.models.LanguageService;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -33,17 +33,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 @Path(ResourcePath.LANGUAGE)
-public class LanguageResource extends AbstractResource implements Resources<Long, Language> {
-
-    @Inject
-    LanguageService service;
-
-    @GET
-    @Path(ResourcePath.ALL)
-    @Produces("application/json")
-    public Multi<Language> all(@QueryParam("get-all") Boolean getAll) {
-        return getAll();
-    }
+public class LanguageResource extends AbstractResource implements Resource<Long, Language> {
 
     @GET
     @Path(ResourcePath.ID)
@@ -84,8 +74,22 @@ public class LanguageResource extends AbstractResource implements Resources<Long
         return badRequest(x);
     }
 
-    @Override
-    public AbstractService<Long, Language> getService() {
-        return service;
+    @Path(ResourcePath.LANGUAGES)
+    public static class LanguageResources implements Resources<Long, Language> {
+
+        @Inject
+        LanguageService service;
+
+        @GET
+        @Path("/")
+        @Produces("application/json")
+        public Multi<Language> all() {
+            return getAll();
+        }
+
+        @Override
+        public AbstractService<Long, Language> getService() {
+            return service;
+        }
     }
 }

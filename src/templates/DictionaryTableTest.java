@@ -5,15 +5,13 @@ import nl.jqno.equalsverifier.Warning;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import static su.svn.daybook.domain.model.@Name@Table.NONE;
-
 class @Name@TableTest {
 
     @Test
     void testConstructors() {
         Assertions.assertDoesNotThrow(() -> new @Name@Table());
         Assertions.assertDoesNotThrow(() -> new @Name@Table(
-                null, NONE, null, null, null, null, true, true, 0
+                null, @KType@.ZERO, null, null, null, null, true, true, 0
         ));
     }
     @Test
@@ -51,7 +49,7 @@ class @Name@TableTest {
     void testBuilder() {
         Assertions.assertDoesNotThrow(() -> Assertions.assertNotNull(@Name@Table.builder()
                 .id(null)
-                .@key@(NONE)
+                .@key@(@KType@.ZERO)
                 .@value@(null)
                 .userName(null)
                 .createTime(null)

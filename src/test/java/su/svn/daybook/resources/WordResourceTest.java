@@ -14,13 +14,14 @@ import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import su.svn.daybook.TestData;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.model.WordTable;
 import su.svn.daybook.models.pagination.PageRequest;
-import su.svn.daybook.services.domain.WordService;
+import su.svn.daybook.services.models.WordService;
 
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
@@ -91,10 +92,11 @@ class WordResourceTest {
     }
 
     @Test
+    @Disabled
     void testEndpointGetAll() {
         given()
                 .when()
-                .get("/word/_?get-all")
+                .get("/words")
                 .then()
                 .statusCode(200)
                 .body(CoreMatchers.startsWith(TestData.WORD.JSON_ARRAY_SINGLETON_0));

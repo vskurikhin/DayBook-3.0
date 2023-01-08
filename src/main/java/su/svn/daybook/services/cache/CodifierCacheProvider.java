@@ -13,19 +13,16 @@ import io.quarkus.cache.CacheManager;
 import io.quarkus.cache.CacheResult;
 import io.smallrye.mutiny.Uni;
 import org.jboss.logging.Logger;
-import su.svn.daybook.domain.dao.CodifierDao;
 import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.messages.Answer;
-import su.svn.daybook.domain.model.CodifierTable;
 import su.svn.daybook.models.domain.Codifier;
 import su.svn.daybook.models.pagination.Page;
 import su.svn.daybook.models.pagination.PageRequest;
 import su.svn.daybook.services.PageService;
-import su.svn.daybook.services.mappers.CodifierMapper;
+import su.svn.daybook.services.domain.CodifierDataService;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import java.util.Optional;
 
 @ApplicationScoped
 public class CodifierCacheProvider extends AbstractCacheProvider<String> {
@@ -39,10 +36,7 @@ public class CodifierCacheProvider extends AbstractCacheProvider<String> {
     PageService pageService;
 
     @Inject
-    CodifierDao codifierDao;
-
-    @Inject
-    CodifierMapper codifierMapper;
+    CodifierDataService codifierDataService;
 
     public CodifierCacheProvider() {
         super(EventAddress.CODIFIER_GET, EventAddress.CODIFIER_PAGE, LOG);
@@ -51,16 +45,13 @@ public class CodifierCacheProvider extends AbstractCacheProvider<String> {
     @CacheResult(cacheName = EventAddress.CODIFIER_GET)
     public Uni<Codifier> get(@CacheKey String id) {
         LOG.tracef("get(%s)", id);
-        return codifierDao
-                .findById(id)
-                .map(Optional::get)
-                .map(codifierMapper::convertToModel);
+        return codifierDataService.get(id);
     }
 
     @CacheResult(cacheName = EventAddress.CODIFIER_PAGE)
     public Uni<Page<Answer>> getPage(@CacheKey PageRequest pageRequest) {
         LOG.tracef("getPage(%s)", pageRequest);
-        return pageService.getPage(pageRequest, codifierDao::count, codifierDao::findRange, this::answerOfModel);
+        return pageService.getPage(pageRequest, codifierDataService::count, codifierDataService::findRange, Answer::of);
     }
 
     @Override
@@ -76,9 +67,5 @@ public class CodifierCacheProvider extends AbstractCacheProvider<String> {
     @Override
     protected CacheManager getCacheManager() {
         return cacheManager;
-    }
-
-    private Answer answerOfModel(CodifierTable table) {
-        return Answer.of(codifierMapper.convertToModel(table));
     }
 }

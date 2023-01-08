@@ -75,6 +75,10 @@ public final class Answer implements Serializable {
         return create(DEFAULT_MESSAGE, o);
     }
 
+    public static <T> Answer from(@Nonnull T o, int error) {
+        return new Answer(DEFAULT_MESSAGE, error, o);
+    }
+
     public static Answer create(@Nonnull String message, @Nonnull Object o) {
         return new Answer(message, 200, o);
     }

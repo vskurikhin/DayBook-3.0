@@ -14,9 +14,10 @@ import su.svn.daybook.domain.model.KeyValueTable;
 import su.svn.daybook.models.domain.KeyValue;
 
 import javax.enterprise.context.ApplicationScoped;
+import java.util.UUID;
 
 @ApplicationScoped
-public class KeyValueMapper extends AbstractMapper<Long, KeyValue, KeyValueTable> {
+public class KeyValueMapper extends AbstractMapper<UUID, KeyValue, KeyValueTable> {
 
     private static final Logger LOG = Logger.getLogger(KeyValueMapper.class);
 

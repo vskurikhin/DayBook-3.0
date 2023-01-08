@@ -3,72 +3,59 @@ package su.svn.daybook.services;
 import io.smallrye.mutiny.Uni;
 import org.jboss.logging.Logger;
 import su.svn.daybook.domain.messages.Answer;
-import su.svn.daybook.models.pagination.Page;
 
 import javax.enterprise.context.RequestScoped;
 import javax.ws.rs.core.Response;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 @RequestScoped
 public class ExceptionAnswerService {
 
     private static final Logger LOG = Logger.getLogger(ExceptionAnswerService.class);
 
-    public Uni<Answer> getUniAnswerNoNumber(NumberFormatException e) {
-        return Uni.createFrom().item(Answer.noNumber(e.getMessage()));
-    }
-
-    public Uni<Page<Answer>> getUniPageAnswerNoNumber(NumberFormatException e) {
-        return Uni.createFrom()
-                .item(Page.<Answer>builder().content(getListWithAnswerThrowableMessage(e)).build());
-    }
-
-    private List<Answer> getListWithAnswerThrowableMessage(Throwable t) {
-        return Collections.singletonList(Answer.noNumber(t.getMessage()));
-    }
-
     public boolean testDuplicateException(Throwable t) {
-        LOG.tracef("%s: %s [[$s]]", t.getClass().getName(), t.getMessage(), Arrays.toString(t.getStackTrace()));
+        LOG.tracef("%s: %s [[%s]]", t.getClass().getName(), t.getMessage(), Arrays.toString(t.getStackTrace()));
         if (t instanceof io.vertx.pgclient.PgException) {
             return t.getMessage().contains("ERROR: duplicate key value violates unique constraint");
         }
-        if (t instanceof RuntimeException runtimeException) {
-            throw runtimeException;
+        return false;
+    }
+
+    public boolean testCompositeException(Throwable t) {
+        LOG.tracef("ieh 1 %s: %s [[%s]]", t.getClass().getName(), t.getMessage(), Arrays.toString(t.getStackTrace()));
+        if (t instanceof io.smallrye.mutiny.CompositeException compositeException) {
+            for (var e : compositeException.getCauses()) {
+                if (!(e instanceof io.smallrye.mutiny.CompositeException)) {
+                    LOG.warnf("ieh 2 %s: %s [[%s]]", e.getClass().getName(), e.getMessage(), Arrays.toString(e.getStackTrace()));
+                }
+            }
+            return true;
         }
         return false;
+    }
+
+    public boolean testIllegalArgumentException(Throwable t) {
+        LOG.tracef("%s: %s [[%s]]", t.getClass().getName(), t.getMessage(), Arrays.toString(t.getStackTrace()));
+        return t instanceof IllegalArgumentException;
     }
 
     public boolean testIndexOutOfBoundsException(Throwable t) {
-        LOG.infof("%s: %s [[$s]]", t.getClass().getName(), t.getMessage(), Arrays.toString(t.getStackTrace()));
-        if (t instanceof IndexOutOfBoundsException) {
-            return true;
-        }
-        if (t instanceof RuntimeException runtimeException) {
-            throw runtimeException;
-        }
-        return false;
+        LOG.tracef("%s: %s [[%s]]", t.getClass().getName(), t.getMessage(), Arrays.toString(t.getStackTrace()));
+        return t instanceof IndexOutOfBoundsException;
     }
 
     public boolean testNoSuchElementException(Throwable t) {
-        LOG.tracef("%s: %s [[$s]]", t.getClass().getName(), t.getMessage(), Arrays.toString(t.getStackTrace()));
-        if (t instanceof java.util.NoSuchElementException) {
-            return true;
-        }
-        if (t instanceof RuntimeException runtimeException) {
-            throw runtimeException;
-        }
-        return false;
+        LOG.tracef("%s: %s [[%s]]", t.getClass().getName(), t.getMessage(), Arrays.toString(t.getStackTrace()));
+        return t instanceof java.util.NoSuchElementException;
     }
 
     public boolean testException(Throwable t) {
-        LOG.tracef("%s: %s [[$s]]", t.getClass().getName(), t.getMessage(), Arrays.toString(t.getStackTrace()));
+        LOG.tracef("%s: %s [[%s]]", t.getClass().getName(), t.getMessage(), Arrays.toString(t.getStackTrace()));
         return t instanceof Exception;
     }
 
     public Uni<Answer> badRequestUniAnswer(Throwable t) {
-        LOG.errorf("%s: %s", t.getClass().getName(), t.getMessage());
+        LOG.errorf("%s: %s", String.valueOf(t.getClass().getName()), String.valueOf(t.getMessage()));
         return Uni.createFrom().item(
                 Answer.builder()
                         .message("bad request")
@@ -79,7 +66,7 @@ public class ExceptionAnswerService {
     }
 
     public Uni<Answer> notAcceptableDuplicateAnswer(Throwable t) {
-        LOG.errorf("%s: %s", t.getClass().getName(), t.getMessage());
+        LOG.errorf("%s: %s", String.valueOf(t.getClass().getName()), String.valueOf(t.getMessage()));
         return Uni.createFrom().item(
                 Answer.builder()
                         .message("duplicate key value")
@@ -90,7 +77,7 @@ public class ExceptionAnswerService {
     }
 
     public Uni<Answer> noSuchElementAnswer(Throwable t) {
-        LOG.errorf("%s: %s", t.getClass().getName(), t.getMessage());
+        LOG.errorf("%s: %s", String.valueOf(t.getClass().getName()), String.valueOf(t.getMessage()));
         return Uni.createFrom().item(
                 Answer.builder()
                         .message("no such element")

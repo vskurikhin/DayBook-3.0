@@ -300,7 +300,7 @@ public final class ValueTypeTable implements LongIdentification, Marked, Owned, 
 
     @Override
     public String toString() {
-        return "ValueType{" +
+        return "ValueTypeTable{" +
                 "id=" + id +
                 ", valueType='" + valueType + '\'' +
                 ", userName='" + userName + '\'' +

@@ -17,11 +17,12 @@ import javax.annotation.Nonnull;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
+import java.util.UUID;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public final class @Name@ implements @IdType@Identification, Serializable {
 
-    public static final @KType@ NONE = "@uuid@";
+    public static final String NONE = "@uuid@";
     public static final String ID = "id";
     @Serial
     private static final long serialVersionUID = @serialVersionUID@L;
@@ -44,7 +45,7 @@ public final class @Name@ implements @IdType@Identification, Serializable {
 
     public @Name@() {
         this.id = null;
-        this.@key@ = NONE;
+        this.@key@ = @KType@.ZERO;
         this.@value@ = null;
         this.visible = true;
         this.flags = 0;
@@ -53,7 +54,7 @@ public final class @Name@ implements @IdType@Identification, Serializable {
     public @Name@(
             @IdType@ id,
             @Nonnull @KType@ @key@,
-            String @value@,
+            @VType@ @value@,
             boolean visible,
             int flags) {
         this.id = id;
@@ -135,7 +136,7 @@ public final class @Name@ implements @IdType@Identification, Serializable {
     public static final class Builder {
         private @IdType@ id;
         private @KType@ @key@;
-        private String @value@;
+        private @VType@ @value@;
         private boolean visible;
         private int flags;
 

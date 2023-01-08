@@ -41,6 +41,10 @@ public final class ApiResponse<I extends Comparable<? extends Serializable>> {
         this(id, null, null, null);
     }
 
+    public ApiResponse(I id, int error) {
+        this(id, null, error, null);
+    }
+
     public ApiResponse(I id, Object payload) {
         this(id, null, null, payload);
     }

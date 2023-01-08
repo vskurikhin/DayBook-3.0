@@ -19,7 +19,7 @@ import org.mockito.Mockito;
 import su.svn.daybook.TestData;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.models.pagination.PageRequest;
-import su.svn.daybook.services.domain.ValueTypeService;
+import su.svn.daybook.services.models.ValueTypeService;
 
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
@@ -40,18 +40,14 @@ class ValueTypeResourceTest {
         PageRequest pageRequest = new PageRequest(0, (short) 1);
         mock = Mockito.mock(ValueTypeService.class);
         Mockito.when(mock.get(0L)).thenReturn(test);
-        Mockito.when(mock.get("0")).thenReturn(test);
         Mockito.when(mock.get(1L)).thenThrow(RuntimeException.class);
         Mockito.when(mock.get((long) Integer.MAX_VALUE)).thenReturn(TestData.UNI_ANSWER_EMPTY);
-        Mockito.when(mock.get(Long.toString(Integer.MAX_VALUE))).thenReturn(TestData.UNI_ANSWER_EMPTY);
         Mockito.when(mock.get((long) Integer.MIN_VALUE)).thenReturn(TestData.UNI_ANSWER_NULL);
-        Mockito.when(mock.get(Long.toString(Integer.MIN_VALUE))).thenReturn(TestData.UNI_ANSWER_NULL);
         Mockito.when(mock.getAll()).thenReturn(Multi.createFrom().item(Answer.of(TestData.VALUE_TYPE.MODEL_0)));
         Mockito.when(mock.getPage(pageRequest)).thenReturn(TestData.VALUE_TYPE.UNI_PAGE_ANSWER_SINGLETON_TEST);
         Mockito.when(mock.add(TestData.VALUE_TYPE.MODEL_0)).thenReturn(TestData.UNI_ANSWER_API_RESPONSE_ZERO_LONG);
         Mockito.when(mock.put(TestData.VALUE_TYPE.MODEL_0)).thenReturn(TestData.UNI_ANSWER_API_RESPONSE_ZERO_LONG);
         Mockito.when(mock.delete(0L)).thenReturn(TestData.UNI_ANSWER_API_RESPONSE_ZERO_LONG);
-        Mockito.when(mock.delete("0")).thenReturn(TestData.UNI_ANSWER_API_RESPONSE_ZERO_LONG);
         QuarkusMock.installMockForType(mock, ValueTypeService.class);
     }
 
@@ -96,7 +92,7 @@ class ValueTypeResourceTest {
     void testEndpointGetAll() {
         given()
                 .when()
-                .get("/value-type/_?get-all")
+                .get("/value-types")
                 .then()
                 .statusCode(200)
                 .body(CoreMatchers.startsWith(TestData.VALUE_TYPE.JSON_ARRAY_SINGLETON_0));

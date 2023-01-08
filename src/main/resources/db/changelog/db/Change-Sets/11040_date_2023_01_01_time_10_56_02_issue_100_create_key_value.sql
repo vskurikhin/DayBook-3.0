@@ -9,9 +9,9 @@
 CREATE SEQUENCE IF NOT EXISTS dictionary.key_value_seq START 1;
 
 CREATE TABLE IF NOT EXISTS dictionary.key_value (
-    id            BIGINT  PRIMARY KEY  NOT NULL  DEFAULT nextval('dictionary.key_value_seq'),
-    key         VARCHAR(256) NOT NULL UNIQUE,
-    value       VARCHAR(10485760),
+    id            UUID  PRIMARY KEY    NOT NULL  DEFAULT pg_catalog.uuid_generate_v4(),
+    key           NUMERIC(64)          NOT NULL  UNIQUE,
+    value         JSONB,
     user_name     VARCHAR(64),
       CONSTRAINT  FK_5004_dictionary_key_value_security_user_name
       FOREIGN KEY (user_name)

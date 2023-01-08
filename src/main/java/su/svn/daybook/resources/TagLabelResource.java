@@ -15,9 +15,11 @@ import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
 import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.enums.ResourcePath;
 import su.svn.daybook.models.domain.TagLabel;
+import su.svn.daybook.models.domain.Word;
 import su.svn.daybook.models.pagination.PageRequest;
-import su.svn.daybook.services.domain.AbstractService;
-import su.svn.daybook.services.domain.TagLabelService;
+import su.svn.daybook.services.models.AbstractService;
+import su.svn.daybook.services.models.TagLabelService;
+import su.svn.daybook.services.models.WordService;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -33,17 +35,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 @Path(ResourcePath.TAG_LABEL)
-public class TagLabelResource extends AbstractResource implements Resources<String, TagLabel> {
-
-    @Inject
-    TagLabelService service;
-
-    @GET
-    @Path(ResourcePath.ALL)
-    @Produces("application/json")
-    public Multi<TagLabel> all(@QueryParam("get-all") Boolean getAll) {
-        return getAll();
-    }
+public class TagLabelResource extends AbstractResource implements Resource<String, TagLabel> {
 
     @GET
     @Path(ResourcePath.ID)
@@ -84,8 +76,22 @@ public class TagLabelResource extends AbstractResource implements Resources<Stri
         return badRequest(x);
     }
 
-    @Override
-    public AbstractService<String, TagLabel> getService() {
-        return service;
+    @Path(ResourcePath.TAG_LABELS)
+    public static class TagLabelResources implements Resources<String, TagLabel> {
+
+        @Inject
+        TagLabelService service;
+
+        @GET
+        @Path("/")
+        @Produces("application/json")
+        public Multi<TagLabel> all() {
+            return getAll();
+        }
+
+        @Override
+        public AbstractService<String, TagLabel> getService() {
+            return service;
+        }
     }
 }

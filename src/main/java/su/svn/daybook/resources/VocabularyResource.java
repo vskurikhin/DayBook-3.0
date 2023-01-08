@@ -16,32 +16,29 @@ import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.enums.ResourcePath;
 import su.svn.daybook.models.domain.Vocabulary;
 import su.svn.daybook.models.pagination.PageRequest;
-import su.svn.daybook.services.domain.AbstractService;
-import su.svn.daybook.services.domain.VocabularyService;
+import su.svn.daybook.services.models.AbstractService;
+import su.svn.daybook.services.models.VocabularyService;
 
 import javax.inject.Inject;
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 @Path(ResourcePath.VOCABULARY)
-public class VocabularyResource extends AbstractResource implements Resources<Long, Vocabulary> {
-
-    @Inject
-    VocabularyService service;
-
-    @GET
-    @Path(ResourcePath.ALL)
-    @Produces("application/json")
-    public Multi<Vocabulary> all(@QueryParam("get-all") Boolean getAll) {
-        return getAll();
-    }
+public class VocabularyResource extends AbstractResource implements Resource<Long, Vocabulary> {
 
     @GET
     @Path(ResourcePath.ID)
     @Produces("application/json")
-    public Uni<Response> get(String id, @Context UriInfo uriInfo) {
+    public Uni<Response> get(Long id, @Context UriInfo uriInfo) {
         return request(EventAddress.VOCABULARY_GET, id, uriInfo);
     }
 
@@ -68,7 +65,7 @@ public class VocabularyResource extends AbstractResource implements Resources<Lo
     @DELETE
     @Path(ResourcePath.ID)
     @Produces("application/json")
-    public Uni<Response> delete(String id, @Context UriInfo uriInfo) {
+    public Uni<Response> delete(Long id, @Context UriInfo uriInfo) {
         return request(EventAddress.VOCABULARY_DEL, id, uriInfo);
     }
 
@@ -77,8 +74,22 @@ public class VocabularyResource extends AbstractResource implements Resources<Lo
         return badRequest(x);
     }
 
-    @Override
-    public AbstractService<Long, Vocabulary> getService() {
-        return service;
+    @Path(ResourcePath.VOCABULARIES)
+    public static class I18nResources implements Resources<Long, Vocabulary> {
+
+        @Inject
+        VocabularyService service;
+
+        @GET
+        @Path("/")
+        @Produces("application/json")
+        public Multi<Vocabulary> all() {
+            return getAll();
+        }
+
+        @Override
+        public AbstractService<Long, Vocabulary> getService() {
+            return service;
+        }
     }
 }

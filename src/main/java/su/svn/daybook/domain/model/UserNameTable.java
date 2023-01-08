@@ -19,7 +19,6 @@ import su.svn.daybook.annotations.ModelField;
 import su.svn.daybook.models.Marked;
 import su.svn.daybook.models.Owned;
 import su.svn.daybook.models.TimeUpdated;
-import su.svn.daybook.models.UUIDIdentification;
 
 import javax.annotation.Nonnull;
 import java.io.Serial;
@@ -29,7 +28,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public final class UserNameTable implements UUIDIdentification, Marked, Owned, TimeUpdated, Serializable {
+public final class UserNameTable implements CasesOfUUID, Marked, Owned, TimeUpdated, Serializable {
 
     public static final String SELECT_FROM_SECURITY_USER_NAME_WHERE_ID_$1 = """
             SELECT id, user_name, password, create_time, update_time, enabled, visible, flags
@@ -53,6 +52,13 @@ public final class UserNameTable implements UUIDIdentification, Marked, Owned, T
              (id, user_name, password, enabled, visible, flags)
              VALUES
              ($1, $2, $3, $4, $5, $6)
+             RETURNING id
+            """;
+    public static final String INSERT_INTO_SECURITY_USER_NAME_DEFAULT_ID = """
+            INSERT INTO security.user_name
+             (id, user_name, password, enabled, visible, flags)
+             VALUES
+             (DEFAULT, $1, $2, $3, $4, $5)
              RETURNING id
             """;
     public static final String UPDATE_SECURITY_USER_NAME_WHERE_ID_$1 = """
@@ -189,12 +195,13 @@ public final class UserNameTable implements UUIDIdentification, Marked, Owned, T
 
     public Uni<UUID> insert(PgPool client) {
         return client.withTransaction(
-                connection -> connection.preparedQuery(INSERT_INTO_SECURITY_USER_NAME)
-                        .execute(Tuple.of(id, userName, password, enabled, visible, flags))
+                connection -> connection.preparedQuery(caseInsertSql())
+                        .execute(caseInsertTuple())
                         .onItem()
                         .transform(RowSet::iterator)
                         .onItem()
-                        .transform(iterator -> iterator.hasNext() ? iterator.next().getUUID(ID) : null));
+                        .transform(iterator -> iterator.hasNext() ? iterator.next().getUUID(ID) : null)
+        );
     }
 
     public Uni<UUID> update(PgPool client) {
@@ -203,6 +210,20 @@ public final class UserNameTable implements UUIDIdentification, Marked, Owned, T
                         .execute(Tuple.of(id, userName, password, enabled, visible, flags))
                         .onItem()
                         .transform(pgRowSet -> pgRowSet.iterator().next().getUUID(ID)));
+    }
+
+    private String caseInsertSql() {
+        return id != null ? INSERT_INTO_SECURITY_USER_NAME : INSERT_INTO_SECURITY_USER_NAME_DEFAULT_ID;
+    }
+
+    public Tuple caseInsertTuple() {
+        return id != null
+                ? Tuple.of(id, userName, password, enabled, visible, flags)
+                : Tuple.of(userName, password, enabled, visible, flags);
+    }
+
+    public Tuple updateTuple() {
+        return Tuple.of(id, userName, password, enabled, visible, flags);
     }
 
     public UUID getId() {
@@ -278,7 +299,7 @@ public final class UserNameTable implements UUIDIdentification, Marked, Owned, T
 
     @Override
     public String toString() {
-        return "UserName{" +
+        return "UserNameTable{" +
                 "id=" + id +
                 ", userName='" + userName + '\'' +
                 ", password='" + password + '\'' +

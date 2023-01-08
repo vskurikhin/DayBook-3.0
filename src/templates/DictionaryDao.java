@@ -16,6 +16,7 @@ import su.svn.daybook.domain.model.@Name@Table;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.util.Optional;
+import java.util.UUID;
 
 @ApplicationScoped
 public class @Name@Dao {
