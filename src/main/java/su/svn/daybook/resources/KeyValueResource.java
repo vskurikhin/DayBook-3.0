@@ -10,6 +10,7 @@ package su.svn.daybook.resources;
 
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
+import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.jboss.resteasy.reactive.RestResponse;
 import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
 import su.svn.daybook.domain.enums.EventAddress;
@@ -37,6 +38,7 @@ import java.util.UUID;
 @Path(ResourcePath.KEY_VALUE)
 public class KeyValueResource extends AbstractResource implements Resource<UUID, KeyValue> {
 
+    @Operation(hidden = true)
     @GET
     @Path(ResourcePath.ID)
     @Produces(MediaType.APPLICATION_JSON)
@@ -44,26 +46,33 @@ public class KeyValueResource extends AbstractResource implements Resource<UUID,
         return request(EventAddress.KEY_VALUE_GET, id, uriInfo);
     }
 
+    @Operation(hidden = true)
     @GET
+    @Path(ResourcePath.PAGE)
     @Produces(MediaType.APPLICATION_JSON)
     public Uni<Response> page(@QueryParam("page") Long page, @QueryParam("limit") Short limit) {
         return requestPage(EventAddress.KEY_VALUE_PAGE, new PageRequest(page, limit));
     }
 
+    @Operation(hidden = true)
     @POST
+    @Path(ResourcePath.NONE)
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Uni<Response> post(KeyValue entry, @Context UriInfo uriInfo) {
         return request(EventAddress.KEY_VALUE_ADD, entry, uriInfo);
     }
 
+    @Operation(hidden = true)
     @PUT
+    @Path(ResourcePath.NONE)
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Uni<Response> put(KeyValue entry, @Context UriInfo uriInfo) {
         return request(EventAddress.KEY_VALUE_PUT, entry, uriInfo);
     }
 
+    @Operation(hidden = true)
     @DELETE
     @Path(ResourcePath.ID)
     @Produces(MediaType.APPLICATION_JSON)
@@ -73,7 +82,7 @@ public class KeyValueResource extends AbstractResource implements Resource<UUID,
 
     @ServerExceptionMapper
     public RestResponse<String> exception(Throwable x) {
-        return badRequest(x);
+        return exceptionMapper(x);
     }
 
     @Path(ResourcePath.KEY_VALUES)
@@ -82,6 +91,7 @@ public class KeyValueResource extends AbstractResource implements Resource<UUID,
         @Inject
         KeyValueService service;
 
+        @Operation(hidden = true)
         @GET
         @Path(ResourcePath.ALL)
         @Produces(MediaType.APPLICATION_JSON)

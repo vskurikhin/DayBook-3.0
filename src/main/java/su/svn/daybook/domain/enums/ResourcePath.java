@@ -18,6 +18,7 @@ public enum ResourcePath {
     KeyValue(ResourcePath.KEY_VALUE),
     Language(ResourcePath.LANGUAGE),
     Login(ResourcePath.LOGIN),
+    Page(ResourcePath.PAGE),
     Put(ResourcePath.PUT),
     Role(ResourcePath.ROLE),
     Session(ResourcePath.SESSION),
@@ -46,6 +47,8 @@ public enum ResourcePath {
     public static final String LANGUAGE = "/lang";
     public static final String LANGUAGES = "/langs";
     public static final String LOGIN = "/login";
+    public static final String NONE = "";
+    public static final String PAGE = "$";
     public static final String PUT = "/put";
     public static final String ROLE = "/role";
     public static final String ROLES = "/roles";
@@ -59,8 +62,8 @@ public enum ResourcePath {
     public static final String USERS = "/users";
     public static final String VALUE_TYPE = "/value-type";
     public static final String VALUE_TYPES = "/value-types";
-    public static final String VOCABULARY = "/vocabulary";
     public static final String VOCABULARIES = "/vocabularies";
+    public static final String VOCABULARY = "/vocabulary";
     public static final String WORD = "/word";
     public static final String WORDS = "/words";
 

@@ -85,6 +85,7 @@ public enum EventAddress {
     public static final String LANGUAGE_DEL = "language_del";
     public static final String LANGUAGE_GET = "language_get";
     public static final String LANGUAGE_PAGE = "language_page";
+    public static final String LOGIN_REQUEST = "login_request";
     public static final String ROLE_ADD = "role_add";
     public static final String ROLE_DEL = "role_del";
     public static final String ROLE_GET = "role_get";

@@ -10,6 +10,7 @@ package su.svn.daybook.resources;
 
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
+import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.jboss.resteasy.reactive.RestResponse;
 import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
 import su.svn.daybook.domain.enums.EventAddress;
@@ -36,6 +37,7 @@ import javax.ws.rs.core.UriInfo;
 @Path(ResourcePath.LANGUAGE)
 public class LanguageResource extends AbstractResource implements Resource<Long, Language> {
 
+    @Operation(hidden = true)
     @GET
     @Path(ResourcePath.ID)
     @Produces(MediaType.APPLICATION_JSON)
@@ -43,26 +45,33 @@ public class LanguageResource extends AbstractResource implements Resource<Long,
         return request(EventAddress.LANGUAGE_GET, id, uriInfo);
     }
 
+    @Operation(hidden = true)
     @GET
+    @Path(ResourcePath.PAGE)
     @Produces(MediaType.APPLICATION_JSON)
     public Uni<Response> page(@QueryParam("page") Long page, @QueryParam("limit") Short limit) {
         return requestPage(EventAddress.LANGUAGE_PAGE, new PageRequest(page, limit));
     }
 
+    @Operation(hidden = true)
     @POST
+    @Path(ResourcePath.NONE)
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Uni<Response> post(Language entry, @Context UriInfo uriInfo) {
         return request(EventAddress.LANGUAGE_ADD, entry, uriInfo);
     }
 
+    @Operation(hidden = true)
     @PUT
+    @Path(ResourcePath.NONE)
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Uni<Response> put(Language entry, @Context UriInfo uriInfo) {
         return request(EventAddress.LANGUAGE_PUT, entry, uriInfo);
     }
 
+    @Operation(hidden = true)
     @DELETE
     @Path(ResourcePath.ID)
     @Produces(MediaType.APPLICATION_JSON)
@@ -72,7 +81,7 @@ public class LanguageResource extends AbstractResource implements Resource<Long,
 
     @ServerExceptionMapper
     public RestResponse<String> exception(Throwable x) {
-        return badRequest(x);
+        return exceptionMapper(x);
     }
 
     @Path(ResourcePath.LANGUAGES)
@@ -81,6 +90,7 @@ public class LanguageResource extends AbstractResource implements Resource<Long,
         @Inject
         LanguageService service;
 
+        @Operation(hidden = true)
         @GET
         @Path(ResourcePath.ALL)
         @Produces(MediaType.APPLICATION_JSON)
