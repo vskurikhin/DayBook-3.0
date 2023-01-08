@@ -9,7 +9,9 @@
 
 CREATE INDEX IF NOT EXISTS IDX_dictionary_key_value_user_name
     ON dictionary.key_value (user_name);
+CREATE INDEX IF NOT EXISTS IDX_dictionary_key_value_key
+    ON dictionary.key_value (key);
 
 --
---rollback DROP INDEX IF EXISTS dictionary.IDX_dictionary_key_value_user_name;
+--rollback DROP INDEX IF EXISTS dictionary.IDX_dictionary_key_value_key; DROP INDEX IF EXISTS dictionary.IDX_dictionary_key_value_user_name;
 

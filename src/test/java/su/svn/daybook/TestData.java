@@ -18,11 +18,17 @@ import su.svn.daybook.models.domain.*;
 import su.svn.daybook.models.pagination.Page;
 
 import java.math.BigInteger;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneOffset;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
 
 public class TestData {
+
+    public static final LocalDateTime EPOCH_TIME = LocalDateTime.ofEpochSecond(0, 0, ZoneOffset.UTC);
 
     public static final String NO_SUCH_ELEMENT = "no such element";
 
@@ -37,6 +43,15 @@ public class TestData {
 
     public static Uni<Optional<Long>> UNI_OPTIONAL_ONE_LONG = Uni.createFrom().item(Optional.of(1L));
     public static Uni<Optional<Long>> UNI_OPTIONAL_MINUS_ONE_LONG = Uni.createFrom().item(Optional.of(-1L));
+
+    public static LocalDateTime localDateTimenow() {
+        return LocalDateTime.of(
+                LocalDate.now(),
+                LocalTime.of(
+                        LocalTime.now().getHour(), LocalTime.now().getMinute(), LocalTime.now().getSecond()
+                )
+        );
+    }
 
     public static <T> Multi<T> createMultiEmpties(Class<T> t) {
         return Multi.createFrom().empty();
@@ -178,6 +193,33 @@ public class TestData {
                 """;
         public static final String JSON_ARRAY_SINGLETON_0 = "[" + JSON_0 + "]";
         public static final String JSON_ID_0 = "{\"id\":\"00000000-0000-0000-0000-000000000000\"}";
+        public static final String JSON_PAGE_ARRAY_0 = """
+                        {"pageNumber":0,"totalElements":0,"nextPage":false,"prevPage":false,"content":\
+                        """ + JSON_ARRAY_SINGLETON_0 +"""
+                        }""";
+    }
+
+    public static class SESSION {
+        public static final Session MODEL_0 = new Session(
+                uuid.ZERO, Session.NONE, Collections.emptySet(), TestData.EPOCH_TIME, true, 0
+        );
+        public static final SessionTable TABLE_0 = new SessionTable(
+                uuid.ZERO, SessionTable.NONE, Collections.emptySet(), TestData.EPOCH_TIME, null, null, true, true, 0
+        );
+        public static final Uni<Page<Answer>> UNI_PAGE_ANSWER_SINGLETON_TEST = Uni.createFrom()
+                .item(
+                        Page.<Answer>builder()
+                                .content(Collections.singletonList(Answer.of(MODEL_0)))
+                                .build()
+                );
+        public static final String JSON_0 = """
+                {"id":"\
+                """ + uuid.ZERO +"""
+                ","key":0,"visible":true,"flags":0}\
+                """;
+        public static final String JSON_ARRAY_SINGLETON_0 = "[" + JSON_0 + "]";
+        public static final String JSON_ID_0 = "{\"id\":\"" + uuid.ZERO + "\"}";
+        public static final String JSON_ID_0_200 = "{\"id\":\"00000000-0000-0000-0000-000000000000\",\"error\":200}";
         public static final String JSON_PAGE_ARRAY_0 = """
                         {"pageNumber":0,"totalElements":0,"nextPage":false,"prevPage":false,"content":\
                         """ + JSON_ARRAY_SINGLETON_0 +"""

@@ -2,7 +2,7 @@
  * This file was last modified at 2021.12.15 13:12 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
- * @Name@ServiceTest.java
+ * SessionServiceTest.java
  * $Id$
  */
 
@@ -17,10 +17,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import su.svn.daybook.TestData;
-import su.svn.daybook.domain.dao.@Name@Dao;
+import su.svn.daybook.domain.dao.SessionDao;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.messages.ApiResponse;
-import su.svn.daybook.domain.model.@Name@Table;
+import su.svn.daybook.domain.model.SessionTable;
 import su.svn.daybook.models.pagination.Page;
 import su.svn.daybook.models.pagination.PageRequest;
 
@@ -32,26 +32,26 @@ import java.util.List;
 import java.util.Optional;
 
 @QuarkusTest
-class @Name@ServiceTest {
+class SessionServiceTest {
 
     @Inject
-    @Name@Service service;
+    SessionService service;
 
-    static @Name@Dao mock;
+    static SessionDao mock;
 
-    static final Uni<Optional<@Name@Table>> UNI_OPTIONAL_TEST = Uni.createFrom().item(Optional.of(TestData.@TABLE@.TABLE_0));
+    static final Uni<Optional<SessionTable>> UNI_OPTIONAL_TEST = Uni.createFrom().item(Optional.of(TestData.SESSION.TABLE_0));
 
-    static final Multi<@Name@Table> MULTI_TEST = Multi.createFrom().item(TestData.@TABLE@.TABLE_0);
+    static final Multi<SessionTable> MULTI_TEST = Multi.createFrom().item(TestData.SESSION.TABLE_0);
 
-    static final Multi<@Name@Table> MULTI_WITH_NULL = TestData.createMultiWithNull(@Name@Table.class);
+    static final Multi<SessionTable> MULTI_WITH_NULL = TestData.createMultiWithNull(SessionTable.class);
 
-    static final Multi<@Name@Table> MULTI_EMPTIES = TestData.createMultiEmpties(@Name@Table.class);
+    static final Multi<SessionTable> MULTI_EMPTIES = TestData.createMultiEmpties(SessionTable.class);
 
     @BeforeEach
     void setUp() {
-        mock = Mockito.mock(@Name@Dao.class);
+        mock = Mockito.mock(SessionDao.class);
         Mockito.when(mock.findById(TestData.uuid.ZERO)).thenReturn(UNI_OPTIONAL_TEST);
-        QuarkusMock.installMockForType(mock, @Name@Dao.class);
+        QuarkusMock.installMockForType(mock, SessionDao.class);
     }
 
     @Test
@@ -62,7 +62,7 @@ class @Name@ServiceTest {
         Assertions.assertDoesNotThrow(() -> result.addAll(service.getAll()
                 .subscribe()
                 .asStream()
-                .peek(actual -> Assertions.assertEquals(Answer.of(TestData.@TABLE@.MODEL_0), actual)).toList()));
+                .peek(actual -> Assertions.assertEquals(Answer.of(TestData.SESSION.MODEL_0), actual)).toList()));
         Assertions.assertTrue(result.size() > 0);
     }
 
@@ -118,7 +118,7 @@ class @Name@ServiceTest {
                 .pageSize((short) 1)
                 .prevPage(false)
                 .nextPage(false)
-                .content(Collections.singletonList(Answer.of(TestData.@TABLE@.MODEL_0)))
+                .content(Collections.singletonList(Answer.of(TestData.SESSION.MODEL_0)))
                 .build();
 
         Assertions.assertDoesNotThrow(() -> service.getPage(pageRequest)
@@ -181,7 +181,7 @@ class @Name@ServiceTest {
     void testWhenGetThenEntry() {
         Assertions.assertDoesNotThrow(() -> service.get(TestData.uuid.ZERO)
                 .onItem()
-                .invoke(actual -> Assertions.assertEquals(Answer.of(TestData.@TABLE@.MODEL_0), actual))
+                .invoke(actual -> Assertions.assertEquals(Answer.of(TestData.SESSION.MODEL_0), actual))
                 .await()
                 .indefinitely());
     }
@@ -193,8 +193,8 @@ class @Name@ServiceTest {
                 .error(201)
                 .payload(new ApiResponse<>(TestData.uuid.ZERO, 201))
                 .build();
-        Mockito.when(mock.insert(TestData.@TABLE@.TABLE_0)).thenReturn(TestData.uuid.UNI_OPTIONAL_ZERO);
-        Assertions.assertDoesNotThrow(() -> service.add(TestData.@TABLE@.MODEL_0)
+        Mockito.when(mock.insert(TestData.SESSION.TABLE_0)).thenReturn(TestData.uuid.UNI_OPTIONAL_ZERO);
+        Assertions.assertDoesNotThrow(() -> service.add(TestData.SESSION.MODEL_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
                 .await()
@@ -206,10 +206,10 @@ class @Name@ServiceTest {
         var expected = Answer.builder()
                 .message("bad request")
                 .error(400)
-                .payload("No value present for entry: " + TestData.@TABLE@.TABLE_0)
+                .payload("No value present for entry: " + TestData.SESSION.TABLE_0)
                 .build();
-        Mockito.when(mock.insert(TestData.@TABLE@.TABLE_0)).thenReturn(TestData.uuid.UNI_OPTIONAL_EMPTY);
-        Assertions.assertDoesNotThrow(() -> service.add(TestData.@TABLE@.MODEL_0)
+        Mockito.when(mock.insert(TestData.SESSION.TABLE_0)).thenReturn(TestData.uuid.UNI_OPTIONAL_EMPTY);
+        Assertions.assertDoesNotThrow(() -> service.add(TestData.SESSION.MODEL_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
                 .await()
@@ -223,8 +223,8 @@ class @Name@ServiceTest {
                 .error(202)
                 .payload(new ApiResponse<>(TestData.uuid.ZERO, 202))
                 .build();
-        Mockito.when(mock.update(TestData.@TABLE@.TABLE_0)).thenReturn(TestData.uuid.UNI_OPTIONAL_ZERO);
-        Assertions.assertDoesNotThrow(() -> service.put(TestData.@TABLE@.MODEL_0)
+        Mockito.when(mock.update(TestData.SESSION.TABLE_0)).thenReturn(TestData.uuid.UNI_OPTIONAL_ZERO);
+        Assertions.assertDoesNotThrow(() -> service.put(TestData.SESSION.MODEL_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
                 .await()
@@ -233,8 +233,8 @@ class @Name@ServiceTest {
 
     @Test
     void testWhenPutThenEmpty() {
-        Mockito.when(mock.update(TestData.@TABLE@.TABLE_0)).thenReturn(TestData.uuid.UNI_OPTIONAL_ZERO);
-        Assertions.assertThrows(RuntimeException.class, () -> service.put(TestData.@TABLE@.MODEL_0)
+        Mockito.when(mock.update(TestData.SESSION.TABLE_0)).thenReturn(TestData.uuid.UNI_OPTIONAL_ZERO);
+        Assertions.assertThrows(RuntimeException.class, () -> service.put(TestData.SESSION.MODEL_0)
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(Answer.empty(), actual))
                 .await()

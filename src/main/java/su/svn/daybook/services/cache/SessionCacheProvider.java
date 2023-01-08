@@ -2,7 +2,7 @@
  * This file was last modified at 2022.01.12 22:58 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
- * @Name@CacheProvider.java
+ * SessionCacheProvider.java
  * $Id$
  */
 
@@ -15,20 +15,20 @@ import io.smallrye.mutiny.Uni;
 import org.jboss.logging.Logger;
 import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.messages.Answer;
-import su.svn.daybook.models.domain.@Name@;
+import su.svn.daybook.models.domain.Session;
 import su.svn.daybook.models.pagination.Page;
 import su.svn.daybook.models.pagination.PageRequest;
 import su.svn.daybook.services.PageService;
-import su.svn.daybook.services.domain.@Name@DataService;
+import su.svn.daybook.services.domain.SessionDataService;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.util.UUID;
 
 @ApplicationScoped
-public class @Name@CacheProvider extends AbstractCacheProvider<@IdType@> {
+public class SessionCacheProvider extends AbstractCacheProvider<UUID> {
 
-    private static final Logger LOG = Logger.getLogger(@Name@CacheProvider.class);
+    private static final Logger LOG = Logger.getLogger(SessionCacheProvider.class);
 
     @Inject
     CacheManager cacheManager;
@@ -37,22 +37,22 @@ public class @Name@CacheProvider extends AbstractCacheProvider<@IdType@> {
     PageService pageService;
 
     @Inject
-    @Name@DataService @name@DataService;
+    SessionDataService sessionDataService;
 
-    public @Name@CacheProvider() {
-        super(EventAddress.@TABLE@_GET, EventAddress.@TABLE@_PAGE, LOG);
+    public SessionCacheProvider() {
+        super(EventAddress.SESSION_GET, EventAddress.SESSION_PAGE, LOG);
     }
 
-    @CacheResult(cacheName = EventAddress.@TABLE@_GET)
-    public Uni<@Name@> get(@CacheKey @IdType@ id) {
+    @CacheResult(cacheName = EventAddress.SESSION_GET)
+    public Uni<Session> get(@CacheKey UUID id) {
         LOG.tracef("get(%s)", id);
-        return @name@DataService.get(id);
+        return sessionDataService.get(id);
     }
 
-    @CacheResult(cacheName = EventAddress.@TABLE@_PAGE)
+    @CacheResult(cacheName = EventAddress.SESSION_PAGE)
     public Uni<Page<Answer>> getPage(@CacheKey PageRequest pageRequest) {
         LOG.tracef("getPage(%s)", pageRequest);
-        return pageService.getPage(pageRequest, @name@DataService::count, @name@DataService::findRange, Answer::of);
+        return pageService.getPage(pageRequest, sessionDataService::count, sessionDataService::findRange, Answer::of);
     }
 
     @Override
@@ -61,7 +61,7 @@ public class @Name@CacheProvider extends AbstractCacheProvider<@IdType@> {
     }
 
     @Override
-    public Uni<Answer> invalidateById(@IdType@ id, Answer answer) {
+    public Uni<Answer> invalidateById(UUID id, Answer answer) {
         return invalidateCacheById(id).map(l -> answer);
     }
 
