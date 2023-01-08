@@ -17,7 +17,10 @@ import java.util.Objects;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public final class ApiResponse<I extends Comparable<? extends Serializable>> {
 
+    public static final int BAD_REQUEST = 400;
     private final I id;
+
+    private final Integer code;
 
     private final Integer error;
 
@@ -52,7 +55,13 @@ public final class ApiResponse<I extends Comparable<? extends Serializable>> {
     private ApiResponse(I id, String message, Integer error, Object payload) {
         this.id = id;
         this.message = message;
-        this.error = error;
+        if (error != null && error < BAD_REQUEST) {
+            this.code = error;
+            this.error = null;
+        } else {
+            this.code = null;
+            this.error = error;
+        }
         this.payload = payload;
         this.payloadClass = payload != null ? payload.getClass() : null;
     }
@@ -67,6 +76,10 @@ public final class ApiResponse<I extends Comparable<? extends Serializable>> {
 
     public I getId() {
         return id;
+    }
+
+    public Integer getCode() {
+        return code;
     }
 
     public Integer getError() {
@@ -92,6 +105,7 @@ public final class ApiResponse<I extends Comparable<? extends Serializable>> {
         ApiResponse<?> that = (ApiResponse<?>) o;
         return Objects.equals(id, that.id)
                 && Objects.equals(message, that.message)
+                && Objects.equals(code, that.code)
                 && Objects.equals(error, that.error)
                 && Objects.equals(payload, that.payload);
     }
@@ -111,7 +125,7 @@ public final class ApiResponse<I extends Comparable<? extends Serializable>> {
     }
 
     private int calculateHashCode() {
-        return Objects.hash(id, message, error, payload);
+        return Objects.hash(id, message, code, error, payload);
     }
 
     @Override
@@ -127,6 +141,7 @@ public final class ApiResponse<I extends Comparable<? extends Serializable>> {
 
     public static final class Builder<J extends Comparable<? extends Serializable>> {
         private J id;
+        private Integer code;
         private Integer error;
         private String message;
         private Object payload;
@@ -139,13 +154,20 @@ public final class ApiResponse<I extends Comparable<? extends Serializable>> {
             return this;
         }
 
-        public Builder<J> message(String message) {
-            this.message = message;
+        public Builder<J> code(Integer code) {
+            if (code != null && code < BAD_REQUEST) {
+                this.code = code;
+            }
             return this;
         }
 
         public Builder<J> error(Integer error) {
             this.error = error;
+            return this;
+        }
+
+        public Builder<J> message(String message) {
+            this.message = message;
             return this;
         }
 
@@ -155,7 +177,7 @@ public final class ApiResponse<I extends Comparable<? extends Serializable>> {
         }
 
         public ApiResponse<J> build() {
-            return new ApiResponse<>(id, message, error, payload);
+            return new ApiResponse<>(id, message, code != null ? code : error, payload);
         }
     }
 }

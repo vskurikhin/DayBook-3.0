@@ -132,6 +132,23 @@ test {
     testLogging.showStandardStreams = false
 }
 
+task startOpenSSLGenRsa(type: Exec) {
+    workingDir = "src/main/resources"
+    executable "openssl"
+    args "genrsa",  "-out", "rsaPrivateKey.pem", "2048"
+}
+task startOpenSSLPubKey(type: Exec) {
+    workingDir = "src/main/resources"
+    executable "openssl"
+    args "rsa", "-pubout", "-in", "rsaPrivateKey.pem", "-out", "publicKey.pem"
+}
+task startOpenSSLPrivKey(type: Exec) {
+    workingDir = "src/main/resources"
+    executable "openssl"
+    args "pkcs8", "-topk8", "-nocrypt", "-inform", "pem", "-in", "rsaPrivateKey.pem", "-outform", "pem", "-out", "privateKey.pem"
+}
+tasks.processResources.dependsOn("startOpenSSLGenRsa", "startOpenSSLPubKey", "startOpenSSLPrivKey")
+
 static def getEnv(key, defaultValue) {
     return System.getenv(key) ?: defaultValue
 }

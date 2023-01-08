@@ -34,7 +34,7 @@ public enum ResourcePath {
     Vocabularies(ResourcePath.VOCABULARIES),
     Word(ResourcePath.WORD);
 
-    public static final String ALL = "/_";
+    public static final String ALL = "/";
     public static final String AUTH = "/auth";
     public static final String CODIFIER = "/code";
     public static final String CODIFIERS = "/codes";

@@ -8,14 +8,15 @@ class PageRequestTest {
 
     @Test
     void testConstructors() {
+        Assertions.assertDoesNotThrow(() -> new PageRequest());
         Assertions.assertDoesNotThrow(() -> new PageRequest(0L, (short) 0));
     }
 
     @Test
     void testGetters() {
-        var entry = new PageRequest(0L, (short) 0);
-        Assertions.assertDoesNotThrow(entry::limit);
-        Assertions.assertDoesNotThrow(entry::pageNumber);
+        var entry = new PageRequest();
+        Assertions.assertDoesNotThrow(entry::getLimit);
+        Assertions.assertDoesNotThrow(entry::getPageNumber);
     }
 
     @Test
@@ -26,7 +27,7 @@ class PageRequestTest {
 
     @Test
     void testToString() {
-        var entry = new PageRequest(0L, (short) 0);
+        var entry = new PageRequest();
         Assertions.assertDoesNotThrow(() -> Assertions.assertNotNull(entry.toString()));
     }
 

@@ -29,6 +29,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
@@ -37,34 +38,34 @@ public class CodifierResource extends AbstractResource implements Resource<Strin
 
     @GET
     @Path(ResourcePath.ID)
-    @Produces("application/json")
+    @Produces(MediaType.APPLICATION_JSON)
     public Uni<Response> get(String id, @Context UriInfo uriInfo) {
         return request(EventAddress.CODIFIER_GET, id, uriInfo);
     }
 
     @GET
-    @Produces("application/json")
+    @Produces(MediaType.APPLICATION_JSON)
     public Uni<Response> page(@QueryParam("page") Long page, @QueryParam("limit") Short limit) {
         return requestPage(EventAddress.CODIFIER_PAGE, new PageRequest(page, limit));
     }
 
     @POST
-    @Consumes("application/json")
-    @Produces("application/json")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     public Uni<Response> post(Codifier entry, @Context UriInfo uriInfo) {
         return request(EventAddress.CODIFIER_ADD, entry, uriInfo);
     }
 
     @PUT
-    @Consumes("application/json")
-    @Produces("application/json")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     public Uni<Response> put(Codifier entry, @Context UriInfo uriInfo) {
         return request(EventAddress.CODIFIER_PUT, entry, uriInfo);
     }
 
     @DELETE
     @Path(ResourcePath.ID)
-    @Produces("application/json")
+    @Produces(MediaType.APPLICATION_JSON)
     public Uni<Response> delete(String id, @Context UriInfo uriInfo) {
         return request(EventAddress.CODIFIER_DEL, id, uriInfo);
     }
@@ -81,8 +82,8 @@ public class CodifierResource extends AbstractResource implements Resource<Strin
         CodifierService service;
 
         @GET
-        @Path("/")
-        @Produces("application/json")
+        @Path(ResourcePath.ALL)
+        @Produces(MediaType.APPLICATION_JSON)
         public Multi<Codifier> all() {
             return getAll();
         }

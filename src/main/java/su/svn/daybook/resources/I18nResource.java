@@ -29,6 +29,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
@@ -37,34 +38,34 @@ public class I18nResource extends AbstractResource implements Resource<Long, I18
 
     @GET
     @Path(ResourcePath.ID)
-    @Produces("application/json")
+    @Produces(MediaType.APPLICATION_JSON)
     public Uni<Response> get(Long id, @Context UriInfo uriInfo) {
         return request(EventAddress.I18N_GET, id, uriInfo);
     }
 
     @GET
-    @Produces("application/json")
+    @Produces(MediaType.APPLICATION_JSON)
     public Uni<Response> page(@QueryParam("page") Long page, @QueryParam("limit") Short limit) {
         return requestPage(EventAddress.I18N_PAGE, new PageRequest(page, limit));
     }
 
     @POST
-    @Consumes("application/json")
-    @Produces("application/json")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     public Uni<Response> post(I18n entry, @Context UriInfo uriInfo) {
         return request(EventAddress.I18N_ADD, entry, uriInfo);
     }
 
     @PUT
-    @Consumes("application/json")
-    @Produces("application/json")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     public Uni<Response> put(I18n entry, @Context UriInfo uriInfo) {
         return request(EventAddress.I18N_PUT, entry, uriInfo);
     }
 
     @DELETE
     @Path(ResourcePath.ID)
-    @Produces("application/json")
+    @Produces(MediaType.APPLICATION_JSON)
     public Uni<Response> delete(Long id, @Context UriInfo uriInfo) {
         return request(EventAddress.I18N_DEL, id, uriInfo);
     }
@@ -81,8 +82,8 @@ public class I18nResource extends AbstractResource implements Resource<Long, I18
         I18nService service;
 
         @GET
-        @Path("/")
-        @Produces("application/json")
+        @Path(ResourcePath.ALL)
+        @Produces(MediaType.APPLICATION_JSON)
         public Multi<I18n> all() {
             return getAll();
         }
