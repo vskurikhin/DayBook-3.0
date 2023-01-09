@@ -80,16 +80,23 @@ abstract class AbstractResource {
         return true;
     }
 
-    protected RestResponse<String> badRequest(Throwable x) {
+    protected RestResponse<String> exceptionMapper(Throwable x) {
         LOG.errorf("badRequest: %s", x.getClass().getSimpleName());
         return switch (x.getClass().getSimpleName()) {
-            case "AuthenticationFailedException", "ForbiddenException", "ParseException"
-                    -> RestResponse.status(Response.Status.FORBIDDEN, errorJson(x));
-            default -> RestResponse.status(Response.Status.BAD_REQUEST, errorJson(x));
+            case "AuthenticationFailedException", "ForbiddenException",
+                    "ParseException", "UnauthorizedException"
+                    -> RestResponse.status(Response.Status.FORBIDDEN, forbidden(x));
+            default -> RestResponse.status(Response.Status.BAD_REQUEST, badRequest(x));
         };
     }
 
-    private String errorJson(Throwable x) {
+    private String forbidden(Throwable x) {
+        return String.format("""
+                {"error": 403,"message": "forbidden %s"}\
+                """, String.valueOf(x.getMessage()).replaceAll("\"", "'"));
+    }
+
+    private String badRequest(Throwable x) {
         return String.format("""
                 {"error": 400,"message": "%s"}\
                 """, String.valueOf(x.getMessage()).replaceAll("\"", "'"));

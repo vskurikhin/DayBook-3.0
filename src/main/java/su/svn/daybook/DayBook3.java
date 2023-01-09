@@ -8,58 +8,34 @@
 
 package su.svn.daybook;
 
-import io.smallrye.mutiny.Uni;
-
-import javax.inject.Inject;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-
-import javax.ws.rs.QueryParam;
-
-import io.vertx.mutiny.core.eventbus.EventBus;
-import io.vertx.mutiny.core.eventbus.Message;
-
-import io.vertx.mutiny.core.Vertx;
 import org.eclipse.microprofile.openapi.annotations.OpenAPIDefinition;
+import org.eclipse.microprofile.openapi.annotations.enums.SecuritySchemeIn;
+import org.eclipse.microprofile.openapi.annotations.enums.SecuritySchemeType;
 import org.eclipse.microprofile.openapi.annotations.info.Contact;
 import org.eclipse.microprofile.openapi.annotations.info.Info;
 import org.eclipse.microprofile.openapi.annotations.info.License;
-import org.eclipse.microprofile.openapi.annotations.tags.Tag;
+import org.eclipse.microprofile.openapi.annotations.security.SecurityScheme;
+
+import javax.ws.rs.core.Application;
 
 @OpenAPIDefinition(
-        tags = {
-                @Tag(name="widget", description="Widget operations."),
-                @Tag(name="gasket", description="Operations related to gaskets")
-        },
         info = @Info(
-                title="Example API",
-                version = "1.0.1",
+                title = "DayBook 3 API",
+                version = "3.0.1",
                 contact = @Contact(
-                        name = "Example API Support",
-                        url = "http://exampleurl.com/contact",
-                        email = "techsupport@example.com"),
+                        name = "To use API Support",
+                        url = "https://svn.su",
+                        email = "stalker@quake.ru"),
                 license = @License(
-                        name = "Apache 2.0",
-                        url = "https://www.apache.org/licenses/LICENSE-2.0.html"))
+                        name = "This is free and unencumbered software released into the public domain",
+                        url = "http://unlicense.org"
+                ))
 )
-@Path("/")
-public class DayBook3 {
-
-    @Inject
-    EventBus bus;
-
-    private final Vertx vertx;
-
-    @Inject
-    public DayBook3(Vertx vertx) {
-        this.vertx = vertx;
-    }
-
-    @GET
-    @Path("/hello")
-    public Uni<String> hello(@QueryParam("name") String name) {
-        return bus.<String>request("greetings", name)
-                .onItem()
-                .transform(Message::body);
-    }
+@SecurityScheme(
+        securitySchemeName = "day-book",
+        scheme = "Bearer",
+        type = SecuritySchemeType.HTTP,
+        in = SecuritySchemeIn.HEADER
+)
+public class DayBook3 extends Application {
 }

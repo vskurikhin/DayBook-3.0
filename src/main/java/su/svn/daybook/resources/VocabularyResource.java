@@ -10,6 +10,7 @@ package su.svn.daybook.resources;
 
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
+import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.jboss.resteasy.reactive.RestResponse;
 import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
 import su.svn.daybook.domain.enums.EventAddress;
@@ -36,6 +37,7 @@ import javax.ws.rs.core.UriInfo;
 @Path(ResourcePath.VOCABULARY)
 public class VocabularyResource extends AbstractResource implements Resource<Long, Vocabulary> {
 
+    @Operation(hidden = true)
     @GET
     @Path(ResourcePath.ID)
     @Produces(MediaType.APPLICATION_JSON)
@@ -43,26 +45,33 @@ public class VocabularyResource extends AbstractResource implements Resource<Lon
         return request(EventAddress.VOCABULARY_GET, id, uriInfo);
     }
 
+    @Operation(hidden = true)
     @GET
+    @Path(ResourcePath.PAGE)
     @Produces(MediaType.APPLICATION_JSON)
     public Uni<Response> page(@QueryParam("page") Long page, @QueryParam("limit") Short limit) {
         return requestPage(EventAddress.VOCABULARY_PAGE, new PageRequest(page, limit));
     }
 
+    @Operation(hidden = true)
     @POST
+    @Path(ResourcePath.NONE)
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Uni<Response> post(Vocabulary entry, @Context UriInfo uriInfo) {
         return request(EventAddress.VOCABULARY_ADD, entry, uriInfo);
     }
 
+    @Operation(hidden = true)
     @PUT
+    @Path(ResourcePath.NONE)
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Uni<Response> put(Vocabulary entry, @Context UriInfo uriInfo) {
         return request(EventAddress.VOCABULARY_PUT, entry, uriInfo);
     }
 
+    @Operation(hidden = true)
     @DELETE
     @Path(ResourcePath.ID)
     @Produces(MediaType.APPLICATION_JSON)
@@ -72,7 +81,7 @@ public class VocabularyResource extends AbstractResource implements Resource<Lon
 
     @ServerExceptionMapper
     public RestResponse<String> exception(Throwable x) {
-        return badRequest(x);
+        return exceptionMapper(x);
     }
 
     @Path(ResourcePath.VOCABULARIES)
@@ -81,6 +90,7 @@ public class VocabularyResource extends AbstractResource implements Resource<Lon
         @Inject
         VocabularyService service;
 
+        @Operation(hidden = true)
         @GET
         @Path(ResourcePath.ALL)
         @Produces(MediaType.APPLICATION_JSON)

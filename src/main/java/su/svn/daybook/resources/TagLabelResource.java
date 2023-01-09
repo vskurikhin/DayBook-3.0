@@ -10,16 +10,15 @@ package su.svn.daybook.resources;
 
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
+import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.jboss.resteasy.reactive.RestResponse;
 import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
 import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.enums.ResourcePath;
 import su.svn.daybook.models.domain.TagLabel;
-import su.svn.daybook.models.domain.Word;
 import su.svn.daybook.models.pagination.PageRequest;
 import su.svn.daybook.services.models.AbstractService;
 import su.svn.daybook.services.models.TagLabelService;
-import su.svn.daybook.services.models.WordService;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -38,6 +37,7 @@ import javax.ws.rs.core.UriInfo;
 @Path(ResourcePath.TAG_LABEL)
 public class TagLabelResource extends AbstractResource implements Resource<String, TagLabel> {
 
+    @Operation(hidden = true)
     @GET
     @Path(ResourcePath.ID)
     @Produces(MediaType.APPLICATION_JSON)
@@ -45,26 +45,33 @@ public class TagLabelResource extends AbstractResource implements Resource<Strin
         return request(EventAddress.TAG_LABEL_GET, id, uriInfo);
     }
 
+    @Operation(hidden = true)
     @GET
+    @Path(ResourcePath.PAGE)
     @Produces(MediaType.APPLICATION_JSON)
     public Uni<Response> page(@QueryParam("page") Long page, @QueryParam("limit") Short limit) {
         return requestPage(EventAddress.TAG_LABEL_PAGE, new PageRequest(page, limit));
     }
 
+    @Operation(hidden = true)
     @POST
+    @Path(ResourcePath.NONE)
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Uni<Response> post(TagLabel entry, @Context UriInfo uriInfo) {
         return request(EventAddress.TAG_LABEL_ADD, entry, uriInfo);
     }
 
+    @Operation(hidden = true)
     @PUT
+    @Path(ResourcePath.NONE)
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Uni<Response> put(TagLabel entry, @Context UriInfo uriInfo) {
         return request(EventAddress.TAG_LABEL_PUT, entry, uriInfo);
     }
 
+    @Operation(hidden = true)
     @DELETE
     @Path(ResourcePath.ID)
     @Produces(MediaType.APPLICATION_JSON)
@@ -74,7 +81,7 @@ public class TagLabelResource extends AbstractResource implements Resource<Strin
 
     @ServerExceptionMapper
     public RestResponse<String> exception(Throwable x) {
-        return badRequest(x);
+        return exceptionMapper(x);
     }
 
     @Path(ResourcePath.TAG_LABELS)
@@ -83,6 +90,7 @@ public class TagLabelResource extends AbstractResource implements Resource<Strin
         @Inject
         TagLabelService service;
 
+        @Operation(hidden = true)
         @GET
         @Path(ResourcePath.ALL)
         @Produces(MediaType.APPLICATION_JSON)

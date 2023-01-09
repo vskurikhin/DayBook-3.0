@@ -3,6 +3,7 @@ package su.svn.daybook.resources;
 import io.quarkus.security.identity.CurrentIdentityAssociation;
 import io.quarkus.security.identity.SecurityIdentity;
 import org.eclipse.microprofile.jwt.JsonWebToken;
+import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.jboss.logging.Logger;
 
 import javax.annotation.security.PermitAll;
@@ -23,6 +24,7 @@ public class TokenSecuredResource {
     @Inject
     JsonWebToken jwt;
 
+    @Operation(hidden = true)
     @GET()
     @Path("permit-all")
     @PermitAll
@@ -53,6 +55,7 @@ public class TokenSecuredResource {
                 name, ctx.isSecure(), ctx.getAuthenticationScheme(), principal, roles, hasJwt());
     }
 
+    @Operation(hidden = true)
     @GET
     @Path("rolse-allowed")
     @Produces(MediaType.TEXT_PLAIN)
