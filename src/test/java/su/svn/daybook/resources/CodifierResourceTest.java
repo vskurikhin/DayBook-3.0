@@ -49,7 +49,6 @@ class CodifierResourceTest {
 
     @Test
     void testEndpointGet() {
-        System.out.println("Answer.of(TestData.CODIFIER.MODEL_0) = " + Answer.of(TestData.CODIFIER.MODEL_0));
         given()
                 .when()
                 .get("/code/" + CodifierTable.NONE)
@@ -82,7 +81,7 @@ class CodifierResourceTest {
                 .when()
                 .get("/code/" + Integer.MIN_VALUE)
                 .then()
-                .statusCode(406);
+                .statusCode(405);
     }
 
     @Test
@@ -99,7 +98,7 @@ class CodifierResourceTest {
     void testEndpointGetPage() {
         given()
                 .when()
-                .get("/code/?page=0&limit=1")
+                .get("/code/-?page=0&limit=1")
                 .then()
                 .statusCode(200)
                 .body(CoreMatchers.startsWith(TestData.CODIFIER.JSON_PAGE_ARRAY_0));

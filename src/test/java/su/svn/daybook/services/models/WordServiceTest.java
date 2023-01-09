@@ -17,6 +17,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import su.svn.daybook.TestData;
+import su.svn.daybook.TestUtils;
 import su.svn.daybook.domain.dao.WordDao;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.messages.ApiResponse;
@@ -48,9 +49,9 @@ class WordServiceTest {
 
     static final Multi<WordTable> MULTI_TABLE_TEST = Multi.createFrom().item(TestData.WORD.TABLE_0);
 
-    static final Multi<WordTable> MULTI_WITH_NULL = TestData.createMultiWithNull(WordTable.class);
+    static final Multi<WordTable> MULTI_WITH_NULL = TestUtils.createMultiWithNull(WordTable.class);
 
-    static final Multi<WordTable> MULTI_EMPTIES = TestData.createMultiEmpties(WordTable.class);
+    static final Multi<WordTable> MULTI_EMPTIES = TestUtils.createMultiEmpties(WordTable.class);
 
     @BeforeEach
     void setUp() {

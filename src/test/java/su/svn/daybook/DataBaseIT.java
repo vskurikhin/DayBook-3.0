@@ -10,8 +10,6 @@ package su.svn.daybook;
 
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
-import io.smallrye.mutiny.Multi;
-import io.smallrye.mutiny.Uni;
 import io.vertx.core.json.JsonObject;
 import org.junit.jupiter.api.*;
 import su.svn.daybook.domain.dao.*;
@@ -27,6 +25,8 @@ import javax.inject.Inject;
 import java.math.BigInteger;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
+
+import static su.svn.daybook.TestUtils.*;
 
 @QuarkusTest
 @QuarkusTestResource(value = PostgresDatabaseTestResource.class, restrictToAnnotatedClass = true)
@@ -541,7 +541,7 @@ public class DataBaseIT {
             entry = SessionTable.builder()
                     .userName(SessionTable.NONE)
                     .roles(Collections.emptySet())
-                    .validTime(TestData.EPOCH_TIME)
+                    .validTime(TestData.time.EPOCH_TIME)
                     .enabled(true)
                     .build();
             Assertions.assertDoesNotThrow(() -> {
@@ -563,7 +563,7 @@ public class DataBaseIT {
                     .id(id)
                     .userName(SessionTable.NONE)
                     .roles(Collections.emptySet())
-                    .validTime(TestData.EPOCH_TIME)
+                    .validTime(TestData.time.EPOCH_TIME)
                     .enabled(true)
                     .build();
             Assertions.assertDoesNotThrow(() -> {
@@ -577,7 +577,7 @@ public class DataBaseIT {
                     .id(id)
                     .userName(SessionTable.NONE)
                     .roles(Collections.emptySet())
-                    .validTime(TestData.localDateTimenow())
+                    .validTime(TestData.time.NOW)
                     .enabled(true)
                     .build();
             Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(id, uniOptionalHelper(sessionDao.update(expected2))));
@@ -934,7 +934,7 @@ public class DataBaseIT {
                     .payload(new ApiResponse<>(TestData.uuid.ZERO, 201))
                     .build();
             Assertions.assertDoesNotThrow(() -> {
-                var actual = subscribeAsCompletionStageAnswer(userService.add(user));
+                var actual = uniToAnswerHelper(userService.add(user));
                 Assertions.assertEquals(expected, actual);
             });
             deleteUserName();
@@ -948,7 +948,7 @@ public class DataBaseIT {
                         .roles(set)
                         .build();
                 Assertions.assertDoesNotThrow(() -> {
-                    var actual = subscribeAsCompletionStageAnswer(userService.add(user));
+                    var actual = uniToAnswerHelper(userService.add(user));
                     Assertions.assertEquals(expected, actual);
                     var userView = uniOptionalHelper(userViewDao.findById(id));
                     Assertions.assertNotNull(userView);
@@ -960,7 +960,7 @@ public class DataBaseIT {
                             .error(200)
                             .payload(new ApiResponse<>(TestData.uuid.ZERO, 200))
                             .build();
-                    var actual = subscribeAsCompletionStageAnswer(userService.delete(user.getId()));
+                    var actual = uniToAnswerHelper(userService.delete(user.getId()));
                     Assertions.assertNotNull(actual);
                     Assertions.assertEquals(expected200, actual);
                     if (actual.getPayload() instanceof ApiResponse apiResponse) {
@@ -978,7 +978,7 @@ public class DataBaseIT {
                     .build();
             for (var a : new String[][]{{"role1"}, {"role1", "role2"}}) {
                 Assertions.assertDoesNotThrow(() -> {
-                    var actual = subscribeAsCompletionStageAnswer(userService.add(user));
+                    var actual = uniToAnswerHelper(userService.add(user));
                     Assertions.assertEquals(expected, actual);
                 });
                 var set = Set.of(a);
@@ -991,7 +991,7 @@ public class DataBaseIT {
                         .roles(set)
                         .build();
                 Assertions.assertDoesNotThrow(() -> {
-                    var actual = subscribeAsCompletionStageAnswer(userService.put(user));
+                    var actual = uniToAnswerHelper(userService.put(user));
                     Assertions.assertEquals(expected2, actual);
                     var userView = uniOptionalHelper(userViewDao.findById(id));
                     Assertions.assertNotNull(userView);
@@ -999,7 +999,7 @@ public class DataBaseIT {
                 });
                 // Thread.sleep(25_000);
                 Assertions.assertDoesNotThrow(() -> {
-                    var actual = subscribeAsCompletionStageAnswer(userService.delete(user.getId()));
+                    var actual = uniToAnswerHelper(userService.delete(user.getId()));
                     Assertions.assertNotNull(actual);
                     if (actual.getPayload() instanceof ApiResponse apiResponse) {
                         Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(
@@ -1015,7 +1015,7 @@ public class DataBaseIT {
                     .roles(Set.of("role1", "role2"))
                     .build();
             Assertions.assertDoesNotThrow(() -> {
-                Answer actual = subscribeAsCompletionStageAnswer(userService.add(custom));
+                Answer actual = uniToAnswerHelper(userService.add(custom));
                 if (actual.getPayload() instanceof ApiResponse apiResponse) {
                     customId = UUID.fromString(apiResponse.getId().toString());
                     Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(
@@ -1041,7 +1041,6 @@ public class DataBaseIT {
     @Nested
     @DisplayName("UserTransactionalJob")
     class UserTransactionalJobTest {
-
         UUID id = new UUID(0, 0);
         UUID id1 = new UUID(0, 1);
         UUID id2 = new UUID(0, 2);
@@ -1056,26 +1055,12 @@ public class DataBaseIT {
                     .id(id1)
                     .role("role1")
                     .build();
-            Assertions.assertDoesNotThrow(
-                    () -> Assertions.assertEquals(
-                            id1, roleDao.insert(role1)
-                                    .subscribeAsCompletionStage()
-                                    .get()
-                                    .orElse(null)
-                    )
-            );
+            Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(id1, uniOptionalHelper(roleDao.insert(role1))));
             role2 = RoleTable.builder()
                     .id(id2)
                     .role("role2")
                     .build();
-            Assertions.assertDoesNotThrow(
-                    () -> Assertions.assertEquals(
-                            id2, roleDao.insert(role2)
-                                    .subscribeAsCompletionStage()
-                                    .get()
-                                    .orElse(null)
-                    )
-            );
+            Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(id2, uniOptionalHelper(roleDao.insert(role2))));
             userName = UserNameTable.builder()
                     .id(id)
                     .userName("user")
@@ -1087,30 +1072,9 @@ public class DataBaseIT {
         @AfterEach
         void tearDown() {
             checkUserNameTableIsEmpty();
-            Assertions.assertDoesNotThrow(
-                    () -> Assertions.assertEquals(
-                            id2, roleDao.delete(id2)
-                                    .subscribeAsCompletionStage()
-                                    .get()
-                                    .orElse(null)
-                    )
-            );
-            Assertions.assertDoesNotThrow(
-                    () -> Assertions.assertEquals(
-                            id1, roleDao.delete(id1)
-                                    .subscribeAsCompletionStage()
-                                    .get()
-                                    .orElse(null)
-                    )
-            );
-            Assertions.assertDoesNotThrow(
-                    () -> Assertions.assertEquals(
-                            0, roleDao.count()
-                                    .subscribeAsCompletionStage()
-                                    .get()
-                                    .orElse(null)
-                    )
-            );
+            Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(id2, uniOptionalHelper(roleDao.delete(id2))));
+            Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(id1, uniOptionalHelper(roleDao.delete(id1))));
+            Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(0, uniOptionalHelper(roleDao.count())));
         }
 
         @Test
@@ -1129,11 +1093,7 @@ public class DataBaseIT {
                 var test = uniOptionalHelper(userTransactionalJob.insert(userName, Collections.singleton("role1"), UserNameTable::getUserName));
                 Assertions.assertNotNull(test);
                 Assertions.assertEquals(id, test);
-                var userView = userViewDao
-                        .findById(id)
-                        .subscribeAsCompletionStage()
-                        .get()
-                        .orElse(null);
+                var userView = uniOptionalHelper(userViewDao.findById(id));
                 Assertions.assertNotNull(userView);
                 Assertions.assertEquals(1, userView.getRoles().size());
             });
@@ -1178,11 +1138,8 @@ public class DataBaseIT {
     @Nested
     @DisplayName("ValueTypeDao")
     class ValueTypeDaoTest {
-
         Long id;
-
         String str = "str";
-
         ValueTypeTable entry;
 
         @BeforeEach
@@ -1192,34 +1149,15 @@ public class DataBaseIT {
                     .valueType(str)
                     .enabled(true)
                     .build();
-            Assertions.assertDoesNotThrow(
-                    () -> {
-                        id = valueTypeDao.insert(entry)
-                                .subscribeAsCompletionStage()
-                                .get()
-                                .orElse(null);
-                    }
-            );
+            Assertions.assertDoesNotThrow(() -> {
+                id = uniOptionalHelper(valueTypeDao.insert(entry));
+            });
         }
 
         @AfterEach
         void tearDown() {
-            Assertions.assertDoesNotThrow(
-                    () -> Assertions.assertEquals(
-                            id, valueTypeDao.delete(id)
-                                    .subscribeAsCompletionStage()
-                                    .get()
-                                    .orElse(null)
-                    )
-            );
-            Assertions.assertDoesNotThrow(
-                    () -> Assertions.assertEquals(
-                            0, valueTypeDao.count()
-                                    .subscribeAsCompletionStage()
-                                    .get()
-                                    .orElse(null)
-                    )
-            );
+            Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(id, uniOptionalHelper(valueTypeDao.delete(id))));
+            Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(0, uniOptionalHelper(valueTypeDao.count())));
         }
 
         @Test
@@ -1229,85 +1167,49 @@ public class DataBaseIT {
                     .valueType(str)
                     .enabled(true)
                     .build();
-            Assertions.assertDoesNotThrow(
-                    () -> {
-                        var test = valueTypeDao.findById(id)
-                                .subscribeAsCompletionStage()
-                                .get()
-                                .orElse(null);
-                        Assertions.assertNotNull(test);
-                        Assertions.assertEquals(expected1, test);
-                        Assertions.assertNotNull(test.getCreateTime());
-                        Assertions.assertNull(test.getUpdateTime());
-                    }
-            );
+            Assertions.assertDoesNotThrow(() -> {
+                var test = uniOptionalHelper(valueTypeDao.findById(id));
+                Assertions.assertNotNull(test);
+                Assertions.assertEquals(expected1, test);
+                Assertions.assertNotNull(test.getCreateTime());
+                Assertions.assertNull(test.getUpdateTime());
+            });
             var expected2 = ValueTypeTable.builder()
                     .id(id)
                     .valueType("value")
                     .enabled(true)
                     .build();
-            Assertions.assertDoesNotThrow(
-                    () -> Assertions.assertEquals(
-                            id, valueTypeDao.update(expected2)
-                                    .subscribeAsCompletionStage()
-                                    .get()
-                                    .orElse(null)
-                    )
-            );
-            Assertions.assertDoesNotThrow(
-                    () -> {
-                        var test = valueTypeDao.findById(id)
-                                .subscribeAsCompletionStage()
-                                .get()
-                                .orElse(null);
-                        Assertions.assertNotNull(test);
-                        Assertions.assertEquals(expected2, test);
-                        Assertions.assertNotNull(test.getCreateTime());
-                        Assertions.assertNotNull(test.getUpdateTime());
-                    }
-            );
-            Assertions.assertDoesNotThrow(
-                    () -> {
-                        var test = valueTypeDao.findAll()
-                                .collect()
-                                .asList()
-                                .subscribeAsCompletionStage()
-                                .get();
-                        Assertions.assertNotNull(test);
-                        Assertions.assertFalse(test.isEmpty());
-                        Assertions.assertEquals(1, test.size());
-                    }
-            );
-            Assertions.assertDoesNotThrow(
-                    () -> {
-                        var test = valueTypeDao.findRange(0, 0)
-                                .collect()
-                                .asList()
-                                .subscribeAsCompletionStage()
-                                .get();
-                        Assertions.assertNotNull(test);
-                        Assertions.assertTrue(test.isEmpty());
-                    }
-            );
-            Assertions.assertDoesNotThrow(
-                    () -> {
-                        var test = valueTypeDao.findRange(0, 1)
-                                .collect()
-                                .asList()
-                                .subscribeAsCompletionStage()
-                                .get();
-                        Assertions.assertNotNull(test);
-                        Assertions.assertFalse(test.isEmpty());
-                        Assertions.assertEquals(1, test.size());
-                    }
-            );
+            Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(id, uniOptionalHelper(valueTypeDao.update(expected2))));
+            Assertions.assertDoesNotThrow(() -> {
+                var test = uniOptionalHelper(valueTypeDao.findById(id));
+                Assertions.assertNotNull(test);
+                Assertions.assertEquals(expected2, test);
+                Assertions.assertNotNull(test.getCreateTime());
+                Assertions.assertNotNull(test.getUpdateTime());
+            });
+            Assertions.assertDoesNotThrow(() -> {
+                var test = multiAsListHelper(valueTypeDao.findAll());
+                Assertions.assertNotNull(test);
+                Assertions.assertFalse(test.isEmpty());
+                Assertions.assertEquals(1, test.size());
+            });
+            Assertions.assertDoesNotThrow(() -> {
+                var test = multiAsListHelper(valueTypeDao.findRange(0, 0));
+                Assertions.assertNotNull(test);
+                Assertions.assertTrue(test.isEmpty());
+            });
+            Assertions.assertDoesNotThrow(() -> {
+                var test = multiAsListHelper(valueTypeDao.findRange(0, 1));
+                Assertions.assertNotNull(test);
+                Assertions.assertFalse(test.isEmpty());
+                Assertions.assertEquals(1, test.size());
+            });
         }
     }
 
     @Nested
     @DisplayName("VocabularyDao and WordDao")
     class VocabularyDaoAndWordDaoTest {
-
         String veryLongWordIdForTest = "veryLongWordIdForTest";
         Long vocabularyId;
         VocabularyTable entry;
@@ -1394,18 +1296,13 @@ public class DataBaseIT {
                     .word(veryLongWordIdForTest)
                     .enabled(true)
                     .build();
-            Assertions.assertDoesNotThrow(
-                    () -> {
-                        var test = vocabularyDao.findById(vocabularyId)
-                                .subscribeAsCompletionStage()
-                                .get()
-                                .orElse(null);
-                        Assertions.assertNotNull(test);
-                        Assertions.assertEquals(expected1, test);
-                        Assertions.assertNotNull(test.getCreateTime());
-                        Assertions.assertNull(test.getUpdateTime());
-                    }
-            );
+            Assertions.assertDoesNotThrow(() -> {
+                var test = uniOptionalHelper(vocabularyDao.findById(vocabularyId));
+                Assertions.assertNotNull(test);
+                Assertions.assertEquals(expected1, test);
+                Assertions.assertNotNull(test.getCreateTime());
+                Assertions.assertNull(test.getUpdateTime());
+            });
             var expected2 = VocabularyTable.builder()
                     .id(1L)
                     .word(veryLongWordIdForTest)
@@ -1440,21 +1337,5 @@ public class DataBaseIT {
                 Assertions.assertEquals(1, test.size());
             });
         }
-    }
-
-    private Answer subscribeAsCompletionStageAnswer(Uni<Answer> uni) throws Exception {
-        var result = uni.subscribeAsCompletionStage();
-        Assertions.assertNotNull(result);
-        return result.get();
-    }
-
-    private <T> T uniOptionalHelper(Uni<Optional<T>> uni) throws Exception {
-        var result = uni.subscribeAsCompletionStage();
-        Assertions.assertNotNull(result);
-        return result.get().orElse(null);
-    }
-
-    private <T> List<T> multiAsListHelper(Multi<T> multi) throws Exception {
-        return multi.collect().asList().subscribeAsCompletionStage().get();
     }
 }

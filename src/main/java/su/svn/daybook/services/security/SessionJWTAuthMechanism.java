@@ -32,13 +32,15 @@ import io.vertx.core.http.Cookie;
 import io.vertx.ext.web.RoutingContext;
 import org.eclipse.microprofile.jwt.Claims;
 import org.jboss.logging.Logger;
+import org.jose4j.jwt.MalformedClaimException;
 import org.jose4j.jwt.consumer.JwtContext;
+import su.svn.daybook.models.domain.Session;
 import su.svn.daybook.models.security.SessionPrincipal;
+import su.svn.daybook.services.domain.SessionDataService;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Alternative;
 import javax.inject.Inject;
-import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -60,6 +62,9 @@ public class SessionJWTAuthMechanism implements HttpAuthenticationMechanism {
     @Inject
     private JWTAuthContextInfo authContextInfo;
 
+    @Inject
+    SessionDataService sessionDataService;
+
     @Override
     public Uni<SecurityIdentity> authenticate(RoutingContext context, IdentityProviderManager identityProviderManager) {
         // do some custom action and delegate
@@ -70,7 +75,7 @@ public class SessionJWTAuthMechanism implements HttpAuthenticationMechanism {
     }
 
     private Uni<SecurityIdentity> rebuildSecurityIdentity(RoutingContext context, SecurityIdentity securityIdentity) {
-        var rb = new SessionSecurityIdentityReBuilder(authContextInfo, context);
+        var rb = new SessionSecurityIdentityReBuilder(authContextInfo, sessionDataService, context);
         return rb.apply(securityIdentity);
     }
 
@@ -92,40 +97,22 @@ public class SessionJWTAuthMechanism implements HttpAuthenticationMechanism {
         return delegate.getCredentialTransport(context);
     }
 
-    public static class Session {
-        private final UUID id;
-        private final String userName;
-        private final Set<String> roles;
-
-        public Session(UUID id, String userName, Set<String> roles) {
-            this.id = id;
-            this.userName = userName;
-            this.roles = roles;
-        }
-
-        public UUID getId() {
-            return id;
-        }
-
-        public String getUserName() {
-            return userName;
-        }
-
-        public Set<String> getRoles() {
-            return roles;
-        }
-    }
-
     private static class SessionSecurityIdentityReBuilder implements Function<SecurityIdentity, Uni<SecurityIdentity>> {
 
         private final JWTAuthContextInfo authContextInfo;
+
+        private final SessionDataService sessionDataService;
 
         private final RoutingContext context;
 
         private final DefaultJWTTokenParser parser = new DefaultJWTTokenParser();
 
-        SessionSecurityIdentityReBuilder(JWTAuthContextInfo authContextInfo, RoutingContext context) {
+        SessionSecurityIdentityReBuilder(
+                JWTAuthContextInfo authContextInfo,
+                SessionDataService sessionDataService,
+                RoutingContext context) {
             this.authContextInfo = authContextInfo;
+            this.sessionDataService = sessionDataService;
             this.context = context;
         }
 
@@ -166,24 +153,31 @@ public class SessionJWTAuthMechanism implements HttpAuthenticationMechanism {
                 var subName = jwtContext.getJwtClaims().getClaimValue(Claims.sub.name());
                 LOG.tracef("authenticate->createPrincipal->subject: %s", subName);
                 if (subName instanceof String subject) {
-                    var sessionId = UUID.fromString(subject);
-                    // TODO find session from session dao
-                    Uni<Session> us = Uni.createFrom()
-                            .item(new Session(new UUID(0, 0), "guest", Collections.emptySet()));
-                    return us.map(session -> createPrincipal(type, jwtContext, session));
+                    return sessionDataService
+                            .get(UUID.fromString(subject))
+                            .map(session -> createPrincipal(type, jwtContext, session));
                 }
                 LOG.debug("Authentication failed Subject not found");
                 throw new AuthenticationFailedException("Authentication failed Subject not found");
-            } catch (IllegalArgumentException | ParseException e) {
+            } catch (AuthenticationFailedException | IllegalArgumentException | ParseException e) {
                 LOG.debug("Authentication failed", e);
                 throw new AuthenticationFailedException(e);
             }
         }
 
         private JWTCallerPrincipal createPrincipal(String type, JwtContext jwtContext, Session session) {
-            return new SessionPrincipal(type, jwtContext.getJwtClaims(), session.getUserName(), session.getRoles());
+            try {
+                return new SessionPrincipal(
+                        type,
+                        jwtContext.getJwtClaims(),
+                        session.getUserName(),
+                        session.getRoles(),
+                        UUID.fromString(jwtContext.getJwtClaims().getAudience().get(0))
+                );
+            } catch (IllegalArgumentException | MalformedClaimException e) {
+                throw new AuthenticationFailedException(e);
+            }
         }
-
     }
 
     private static class VertxBearerTokenExtractor extends AbstractBearerTokenExtractor {

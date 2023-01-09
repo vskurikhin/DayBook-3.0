@@ -77,14 +77,14 @@ class TagLabelResourceTest {
                 .when()
                 .get("/tag/" + Integer.MIN_VALUE)
                 .then()
-                .statusCode(406);
+                .statusCode(405);
     }
 
     @Test
     void testEndpointGetPage() {
         given()
                 .when()
-                .get("/tag/?page=0&limit=1")
+                .get("/tag/-?page=0&limit=1")
                 .then()
                 .statusCode(200)
                 .body(CoreMatchers.startsWith(TestData.TAG_LABEL.JSON_PAGE_ARRAY_0));

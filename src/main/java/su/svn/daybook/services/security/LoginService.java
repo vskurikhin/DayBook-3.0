@@ -8,31 +8,31 @@
 
 package su.svn.daybook.services.security;
 
-import io.quarkus.security.AuthenticationFailedException;
 import io.quarkus.vertx.ConsumeEvent;
 import io.smallrye.mutiny.Uni;
-import su.svn.daybook.domain.dao.SessionDao;
-import su.svn.daybook.domain.dao.UserViewDao;
+import org.jboss.logging.Logger;
 import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.messages.ApiResponse;
 import su.svn.daybook.domain.model.SessionTable;
-import su.svn.daybook.domain.model.UserView;
 import su.svn.daybook.models.security.AuthRequest;
 import su.svn.daybook.models.security.User;
+import su.svn.daybook.services.ExceptionAnswerService;
+import su.svn.daybook.services.domain.LoginDataService;
 
 import javax.annotation.Nonnull;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import java.util.Optional;
+import java.util.HashSet;
 import java.util.UUID;
 
 @ApplicationScoped
 public class LoginService {
 
-    public static final String AUTHENTICATION_FAILED = "Authentication failed: ";
-    public static final String USER_NAME_INCORRECT = " user name incorrect!";
-    public static final String PASSWORD_INCORRECT = " password incorrect!";
+    private static final Logger LOG = Logger.getLogger(LoginService.class);
+
+    @Inject
+    LoginDataService loginDataService;
 
     @Inject
     PBKDF2Encoder passwordEncoder;
@@ -41,58 +41,49 @@ public class LoginService {
     TokenService tokenService;
 
     @Inject
-    SessionDao sessionDao;
+    AuthRequestContext authRequestContext;
 
     @Inject
-    UserViewDao userViewDao;
+    ExceptionAnswerService exceptionAnswerService;
 
     @ConsumeEvent(EventAddress.LOGIN_REQUEST)
     public Uni<Answer> login(@Nonnull AuthRequest authRequest) {
-        return userViewDao
+        LOG.tracef("login(%s): requestId: %s", authRequest, authRequestContext.getRequestId());
+        authRequestContext.setAuthRequest(authRequest);
+        return loginDataService
                 .findByUserName(authRequest.username())
-                .flatMap(o -> authentication(authRequest, o));
+                .flatMap(u -> authentication(User.from(u)))
+                .onFailure(exceptionAnswerService::testAuthenticationFailedException)
+                .recoverWithUni(exceptionAnswerService::authenticationFailedUniAnswer)
+                .onTermination()
+                .invoke(authRequestContext::clear);
     }
 
-    private Uni<Answer> authentication(AuthRequest authRequest, Optional<UserView> optionalUser) {
-        return optionalUser
-                .map(u -> authentication(authRequest, User.from(u)))
-                .orElseThrow(() -> authenticationFailed(authRequest, true));
-    }
-
-    private Uni<Answer> authentication(AuthRequest authRequest, User user) {
-
+    private Uni<Answer> authentication(User user) {
+        var authRequest = authRequestContext.getAuthRequest();
         if (user.password() != null) {
             if (user.password().equals(passwordEncoder.encode(authRequest.password()))) {
-                return generateToken(authRequest, user).map(token -> Answer.of(ApiResponse.auth(token)));
+                return generateToken(user).map(token -> Answer.of(ApiResponse.auth(token)));
             }
         }
-        throw authenticationFailed(authRequest,false);
+        throw authRequestContext.authenticationFailed();
     }
 
-    private AuthenticationFailedException authenticationFailed(AuthRequest authRequest, boolean unknownUser) {
-        return unknownUser
-                ? new AuthenticationFailedException(AUTHENTICATION_FAILED + authRequest.username() + USER_NAME_INCORRECT)
-                : new AuthenticationFailedException(AUTHENTICATION_FAILED + authRequest.username() + PASSWORD_INCORRECT);
-    }
-
-    private Uni<String> generateToken(AuthRequest authRequest, User user) {
+    private Uni<String> generateToken(User user) {
+        var roles = new HashSet<>(user.roles());
+        roles.add("GUEST");
         SessionTable session = SessionTable.builder()
                 .userName(user.username())
-                .roles(user.roles())
+                .roles(roles)
                 .validTime(tokenService.validTime())
                 .build();
-        return sessionDao
+        return loginDataService
                 .insert(session)
-                .map(o -> lookUpUUID(authRequest, user, o));
+                .map(this::generateToken);
     }
 
-    private String lookUpUUID(AuthRequest authRequest, User user, Optional<UUID> uuidOptional) {
-        return uuidOptional
-                .map(uuid -> generateToken(user, uuid))
-                .orElseThrow(() -> authenticationFailed(authRequest, false));
-    }
-
-    private String generateToken(User user, UUID u) {
-        return tokenService.generate(u.toString(), user.roles());
+    private String generateToken(UUID u) {
+        var audience = authRequestContext.getRequestId().toString();
+        return tokenService.generate(u.toString(), audience);
     }
 }

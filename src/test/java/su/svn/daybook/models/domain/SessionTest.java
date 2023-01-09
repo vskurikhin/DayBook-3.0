@@ -6,8 +6,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import su.svn.daybook.TestData;
 
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.Collections;
 
 class SessionTest {
@@ -16,7 +14,7 @@ class SessionTest {
     void testConstructors() {
         Assertions.assertDoesNotThrow(() -> new Session());
         Assertions.assertDoesNotThrow(() -> new Session(
-                null, Session.NONE,  Collections.emptySet(), TestData.EPOCH_TIME, true, 0
+                null, Session.NONE,  Collections.emptySet(), TestData.time.EPOCH_TIME, true, 0
         ));
     }
 
@@ -53,7 +51,7 @@ class SessionTest {
                 .id(null)
                 .userName(Session.NONE)
                 .roles(Collections.emptySet())
-                .validTime(TestData.EPOCH_TIME)
+                .validTime(TestData.time.EPOCH_TIME)
                 .visible(true)
                 .flags(0)
                 .build()));

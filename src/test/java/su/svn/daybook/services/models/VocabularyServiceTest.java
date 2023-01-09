@@ -17,13 +17,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import su.svn.daybook.TestData;
+import su.svn.daybook.TestUtils;
 import su.svn.daybook.domain.dao.VocabularyDao;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.messages.ApiResponse;
 import su.svn.daybook.domain.model.VocabularyTable;
 import su.svn.daybook.models.pagination.Page;
 import su.svn.daybook.models.pagination.PageRequest;
-import su.svn.daybook.services.models.VocabularyService;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -44,9 +44,9 @@ class VocabularyServiceTest {
 
     static final Multi<VocabularyTable> MULTI_TEST = Multi.createFrom().item(TestData.VOCABULARY.TABLE_0);
 
-    static final Multi<VocabularyTable> MULTI_WITH_NULL = TestData.createMultiWithNull(VocabularyTable.class);
+    static final Multi<VocabularyTable> MULTI_WITH_NULL = TestUtils.createMultiWithNull(VocabularyTable.class);
 
-    static final Multi<VocabularyTable> MULTI_EMPTIES = TestData.createMultiEmpties(VocabularyTable.class);
+    static final Multi<VocabularyTable> MULTI_EMPTIES = TestUtils.createMultiEmpties(VocabularyTable.class);
 
     @BeforeEach
     void setUp() {

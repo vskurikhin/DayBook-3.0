@@ -14,7 +14,7 @@ class SessionTableTest {
     void testConstructors() {
         Assertions.assertDoesNotThrow(() -> new SessionTable());
         Assertions.assertDoesNotThrow(() -> new SessionTable(
-                null, SessionTable.NONE, Collections.emptySet(), TestData.EPOCH_TIME, null, null, true, true, 0
+                null, SessionTable.NONE, Collections.emptySet(), TestData.time.EPOCH_TIME, null, null, true, true, 0
         ));
     }
     @Test
@@ -54,7 +54,7 @@ class SessionTableTest {
                 .id(null)
                 .userName(SessionTable.NONE)
                 .roles(Collections.emptySet())
-                .validTime(TestData.EPOCH_TIME)
+                .validTime(TestData.time.EPOCH_TIME)
                 .createTime(null)
                 .updateTime(null)
                 .enabled(true)

@@ -13,6 +13,8 @@ import org.eclipse.microprofile.openapi.annotations.media.Content;
 import org.eclipse.microprofile.openapi.annotations.media.ExampleObject;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
+import org.jboss.resteasy.reactive.RestResponse;
+import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
 import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.enums.ResourcePath;
 import su.svn.daybook.models.security.AuthRequest;
@@ -50,5 +52,11 @@ public class AuthResource extends AbstractResource {
 
     public Uni<Response> login(AuthRequest authRequest, @Context UriInfo uriInfo) {
         return request(EventAddress.LOGIN_REQUEST, authRequest, uriInfo);
+    }
+
+
+    @ServerExceptionMapper
+    public RestResponse<String> exception(Throwable x) {
+        return exceptionMapper(x);
     }
 }

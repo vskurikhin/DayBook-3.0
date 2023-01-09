@@ -2,6 +2,7 @@ package su.svn.daybook.resources;
 
 import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.security.TestSecurity;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import org.hamcrest.CoreMatchers;
@@ -80,7 +81,7 @@ public class UserResourceTest {
     void testEndpointGetPage() {
         given()
                 .when()
-                .get("/user/?page=0&limit=1")
+                .get("/user/-?page=0&limit=1")
                 .then()
                 .statusCode(200)
                 .body(CoreMatchers.startsWith(TestData.USER.JSON_PAGE_ARRAY_0));
@@ -88,6 +89,7 @@ public class UserResourceTest {
 
 
     @Test
+    @TestSecurity(user = "testUser", roles = {"ADMIN"})
     void testEndpointAdd() {
         given()
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
@@ -100,6 +102,7 @@ public class UserResourceTest {
     }
 
     @Test
+    @TestSecurity(user = "testUser", roles = {"USER"})
     void testEndpointPut() {
         given()
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)

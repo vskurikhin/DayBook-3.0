@@ -97,6 +97,7 @@ abstract class AbstractResource {
     }
 
     private String badRequest(Throwable x) {
+        LOG.tracef("badRequest: %s", x.getCause());
         return String.format("""
                 {"error": 400,"message": "%s"}\
                 """, String.valueOf(x.getMessage()).replaceAll("\"", "'"));

@@ -85,7 +85,7 @@ class LanguageResourceTest {
                 .when()
                 .get("/lang/" + Integer.MIN_VALUE)
                 .then()
-                .statusCode(406);
+                .statusCode(405);
     }
 
     @Test
@@ -102,7 +102,7 @@ class LanguageResourceTest {
     void testEndpointGetPage() {
         given()
                 .when()
-                .get("/lang/?page=0&limit=1")
+                .get("/lang/-?page=0&limit=1")
                 .then()
                 .statusCode(200)
                 .body(CoreMatchers.startsWith(TestData.LANGUAGE.JSON_PAGE_ARRAY_0));

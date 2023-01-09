@@ -17,6 +17,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import su.svn.daybook.TestData;
+import su.svn.daybook.TestUtils;
 import su.svn.daybook.domain.dao.SettingDao;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.messages.ApiResponse;
@@ -42,9 +43,9 @@ class SettingServiceTest {
 
     static final Multi<SettingTable> MULTI_TEST = Multi.createFrom().item(TestData.SETTING.TABLE_0);
 
-    static final Multi<SettingTable> MULTI_WITH_NULL = TestData.createMultiWithNull(SettingTable.class);
+    static final Multi<SettingTable> MULTI_WITH_NULL = TestUtils.createMultiWithNull(SettingTable.class);
 
-    static final Multi<SettingTable> MULTI_EMPTIES = TestData.createMultiEmpties(SettingTable.class);
+    static final Multi<SettingTable> MULTI_EMPTIES = TestUtils.createMultiEmpties(SettingTable.class);
 
     @BeforeEach
     void setUp() {

@@ -4,9 +4,11 @@ import io.quarkus.security.identity.CurrentIdentityAssociation;
 import io.quarkus.security.identity.SecurityIdentity;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.security.SecurityRequirement;
 import org.jboss.logging.Logger;
 
 import javax.annotation.security.PermitAll;
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.InternalServerErrorException;
@@ -24,10 +26,11 @@ public class TokenSecuredResource {
     @Inject
     JsonWebToken jwt;
 
-    @Operation(hidden = true)
+    // @Operation(hidden = true)
     @GET()
     @Path("permit-all")
     @PermitAll
+    @SecurityRequirement(name = "day-book")
     @Produces(MediaType.TEXT_PLAIN)
     public String hello(@Context SecurityContext ctx) {
         return getResponseString(ctx);
@@ -55,12 +58,16 @@ public class TokenSecuredResource {
                 name, ctx.isSecure(), ctx.getAuthenticationScheme(), principal, roles, hasJwt());
     }
 
-    @Operation(hidden = true)
+    // @Operation(hidden = true)
     @GET
     @Path("rolse-allowed")
+    @RolesAllowed("GUEST")
+    @SecurityRequirement(name = "day-book")
     @Produces(MediaType.TEXT_PLAIN)
     public String helloRolesAllowed(@Context SecurityContext ctx) {
-        return getResponseString(ctx) + ", sub: " + jwt.getClaim("sub").toString();
+        return getResponseString(ctx)
+                + ", sub: " + jwt.getClaim("sub").toString()
+                + ", aud: " + jwt.getClaim("aud").toString();
     }
 
 

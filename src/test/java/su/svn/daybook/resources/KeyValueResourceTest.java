@@ -102,7 +102,7 @@ class KeyValueResourceTest {
     void testEndpointGetPage() {
         given()
                 .when()
-                .get("/key-value/?page=0&limit=1")
+                .get("/key-value/-?page=0&limit=1")
                 .then()
                 .statusCode(200)
                 .body(CoreMatchers.startsWith(TestData.KEY_VALUE.JSON_PAGE_ARRAY_0));

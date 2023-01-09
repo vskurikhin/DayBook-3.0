@@ -85,7 +85,7 @@ class ValueTypeResourceTest {
                 .when()
                 .get("/value-type/" + Integer.MIN_VALUE)
                 .then()
-                .statusCode(406);
+                .statusCode(405);
     }
 
     @Test
@@ -102,7 +102,7 @@ class ValueTypeResourceTest {
     void testEndpointGetPage() {
         given()
                 .when()
-                .get("/value-type/?page=0&limit=1")
+                .get("/value-type/-?page=0&limit=1")
                 .then()
                 .statusCode(200)
                 .body(CoreMatchers.startsWith(TestData.VALUE_TYPE.JSON_PAGE_ARRAY_0));

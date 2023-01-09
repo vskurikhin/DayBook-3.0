@@ -5,6 +5,7 @@ import org.eclipse.microprofile.jwt.Claims;
 import org.jose4j.jwt.JwtClaims;
 
 import java.util.Set;
+import java.util.UUID;
 
 public class SessionPrincipal extends DefaultJWTCallerPrincipal {
 
@@ -14,11 +15,14 @@ public class SessionPrincipal extends DefaultJWTCallerPrincipal {
 
     private final String tokenType;
 
-    public SessionPrincipal(String tokenType, JwtClaims claimsSet, String name, Set<String> groups) {
+    private final UUID requestId;
+
+    public SessionPrincipal(String tokenType, JwtClaims claimsSet, String name, Set<String> groups, UUID requestId) {
         super(tokenType, claimsSet);
         this.name = name;
         this.groups = groups;
         this.tokenType = tokenType;
+        this.requestId = requestId;
     }
 
     @Override
@@ -33,6 +37,10 @@ public class SessionPrincipal extends DefaultJWTCallerPrincipal {
 
     public String getSessionId() {
         return super.getName();
+    }
+
+    public UUID getRequestId() {
+        return requestId;
     }
 
     @Override

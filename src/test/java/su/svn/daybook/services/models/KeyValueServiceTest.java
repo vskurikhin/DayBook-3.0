@@ -17,6 +17,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import su.svn.daybook.TestData;
+import su.svn.daybook.TestUtils;
 import su.svn.daybook.domain.dao.KeyValueDao;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.messages.ApiResponse;
@@ -43,9 +44,9 @@ class KeyValueServiceTest {
 
     static final Multi<KeyValueTable> MULTI_TEST = Multi.createFrom().item(TestData.KEY_VALUE.TABLE_0);
 
-    static final Multi<KeyValueTable> MULTI_WITH_NULL = TestData.createMultiWithNull(KeyValueTable.class);
+    static final Multi<KeyValueTable> MULTI_WITH_NULL = TestUtils.createMultiWithNull(KeyValueTable.class);
 
-    static final Multi<KeyValueTable> MULTI_EMPTIES = TestData.createMultiEmpties(KeyValueTable.class);
+    static final Multi<KeyValueTable> MULTI_EMPTIES = TestUtils.createMultiEmpties(KeyValueTable.class);
 
     @BeforeEach
     void setUp() {

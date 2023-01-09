@@ -8,17 +8,5 @@
 
 package su.svn.daybook.services.security;
 
-import su.svn.daybook.domain.messages.Answer;
-import su.svn.daybook.domain.messages.ApiResponse;
-import su.svn.daybook.models.security.AuthResponse;
-
 abstract class AbstractService {
-
-    protected Answer apiResponseAcceptedAnswer(AuthResponse response) {
-        return Answer.of(ApiResponse.auth(response));
-    }
-
-    protected Answer apiResponseUnauthorizedAnswer() {
-        return Answer.of(ApiResponse.auth(401));
-    }
 }

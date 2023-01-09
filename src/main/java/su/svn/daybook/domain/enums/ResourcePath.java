@@ -48,7 +48,7 @@ public enum ResourcePath {
     public static final String LANGUAGES = "/langs";
     public static final String LOGIN = "/login";
     public static final String NONE = "";
-    public static final String PAGE = "$";
+    public static final String PAGE = "-";
     public static final String PUT = "/put";
     public static final String ROLE = "/role";
     public static final String ROLES = "/roles";

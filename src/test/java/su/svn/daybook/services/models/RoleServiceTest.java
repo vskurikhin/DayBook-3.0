@@ -17,6 +17,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import su.svn.daybook.TestData;
+import su.svn.daybook.TestUtils;
 import su.svn.daybook.domain.dao.RoleDao;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.messages.ApiResponse;
@@ -43,9 +44,9 @@ class RoleServiceTest {
 
     static final Multi<RoleTable> MULTI_TEST = Multi.createFrom().item(TestData.ROLE.TABLE_0);
 
-    static final Multi<RoleTable> MULTI_WITH_NULL = TestData.createMultiWithNull(RoleTable.class);
+    static final Multi<RoleTable> MULTI_WITH_NULL = TestUtils.createMultiWithNull(RoleTable.class);
 
-    static final Multi<RoleTable> MULTI_EMPTIES = TestData.createMultiEmpties(RoleTable.class);
+    static final Multi<RoleTable> MULTI_EMPTIES = TestUtils.createMultiEmpties(RoleTable.class);
 
     @BeforeEach
     void setUp() {
