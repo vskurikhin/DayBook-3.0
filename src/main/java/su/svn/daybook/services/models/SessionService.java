@@ -131,7 +131,7 @@ public class SessionService extends AbstractService<UUID, Session> {
         return sessionDataService
                 .put(o)
                 .map(this::apiResponseAcceptedAnswer)
-                .flatMap(answer -> sessionCacheProvider.invalidateById(o.getId(), answer))
+                .flatMap(answer -> sessionCacheProvider.invalidateById(o.id(), answer))
                 .onFailure(exceptionAnswerService::testDuplicateException)
                 .recoverWithUni(exceptionAnswerService::notAcceptableDuplicateAnswer)
                 .onFailure(exceptionAnswerService::testIllegalArgumentException)

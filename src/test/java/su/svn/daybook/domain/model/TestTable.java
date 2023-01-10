@@ -57,7 +57,7 @@ public final class TestTable implements LongIdentification, Serializable {
         return new TestTable.Builder();
     }
 
-    public Long getId() {
+    public Long id() {
         return id;
     }
 

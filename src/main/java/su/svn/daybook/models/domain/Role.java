@@ -11,6 +11,7 @@ package su.svn.daybook.models.domain;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import su.svn.daybook.annotations.DomainField;
+import su.svn.daybook.domain.model.RoleTable;
 import su.svn.daybook.models.UUIDIdentification;
 
 import javax.annotation.Nonnull;
@@ -22,7 +23,7 @@ import java.util.UUID;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public final class Role implements UUIDIdentification, Serializable {
 
-    public static final String NONE = "adc2221c-03dd-496f-9243-17ed9270b95e";
+    public static final String NONE = RoleTable.NONE;
     public static final String ID = "id";
     @Serial
     private static final long serialVersionUID = 5979984741157131705L;
@@ -44,11 +45,7 @@ public final class Role implements UUIDIdentification, Serializable {
     private transient volatile boolean hashIsZero;
 
     public Role() {
-        this.id = null;
-        this.role = NONE;
-        this.description = null;
-        this.visible = true;
-        this.flags = 0;
+        this(null, NONE, null, true, 0);
     }
 
     public Role(
@@ -68,28 +65,34 @@ public final class Role implements UUIDIdentification, Serializable {
         return new Role.Builder();
     }
 
-    public UUID getId() {
+    public UUID id() {
         return id;
     }
 
-    public String getRole() {
+    public String role() {
         return role;
     }
 
-    public String getDescription() {
+    public String description() {
         return description;
     }
 
-    public boolean getVisible() {
+    public boolean visible() {
         return visible;
     }
 
-    public boolean isVisible() {
-        return visible;
-    }
-
-    public int getFlags() {
+    public int flags() {
         return flags;
+    }
+
+    public Role.Builder toBuilder() {
+        return Role
+                .builder()
+                .id(this.id)
+                .role(this.role)
+                .description(this.description)
+                .visible(this.visible)
+                .flags(this.flags);
     }
 
     @Override
@@ -141,6 +144,7 @@ public final class Role implements UUIDIdentification, Serializable {
         private int flags;
 
         private Builder() {
+            this.role = NONE;
         }
 
         public Builder id(UUID id) {

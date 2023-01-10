@@ -20,12 +20,11 @@ class KeyValueTest {
     @Test
     void testGetters() {
         var entry = new KeyValue();
-        Assertions.assertDoesNotThrow(entry::getId);
-        Assertions.assertDoesNotThrow(entry::getKey);
-        Assertions.assertDoesNotThrow(entry::getValue);
-        Assertions.assertDoesNotThrow(entry::getVisible);
-        Assertions.assertDoesNotThrow(entry::isVisible);
-        Assertions.assertDoesNotThrow(entry::getFlags);
+        Assertions.assertDoesNotThrow(entry::id);
+        Assertions.assertDoesNotThrow(entry::key);
+        Assertions.assertDoesNotThrow(entry::value);
+        Assertions.assertDoesNotThrow(entry::visible);
+        Assertions.assertDoesNotThrow(entry::flags);
     }
 
     @Test
@@ -35,6 +34,14 @@ class KeyValueTest {
                 .withIgnoredFields("hash", "hashIsZero")
                 .suppress(Warning.NO_EXAMPLE_FOR_CACHED_HASHCODE)
                 .verify();
+    }
+
+    @Test
+    void testHashCode() {
+        var test0 = new KeyValue(null, BigInteger.ZERO, null, true, -28667312);
+        Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(0, test0.hashCode()));
+        var test1 = new KeyValue(null, BigInteger.ZERO, null, true, 0);
+        Assertions.assertDoesNotThrow(() -> Assertions.assertNotEquals(0, test1.hashCode()));
     }
 
     @Test
@@ -52,5 +59,13 @@ class KeyValueTest {
                 .visible(true)
                 .flags(0)
                 .build()));
+    }
+
+
+    @Test
+    void testToBuilder() {
+        var test = new KeyValue();
+        var expected = new KeyValue();
+        Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(expected, test.toBuilder().build()));
     }
 }

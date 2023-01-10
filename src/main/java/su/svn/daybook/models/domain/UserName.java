@@ -65,7 +65,7 @@ public final class UserName implements UUIDIdentification, Serializable {
         return new Builder();
     }
 
-    public UUID getId() {
+    public UUID id() {
         return id;
     }
 

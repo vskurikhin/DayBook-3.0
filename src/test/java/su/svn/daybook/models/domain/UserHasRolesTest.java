@@ -20,7 +20,7 @@ class UserHasRolesTest {
     @Test
     void testGetters() {
         var entry = new UserHasRoles();
-        Assertions.assertDoesNotThrow(entry::getId);
+        Assertions.assertDoesNotThrow(entry::id);
         Assertions.assertDoesNotThrow(entry::getUserName);
         Assertions.assertDoesNotThrow(entry::getRole);
         Assertions.assertDoesNotThrow(entry::getVisible);

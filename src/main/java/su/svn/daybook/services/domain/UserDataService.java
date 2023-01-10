@@ -22,7 +22,6 @@ import su.svn.daybook.services.security.PBKDF2Encoder;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -53,7 +52,7 @@ public class UserDataService implements DataService<UUID, UserView, User> {
 
     private Uni<UUID> addUserAndRoles(UserNameTable entry, Set<String> roles) {
         return userTransactionalJob
-                .insert(entry, roles, UserNameTable::getUserName)
+                .insert(entry, roles, UserNameTable::userName)
                 .map(o -> lookup(o, entry));
     }
 
@@ -94,14 +93,14 @@ public class UserDataService implements DataService<UUID, UserView, User> {
 
     private Uni<UUID> putEntry(UserNameTable entry, Set<String> roles) {
         return userTransactionalJob
-                .update(entry, roles, UserNameTable::getUserName)
+                .update(entry, roles, UserNameTable::userName)
                 .map(o -> lookup(o, entry));
     }
 
     private User passwordEncoding(User o) {
         return User
                 .builder()
-                .id(o.getId())
+                .id(o.id())
                 .userName(o.getUserName())
                 .password(passwordEncoder.encode(o.getPassword()))
                 .roles(o.getRoles())
@@ -122,7 +121,7 @@ public class UserDataService implements DataService<UUID, UserView, User> {
 
     private Uni<UUID> deleteEntry(UserNameTable o) {
         return userTransactionalJob
-                .delete(o, UserNameTable::getUserName)
+                .delete(o, UserNameTable::userName)
                 .map(i -> lookup(i, o));
     }
 }

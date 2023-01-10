@@ -65,7 +65,7 @@ public class UserTransactionalJob extends AbstractHasRelationJob<UUID, UserNameT
     @Nonnull
     @Override
     protected String caseInsertSql(UserNameTable table) {
-        return table.getId() != null
+        return table.id() != null
                 ? UserNameTable.INSERT_INTO_SECURITY_USER_NAME
                 : UserNameTable.INSERT_INTO_SECURITY_USER_NAME_DEFAULT_ID;
     }

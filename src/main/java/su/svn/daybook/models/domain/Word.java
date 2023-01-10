@@ -58,7 +58,7 @@ public final class Word implements StringIdentification, Serializable {
     }
 
     @JsonIgnore
-    public String getId() {
+    public String id() {
         return word;
     }
 

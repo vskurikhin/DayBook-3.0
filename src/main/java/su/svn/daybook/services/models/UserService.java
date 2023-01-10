@@ -126,7 +126,7 @@ public class UserService extends AbstractService<UUID, User> {
         return userDataService
                 .put(o)
                 .map(this::apiResponseAcceptedAnswer)
-                .flatMap(answer -> userCacheProvider.invalidateById(o.getId(), answer))
+                .flatMap(answer -> userCacheProvider.invalidateById(o.id(), answer))
                 .onFailure(exceptionAnswerService::testCompositeException)
                 .recoverWithUni(exceptionAnswerService::badRequestUniAnswer)
                 .onFailure(exceptionAnswerService::testDuplicateException)

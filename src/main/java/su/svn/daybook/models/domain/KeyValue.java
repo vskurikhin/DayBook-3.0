@@ -12,6 +12,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.vertx.core.json.JsonObject;
 import su.svn.daybook.annotations.DomainField;
+import su.svn.daybook.domain.model.KeyValueTable;
 import su.svn.daybook.models.UUIDIdentification;
 
 import javax.annotation.Nonnull;
@@ -24,7 +25,7 @@ import java.util.UUID;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public final class KeyValue implements UUIDIdentification, Serializable {
 
-    public static final String NONE = "d94d93d9-d44c-403c-97b1-d071b6974d80";
+    public static final String NONE = KeyValueTable.NONE;
     public static final String ID = "id";
     @Serial
     private static final long serialVersionUID = 3421670798382710094L;
@@ -46,11 +47,7 @@ public final class KeyValue implements UUIDIdentification, Serializable {
     private transient volatile boolean hashIsZero;
 
     public KeyValue() {
-        this.id = null;
-        this.key = BigInteger.ZERO;
-        this.value = null;
-        this.visible = true;
-        this.flags = 0;
+        this(null, BigInteger.ZERO, null, true, 0);
     }
 
     public KeyValue(
@@ -70,28 +67,33 @@ public final class KeyValue implements UUIDIdentification, Serializable {
         return new KeyValue.Builder();
     }
 
-    public UUID getId() {
+    public UUID id() {
         return id;
     }
 
-    public BigInteger getKey() {
+    public BigInteger key() {
         return key;
     }
 
-    public JsonObject getValue() {
+    public JsonObject value() {
         return value;
     }
 
-    public boolean getVisible() {
+    public boolean visible() {
         return visible;
     }
 
-    public boolean isVisible() {
-        return visible;
-    }
-
-    public int getFlags() {
+    public int flags() {
         return flags;
+    }
+
+    public KeyValue.Builder toBuilder() {
+        return builder()
+                .id(this.id)
+                .key(this.key)
+                .value(this.value)
+                .visible(this.visible)
+                .flags(0);
     }
 
     @Override
@@ -137,12 +139,13 @@ public final class KeyValue implements UUIDIdentification, Serializable {
 
     public static final class Builder {
         private UUID id;
-        private BigInteger key;
+        private @Nonnull BigInteger key;
         private JsonObject value;
         private boolean visible;
         private int flags;
 
         private Builder() {
+            this.key = BigInteger.ZERO;
         }
 
         public Builder id(UUID id) {

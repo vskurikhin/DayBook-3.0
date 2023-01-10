@@ -131,7 +131,7 @@ public class KeyValueService extends AbstractService<UUID, KeyValue> {
         return keyValueDataService
                 .put(o)
                 .map(this::apiResponseAcceptedAnswer)
-                .flatMap(answer -> keyValueCacheProvider.invalidateById(o.getId(), answer))
+                .flatMap(answer -> keyValueCacheProvider.invalidateById(o.id(), answer))
                 .onFailure(exceptionAnswerService::testDuplicateException)
                 .recoverWithUni(exceptionAnswerService::notAcceptableDuplicateAnswer)
                 .onFailure(exceptionAnswerService::testIllegalArgumentException)

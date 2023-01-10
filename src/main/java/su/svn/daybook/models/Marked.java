@@ -1,7 +1,7 @@
 package su.svn.daybook.models;
 
 public interface Marked {
-    boolean getEnabled();
-    boolean getVisible();
-    int getFlags();
+    boolean enabled();
+    boolean visible();
+    int flags();
 }

@@ -128,7 +128,7 @@ public class WordService extends AbstractService<String, Word> {
         return wordDataService
                 .put(o)
                 .map(this::apiResponseAcceptedAnswer)
-                .flatMap(answer -> wordCacheProvider.invalidateById(o.getId(), answer))
+                .flatMap(answer -> wordCacheProvider.invalidateById(o.id(), answer))
                 .onFailure(exceptionAnswerService::testDuplicateException)
                 .recoverWithUni(exceptionAnswerService::notAcceptableDuplicateAnswer)
                 .onFailure(exceptionAnswerService::testIllegalArgumentException)

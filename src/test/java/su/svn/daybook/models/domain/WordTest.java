@@ -20,7 +20,7 @@ class WordTest {
     @Test
     void testGetters() {
         var entry = new Word();
-        Assertions.assertDoesNotThrow(entry::getId);
+        Assertions.assertDoesNotThrow(entry::id);
         Assertions.assertDoesNotThrow(entry::getWord);
         Assertions.assertDoesNotThrow(entry::getVisible);
         Assertions.assertDoesNotThrow(entry::isVisible);

@@ -20,7 +20,7 @@ class UserNameTest {
     @Test
     void testGetters() {
         var entry = new UserName();
-        Assertions.assertDoesNotThrow(entry::getId);
+        Assertions.assertDoesNotThrow(entry::id);
         Assertions.assertDoesNotThrow(entry::getUserName);
         Assertions.assertDoesNotThrow(entry::getPassword);
         Assertions.assertDoesNotThrow(entry::getVisible);

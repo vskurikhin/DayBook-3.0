@@ -67,7 +67,7 @@ public final class UserHasRoles implements LongIdentification, Serializable {
         return new UserHasRoles.Builder();
     }
 
-    public Long getId() {
+    public Long id() {
         return id;
     }
 

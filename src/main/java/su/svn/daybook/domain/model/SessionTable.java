@@ -242,11 +242,11 @@ public final class SessionTable implements CasesOfUUID, Marked, Owned, TimeUpdat
         return Arrays.asList(id, userName, roles.toArray(), validTime, enabled, visible, flags);
     }
 
-    public UUID getId() {
+    public UUID id() {
         return id;
     }
 
-    public String getUserName() {
+    public String userName() {
         return userName;
     }
 
@@ -258,15 +258,15 @@ public final class SessionTable implements CasesOfUUID, Marked, Owned, TimeUpdat
         return validTime;
     }
 
-    public LocalDateTime getCreateTime() {
+    public LocalDateTime createTime() {
         return createTime;
     }
 
-    public LocalDateTime getUpdateTime() {
+    public LocalDateTime updateTime() {
         return updateTime;
     }
 
-    public boolean getEnabled() {
+    public boolean enabled() {
         return enabled;
     }
 
@@ -274,7 +274,7 @@ public final class SessionTable implements CasesOfUUID, Marked, Owned, TimeUpdat
         return enabled;
     }
 
-    public boolean getVisible() {
+    public boolean visible() {
         return visible;
     }
 
@@ -282,7 +282,7 @@ public final class SessionTable implements CasesOfUUID, Marked, Owned, TimeUpdat
         return visible;
     }
 
-    public int getFlags() {
+    public int flags() {
         return flags;
     }
 

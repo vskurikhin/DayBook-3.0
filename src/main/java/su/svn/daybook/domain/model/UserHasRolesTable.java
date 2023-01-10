@@ -228,11 +228,11 @@ public final class UserHasRolesTable implements LongIdentification, Marked, Owne
         return Arrays.asList(id, userName, role, enabled, visible, flags);
     }
 
-    public Long getId() {
+    public Long id() {
         return id;
     }
 
-    public String getUserName() {
+    public String userName() {
         return userName;
     }
 
@@ -240,15 +240,15 @@ public final class UserHasRolesTable implements LongIdentification, Marked, Owne
         return role;
     }
 
-    public LocalDateTime getCreateTime() {
+    public LocalDateTime createTime() {
         return createTime;
     }
 
-    public LocalDateTime getUpdateTime() {
+    public LocalDateTime updateTime() {
         return updateTime;
     }
 
-    public boolean getEnabled() {
+    public boolean enabled() {
         return enabled;
     }
 
@@ -256,7 +256,7 @@ public final class UserHasRolesTable implements LongIdentification, Marked, Owne
         return enabled;
     }
 
-    public boolean getVisible() {
+    public boolean visible() {
         return visible;
     }
 
@@ -264,7 +264,7 @@ public final class UserHasRolesTable implements LongIdentification, Marked, Owne
         return visible;
     }
 
-    public int getFlags() {
+    public int flags() {
         return flags;
     }
 

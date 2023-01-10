@@ -127,7 +127,7 @@ abstract class AbstractResource {
         }
         if (payload instanceof Identification<?> entry) {
             var builder = uriInfo.getRequestUriBuilder();
-            return builder.replacePath(path + "/" + String.valueOf(entry.getId()))
+            return builder.replacePath(path + "/" + String.valueOf(entry.id()))
                     .buildFromMap(Collections.emptyMap());
         }
         return uriInfo.getRequestUri();

@@ -77,7 +77,7 @@ public final class User implements UUIDIdentification, Serializable {
         return new User.Builder();
     }
 
-    public UUID getId() {
+    public UUID id() {
         return id;
     }
 

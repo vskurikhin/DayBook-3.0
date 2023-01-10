@@ -1,14 +1,13 @@
 /*
- * This file was last modified at 2022.01.12 22:58 by Victor N. Skurikhin.
+ * This file was last modified at 2023.01.10 19:49 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
- * KeyValueTable.java
+ * KeyValueTbl.java
  * $Id$
  */
 
 package su.svn.daybook.domain.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
@@ -23,18 +22,28 @@ import su.svn.daybook.models.Owned;
 import su.svn.daybook.models.TimeUpdated;
 
 import javax.annotation.Nonnull;
-import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public final class KeyValueTable implements CasesOfUUID, Marked, Owned, TimeUpdated, Serializable {
+public record KeyValueTable(
+        @ModelField UUID id,
+        @ModelField @Nonnull BigInteger key,
+        @ModelField JsonObject value,
+        String userName,
+        LocalDateTime createTime,
+        LocalDateTime updateTime,
+        boolean enabled,
+        @ModelField boolean visible,
+        @ModelField int flags)
+        implements CasesOfUUID, Marked, Owned, TimeUpdated, Serializable {
 
+    public static final String COUNT = "count";
+    public static final String ID = "id";
     public static final String NONE = "d94d93d9-d44c-403c-97b1-d071b6974d80";
     public static final String SELECT_FROM_DICTIONARY_KEY_VALUE_WHERE_ID_$1 = """
             SELECT id, key, value, user_name, create_time, update_time, enabled, visible, flags
@@ -84,62 +93,9 @@ public final class KeyValueTable implements CasesOfUUID, Marked, Owned, TimeUpda
              RETURNING id
             """;
     public static final String COUNT_DICTIONARY_KEY_VALUE = "SELECT count(*) FROM dictionary.key_value";
-    @Serial
-    private static final long serialVersionUID = 3377791800667728148L;
-    public static final String ID = "id";
-    public static final String COUNT = "count";
-    @ModelField
-    private final UUID id;
-    @ModelField
-    private final BigInteger key;
-    @ModelField
-    private final JsonObject value;
-    private final String userName;
-    private final LocalDateTime createTime;
-    private final LocalDateTime updateTime;
-    private final boolean enabled;
-    @ModelField
-    private final boolean visible;
-    @ModelField
-    private final int flags;
 
-    @JsonIgnore
-    private transient volatile int hash;
-
-    @JsonIgnore
-    private transient volatile boolean hashIsZero;
-
-    public KeyValueTable() {
-        this.id = null;
-        this.key = BigInteger.ZERO;
-        this.value = null;
-        this.userName = null;
-        this.createTime = null;
-        this.updateTime = null;
-        this.enabled = true;
-        this.visible = true;
-        this.flags = 0;
-    }
-
-    public KeyValueTable(
-            UUID id,
-            @Nonnull BigInteger key,
-            JsonObject value,
-            String userName,
-            LocalDateTime createTime,
-            LocalDateTime updateTime,
-            boolean enabled,
-            boolean visible,
-            int flags) {
-        this.id = id;
-        this.key = key;
-        this.value = value;
-        this.userName = userName;
-        this.createTime = createTime;
-        this.updateTime = updateTime;
-        this.enabled = enabled;
-        this.visible = visible;
-        this.flags = flags;
+    public static Builder builder() {
+        return new Builder();
     }
 
     public static KeyValueTable from(Row row) {
@@ -162,19 +118,15 @@ public final class KeyValueTable implements CasesOfUUID, Marked, Owned, TimeUpda
                 .execute()
                 .onItem()
                 .transformToMulti(set -> Multi.createFrom().iterable(set))
-                .onItem()
-                .transform(KeyValueTable::from);
-
+                .map(KeyValueTable::from);
     }
 
     public static Uni<KeyValueTable> findById(PgPool client, UUID id) {
         return client
                 .preparedQuery(SELECT_FROM_DICTIONARY_KEY_VALUE_WHERE_ID_$1)
                 .execute(Tuple.of(id))
-                .onItem()
-                .transform(RowSet::iterator)
-                .onItem()
-                .transform(iterator -> iterator.hasNext() ? KeyValueTable.from(iterator.next()) : null);
+                .map(RowSet::iterator)
+                .map(iterator -> iterator.hasNext() ? KeyValueTable.from(iterator.next()) : null);
     }
 
     public static Multi<KeyValueTable> findRange(PgPool client, long offset, long limit) {
@@ -183,46 +135,36 @@ public final class KeyValueTable implements CasesOfUUID, Marked, Owned, TimeUpda
                 .execute(Tuple.of(offset, limit))
                 .onItem()
                 .transformToMulti(set -> Multi.createFrom().iterable(set))
-                .onItem()
-                .transform(KeyValueTable::from);
+                .map(KeyValueTable::from);
     }
 
     public static Uni<UUID> delete(PgPool client, UUID id) {
         return client.withTransaction(
                 connection -> connection.preparedQuery(DELETE_FROM_DICTIONARY_KEY_VALUE_WHERE_ID_$1)
                         .execute(Tuple.of(id))
-                        .onItem()
-                        .transform(pgRowSet -> pgRowSet.iterator().next().getUUID(ID)));
+                        .map(pgRowSet -> pgRowSet.iterator().next().getUUID(ID)));
     }
 
     public static Uni<Long> count(PgPool client) {
         return client
                 .preparedQuery(COUNT_DICTIONARY_KEY_VALUE)
                 .execute()
-                .onItem()
-                .transform(pgRowSet -> pgRowSet.iterator().next().getLong(COUNT));
-    }
-
-    public static KeyValueTable.Builder builder() {
-        return new KeyValueTable.Builder();
+                .map(pgRowSet -> pgRowSet.iterator().next().getLong(COUNT));
     }
 
     public Uni<UUID> insert(PgPool client) {
         return client.withTransaction(
                 connection -> connection.preparedQuery(caseInsertSql())
                         .execute(caseInsertTuple())
-                        .onItem()
-                        .transform(RowSet::iterator)
-                        .onItem()
-                        .transform(iterator -> iterator.hasNext() ? iterator.next().getUUID(ID) : null));
+                        .map(RowSet::iterator)
+                        .map(iterator -> iterator.hasNext() ? iterator.next().getUUID(ID) : null));
     }
 
     public Uni<UUID> update(PgPool client) {
         return client.withTransaction(
                 connection -> connection.preparedQuery(UPDATE_DICTIONARY_KEY_VALUE_WHERE_ID_$1)
                         .execute(Tuple.tuple(listOf()))
-                        .onItem()
-                        .transform(pgRowSet -> pgRowSet.iterator().next().getUUID(ID)));
+                        .map(pgRowSet -> pgRowSet.iterator().next().getUUID(ID)));
     }
 
     private String caseInsertSql() {
@@ -243,110 +185,20 @@ public final class KeyValueTable implements CasesOfUUID, Marked, Owned, TimeUpda
         return Arrays.asList(id, key, value, userName, enabled, visible, flags);
     }
 
-    public UUID getId() {
-        return id;
-    }
-
-    public BigInteger getKey() {
-        return key;
-    }
-
-    public JsonObject getValue() {
-        return value;
-    }
-
-    public String getUserName() {
-        return userName;
-    }
-
-    public LocalDateTime getCreateTime() {
-        return createTime;
-    }
-
-    public LocalDateTime getUpdateTime() {
-        return updateTime;
-    }
-
-    public boolean getEnabled() {
-        return enabled;
-    }
-
-    public boolean isEnabled() {
-        return enabled;
-    }
-
-    public boolean getVisible() {
-        return visible;
-    }
-
-    public boolean isVisible() {
-        return visible;
-    }
-
-    public int getFlags() {
-        return flags;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        var that = (KeyValueTable) o;
-        return enabled == that.enabled
-                && visible == that.visible
-                && flags == that.flags
-                && Objects.equals(id, that.id)
-                && Objects.equals(key, that.key)
-                && Objects.equals(value, that.value)
-                && Objects.equals(userName, that.userName);
-    }
-
-    @Override
-    public int hashCode() {
-        int h = hash;
-        if (h == 0 && !hashIsZero) {
-            h = calculateHashCode();
-            if (h == 0) {
-                hashIsZero = true;
-            } else {
-                hash = h;
-            }
-        }
-        return h;
-    }
-
-    private int calculateHashCode() {
-        return Objects.hash(id, key, value, userName, enabled, visible, flags);
-    }
-
-    @Override
-    public String toString() {
-        return "KeyValueTable{" +
-                "id=" + id +
-                ", key='" + key + '\'' +
-                ", value='" + value + '\'' +
-                ", userName='" + userName + '\'' +
-                ", createTime=" + createTime +
-                ", updateTime=" + updateTime +
-                ", enabled=" + enabled +
-                ", visible=" + visible +
-                ", flags=" + flags +
-                '}';
-    }
-
     public static final class Builder {
-        private UUID id;
-        private BigInteger key;
-        private JsonObject value;
+        private @ModelField UUID id;
+        private @ModelField
+        @Nonnull BigInteger key;
+        private @ModelField JsonObject value;
         private String userName;
         private LocalDateTime createTime;
         private LocalDateTime updateTime;
         private boolean enabled;
-        private boolean visible;
-        private int flags;
+        private @ModelField boolean visible;
+        private @ModelField int flags;
 
         private Builder() {
-            this.enabled = true;
+            this.key = BigInteger.ZERO;
         }
 
         public Builder id(UUID id) {

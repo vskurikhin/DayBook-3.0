@@ -207,7 +207,7 @@ public final class WordTable implements StringIdentification, Marked, Owned, Tim
     }
 
     @JsonIgnore
-    public String getId() {
+    public String id() {
         return word;
     }
 
@@ -215,19 +215,19 @@ public final class WordTable implements StringIdentification, Marked, Owned, Tim
         return word;
     }
 
-    public String getUserName() {
+    public String userName() {
         return userName;
     }
 
-    public LocalDateTime getCreateTime() {
+    public LocalDateTime createTime() {
         return createTime;
     }
 
-    public LocalDateTime getUpdateTime() {
+    public LocalDateTime updateTime() {
         return updateTime;
     }
 
-    public boolean getEnabled() {
+    public boolean enabled() {
         return enabled;
     }
 
@@ -235,7 +235,7 @@ public final class WordTable implements StringIdentification, Marked, Owned, Tim
         return enabled;
     }
 
-    public boolean getVisible() {
+    public boolean visible() {
         return visible;
     }
 
@@ -243,7 +243,7 @@ public final class WordTable implements StringIdentification, Marked, Owned, Tim
         return visible;
     }
 
-    public int getFlags() {
+    public int flags() {
         return flags;
     }
 

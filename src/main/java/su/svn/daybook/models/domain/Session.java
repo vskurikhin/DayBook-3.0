@@ -78,7 +78,7 @@ public final class Session implements UUIDIdentification, Serializable {
         return new Session.Builder();
     }
 
-    public UUID getId() {
+    public UUID id() {
         return id;
     }
 

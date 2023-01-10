@@ -20,17 +20,17 @@ class SessionTableTest {
     @Test
     void testGetters(){
         var entry = new SessionTable();
-        Assertions.assertDoesNotThrow(entry::getId);
-        Assertions.assertDoesNotThrow(entry::getUserName);
+        Assertions.assertDoesNotThrow(entry::id);
+        Assertions.assertDoesNotThrow(entry::userName);
         Assertions.assertDoesNotThrow(entry::getRoles);
         Assertions.assertDoesNotThrow(entry::getValidTime);
-        Assertions.assertDoesNotThrow(entry::getCreateTime);
-        Assertions.assertDoesNotThrow(entry::getUpdateTime);
-        Assertions.assertDoesNotThrow(entry::getEnabled);
+        Assertions.assertDoesNotThrow(entry::createTime);
+        Assertions.assertDoesNotThrow(entry::updateTime);
+        Assertions.assertDoesNotThrow(entry::enabled);
         Assertions.assertDoesNotThrow(entry::isEnabled);
-        Assertions.assertDoesNotThrow(entry::getVisible);
+        Assertions.assertDoesNotThrow(entry::visible);
         Assertions.assertDoesNotThrow(entry::isVisible);
-        Assertions.assertDoesNotThrow(entry::getFlags);
+        Assertions.assertDoesNotThrow(entry::flags);
     }
 
     @Test

@@ -21,7 +21,7 @@ class SessionTest {
     @Test
     void testGetters() {
         var entry = new Session();
-        Assertions.assertDoesNotThrow(entry::getId);
+        Assertions.assertDoesNotThrow(entry::id);
         Assertions.assertDoesNotThrow(entry::getUserName);
         Assertions.assertDoesNotThrow(entry::getRoles);
         Assertions.assertDoesNotThrow(entry::getValidTime);

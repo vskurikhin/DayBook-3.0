@@ -16,5 +16,5 @@ public @interface ModelField {
 
     String buildPartPrefix() default "";
 
-    String getterPrefix() default "get";
+    String getterPrefix() default "";
 }

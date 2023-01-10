@@ -140,7 +140,7 @@ public class RoleService extends AbstractService<UUID, Role> {
         return roleDataService
                 .put(o)
                 .map(this::apiResponseAcceptedAnswer)
-                .flatMap(answer -> roleCacheProvider.invalidateById(o.getId(), answer))
+                .flatMap(answer -> roleCacheProvider.invalidateById(o.id(), answer))
                 .onFailure(exceptionAnswerService::testDuplicateException)
                 .recoverWithUni(exceptionAnswerService::notAcceptableDuplicateAnswer)
                 .onFailure(exceptionAnswerService::testIllegalArgumentException)

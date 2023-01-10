@@ -31,7 +31,7 @@ class AbstractServiceTest {
 
     static class TestEntry implements LongIdentification, Serializable {
         @Override
-        public Long getId() {
+        public Long id() {
             return 0L;
         }
     }
