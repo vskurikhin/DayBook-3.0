@@ -17,6 +17,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import su.svn.daybook.TestData;
+import su.svn.daybook.TestUtils;
 import su.svn.daybook.domain.dao.SessionDao;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.messages.ApiResponse;
@@ -43,9 +44,9 @@ class SessionServiceTest {
 
     static final Multi<SessionTable> MULTI_TEST = Multi.createFrom().item(TestData.SESSION.TABLE_0);
 
-    static final Multi<SessionTable> MULTI_WITH_NULL = TestData.createMultiWithNull(SessionTable.class);
+    static final Multi<SessionTable> MULTI_WITH_NULL = TestUtils.createMultiWithNull(SessionTable.class);
 
-    static final Multi<SessionTable> MULTI_EMPTIES = TestData.createMultiEmpties(SessionTable.class);
+    static final Multi<SessionTable> MULTI_EMPTIES = TestUtils.createMultiEmpties(SessionTable.class);
 
     @BeforeEach
     void setUp() {

@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.01.07 11:52 by Victor N. Skurikhin.
+ * This file was last modified at 2023.01.09 21:44 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * AbstractService.java
@@ -9,7 +9,6 @@
 package su.svn.daybook.services.models;
 
 import io.smallrye.mutiny.Multi;
-import io.smallrye.mutiny.Uni;
 import org.jboss.logging.Logger;
 import org.reactivestreams.Publisher;
 import su.svn.daybook.domain.messages.Answer;
@@ -17,9 +16,7 @@ import su.svn.daybook.domain.messages.ApiResponse;
 import su.svn.daybook.models.Identification;
 
 import java.io.Serializable;
-import java.util.NoSuchElementException;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.function.Supplier;
 
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType")

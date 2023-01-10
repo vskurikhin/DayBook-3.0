@@ -68,6 +68,7 @@ dependencies {
 
     testImplementation "io.quarkus:quarkus-junit5"
     testImplementation "io.quarkus:quarkus-junit5-mockito"
+    testImplementation "io.quarkus:quarkus-test-security"
     testImplementation "io.rest-assured:rest-assured"
     testImplementation "io.zonky.test:embedded-postgres:$libVers.embedded_postgres"
     testImplementation "nl.jqno.equalsverifier:equalsverifier:$libVers.equalsverifier"

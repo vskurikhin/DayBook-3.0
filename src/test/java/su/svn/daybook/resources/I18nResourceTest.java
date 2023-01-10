@@ -85,7 +85,7 @@ class I18nResourceTest {
                 .when()
                 .get("/i18n/" + Integer.MIN_VALUE)
                 .then()
-                .statusCode(406);
+                .statusCode(405);
     }
 
     @Test
@@ -102,7 +102,7 @@ class I18nResourceTest {
     void testEndpointGetPage() {
         given()
                 .when()
-                .get("/i18n/?page=0&limit=1")
+                .get("/i18n/-?page=0&limit=1")
                 .then()
                 .statusCode(200)
                 .body(CoreMatchers.startsWith(TestData.I18N.JSON_PAGE_ARRAY_0));

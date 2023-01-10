@@ -10,6 +10,7 @@ package su.svn.daybook.resources;
 
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
+import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.jboss.resteasy.reactive.RestResponse;
 import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
 import su.svn.daybook.domain.enums.EventAddress;
@@ -44,12 +45,14 @@ public class WordResource extends AbstractResource {
     }
 
     @GET
+    @Path(ResourcePath.PAGE)
     @Produces(MediaType.APPLICATION_JSON)
     public Uni<Response> page(@QueryParam("page") Long page, @QueryParam("limit") Short limit) {
         return requestPage(EventAddress.WORD_PAGE, new PageRequest(page, limit));
     }
 
     @POST
+    @Path(ResourcePath.NONE)
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Uni<Response> post(Word entry, @Context UriInfo uriInfo) {
@@ -57,6 +60,7 @@ public class WordResource extends AbstractResource {
     }
 
     @PUT
+    @Path(ResourcePath.NONE)
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Uni<Response> put(Word entry, @Context UriInfo uriInfo) {
@@ -72,14 +76,16 @@ public class WordResource extends AbstractResource {
 
     @ServerExceptionMapper
     public RestResponse<String> exception(Throwable x) {
-        return badRequest(x);
+        return exceptionMapper(x);
     }
 
+    @Path(ResourcePath.WORDS)
     public static class WordResources implements Resources<String, Word> {
 
         @Inject
         WordService service;
 
+        @Operation(hidden = true)
         @GET
         @Path(ResourcePath.ALL)
         @Produces(MediaType.APPLICATION_JSON)

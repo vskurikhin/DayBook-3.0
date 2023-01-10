@@ -66,6 +66,7 @@ public final class UserView implements UUIDIdentification, Marked, Owned, TimeUp
     private final UUID id;
     @ModelField(nullable = false)
     private final String userName;
+    @ModelField(onlyBuildPart = true)
     private final String password;
     @ModelField(nullable = false)
     private final Set<String> roles;

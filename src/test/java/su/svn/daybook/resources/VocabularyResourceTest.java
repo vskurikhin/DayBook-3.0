@@ -85,7 +85,7 @@ class VocabularyResourceTest {
                 .when()
                 .get("/vocabulary/" + Long.MIN_VALUE)
                 .then()
-                .statusCode(406);
+                .statusCode(405);
     }
 
     @Test
@@ -102,7 +102,7 @@ class VocabularyResourceTest {
     void testEndpointGetPage() {
         given()
                 .when()
-                .get("/vocabulary/?page=0&limit=1")
+                .get("/vocabulary/-?page=0&limit=1")
                 .then()
                 .statusCode(200)
                 .body(CoreMatchers.startsWith(TestData.VOCABULARY.JSON_PAGE_ARRAY_0));

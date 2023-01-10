@@ -25,7 +25,13 @@ public interface CollectorAnnotatedDomainFiled<P extends Identification<? extend
     default Stream<Field> streamDomainMethods(Class<P> eClass) {
         return Arrays
                 .stream(eClass.getDeclaredFields())
-                .filter(field -> field.isAnnotationPresent(DomainField.class));
+                .filter(field -> field.isAnnotationPresent(DomainField.class))
+                .filter(this::notGetterOnly);
+    }
+
+    private boolean notGetterOnly(Field field) {
+        DomainField domainField = field.getAnnotation(DomainField.class);
+        return ! domainField.getterOnly();
     }
 
     private FieldRecord extractDomainFieldRecord(Field field) {

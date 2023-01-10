@@ -9,14 +9,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import su.svn.daybook.TestData;
+import su.svn.daybook.TestUtils;
 import su.svn.daybook.domain.dao.TagLabelDao;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.messages.ApiResponse;
-import su.svn.daybook.domain.model.CodifierTable;
 import su.svn.daybook.domain.model.TagLabelTable;
 import su.svn.daybook.models.pagination.Page;
 import su.svn.daybook.models.pagination.PageRequest;
-import su.svn.daybook.services.models.TagLabelService;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -36,9 +35,9 @@ class TagLabelServiceTest {
 
     static final Multi<TagLabelTable> MULTI_TEST = Multi.createFrom().item(TestData.TAG_LABEL.TABLE_0);
 
-    static final Multi<TagLabelTable> MULTI_WITH_NULL = TestData.createMultiWithNull(TagLabelTable.class);
+    static final Multi<TagLabelTable> MULTI_WITH_NULL = TestUtils.createMultiWithNull(TagLabelTable.class);
 
-    static final Multi<TagLabelTable> MULTI_EMPTIES = TestData.createMultiEmpties(TagLabelTable.class);
+    static final Multi<TagLabelTable> MULTI_EMPTIES = TestUtils.createMultiEmpties(TagLabelTable.class);
 
     @BeforeEach
     void setUp() {

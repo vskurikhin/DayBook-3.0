@@ -17,13 +17,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import su.svn.daybook.TestData;
+import su.svn.daybook.TestUtils;
 import su.svn.daybook.domain.dao.LanguageDao;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.messages.ApiResponse;
 import su.svn.daybook.domain.model.LanguageTable;
 import su.svn.daybook.models.pagination.Page;
 import su.svn.daybook.models.pagination.PageRequest;
-import su.svn.daybook.services.models.LanguageService;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -43,9 +43,9 @@ class LanguageServiceTest {
 
     static final Multi<LanguageTable> MULTI_TEST = Multi.createFrom().item(TestData.LANGUAGE.TABLE_0);
 
-    static final Multi<LanguageTable> MULTI_WITH_NULL = TestData.createMultiWithNull(LanguageTable.class);
+    static final Multi<LanguageTable> MULTI_WITH_NULL = TestUtils.createMultiWithNull(LanguageTable.class);
 
-    static final Multi<LanguageTable> MULTI_EMPTIES = TestData.createMultiEmpties(LanguageTable.class);
+    static final Multi<LanguageTable> MULTI_EMPTIES = TestUtils.createMultiEmpties(LanguageTable.class);
 
     @BeforeEach
     void setUp() {

@@ -10,17 +10,23 @@ package su.svn.daybook.resources;
 
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
+import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.media.Content;
+import org.eclipse.microprofile.openapi.annotations.media.ExampleObject;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
+import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
+import org.eclipse.microprofile.openapi.annotations.security.SecurityRequirement;
 import org.jboss.resteasy.reactive.RestResponse;
 import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
 import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.enums.ResourcePath;
-import su.svn.daybook.models.domain.Codifier;
 import su.svn.daybook.models.domain.Role;
 import su.svn.daybook.models.pagination.PageRequest;
+import su.svn.daybook.models.security.AuthRequest;
 import su.svn.daybook.services.models.AbstractService;
-import su.svn.daybook.services.models.CodifierService;
 import su.svn.daybook.services.models.RoleService;
 
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -37,7 +43,7 @@ import javax.ws.rs.core.UriInfo;
 import java.util.UUID;
 
 @Path(ResourcePath.ROLE)
-public class RoleResource extends AbstractResource implements Resource<UUID, Role> {
+public class RoleResource extends AbstractResource {
 
     @GET
     @Path(ResourcePath.ID)
@@ -47,19 +53,41 @@ public class RoleResource extends AbstractResource implements Resource<UUID, Rol
     }
 
     @GET
+    @Path(ResourcePath.PAGE)
     @Produces(MediaType.APPLICATION_JSON)
     public Uni<Response> page(@QueryParam("page") Long page, @QueryParam("limit") Short limit) {
         return requestPage(EventAddress.ROLE_PAGE, new PageRequest(page, limit));
     }
 
+    @Operation(summary = "Create role")
+    @RequestBody(required = true, content = {
+            @Content(
+                    schema = @Schema(implementation = AuthRequest.class),
+                    examples = @ExampleObject(
+                            name = "default", value = """
+                            {
+                               "role": "GUEST",
+                               "description": "string",
+                               "visible": true,
+                               "flags": 0
+                             }
+                            """
+                    ))
+    })
+    @RolesAllowed("ADMIN")
     @POST
+    @Path(ResourcePath.NONE)
+    @SecurityRequirement(name = "day-book")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Uni<Response> post(Role entry, @Context UriInfo uriInfo) {
         return request(EventAddress.ROLE_ADD, entry, uriInfo);
     }
 
+    @RolesAllowed("ADMIN")
     @PUT
+    @Path(ResourcePath.NONE)
+    @SecurityRequirement(name = "day-book")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Uni<Response> put(Role entry, @Context UriInfo uriInfo) {
@@ -75,7 +103,7 @@ public class RoleResource extends AbstractResource implements Resource<UUID, Rol
 
     @ServerExceptionMapper
     public RestResponse<String> exception(Throwable x) {
-        return badRequest(x);
+        return exceptionMapper(x);
     }
 
     @Path(ResourcePath.ROLES)
@@ -84,6 +112,7 @@ public class RoleResource extends AbstractResource implements Resource<UUID, Rol
         @Inject
         RoleService service;
 
+        @Operation(hidden = true)
         @GET
         @Path(ResourcePath.ALL)
         @Produces(MediaType.APPLICATION_JSON)

@@ -19,7 +19,13 @@ public interface CollectorAnnotatedModelFiled<P extends Identification<? extends
         return Arrays
                 .stream(pClass.getDeclaredFields())
                 .filter(field -> field.isAnnotationPresent(ModelField.class))
+                .filter(this::notOnlyBuildPart)
                 .collect(Collectors.toMap(Field::getName, this::extractModelFieldRecord));
+    }
+
+    private boolean notOnlyBuildPart(Field field) {
+        ModelField modelField = field.getAnnotation(ModelField.class);
+        return !modelField.onlyBuildPart();
     }
 
     default Stream<Field> streamModelMethods(Class<P> eClass) {

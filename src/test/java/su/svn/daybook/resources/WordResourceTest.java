@@ -88,7 +88,7 @@ class WordResourceTest {
                 .when()
                 .get("/word/" + Integer.MIN_VALUE)
                 .then()
-                .statusCode(406);
+                .statusCode(405);
     }
 
     @Test
@@ -106,7 +106,7 @@ class WordResourceTest {
     void testEndpointGetPage() {
         given()
                 .when()
-                .get("/word/?page=0&limit=1")
+                .get("/word/-?page=0&limit=1")
                 .then()
                 .statusCode(200)
                 .body(CoreMatchers.startsWith(TestData.WORD.JSON_PAGE_ARRAY_0));

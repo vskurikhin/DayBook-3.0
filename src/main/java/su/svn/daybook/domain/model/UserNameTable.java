@@ -85,7 +85,7 @@ public final class UserNameTable implements CasesOfUUID, Marked, Owned, TimeUpda
     private final UUID id;
     @ModelField
     private final String userName;
-    @ModelField
+    @ModelField(onlyBuildPart = true)
     private final String password;
     private final LocalDateTime createTime;
     private final LocalDateTime updateTime;

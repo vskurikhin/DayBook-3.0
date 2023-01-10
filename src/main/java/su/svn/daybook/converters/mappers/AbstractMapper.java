@@ -46,8 +46,8 @@ public abstract class AbstractMapper
         this.modelBuilder = buildPartsModel.getBuilderFactory().get();
         this.domainBuilderMethodBuild = domainBuilder.getClass().getDeclaredMethod(BUILD_METHOD_NAME);
         this.modelBuilderMethodBuild = modelBuilder.getClass().getDeclaredMethod(BUILD_METHOD_NAME);
-        this.domainInvoker = new InvokerBuildPartMethod<>(this.domainBuilder, gettersModel, log);
-        this.modelInvoker = new InvokerBuildPartMethod<>(this.modelBuilder, gettersDomain, log);
+        this.domainInvoker = new InvokerBuildPartMethod<K, M>(this.domainBuilder, gettersModel, log);
+        this.modelInvoker = new InvokerBuildPartMethod<K, D>(this.modelBuilder, gettersDomain, log);
         this.log = log;
     }
 

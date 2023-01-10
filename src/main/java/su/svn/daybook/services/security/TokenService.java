@@ -13,8 +13,9 @@ import io.smallrye.jwt.build.JwtClaimsBuilder;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import javax.enterprise.context.ApplicationScoped;
-import java.util.HashSet;
-import java.util.Set;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 @ApplicationScoped
 public class TokenService {
@@ -25,20 +26,25 @@ public class TokenService {
     @ConfigProperty(name = "quarkus.smallrye.jwt.new-token.issuer")
     String issuer;
 
-    public String generate(String username, Set<String> roles) {
+    public String generate(String username, String audience) {
 
         JwtClaimsBuilder claimsBuilder = Jwt.claims();
         long currentTimeInSecs = currentTimeInSecs();
-
-        Set<String> groups = new HashSet<>(roles);
 
         claimsBuilder.issuer(issuer);
         claimsBuilder.subject(username);
         claimsBuilder.issuedAt(currentTimeInSecs);
         claimsBuilder.expiresAt(currentTimeInSecs + duration);
-        claimsBuilder.groups(groups);
+        claimsBuilder.audience(audience);
 
         return claimsBuilder.jws().sign();
+    }
+
+    public LocalDateTime validTime() {
+        return LocalDateTime.ofInstant(
+                Instant.ofEpochMilli(System.currentTimeMillis() + 1000 * duration),
+                ZoneId.systemDefault()
+        );
     }
 
     public static int currentTimeInSecs() {

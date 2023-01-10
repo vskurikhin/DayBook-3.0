@@ -12,6 +12,8 @@ public @interface DomainField {
 
     boolean nullable() default true;
 
+    boolean getterOnly() default false;
+
     String buildPartPrefix() default "";
 
     String getterPrefix() default "get";

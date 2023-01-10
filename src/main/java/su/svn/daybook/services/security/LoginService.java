@@ -8,36 +8,82 @@
 
 package su.svn.daybook.services.security;
 
-import io.quarkus.security.AuthenticationFailedException;
+import io.quarkus.vertx.ConsumeEvent;
 import io.smallrye.mutiny.Uni;
+import org.jboss.logging.Logger;
+import su.svn.daybook.domain.enums.EventAddress;
+import su.svn.daybook.domain.messages.Answer;
+import su.svn.daybook.domain.messages.ApiResponse;
+import su.svn.daybook.domain.model.SessionTable;
 import su.svn.daybook.models.security.AuthRequest;
 import su.svn.daybook.models.security.User;
+import su.svn.daybook.services.ExceptionAnswerService;
+import su.svn.daybook.services.domain.LoginDataService;
 
 import javax.annotation.Nonnull;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import java.util.Set;
+import java.util.HashSet;
+import java.util.UUID;
 
 @ApplicationScoped
 public class LoginService {
 
+    private static final Logger LOG = Logger.getLogger(LoginService.class);
+
+    @Inject
+    LoginDataService loginDataService;
+
     @Inject
     PBKDF2Encoder passwordEncoder;
 
-    public Uni<Set<String>> login(@Nonnull AuthRequest authRequest) {
-        return Uni
-                .createFrom()
-                .item(User.findByUsername(authRequest.username()))
-                .map(user1 -> login(authRequest, user1));
+    @Inject
+    TokenService tokenService;
+
+    @Inject
+    AuthRequestContext authRequestContext;
+
+    @Inject
+    ExceptionAnswerService exceptionAnswerService;
+
+    @ConsumeEvent(EventAddress.LOGIN_REQUEST)
+    public Uni<Answer> login(@Nonnull AuthRequest authRequest) {
+        LOG.tracef("login(%s): requestId: %s", authRequest, authRequestContext.getRequestId());
+        authRequestContext.setAuthRequest(authRequest);
+        return loginDataService
+                .findByUserName(authRequest.username())
+                .flatMap(u -> authentication(User.from(u)))
+                .onFailure(exceptionAnswerService::testAuthenticationFailedException)
+                .recoverWithUni(exceptionAnswerService::authenticationFailedUniAnswer)
+                .onTermination()
+                .invoke(authRequestContext::clear);
     }
 
-    private Set<String> login(AuthRequest authRequest, User user) {
-
+    private Uni<Answer> authentication(User user) {
+        var authRequest = authRequestContext.getAuthRequest();
         if (user.password() != null) {
             if (user.password().equals(passwordEncoder.encode(authRequest.password()))) {
-                return user.roles();
+                return generateToken(user).map(token -> Answer.of(ApiResponse.auth(token)));
             }
         }
-        throw new AuthenticationFailedException("Authentication failed");
+        throw authRequestContext.authenticationFailed();
+    }
+
+    private Uni<String> generateToken(User user) {
+        var roles = new HashSet<>(user.roles());
+        roles.add("GUEST");
+        SessionTable session = SessionTable.builder()
+                .userName(user.username())
+                .roles(roles)
+                .validTime(tokenService.validTime())
+                .build();
+        return loginDataService
+                .insert(session)
+                .map(this::generateToken);
+    }
+
+    private String generateToken(UUID u) {
+        var audience = authRequestContext.getRequestId().toString();
+        return tokenService.generate(u.toString(), audience);
     }
 }

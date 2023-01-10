@@ -9,60 +9,54 @@
 package su.svn.daybook.resources;
 
 import io.smallrye.mutiny.Uni;
-import org.jboss.logging.Logger;
+import org.eclipse.microprofile.openapi.annotations.media.Content;
+import org.eclipse.microprofile.openapi.annotations.media.ExampleObject;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
+import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
+import org.jboss.resteasy.reactive.RestResponse;
+import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
+import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.enums.ResourcePath;
 import su.svn.daybook.models.security.AuthRequest;
-import su.svn.daybook.models.security.AuthResponse;
-import su.svn.daybook.services.security.LoginService;
-import su.svn.daybook.services.security.TokenService;
 
 import javax.annotation.security.PermitAll;
-import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.Set;
-import java.util.UUID;
+import javax.ws.rs.core.UriInfo;
 
 @Path(ResourcePath.AUTH)
-public class AuthResource {
-
-    private static final Logger LOG = Logger.getLogger(AuthResource.class);
-
-    @Inject
-    LoginService loginService;
-
-    @Inject
-    TokenService tokenService;
+public class AuthResource extends AbstractResource {
 
     @PermitAll
     @POST
     @Path(ResourcePath.LOGIN)
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Uni<Response> login(AuthRequest authRequest) {
-        return loginService
-                .login(authRequest)
-                .map(this::getBuild)
-                .onFailure()
-                .recoverWithUni(this::responseUnauthorized);
+    @RequestBody(required = true, content = {
+            @Content(
+                    schema = @Schema(implementation = AuthRequest.class),
+                    examples = @ExampleObject(
+                            name = "default", value = """
+                                    {
+                                      "username": "root",
+                                      "password": "password"
+                                    }
+                                    """
+                    ))
+    })
+
+    public Uni<Response> login(AuthRequest authRequest, @Context UriInfo uriInfo) {
+        return request(EventAddress.LOGIN_REQUEST, authRequest, uriInfo);
     }
 
-    private Response getBuild(Set<String> roles) {
-        return Response
-                .ok(new AuthResponse(generateToken(roles)))
-                .build();
-    }
 
-    private String generateToken(Set<String> roles) {
-        return tokenService.generate(new UUID(0, 0).toString(), roles);
-    }
-
-    private Uni<Response> responseUnauthorized(Throwable throwable) {
-        LOG.error(throwable);
-        return Uni.createFrom().item(Response.status(Response.Status.UNAUTHORIZED).build());
+    @ServerExceptionMapper
+    public RestResponse<String> exception(Throwable x) {
+        return exceptionMapper(x);
     }
 }

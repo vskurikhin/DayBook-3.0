@@ -9,6 +9,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import su.svn.daybook.TestData;
+import su.svn.daybook.TestUtils;
 import su.svn.daybook.domain.dao.CodifierDao;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.messages.ApiResponse;
@@ -37,9 +38,9 @@ class CodifierServiceTest {
 
     static final Multi<CodifierTable> MULTI_TEST = Multi.createFrom().item(TestData.CODIFIER.TABLE_0);
 
-    static final Multi<CodifierTable> MULTI_WITH_NULL = TestData.createMultiWithNull(CodifierTable.class);
+    static final Multi<CodifierTable> MULTI_WITH_NULL = TestUtils.createMultiWithNull(CodifierTable.class);
 
-    static final Multi<CodifierTable> MULTI_EMPTIES = TestData.createMultiEmpties(CodifierTable.class);
+    static final Multi<CodifierTable> MULTI_EMPTIES = TestUtils.createMultiEmpties(CodifierTable.class);
 
     @BeforeEach
     void setUp() {

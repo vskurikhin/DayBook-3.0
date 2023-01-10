@@ -17,14 +17,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import su.svn.daybook.TestData;
+import su.svn.daybook.TestUtils;
 import su.svn.daybook.domain.dao.I18nDao;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.messages.ApiResponse;
-import su.svn.daybook.domain.model.CodifierTable;
 import su.svn.daybook.domain.model.I18nTable;
 import su.svn.daybook.models.pagination.Page;
 import su.svn.daybook.models.pagination.PageRequest;
-import su.svn.daybook.services.models.I18nService;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -44,9 +43,9 @@ class I18nServiceTest {
 
     static final Multi<I18nTable> MULTI_TEST = Multi.createFrom().item(TestData.I18N.TABLE_0);
 
-    static final Multi<I18nTable> MULTI_WITH_NULL = TestData.createMultiWithNull(I18nTable.class);
+    static final Multi<I18nTable> MULTI_WITH_NULL = TestUtils.createMultiWithNull(I18nTable.class);
 
-    static final Multi<I18nTable> MULTI_EMPTIES = TestData.createMultiEmpties(I18nTable.class);
+    static final Multi<I18nTable> MULTI_EMPTIES = TestUtils.createMultiEmpties(I18nTable.class);
 
     @BeforeEach
     void setUp() {

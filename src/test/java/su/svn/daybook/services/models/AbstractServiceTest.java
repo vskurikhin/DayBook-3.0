@@ -5,7 +5,6 @@ import org.jboss.resteasy.reactive.RestResponse;
 import org.junit.jupiter.api.BeforeEach;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.models.LongIdentification;
-import su.svn.daybook.services.models.AbstractService;
 
 import javax.ws.rs.core.Response;
 import java.io.Serializable;

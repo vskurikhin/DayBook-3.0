@@ -17,13 +17,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import su.svn.daybook.TestData;
+import su.svn.daybook.TestUtils;
 import su.svn.daybook.domain.dao.ValueTypeDao;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.messages.ApiResponse;
 import su.svn.daybook.domain.model.ValueTypeTable;
 import su.svn.daybook.models.pagination.Page;
 import su.svn.daybook.models.pagination.PageRequest;
-import su.svn.daybook.services.models.ValueTypeService;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -43,9 +43,9 @@ class ValueTypeServiceTest {
 
     static final Multi<ValueTypeTable> MULTI_TEST = Multi.createFrom().item(TestData.VALUE_TYPE.TABLE_0);
 
-    static final Multi<ValueTypeTable> MULTI_WITH_NULL = TestData.createMultiWithNull(ValueTypeTable.class);
+    static final Multi<ValueTypeTable> MULTI_WITH_NULL = TestUtils.createMultiWithNull(ValueTypeTable.class);
 
-    static final Multi<ValueTypeTable> MULTI_EMPTIES = TestData.createMultiEmpties(ValueTypeTable.class);
+    static final Multi<ValueTypeTable> MULTI_EMPTIES = TestUtils.createMultiEmpties(ValueTypeTable.class);
 
     @BeforeEach
     void setUp() {

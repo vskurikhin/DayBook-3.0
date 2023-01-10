@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.01.07 11:52 by Victor N. Skurikhin.
+ * This file was last modified at 2023.01.09 21:44 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * RoleService.java
@@ -17,9 +17,11 @@ import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.models.domain.Role;
 import su.svn.daybook.models.pagination.Page;
 import su.svn.daybook.models.pagination.PageRequest;
+import su.svn.daybook.models.security.SessionPrincipal;
 import su.svn.daybook.services.ExceptionAnswerService;
 import su.svn.daybook.services.cache.RoleCacheProvider;
 import su.svn.daybook.services.domain.RoleDataService;
+import su.svn.daybook.services.security.AuthenticationContext;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -39,6 +41,9 @@ public class RoleService extends AbstractService<UUID, Role> {
     @Inject
     RoleDataService roleDataService;
 
+    @Inject
+    AuthenticationContext authContext;
+
     /**
      * This is method a Vertx message consumer and Role creater
      *
@@ -48,7 +53,11 @@ public class RoleService extends AbstractService<UUID, Role> {
     @ConsumeEvent(EventAddress.ROLE_ADD)
     public Uni<Answer> add(Role o) {
         //noinspection DuplicatedCode
-        LOG.tracef("add(%s)", o);
+        var principal = authContext.getPrincipal();
+        if (principal instanceof SessionPrincipal sessionPrincipal) {
+            LOG.infof("sessionId: %s, requestId: %s", sessionPrincipal.getSessionId(), sessionPrincipal.getRequestId());
+        }
+        LOG.tracef("add(%s), principal: %s", o, principal);
         return roleDataService
                 .add(o)
                 .map(this::apiResponseCreatedAnswer)
@@ -57,7 +66,6 @@ public class RoleService extends AbstractService<UUID, Role> {
                 .recoverWithUni(exceptionAnswerService::notAcceptableDuplicateAnswer)
                 .onFailure(exceptionAnswerService::testException)
                 .recoverWithUni(exceptionAnswerService::badRequestUniAnswer);
-
     }
 
     /**
