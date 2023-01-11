@@ -26,7 +26,6 @@ public interface Resources<K extends Comparable<? extends Serializable>, V exten
 
     default Multi<V> getAll() {
         final AtomicInteger counter = new AtomicInteger();
-        LOG.trace("getAll()");
         return getService().getAll()
                 .filter(Objects::nonNull)
                 .onItem()
@@ -41,7 +40,7 @@ public interface Resources<K extends Comparable<? extends Serializable>, V exten
     private V extract(Answer answer) {
         try {
             //noinspection unchecked
-            return (V) answer.getPayload();
+            return (V) answer.payload();
         } catch (ClassCastException e) {
             LOG.error(e.getMessage());
         }

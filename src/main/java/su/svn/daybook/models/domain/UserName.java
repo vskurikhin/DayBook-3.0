@@ -8,7 +8,6 @@
 
 package su.svn.daybook.models.domain;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import su.svn.daybook.annotations.DomainField;
 import su.svn.daybook.models.UUIDIdentification;
 
@@ -18,7 +17,6 @@ import java.io.Serializable;
 import java.util.Objects;
 import java.util.UUID;
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public final class UserName implements UUIDIdentification, Serializable {
 
     public static final String ID = "id";
@@ -35,16 +33,12 @@ public final class UserName implements UUIDIdentification, Serializable {
     @DomainField
     private final int flags;
 
-    private transient volatile int hash;
+    private transient int hash;
 
-    private transient volatile boolean hashIsZero;
+    private transient boolean hashIsZero;
 
     public UserName() {
-        this.id = UUID.randomUUID();
-        this.userName = "guest";
-        this.password = "password";
-        this.visible = true;
-        this.flags = 0;
+        this(UUID.randomUUID(), "guest", "password", true, 0);
     }
 
     public UserName(
@@ -69,23 +63,19 @@ public final class UserName implements UUIDIdentification, Serializable {
         return id;
     }
 
-    public String getUserName() {
+    public String userName() {
         return userName;
     }
 
-    public String getPassword() {
+    public String password() {
         return password;
     }
 
-    public boolean getVisible() {
+    public boolean visible() {
         return visible;
     }
 
-    public boolean isVisible() {
-        return visible;
-    }
-
-    public int getFlags() {
+    public int flags() {
         return flags;
     }
 
@@ -138,19 +128,22 @@ public final class UserName implements UUIDIdentification, Serializable {
         private int flags;
 
         private Builder() {
+            this.id = UUID.randomUUID();
+            this.userName = "guest";
+            this.password = "password";
         }
 
-        public Builder id(UUID id) {
+        public Builder id(@Nonnull UUID id) {
             this.id = id;
             return this;
         }
 
-        public Builder userName(String userName) {
+        public Builder userName(@Nonnull String userName) {
             this.userName = userName;
             return this;
         }
 
-        public Builder password(String password) {
+        public Builder password(@Nonnull String password) {
             this.password = password;
             return this;
         }

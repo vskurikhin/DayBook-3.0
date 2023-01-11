@@ -31,10 +31,7 @@ class KeyValueTableTest {
 
     @Test
     void testEqualsVerifier() {
-        EqualsVerifier.forClass(KeyValueTable.class)
-                .withIgnoredFields("createTime", "updateTime")
-                .suppress(Warning.NO_EXAMPLE_FOR_CACHED_HASHCODE)
-                .verify();
+        EqualsVerifier.forClass(KeyValueTable.class).verify();
     }
 
     @Test

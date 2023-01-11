@@ -8,8 +8,7 @@
 
 package su.svn.daybook.models.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.*;
 import io.vertx.core.json.JsonObject;
 import su.svn.daybook.annotations.DomainField;
 import su.svn.daybook.domain.model.KeyValueTable;
@@ -22,29 +21,32 @@ import java.math.BigInteger;
 import java.util.Objects;
 import java.util.UUID;
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public final class KeyValue implements UUIDIdentification, Serializable {
 
     public static final String NONE = KeyValueTable.NONE;
-    public static final String ID = "id";
     @Serial
     private static final long serialVersionUID = 3421670798382710094L;
+    @JsonProperty
     @DomainField
     private final UUID id;
+    @JsonProperty
     @DomainField(nullable = false)
     private final BigInteger key;
+    @JsonProperty
     @DomainField
     private final JsonObject value;
+    @JsonProperty
     @DomainField
     private final boolean visible;
+    @JsonProperty
     @DomainField
     private final int flags;
 
     @JsonIgnore
-    private transient volatile int hash;
+    private transient int hash;
 
     @JsonIgnore
-    private transient volatile boolean hashIsZero;
+    private transient boolean hashIsZero;
 
     public KeyValue() {
         this(null, BigInteger.ZERO, null, true, 0);
@@ -67,6 +69,15 @@ public final class KeyValue implements UUIDIdentification, Serializable {
         return new KeyValue.Builder();
     }
 
+    public KeyValue.Builder toBuilder() {
+        return builder()
+                .id(this.id)
+                .key(this.key)
+                .value(this.value)
+                .visible(this.visible)
+                .flags(0);
+    }
+
     public UUID id() {
         return id;
     }
@@ -85,15 +96,6 @@ public final class KeyValue implements UUIDIdentification, Serializable {
 
     public int flags() {
         return flags;
-    }
-
-    public KeyValue.Builder toBuilder() {
-        return builder()
-                .id(this.id)
-                .key(this.key)
-                .value(this.value)
-                .visible(this.visible)
-                .flags(0);
     }
 
     @Override

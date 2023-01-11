@@ -2,12 +2,13 @@
  * This file was last modified at 2023.01.10 22:50 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
- * RoleTbl.java
+ * RoleTable.java
  * $Id$
  */
 
 package su.svn.daybook.domain.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import io.vertx.mutiny.pgclient.PgPool;
@@ -27,9 +28,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public record RoleTable(
         @ModelField UUID id,
-        @Nonnull @ModelField String role,
+        @ModelField(nullable = false) @Nonnull String role,
         @ModelField String description,
         String userName,
         LocalDateTime createTime,
@@ -189,6 +191,7 @@ public record RoleTable(
 
         private Builder() {
             this.role = NONE;
+            this.enabled = true;
         }
 
         public Builder id(UUID id) {

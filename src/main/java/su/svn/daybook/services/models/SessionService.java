@@ -12,8 +12,11 @@ import io.quarkus.vertx.ConsumeEvent;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import org.jboss.logging.Logger;
+import su.svn.daybook.annotations.Logged;
+import su.svn.daybook.annotations.Principled;
 import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.messages.Answer;
+import su.svn.daybook.domain.messages.Request;
 import su.svn.daybook.models.domain.Session;
 import su.svn.daybook.models.pagination.Page;
 import su.svn.daybook.models.pagination.PageRequest;
@@ -26,6 +29,7 @@ import javax.inject.Inject;
 import java.util.UUID;
 
 @ApplicationScoped
+@Logged
 public class SessionService extends AbstractService<UUID, Session> {
 
     private static final Logger LOG = Logger.getLogger(SessionService.class);
@@ -42,15 +46,15 @@ public class SessionService extends AbstractService<UUID, Session> {
     /**
      * This is method a Vertx message consumer and Session creater
      *
-     * @param o - Session
+     * @param request - Session
      * @return - a lazy asynchronous action (LAA) with the Answer containing the Session id as payload or empty payload
      */
+    @Principled
     @ConsumeEvent(EventAddress.SESSION_ADD)
-    public Uni<Answer> add(Session o) {
+    public Uni<Answer> add(Request<Session> request) {
         //noinspection DuplicatedCode
-        LOG.tracef("add(%s)", o);
         return sessionDataService
-                .add(o)
+                .add(request.payload())
                 .map(this::apiResponseCreatedAnswer)
                 .flatMap(sessionCacheProvider::invalidate)
                 .onFailure(exceptionAnswerService::testDuplicateException)
@@ -62,17 +66,17 @@ public class SessionService extends AbstractService<UUID, Session> {
     /**
      * This is method a Vertx message consumer and Session deleter
      *
-     * @param id - id of the Session
+     * @param request - id of the Session
      * @return - a LAA with the Answer containing Session id as payload or empty payload
      */
+    @Principled
     @ConsumeEvent(EventAddress.SESSION_DEL)
-    public Uni<Answer> delete(UUID id) {
+    public Uni<Answer> delete(Request<UUID> request) {
         //noinspection DuplicatedCode
-        LOG.tracef("delete(%s)", id);
         return sessionDataService
-                .delete(id)
+                .delete(request.payload())
                 .map(this::apiResponseOkAnswer)
-                .flatMap(answer -> sessionCacheProvider.invalidateById(id, answer))
+                .flatMap(answer -> sessionCacheProvider.invalidateById(request.payload(), answer))
                 .onFailure(exceptionAnswerService::testNoSuchElementException)
                 .recoverWithUni(exceptionAnswerService::noSuchElementAnswer)
                 .onFailure(exceptionAnswerService::testException)
@@ -82,15 +86,15 @@ public class SessionService extends AbstractService<UUID, Session> {
     /**
      * This is method a Vertx message consumer and Session provider by id
      *
-     * @param id - id of the Session
+     * @param request - id of the Session
      * @return - a lazy asynchronous action with the Answer containing the Session as payload or empty payload
      */
+    @Principled
     @ConsumeEvent(EventAddress.SESSION_GET)
-    public Uni<Answer> get(UUID id) {
+    public Uni<Answer> get(Request<UUID> request) {
         //noinspection DuplicatedCode
-        LOG.tracef("get(%s)", id);
         return sessionCacheProvider
-                .get(id)
+                .get(request.payload())
                 .map(Answer::of)
                 .onFailure(exceptionAnswerService::testNoSuchElementException)
                 .recoverWithUni(exceptionAnswerService::noSuchElementAnswer)
@@ -105,33 +109,32 @@ public class SessionService extends AbstractService<UUID, Session> {
      */
     public Multi<Answer> getAll() {
         //noinspection DuplicatedCode
-        LOG.trace("getAll()");
         return sessionDataService
                 .getAll()
                 .map(Answer::of);
     }
 
+    @Principled
     @ConsumeEvent(EventAddress.SESSION_PAGE)
-    public Uni<Page<Answer>> getPage(PageRequest pageRequest) {
+    public Uni<Page<Answer>> getPage(Request<PageRequest> request) {
         //noinspection DuplicatedCode
-        LOG.tracef("getPage(%s)", pageRequest);
-        return sessionCacheProvider.getPage(pageRequest);
+        return sessionCacheProvider.getPage(request.payload());
     }
 
     /**
      * This is method a Vertx message consumer and Session updater
      *
-     * @param o - Session
+     * @param request - Session
      * @return - a LAA with the Answer containing Session id as payload or empty payload
      */
+    @Principled
     @ConsumeEvent(EventAddress.SESSION_PUT)
-    public Uni<Answer> put(Session o) {
+    public Uni<Answer> put(Request<Session> request) {
         //noinspection DuplicatedCode
-        LOG.tracef("put(%s)", o);
         return sessionDataService
-                .put(o)
+                .put(request.payload())
                 .map(this::apiResponseAcceptedAnswer)
-                .flatMap(answer -> sessionCacheProvider.invalidateById(o.id(), answer))
+                .flatMap(answer -> sessionCacheProvider.invalidateById(request.payload().id(), answer))
                 .onFailure(exceptionAnswerService::testDuplicateException)
                 .recoverWithUni(exceptionAnswerService::notAcceptableDuplicateAnswer)
                 .onFailure(exceptionAnswerService::testIllegalArgumentException)

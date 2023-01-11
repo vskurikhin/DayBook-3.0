@@ -11,9 +11,11 @@ package su.svn.daybook.services.models;
 import io.quarkus.vertx.ConsumeEvent;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
-import org.jboss.logging.Logger;
+import su.svn.daybook.annotations.Logged;
+import su.svn.daybook.annotations.Principled;
 import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.messages.Answer;
+import su.svn.daybook.domain.messages.Request;
 import su.svn.daybook.models.domain.KeyValue;
 import su.svn.daybook.models.pagination.Page;
 import su.svn.daybook.models.pagination.PageRequest;
@@ -26,9 +28,8 @@ import javax.inject.Inject;
 import java.util.UUID;
 
 @ApplicationScoped
+@Logged
 public class KeyValueService extends AbstractService<UUID, KeyValue> {
-
-    private static final Logger LOG = Logger.getLogger(KeyValueService.class);
 
     @Inject
     ExceptionAnswerService exceptionAnswerService;
@@ -42,15 +43,15 @@ public class KeyValueService extends AbstractService<UUID, KeyValue> {
     /**
      * This is method a Vertx message consumer and KeyValue creater
      *
-     * @param o - KeyValue
+     * @param request - KeyValue
      * @return - a lazy asynchronous action (LAA) with the Answer containing the KeyValue id as payload or empty payload
      */
+    @Principled
     @ConsumeEvent(EventAddress.KEY_VALUE_ADD)
-    public Uni<Answer> add(KeyValue o) {
+    public Uni<Answer> add(Request<KeyValue> request) {
         //noinspection DuplicatedCode
-        LOG.tracef("add(%s)", o);
         return keyValueDataService
-                .add(o)
+                .add(request.payload())
                 .map(this::apiResponseCreatedAnswer)
                 .flatMap(keyValueCacheProvider::invalidate)
                 .onFailure(exceptionAnswerService::testDuplicateException)
@@ -62,17 +63,17 @@ public class KeyValueService extends AbstractService<UUID, KeyValue> {
     /**
      * This is method a Vertx message consumer and KeyValue deleter
      *
-     * @param id - id of the KeyValue
+     * @param request - id of the KeyValue
      * @return - a LAA with the Answer containing KeyValue id as payload or empty payload
      */
+    @Principled
     @ConsumeEvent(EventAddress.KEY_VALUE_DEL)
-    public Uni<Answer> delete(UUID id) {
+    public Uni<Answer> delete(Request<UUID> request) {
         //noinspection DuplicatedCode
-        LOG.tracef("delete(%s)", id);
         return keyValueDataService
-                .delete(id)
+                .delete(request.payload())
                 .map(this::apiResponseOkAnswer)
-                .flatMap(answer -> keyValueCacheProvider.invalidateById(id, answer))
+                .flatMap(answer -> keyValueCacheProvider.invalidateById(request.payload(), answer))
                 .onFailure(exceptionAnswerService::testNoSuchElementException)
                 .recoverWithUni(exceptionAnswerService::noSuchElementAnswer)
                 .onFailure(exceptionAnswerService::testException)
@@ -82,15 +83,15 @@ public class KeyValueService extends AbstractService<UUID, KeyValue> {
     /**
      * This is method a Vertx message consumer and KeyValue provider by id
      *
-     * @param id - id of the KeyValue
+     * @param request - id of the KeyValue
      * @return - a lazy asynchronous action with the Answer containing the KeyValue as payload or empty payload
      */
+    @Principled
     @ConsumeEvent(EventAddress.KEY_VALUE_GET)
-    public Uni<Answer> get(UUID id) {
+    public Uni<Answer> get(Request<UUID> request) {
         //noinspection DuplicatedCode
-        LOG.tracef("get(%s)", id);
         return keyValueCacheProvider
-                .get(id)
+                .get(request.payload())
                 .map(Answer::of)
                 .onFailure(exceptionAnswerService::testNoSuchElementException)
                 .recoverWithUni(exceptionAnswerService::noSuchElementAnswer)
@@ -105,33 +106,32 @@ public class KeyValueService extends AbstractService<UUID, KeyValue> {
      */
     public Multi<Answer> getAll() {
         //noinspection DuplicatedCode
-        LOG.trace("getAll()");
         return keyValueDataService
                 .getAll()
                 .map(Answer::of);
     }
 
+    @Principled
     @ConsumeEvent(EventAddress.KEY_VALUE_PAGE)
-    public Uni<Page<Answer>> getPage(PageRequest pageRequest) {
+    public Uni<Page<Answer>> getPage(Request<PageRequest> request) {
         //noinspection DuplicatedCode
-        LOG.tracef("getPage(%s)", pageRequest);
-        return keyValueCacheProvider.getPage(pageRequest);
+        return keyValueCacheProvider.getPage(request.payload());
     }
 
     /**
      * This is method a Vertx message consumer and KeyValue updater
      *
-     * @param o - KeyValue
+     * @param request - KeyValue
      * @return - a LAA with the Answer containing KeyValue id as payload or empty payload
      */
+    @Principled
     @ConsumeEvent(EventAddress.KEY_VALUE_PUT)
-    public Uni<Answer> put(KeyValue o) {
+    public Uni<Answer> put(Request<KeyValue> request) {
         //noinspection DuplicatedCode
-        LOG.tracef("put(%s)", o);
         return keyValueDataService
-                .put(o)
+                .put(request.payload())
                 .map(this::apiResponseAcceptedAnswer)
-                .flatMap(answer -> keyValueCacheProvider.invalidateById(o.id(), answer))
+                .flatMap(answer -> keyValueCacheProvider.invalidateById(request.payload().id(), answer))
                 .onFailure(exceptionAnswerService::testDuplicateException)
                 .recoverWithUni(exceptionAnswerService::notAcceptableDuplicateAnswer)
                 .onFailure(exceptionAnswerService::testIllegalArgumentException)

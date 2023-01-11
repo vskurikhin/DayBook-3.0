@@ -12,6 +12,6 @@ public record User(String username, String password, Set<String> roles) {
 
     @Deprecated
     public static User from(UserView userView) {
-        return new User(userView.userName(), userView.getPassword(), userView.getRoles());
+        return new User(userView.userName(), userView.password(), userView.roles());
     }
 }

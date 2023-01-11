@@ -14,41 +14,41 @@ class AnswerTest {
     @Test
     void empty() {
         Answer test = Answer.empty();
-        Assertions.assertEquals(TestData.NO_SUCH_ELEMENT, test.getMessage());
-        Assertions.assertEquals(404, test.getError());
-        Assertions.assertEquals(Answer.EMPTY, test.getPayload());
+        Assertions.assertEquals(TestData.NO_SUCH_ELEMENT, test.message());
+        Assertions.assertEquals(404, test.error());
+        Assertions.assertEquals(Answer.EMPTY, test.payload());
     }
 
     @Test
     void of() {
         Object o = new Object();
         Answer test = Answer.of(o);
-        Assertions.assertEquals(o, test.getPayload());
-        Assertions.assertEquals(Answer.DEFAULT_MESSAGE, test.getMessage());
+        Assertions.assertEquals(o, test.payload());
+        Assertions.assertEquals(Answer.DEFAULT_MESSAGE, test.message());
     }
 
     @Test
     void create() {
         Object o = new Object();
         Answer test = Answer.create("test", o);
-        Assertions.assertEquals(o, test.getPayload());
-        Assertions.assertEquals("test", test.getMessage());
+        Assertions.assertEquals(o, test.payload());
+        Assertions.assertEquals("test", test.message());
     }
 
     @Test
     void setPayload() {
         Answer test = Answer.empty();
         Object o = new Object();
-        test.setPayload(o);
-        Assertions.assertEquals(o, test.getPayload());
+        test.payload(o);
+        Assertions.assertEquals(o, test.payload());
     }
 
     @Test
     void getPayloadClass() {
         Answer test = Answer.empty();
         Object o = new Object();
-        test.setPayload(o);
-        Assertions.assertEquals(o.getClass(), test.getPayloadClass());
+        test.payload(o);
+        Assertions.assertEquals(o.getClass(), test.payloadClass());
     }
 
     @Test

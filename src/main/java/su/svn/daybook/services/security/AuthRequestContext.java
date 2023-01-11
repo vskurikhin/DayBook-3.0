@@ -13,10 +13,11 @@ import org.jboss.logging.Logger;
 import su.svn.daybook.models.security.AuthRequest;
 
 import javax.enterprise.context.RequestScoped;
+import java.io.Closeable;
 import java.util.UUID;
 
 @RequestScoped
-public class AuthRequestContext {
+public class AuthRequestContext implements Closeable {
 
     private static final Logger LOG = Logger.getLogger(AuthRequestContext.class);
 
@@ -26,7 +27,7 @@ public class AuthRequestContext {
 
     private volatile AuthRequest authRequest;
 
-    private final UUID requestId;
+    private UUID requestId;
 
     public AuthRequestContext() {
         this.requestId = UUID.randomUUID();
@@ -55,8 +56,10 @@ public class AuthRequestContext {
                 : new AuthenticationFailedException(AUTHENTICATION_FAILED + authRequest.username() + PASSWORD_INCORRECT);
     }
 
-    public void clear() {
-        LOG.infof("clear(%s).requestId: %s", this, requestId);
+    @Override
+    public void close() {
+        LOG.infof("close(%s).requestId: %s", this, requestId);
         this.authRequest = null;
+        this.requestId = null;
     }
 }

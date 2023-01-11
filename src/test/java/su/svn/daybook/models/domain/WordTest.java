@@ -21,10 +21,9 @@ class WordTest {
     void testGetters() {
         var entry = new Word();
         Assertions.assertDoesNotThrow(entry::id);
-        Assertions.assertDoesNotThrow(entry::getWord);
-        Assertions.assertDoesNotThrow(entry::getVisible);
-        Assertions.assertDoesNotThrow(entry::isVisible);
-        Assertions.assertDoesNotThrow(entry::getFlags);
+        Assertions.assertDoesNotThrow(entry::word);
+        Assertions.assertDoesNotThrow(entry::visible);
+        Assertions.assertDoesNotThrow(entry::flags);
     }
 
     @Test

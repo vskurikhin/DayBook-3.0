@@ -8,13 +8,26 @@
 
 package su.svn.daybook.services.security;
 
+import org.jboss.logging.Logger;
+
 import javax.enterprise.context.RequestScoped;
+import java.io.Closeable;
 import java.security.Principal;
+import java.util.UUID;
 
 @RequestScoped
-public class AuthenticationContext {
+public class AuthenticationContext implements Closeable {
+
+    private static final Logger LOG = Logger.getLogger(AuthenticationContext.class);
 
     private volatile Principal principal;
+
+    private UUID id;
+
+    public AuthenticationContext() {
+        this.id = UUID.randomUUID();
+        LOG.infof("AuthenticationContext(%s).id: %s", this, id);
+    }
 
     public Principal getPrincipal() {
         return principal;
@@ -22,5 +35,16 @@ public class AuthenticationContext {
 
     public void setPrincipal(Principal principal) {
         this.principal = principal;
+    }
+
+    public UUID getId() {
+        return id;
+    }
+
+    @Override
+    public void close() {
+        LOG.infof("close(%s).id: %s", this, id);
+        this.principal = null;
+        this.id = null;
     }
 }

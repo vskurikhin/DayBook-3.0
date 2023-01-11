@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import su.svn.daybook.TestData;
 import su.svn.daybook.domain.messages.Answer;
-import su.svn.daybook.models.pagination.PageRequest;
+import su.svn.daybook.domain.messages.Request;
 import su.svn.daybook.services.models.UserService;
 
 import javax.ws.rs.core.HttpHeaders;
@@ -31,16 +31,17 @@ public class UserResourceTest {
 
     @BeforeAll
     public static void setup() {
-        PageRequest pageRequest = new PageRequest(0, (short) 1);
         mock = Mockito.mock(UserService.class);
-        Mockito.when(mock.get(TestData.uuid.ZERO)).thenReturn(test);
-        Mockito.when(mock.get(TestData.uuid.RANDOM1)).thenReturn(TestData.UNI_ANSWER_EMPTY);
-        Mockito.when(mock.get(TestData.uuid.RANDOM2)).thenReturn(TestData.UNI_ANSWER_NULL);
+        Mockito.when(mock.get(TestData.request.REQUEST_0)).thenReturn(test);
+        Mockito.when(mock.get(TestData.request.REQUEST_2)).thenReturn(TestData.UNI_ANSWER_EMPTY);
+        Mockito.when(mock.get(TestData.request.REQUEST_3)).thenReturn(TestData.UNI_ANSWER_NULL);
         Mockito.when(mock.getAll()).thenReturn(Multi.createFrom().item(Answer.of(TestData.USER.MODEL_0)));
-        Mockito.when(mock.getPage(pageRequest)).thenReturn(TestData.USER.UNI_PAGE_ANSWER_SINGLETON_TEST);
-        Mockito.when(mock.add(TestData.USER.MODEL_0)).thenReturn(TestData.UNI_ANSWER_API_RESPONSE_ZERO_UUID);
-        Mockito.when(mock.put(TestData.USER.MODEL_0)).thenReturn(TestData.UNI_ANSWER_API_RESPONSE_ZERO_UUID);
-        Mockito.when(mock.delete(TestData.uuid.ZERO)).thenReturn(TestData.UNI_ANSWER_API_RESPONSE_ZERO_UUID);
+        Mockito.when(mock.getPage(TestData.request.REQUEST_4)).thenReturn(TestData.USER.UNI_PAGE_ANSWER_SINGLETON_TEST);
+        Mockito.when(mock.add(new Request<>(TestData.USER.MODEL_0, null)))
+                .thenReturn(TestData.UNI_ANSWER_API_RESPONSE_ZERO_UUID);
+        Mockito.when(mock.put(new Request<>(TestData.USER.MODEL_0, null)))
+                .thenReturn(TestData.UNI_ANSWER_API_RESPONSE_ZERO_UUID);
+        Mockito.when(mock.delete(TestData.request.REQUEST_0)).thenReturn(TestData.UNI_ANSWER_API_RESPONSE_ZERO_UUID);
         QuarkusMock.installMockForType(mock, UserService.class);
     }
 
@@ -57,7 +58,7 @@ public class UserResourceTest {
 
     @Test
     void testEndpointGetNoSuchElementException() {
-        Mockito.when(mock.get(TestData.uuid.ZERO)).thenThrow(NoSuchElementException.class);
+        Mockito.when(mock.get(TestData.request.REQUEST_0)).thenThrow(NoSuchElementException.class);
         given()
                 .when()
                 .get("/user/" + TestData.uuid.STRING_ZERO)

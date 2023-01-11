@@ -59,6 +59,7 @@ dependencies {
     implementation "io.netty:netty-transport-native-kqueue:$libVers.netty_transport_native:osx-x86_64"
     implementation "com.google.code.findbugs:jsr305:$libVers.jsr305"
     implementation "com.google.collections:google-collections:$libVers.google_collections"
+    implementation "org.jetbrains:annotations"
 
     liquibaseRuntime group: 'org.slf4j', name: 'slf4j-api', version: libVers.slf4j
     liquibaseRuntime group: 'org.slf4j', name: 'slf4j-simple', version: libVers.slf4j

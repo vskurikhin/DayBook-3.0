@@ -38,10 +38,10 @@ public final class @Name@ implements @IdType@Identification, Serializable {
     private final int flags;
 
     @JsonIgnore
-    private transient volatile int hash;
+    private transient int hash;
 
     @JsonIgnore
-    private transient volatile boolean hashIsZero;
+    private transient boolean hashIsZero;
 
     public @Name@() {
         this.id = null;

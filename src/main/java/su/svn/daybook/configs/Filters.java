@@ -10,6 +10,7 @@ import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerResponseContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.SecurityContext;
+import java.io.IOException;
 
 class Filters {
 
@@ -33,7 +34,8 @@ class Filters {
 
     @ServerResponseFilter
     public void doResponseFilter(ContainerRequestContext requestContext,
-                                 ContainerResponseContext responseContext) {
+                                 ContainerResponseContext responseContext) throws IOException {
+        authContext.close();
         LOG.infof(
                 "Response: method: %s, URI: %s, headers: %s, entity: %s",
                 requestContext.getMethod(), requestContext.getUriInfo().getRequestUri(),

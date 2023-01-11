@@ -47,7 +47,7 @@ public class UserDataService implements DataService<UUID, UserView, User> {
 
     public Uni<UUID> add(User o) {
         LOG.tracef("add(%s)", o);
-        return addUserAndRoles(userMapper.convertToUserNameTable(passwordEncoding(o)), o.getRoles());
+        return addUserAndRoles(userMapper.convertToUserNameTable(passwordEncoding(o)), o.roles());
     }
 
     private Uni<UUID> addUserAndRoles(UserNameTable entry, Set<String> roles) {
@@ -88,7 +88,7 @@ public class UserDataService implements DataService<UUID, UserView, User> {
 
     public Uni<UUID> put(User o) {
         LOG.tracef("put(%s)", o);
-        return putEntry(userMapper.convertToUserNameTable(passwordEncoding(o)), o.getRoles());
+        return putEntry(userMapper.convertToUserNameTable(passwordEncoding(o)), o.roles());
     }
 
     private Uni<UUID> putEntry(UserNameTable entry, Set<String> roles) {
@@ -101,9 +101,9 @@ public class UserDataService implements DataService<UUID, UserView, User> {
         return User
                 .builder()
                 .id(o.id())
-                .userName(o.getUserName())
-                .password(passwordEncoder.encode(o.getPassword()))
-                .roles(o.getRoles())
+                .userName(o.userName())
+                .password(passwordEncoder.encode(o.password()))
+                .roles(o.roles())
                 .build();
     }
 

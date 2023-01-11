@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2021.12.06 19:31 by Victor N. Skurikhin.
+ * This file was last modified at 2023.01.11 12:31 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * UserNameTable.java
@@ -8,45 +8,58 @@
 
 package su.svn.daybook.domain.model;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import io.vertx.mutiny.pgclient.PgPool;
 import io.vertx.mutiny.sqlclient.Row;
 import io.vertx.mutiny.sqlclient.RowSet;
 import io.vertx.mutiny.sqlclient.Tuple;
+import org.intellij.lang.annotations.Language;
 import su.svn.daybook.annotations.ModelField;
 import su.svn.daybook.models.Marked;
 import su.svn.daybook.models.Owned;
 import su.svn.daybook.models.TimeUpdated;
 
 import javax.annotation.Nonnull;
-import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.Objects;
 import java.util.UUID;
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
-public final class UserNameTable implements CasesOfUUID, Marked, Owned, TimeUpdated, Serializable {
+public record UserNameTable(
+        @ModelField UUID id,
+        @ModelField(nullable = false) @Nonnull String userName,
+        @ModelField(onlyBuildPart = true) @Nonnull String password,
+        LocalDateTime createTime,
+        LocalDateTime updateTime,
+        boolean enabled,
+        @ModelField boolean visible,
+        @ModelField int flags)
+        implements CasesOfUUID, Marked, Owned, TimeUpdated, Serializable {
 
+    public static final String ID = "id";
+    public static final String COUNT = "count";
+    public static final String NONE = "4acd4523-e27d-43e7-88dc-f40637c98bf1";
+    @Language("SQL")
     public static final String SELECT_FROM_SECURITY_USER_NAME_WHERE_ID_$1 = """
             SELECT id, user_name, password, create_time, update_time, enabled, visible, flags
               FROM security.user_name
              WHERE id = $1 AND enabled
             """;
+    @Language("SQL")
     public static final String SELECT_ALL_FROM_SECURITY_USER_NAME_ORDER_BY_ID_ASC = """
             SELECT id, user_name, password, create_time, update_time, enabled, visible, flags
               FROM security.user_name
              WHERE enabled
              ORDER BY id ASC
             """;
+    @Language("SQL")
     public static final String SELECT_ALL_FROM_SECURITY_USER_NAME_ORDER_BY_ID_ASC_OFFSET_LIMIT = """
             SELECT id, user_name, password, create_time, update_time, enabled, visible, flags
               FROM security.user_name
              WHERE enabled
              ORDER BY id ASC OFFSET $1 LIMIT $2
             """;
+    @Language("SQL")
     public static final String INSERT_INTO_SECURITY_USER_NAME = """
             INSERT INTO security.user_name
              (id, user_name, password, enabled, visible, flags)
@@ -54,6 +67,7 @@ public final class UserNameTable implements CasesOfUUID, Marked, Owned, TimeUpda
              ($1, $2, $3, $4, $5, $6)
              RETURNING id
             """;
+    @Language("SQL")
     public static final String INSERT_INTO_SECURITY_USER_NAME_DEFAULT_ID = """
             INSERT INTO security.user_name
              (id, user_name, password, enabled, visible, flags)
@@ -61,6 +75,7 @@ public final class UserNameTable implements CasesOfUUID, Marked, Owned, TimeUpda
              (DEFAULT, $1, $2, $3, $4, $5)
              RETURNING id
             """;
+    @Language("SQL")
     public static final String UPDATE_SECURITY_USER_NAME_WHERE_ID_$1 = """
             UPDATE security.user_name SET
               user_name = $2,
@@ -71,63 +86,15 @@ public final class UserNameTable implements CasesOfUUID, Marked, Owned, TimeUpda
              WHERE id = $1
              RETURNING id
             """;
+    @Language("SQL")
     public static final String DELETE_FROM_SECURITY_USER_NAME_WHERE_ID_$1 = """
             DELETE FROM security.user_name
              WHERE id = $1
              RETURNING id
             """;
+    @Language("SQL")
     public static final String COUNT_SECURITY_USER_NAME = "SELECT count(*) FROM security.user_name";
-    @Serial
-    private static final long serialVersionUID = 3526532892030791269L;
-    public static final String ID = "id";
-    public static final String COUNT = "count";
-    @ModelField
-    private final UUID id;
-    @ModelField
-    private final String userName;
-    @ModelField(onlyBuildPart = true)
-    private final String password;
-    private final LocalDateTime createTime;
-    private final LocalDateTime updateTime;
-    private final boolean enabled;
-    @ModelField
-    private final boolean visible;
-    @ModelField
-    private final int flags;
 
-    private transient volatile int hash;
-
-    private transient volatile boolean hashIsZero;
-
-    public UserNameTable() {
-        this.id = UUID.randomUUID();
-        this.userName = "guest";
-        this.password = "password";
-        this.createTime = LocalDateTime.now();
-        this.updateTime = null;
-        this.enabled = true;
-        this.visible = true;
-        this.flags = 0;
-    }
-
-    public UserNameTable(
-            @Nonnull UUID id,
-            @Nonnull String userName,
-            @Nonnull String password,
-            LocalDateTime createTime,
-            LocalDateTime updateTime,
-            boolean enabled,
-            boolean visible,
-            int flags) {
-        this.id = id;
-        this.userName = userName;
-        this.password = password;
-        this.createTime = createTime;
-        this.updateTime = updateTime;
-        this.enabled = enabled;
-        this.visible = visible;
-        this.flags = flags;
-    }
 
     public static UserNameTable from(Row row) {
         return new UserNameTable(
@@ -189,8 +156,8 @@ public final class UserNameTable implements CasesOfUUID, Marked, Owned, TimeUpda
                 .transform(pgRowSet -> pgRowSet.iterator().next().getLong(COUNT));
     }
 
-    public static Builder builder() {
-        return new Builder();
+    public static UserNameTable.Builder builder() {
+        return new UserNameTable.Builder();
     }
 
     public Uni<UUID> insert(PgPool client) {
@@ -226,102 +193,22 @@ public final class UserNameTable implements CasesOfUUID, Marked, Owned, TimeUpda
         return Tuple.of(id, userName, password, enabled, visible, flags);
     }
 
-    public UUID id() {
-        return id;
-    }
-
-    public String userName() {
-        return userName;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public LocalDateTime createTime() {
-        return createTime;
-    }
-
-    public LocalDateTime updateTime() {
-        return updateTime;
-    }
-
-    public boolean enabled() {
-        return enabled;
-    }
-
-    public boolean isEnabled() {
-        return enabled;
-    }
-
-    public boolean visible() {
-        return visible;
-    }
-
-    public boolean isVisible() {
-        return visible;
-    }
-
-    public int flags() {
-        return flags;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        var that = (UserNameTable) o;
-        return enabled == that.enabled
-                && visible == that.visible
-                && flags == that.flags
-                && Objects.equals(id, that.id)
-                && Objects.equals(userName, that.userName)
-                && Objects.equals(password, that.password);
-    }
-
-    @Override
-    public int hashCode() {
-        int h = hash;
-        if (h == 0 && !hashIsZero) {
-            h = calculateHashCode();
-            if (h == 0) {
-                hashIsZero = true;
-            } else {
-                hash = h;
-            }
-        }
-        return h;
-    }
-
-    private int calculateHashCode() {
-        return Objects.hash(id, userName, password, enabled, visible, flags);
-    }
-
-    @Override
-    public String toString() {
-        return "UserNameTable{" +
-                "id=" + id +
-                ", userName='" + userName + '\'' +
-                ", password='" + password + '\'' +
-                ", createTime=" + createTime +
-                ", updateTime=" + updateTime +
-                ", enabled=" + enabled +
-                ", visible=" + visible +
-                ", flags=" + flags +
-                '}';
-    }
-
     public static final class Builder {
-        private UUID id;
-        private String userName;
-        private String password;
+        private @ModelField UUID id;
+        private @ModelField(nullable = false)
+        @Nonnull String userName;
+        private @ModelField(onlyBuildPart = true)
+        @Nonnull String password;
         private LocalDateTime createTime;
         private LocalDateTime updateTime;
         private boolean enabled;
-        private boolean visible;
-        private int flags;
+        private @ModelField boolean visible;
+        private @ModelField int flags;
 
         private Builder() {
+            this.id = UUID.randomUUID();
+            this.userName = NONE;
+            this.password = "password";
             this.enabled = true;
         }
 

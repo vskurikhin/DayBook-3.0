@@ -25,18 +25,17 @@ class ApiResponseTest {
         Assertions.assertDoesNotThrow(() -> new ApiResponse<>(
                 TestData.uuid.ZERO, new Object()
         ));
-        Assertions.assertDoesNotThrow(() -> ApiResponse.message(null));
     }
 
     @Test
     void testGetters(){
         var entry = new ApiResponse<>(TestData.uuid.ZERO);
-        Assertions.assertDoesNotThrow(entry::getId);
-        Assertions.assertDoesNotThrow(entry::getCode);
-        Assertions.assertDoesNotThrow(entry::getError);
-        Assertions.assertDoesNotThrow(entry::getMessage);
-        Assertions.assertDoesNotThrow(entry::getPayload);
-        Assertions.assertDoesNotThrow(entry::getPayloadClass);
+        Assertions.assertDoesNotThrow(entry::id);
+        Assertions.assertDoesNotThrow(entry::code);
+        Assertions.assertDoesNotThrow(entry::error);
+        Assertions.assertDoesNotThrow(entry::message);
+        Assertions.assertDoesNotThrow(entry::payload);
+        Assertions.assertDoesNotThrow(entry::payloadClass);
     }
 
     @Test

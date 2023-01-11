@@ -2,7 +2,7 @@
  * This file was last modified at 2023.01.10 19:49 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
- * KeyValueTbl.java
+ * KeyValueTable.java
  * $Id$
  */
 
@@ -16,6 +16,7 @@ import io.vertx.mutiny.pgclient.PgPool;
 import io.vertx.mutiny.sqlclient.Row;
 import io.vertx.mutiny.sqlclient.RowSet;
 import io.vertx.mutiny.sqlclient.Tuple;
+import org.intellij.lang.annotations.Language;
 import su.svn.daybook.annotations.ModelField;
 import su.svn.daybook.models.Marked;
 import su.svn.daybook.models.Owned;
@@ -32,7 +33,7 @@ import java.util.UUID;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record KeyValueTable(
         @ModelField UUID id,
-        @ModelField @Nonnull BigInteger key,
+        @ModelField(nullable = false) @Nonnull BigInteger key,
         @ModelField JsonObject value,
         String userName,
         LocalDateTime createTime,
@@ -45,23 +46,27 @@ public record KeyValueTable(
     public static final String COUNT = "count";
     public static final String ID = "id";
     public static final String NONE = "d94d93d9-d44c-403c-97b1-d071b6974d80";
+    @Language("SQL")
     public static final String SELECT_FROM_DICTIONARY_KEY_VALUE_WHERE_ID_$1 = """
             SELECT id, key, value, user_name, create_time, update_time, enabled, visible, flags
               FROM dictionary.key_value
              WHERE id = $1 AND enabled
             """;
+    @Language("SQL")
     public static final String SELECT_ALL_FROM_DICTIONARY_KEY_VALUE_ORDER_BY_ID_ASC = """
             SELECT id, key, value, user_name, create_time, update_time, enabled, visible, flags
               FROM dictionary.key_value
              WHERE enabled
              ORDER BY id ASC
             """;
+    @Language("SQL")
     public static final String SELECT_ALL_FROM_DICTIONARY_KEY_VALUE_ORDER_BY_ID_ASC_OFFSET_LIMIT = """
             SELECT id, key, value, user_name, create_time, update_time, enabled, visible, flags
               FROM dictionary.key_value
              WHERE enabled
              ORDER BY id ASC OFFSET $1 LIMIT $2
             """;
+    @Language("SQL")
     public static final String INSERT_INTO_DICTIONARY_KEY_VALUE = """
             INSERT INTO dictionary.key_value
              (id, key, value, user_name, enabled, visible, flags)
@@ -69,6 +74,7 @@ public record KeyValueTable(
              ($1, $2, $3, $4, $5, $6, $7)
              RETURNING id
             """;
+    @Language("SQL")
     public static final String INSERT_INTO_DICTIONARY_KEY_VALUE_DEFAULT_ID = """
             INSERT INTO dictionary.key_value
              (id, key, value, user_name, enabled, visible, flags)
@@ -76,6 +82,7 @@ public record KeyValueTable(
              (DEFAULT, $1, $2, $3, $4, $5, $6)
              RETURNING id
             """;
+    @Language("SQL")
     public static final String UPDATE_DICTIONARY_KEY_VALUE_WHERE_ID_$1 = """
             UPDATE dictionary.key_value SET
               key = $2,
@@ -87,11 +94,13 @@ public record KeyValueTable(
              WHERE id = $1
              RETURNING id
             """;
+    @Language("SQL")
     public static final String DELETE_FROM_DICTIONARY_KEY_VALUE_WHERE_ID_$1 = """
             DELETE FROM dictionary.key_value
              WHERE id = $1
              RETURNING id
             """;
+    @Language("SQL")
     public static final String COUNT_DICTIONARY_KEY_VALUE = "SELECT count(*) FROM dictionary.key_value";
 
     public static Builder builder() {
@@ -199,6 +208,7 @@ public record KeyValueTable(
 
         private Builder() {
             this.key = BigInteger.ZERO;
+            this.enabled = true;
         }
 
         public Builder id(UUID id) {

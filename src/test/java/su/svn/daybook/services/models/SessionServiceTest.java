@@ -21,12 +21,14 @@ import su.svn.daybook.TestUtils;
 import su.svn.daybook.domain.dao.SessionDao;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.messages.ApiResponse;
+import su.svn.daybook.domain.messages.Request;
 import su.svn.daybook.domain.model.SessionTable;
 import su.svn.daybook.models.pagination.Page;
 import su.svn.daybook.models.pagination.PageRequest;
 
 import javax.enterprise.context.control.ActivateRequestContext;
 import javax.inject.Inject;
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -47,6 +49,8 @@ class SessionServiceTest {
     static final Multi<SessionTable> MULTI_WITH_NULL = TestUtils.createMultiWithNull(SessionTable.class);
 
     static final Multi<SessionTable> MULTI_EMPTIES = TestUtils.createMultiEmpties(SessionTable.class);
+
+    Principal principal;
 
     @BeforeEach
     void setUp() {
@@ -122,7 +126,7 @@ class SessionServiceTest {
                 .content(Collections.singletonList(Answer.of(TestData.SESSION.MODEL_0)))
                 .build();
 
-        Assertions.assertDoesNotThrow(() -> service.getPage(pageRequest)
+        Assertions.assertDoesNotThrow(() -> service.getPage(new Request<>(pageRequest, null))
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
                 .await()
@@ -146,7 +150,7 @@ class SessionServiceTest {
                 .content(Collections.emptyList())
                 .build();
 
-        Assertions.assertDoesNotThrow(() -> service.getPage(pageRequest)
+        Assertions.assertDoesNotThrow(() -> service.getPage(new Request<>(pageRequest, null))
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
                 .await()
@@ -170,7 +174,7 @@ class SessionServiceTest {
                 .content(Collections.emptyList())
                 .build();
 
-        Assertions.assertDoesNotThrow(() -> service.getPage(pageRequest)
+        Assertions.assertDoesNotThrow(() -> service.getPage(new Request<>(pageRequest, null))
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
                 .await()
@@ -180,7 +184,7 @@ class SessionServiceTest {
 
     @Test
     void testWhenGetThenEntry() {
-        Assertions.assertDoesNotThrow(() -> service.get(TestData.uuid.ZERO)
+        Assertions.assertDoesNotThrow(() -> service.get(new Request<>(TestData.uuid.ZERO, null))
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(Answer.of(TestData.SESSION.MODEL_0), actual))
                 .await()
@@ -195,7 +199,7 @@ class SessionServiceTest {
                 .payload(new ApiResponse<>(TestData.uuid.ZERO, 201))
                 .build();
         Mockito.when(mock.insert(TestData.SESSION.TABLE_0)).thenReturn(TestData.uuid.UNI_OPTIONAL_ZERO);
-        Assertions.assertDoesNotThrow(() -> service.add(TestData.SESSION.MODEL_0)
+        Assertions.assertDoesNotThrow(() -> service.add(new Request<>(TestData.SESSION.MODEL_0, null))
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
                 .await()
@@ -210,7 +214,7 @@ class SessionServiceTest {
                 .payload("No value present for entry: " + TestData.SESSION.TABLE_0)
                 .build();
         Mockito.when(mock.insert(TestData.SESSION.TABLE_0)).thenReturn(TestData.uuid.UNI_OPTIONAL_EMPTY);
-        Assertions.assertDoesNotThrow(() -> service.add(TestData.SESSION.MODEL_0)
+        Assertions.assertDoesNotThrow(() -> service.add(new Request<>(TestData.SESSION.MODEL_0, null))
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
                 .await()
@@ -225,7 +229,7 @@ class SessionServiceTest {
                 .payload(new ApiResponse<>(TestData.uuid.ZERO, 202))
                 .build();
         Mockito.when(mock.update(TestData.SESSION.TABLE_0)).thenReturn(TestData.uuid.UNI_OPTIONAL_ZERO);
-        Assertions.assertDoesNotThrow(() -> service.put(TestData.SESSION.MODEL_0)
+        Assertions.assertDoesNotThrow(() -> service.put(new Request<>(TestData.SESSION.MODEL_0, null))
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
                 .await()
@@ -235,7 +239,7 @@ class SessionServiceTest {
     @Test
     void testWhenPutThenEmpty() {
         Mockito.when(mock.update(TestData.SESSION.TABLE_0)).thenReturn(TestData.uuid.UNI_OPTIONAL_ZERO);
-        Assertions.assertThrows(RuntimeException.class, () -> service.put(TestData.SESSION.MODEL_0)
+        Assertions.assertThrows(RuntimeException.class, () -> service.put(new Request<>(TestData.SESSION.MODEL_0, null))
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(Answer.empty(), actual))
                 .await()
@@ -246,7 +250,7 @@ class SessionServiceTest {
     void testWhenDeleteThenId() {
         Mockito.when(mock.delete(TestData.uuid.ZERO)).thenReturn(TestData.uuid.UNI_OPTIONAL_ZERO);
         var expected = Answer.of(new ApiResponse<>(TestData.uuid.ZERO, 200));
-        Assertions.assertDoesNotThrow(() -> service.delete(TestData.uuid.ZERO)
+        Assertions.assertDoesNotThrow(() -> service.delete(new Request<>(TestData.uuid.ZERO, null))
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
                 .await()
@@ -260,9 +264,7 @@ class SessionServiceTest {
                 .error(404)
                 .payload("No value present for id: null")
                 .build();
-        Assertions.assertDoesNotThrow(() -> service.delete(null)
-                .onItem()
-                .invoke(actual -> Assertions.assertEquals(expected, actual))
+        Assertions.assertThrows(NullPointerException.class, () -> service.delete(null)
                 .await()
                 .indefinitely());
     }

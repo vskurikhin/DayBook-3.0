@@ -18,7 +18,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import su.svn.daybook.TestData;
 import su.svn.daybook.domain.messages.Answer;
-import su.svn.daybook.models.pagination.PageRequest;
+import su.svn.daybook.domain.messages.Request;
 import su.svn.daybook.services.models.KeyValueService;
 
 import javax.ws.rs.core.HttpHeaders;
@@ -37,17 +37,18 @@ class KeyValueResourceTest {
 
     @BeforeEach
     void setUp() {
-        PageRequest pageRequest = new PageRequest(0, (short) 1);
         mock = Mockito.mock(KeyValueService.class);
-        Mockito.when(mock.get(TestData.uuid.ZERO)).thenReturn(test);
-        Mockito.when(mock.get(TestData.uuid.ONE)).thenThrow(RuntimeException.class);
-        Mockito.when(mock.get(TestData.uuid.RANDOM1)).thenReturn(TestData.UNI_ANSWER_EMPTY);
-        Mockito.when(mock.get(TestData.uuid.RANDOM2)).thenReturn(TestData.UNI_ANSWER_NULL);
+        Mockito.when(mock.get(TestData.request.REQUEST_0)).thenReturn(test);
+        Mockito.when(mock.get(TestData.request.REQUEST_1)).thenThrow(RuntimeException.class);
+        Mockito.when(mock.get(TestData.request.REQUEST_2)).thenReturn(TestData.UNI_ANSWER_EMPTY);
+        Mockito.when(mock.get(TestData.request.REQUEST_3)).thenReturn(TestData.UNI_ANSWER_NULL);
         Mockito.when(mock.getAll()).thenReturn(Multi.createFrom().item(Answer.of(TestData.KEY_VALUE.MODEL_0)));
-        Mockito.when(mock.getPage(pageRequest)).thenReturn(TestData.KEY_VALUE.UNI_PAGE_ANSWER_SINGLETON_TEST);
-        Mockito.when(mock.add(TestData.KEY_VALUE.MODEL_0)).thenReturn(TestData.uuid.UNI_ANSWER_API_RESPONSE_ZERO);
-        Mockito.when(mock.put(TestData.KEY_VALUE.MODEL_0)).thenReturn(TestData.uuid.UNI_ANSWER_API_RESPONSE_ZERO);
-        Mockito.when(mock.delete(TestData.uuid.ZERO)).thenReturn(TestData.uuid.UNI_ANSWER_API_RESPONSE_ZERO);
+        Mockito.when(mock.getPage(TestData.request.REQUEST_4)).thenReturn(TestData.KEY_VALUE.UNI_PAGE_ANSWER_SINGLETON_TEST);
+        Mockito.when(mock.add(new Request<>(TestData.KEY_VALUE.MODEL_0, null)))
+                .thenReturn(TestData.uuid.UNI_ANSWER_API_RESPONSE_ZERO);
+        Mockito.when(mock.put(new Request<>(TestData.KEY_VALUE.MODEL_0, null)))
+                .thenReturn(TestData.uuid.UNI_ANSWER_API_RESPONSE_ZERO);
+        Mockito.when(mock.delete(TestData.request.REQUEST_0)).thenReturn(TestData.uuid.UNI_ANSWER_API_RESPONSE_ZERO);
         QuarkusMock.installMockForType(mock, KeyValueService.class);
     }
 

@@ -9,54 +9,53 @@
 package su.svn.daybook.models.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import su.svn.daybook.annotations.DomainField;
 import su.svn.daybook.domain.model.SessionTable;
 import su.svn.daybook.models.UUIDIdentification;
+import su.svn.daybook.utils.TimeUtil;
 
 import javax.annotation.Nonnull;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public final class Session implements UUIDIdentification, Serializable {
 
-    public static final String NONE = "3de2845b-eb5f-49e5-a1b4-ed90abd92c52";
-    public static final String ID = "id";
+    public static final String NONE = SessionTable.NONE;
     @Serial
     private static final long serialVersionUID = 633765212405270020L;
+    @JsonProperty
     @DomainField
     private final UUID id;
+    @JsonProperty
     @DomainField(nullable = false)
     private final String userName;
+    @JsonProperty
     @DomainField(nullable = false)
     private final Set<String> roles;
+    @JsonProperty
     @DomainField(nullable = false)
     private final LocalDateTime validTime;
+    @JsonProperty
     @DomainField
     private final boolean visible;
+    @JsonProperty
     @DomainField
     private final int flags;
 
     @JsonIgnore
-    private transient volatile int hash;
+    private transient int hash;
 
     @JsonIgnore
-    private transient volatile boolean hashIsZero;
+    private transient boolean hashIsZero;
 
     public Session() {
-        this.id = null;
-        this.userName = Session.NONE;
-        this.roles = Collections.emptySet();
-        this.validTime = LocalDateTime.ofEpochSecond(0, 0, ZoneOffset.UTC);
-        this.visible = true;
-        this.flags = 0;
+        this(null, NONE, Collections.emptySet(), TimeUtil.EPOCH_UTC, true, 0);
     }
 
     public Session(
@@ -78,31 +77,37 @@ public final class Session implements UUIDIdentification, Serializable {
         return new Session.Builder();
     }
 
+    public Session.Builder toBuilder() {
+        return builder()
+                .id(this.id)
+                .userName(this.userName)
+                .roles(this.roles)
+                .validTime(this.validTime)
+                .visible(this.visible)
+                .flags(0);
+    }
+
     public UUID id() {
         return id;
     }
 
-    public String getUserName() {
+    public String userName() {
         return userName;
     }
 
-    public Set<String> getRoles() {
+    public Set<String> roles() {
         return roles;
     }
 
-    public LocalDateTime getValidTime() {
+    public LocalDateTime validTime() {
         return validTime;
     }
 
-    public boolean getVisible() {
+    public boolean visible() {
         return visible;
     }
 
-    public boolean isVisible() {
-        return visible;
-    }
-
-    public int getFlags() {
+    public int flags() {
         return flags;
     }
 
@@ -158,7 +163,9 @@ public final class Session implements UUIDIdentification, Serializable {
         private int flags;
 
         private Builder() {
+            this.userName = Session.NONE;
             this.roles = Collections.emptySet();
+            this.validTime = TimeUtil.EPOCH_UTC;
         }
 
         public Builder id(UUID id) {
@@ -176,7 +183,7 @@ public final class Session implements UUIDIdentification, Serializable {
             return this;
         }
 
-        public Builder validTime(LocalDateTime validTime) {
+        public Builder validTime(@Nonnull LocalDateTime validTime) {
             this.validTime = validTime;
             return this;
         }

@@ -9,7 +9,7 @@
 package su.svn.daybook.models.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import su.svn.daybook.annotations.DomainField;
 import su.svn.daybook.domain.model.RoleTable;
 import su.svn.daybook.models.UUIDIdentification;
@@ -20,29 +20,32 @@ import java.io.Serializable;
 import java.util.Objects;
 import java.util.UUID;
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public final class Role implements UUIDIdentification, Serializable {
 
     public static final String NONE = RoleTable.NONE;
-    public static final String ID = "id";
     @Serial
     private static final long serialVersionUID = 5979984741157131705L;
+    @JsonProperty
     @DomainField
     private final UUID id;
+    @JsonProperty
     @DomainField(nullable = false)
     private final String role;
+    @JsonProperty
     @DomainField
     private final String description;
+    @JsonProperty
     @DomainField
     private final boolean visible;
+    @JsonProperty
     @DomainField
     private final int flags;
 
     @JsonIgnore
-    private transient volatile int hash;
+    private transient int hash;
 
     @JsonIgnore
-    private transient volatile boolean hashIsZero;
+    private transient boolean hashIsZero;
 
     public Role() {
         this(null, NONE, null, true, 0);

@@ -21,12 +21,14 @@ import su.svn.daybook.TestUtils;
 import su.svn.daybook.domain.dao.WordDao;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.messages.ApiResponse;
+import su.svn.daybook.domain.messages.Request;
 import su.svn.daybook.domain.model.WordTable;
 import su.svn.daybook.models.domain.Word;
 import su.svn.daybook.models.pagination.Page;
 import su.svn.daybook.models.pagination.PageRequest;
 
 import javax.inject.Inject;
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -45,13 +47,13 @@ class WordServiceTest {
 
     static final Uni<Optional<WordTable>> UNI_OPTIONAL_TEST = Uni.createFrom().item(Optional.of(TestData.WORD.TABLE_0));
 
-    static final Multi<Word> MULTI_MODEL_TEST = Multi.createFrom().item(TestData.WORD.MODEL_0);
-
     static final Multi<WordTable> MULTI_TABLE_TEST = Multi.createFrom().item(TestData.WORD.TABLE_0);
 
     static final Multi<WordTable> MULTI_WITH_NULL = TestUtils.createMultiWithNull(WordTable.class);
 
     static final Multi<WordTable> MULTI_EMPTIES = TestUtils.createMultiEmpties(WordTable.class);
+
+    Principal principal;
 
     @BeforeEach
     void setUp() {
@@ -114,7 +116,7 @@ class WordServiceTest {
                 .build();
 
         List<Page<Answer>> result = new ArrayList<>();
-        Assertions.assertDoesNotThrow(() -> service.getPage(pageRequest)
+        Assertions.assertDoesNotThrow(() -> service.getPage(new Request<>(pageRequest, null))
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
                 .await()
@@ -139,7 +141,7 @@ class WordServiceTest {
                 .build();
 
         List<Page<Answer>> result = new ArrayList<>();
-        Assertions.assertDoesNotThrow(() -> service.getPage(pageRequest)
+        Assertions.assertDoesNotThrow(() -> service.getPage(new Request<>(pageRequest, null))
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
                 .await()
@@ -164,7 +166,7 @@ class WordServiceTest {
                 .build();
 
         List<Page<Answer>> result = new ArrayList<>();
-        Assertions.assertDoesNotThrow(() -> service.getPage(pageRequest)
+        Assertions.assertDoesNotThrow(() -> service.getPage(new Request<>(pageRequest, null))
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
                 .await()
@@ -174,7 +176,7 @@ class WordServiceTest {
 
     @Test
     void testWhenGetThenEntry() {
-        Assertions.assertDoesNotThrow(() -> service.get(WordTable.NONE)
+        Assertions.assertDoesNotThrow(() -> service.get(new Request<>(WordTable.NONE, null))
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(Answer.of(TestData.WORD.MODEL_0), actual))
                 .await()
@@ -189,7 +191,7 @@ class WordServiceTest {
                 .payload(new ApiResponse<>(Word.NONE, 201))
                 .build();
         Mockito.when(mock.insert(TestData.WORD.TABLE_0)).thenReturn(UNI_OPTIONAL_NONE_STRING);
-        Assertions.assertDoesNotThrow(() -> service.add(TestData.WORD.MODEL_0)
+        Assertions.assertDoesNotThrow(() -> service.add(new Request<>(TestData.WORD.MODEL_0, null))
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
                 .await()
@@ -204,7 +206,7 @@ class WordServiceTest {
                 .payload("No value present for entry: " + TestData.WORD.TABLE_0)
                 .build();
         Mockito.when(mock.insert(TestData.WORD.TABLE_0)).thenReturn(TestData.UNI_OPTIONAL_EMPTY_STRING);
-        Assertions.assertDoesNotThrow(() -> service.add(TestData.WORD.MODEL_0)
+        Assertions.assertDoesNotThrow(() -> service.add(new Request<>(TestData.WORD.MODEL_0, null))
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
                 .await()
@@ -219,7 +221,7 @@ class WordServiceTest {
                 .payload(new ApiResponse<>(WordTable.NONE, 202))
                 .build();
         Mockito.when(mock.update(TestData.WORD.TABLE_0)).thenReturn(UNI_OPTIONAL_NONE_STRING);
-        Assertions.assertDoesNotThrow(() -> service.put(TestData.WORD.MODEL_0)
+        Assertions.assertDoesNotThrow(() -> service.put(new Request<>(TestData.WORD.MODEL_0, null))
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
                 .await()
@@ -229,7 +231,7 @@ class WordServiceTest {
     @Test
     void testWhenPutThenEmpty() {
         Mockito.when(mock.update(TestData.WORD.TABLE_0)).thenReturn(TestData.UNI_OPTIONAL_EMPTY_STRING);
-        Assertions.assertThrows(CompletionException.class, () -> service.put(TestData.WORD.MODEL_0)
+        Assertions.assertThrows(CompletionException.class, () -> service.put(new Request<>(TestData.WORD.MODEL_0, null))
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(Answer.empty(), actual))
                 .await()
@@ -240,7 +242,7 @@ class WordServiceTest {
     void testWhenDeleteThenId() {
         Mockito.when(mock.delete(WordTable.NONE)).thenReturn(UNI_OPTIONAL_NONE_STRING);
         var expected = Answer.of(new ApiResponse<>(WordTable.NONE, 200));
-        Assertions.assertDoesNotThrow(() -> service.delete(WordTable.NONE)
+        Assertions.assertDoesNotThrow(() -> service.delete(new Request<>(WordTable.NONE, null))
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
                 .await()
@@ -254,9 +256,7 @@ class WordServiceTest {
                 .error(404)
                 .payload("No value present for id: null")
                 .build();
-        Assertions.assertDoesNotThrow(() -> service.delete(null)
-                .onItem()
-                .invoke(actual -> Assertions.assertEquals(expected, actual))
+        Assertions.assertThrows(NullPointerException.class, () -> service.delete(null)
                 .await()
                 .indefinitely());
     }

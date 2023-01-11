@@ -11,9 +11,11 @@ package su.svn.daybook;
 import io.smallrye.mutiny.Uni;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.messages.ApiResponse;
+import su.svn.daybook.domain.messages.Request;
 import su.svn.daybook.domain.model.*;
 import su.svn.daybook.models.domain.*;
 import su.svn.daybook.models.pagination.Page;
+import su.svn.daybook.models.pagination.PageRequest;
 
 import java.math.BigInteger;
 import java.time.LocalDateTime;
@@ -38,6 +40,15 @@ public class TestData {
 
     public static Uni<Optional<Long>> UNI_OPTIONAL_ONE_LONG = Uni.createFrom().item(Optional.of(1L));
     public static Uni<Optional<Long>> UNI_OPTIONAL_MINUS_ONE_LONG = Uni.createFrom().item(Optional.of(-1L));
+
+    public static class request {
+        public static final PageRequest PAGE_REQUEST = new PageRequest(0, (short) 1);
+        public static final Request<PageRequest> REQUEST_4 = new Request<>(PAGE_REQUEST, null);
+        public static final Request<UUID> REQUEST_0 = new Request<>(uuid.ZERO, null);
+        public static final Request<UUID> REQUEST_1 = new Request<>(uuid.ONE, null);
+        public static final Request<UUID> REQUEST_2 = new Request<>(uuid.RANDOM1, null);
+        public static final Request<UUID> REQUEST_3 = new Request<>(uuid.RANDOM2, null);
+    }
 
     public static class time {
         public static final LocalDateTime NOW = localDateTime(LocalDateTime.now());

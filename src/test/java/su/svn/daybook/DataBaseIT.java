@@ -8,6 +8,7 @@
 
 package su.svn.daybook;
 
+import io.quarkus.security.runtime.QuarkusPrincipal;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
 import io.vertx.core.json.JsonObject;
@@ -15,6 +16,7 @@ import org.junit.jupiter.api.*;
 import su.svn.daybook.domain.dao.*;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.messages.ApiResponse;
+import su.svn.daybook.domain.messages.Request;
 import su.svn.daybook.domain.model.*;
 import su.svn.daybook.domain.transact.UserTransactionalJob;
 import su.svn.daybook.models.domain.User;
@@ -23,6 +25,8 @@ import su.svn.daybook.services.models.UserService;
 
 import javax.inject.Inject;
 import java.math.BigInteger;
+import java.security.Principal;
+import java.time.LocalDateTime;
 import java.util.*;
 
 import static su.svn.daybook.TestUtils.*;
@@ -234,12 +238,11 @@ public class DataBaseIT {
         UUID id;
         UUID customId = TestData.uuid.ONE;
         KeyValueTable entry;
-        JsonObject str = new JsonObject("{}");
 
         @BeforeEach
         void setUp() {
             entry = KeyValueTable.builder()
-                    .key(BigInteger.ZERO)
+                    .key(BigInteger.ONE)
                     .enabled(true)
                     .build();
             Assertions.assertDoesNotThrow(() -> {
@@ -253,31 +256,32 @@ public class DataBaseIT {
             Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(0, uniOptionalHelper(keyValueDao.count())));
         }
 
-        @Test
-        void test() {
-            var expected1 = KeyValueTable.builder()
+        KeyValueTable expected(UUID id, BigInteger key, KeyValueTable test) {
+            Assertions.assertNotNull(test);
+            return KeyValueTable.builder()
                     .id(id)
-                    .key(BigInteger.ZERO)
+                    .key(key)
+                    .createTime(test.createTime())
+                    .updateTime(test.updateTime())
                     .enabled(true)
                     .build();
+        }
+
+        @Test
+        void test() {
             Assertions.assertDoesNotThrow(() -> {
                 var test = uniOptionalHelper(keyValueDao.findById(id));
-                Assertions.assertNotNull(test);
-                Assertions.assertEquals(expected1, test);
+                var expected = expected(id, BigInteger.ONE, test);
+                Assertions.assertEquals(expected, test);
                 Assertions.assertNotNull(test.createTime());
                 Assertions.assertNull(test.updateTime());
             });
-            var expected2 = KeyValueTable.builder()
-                    .id(id)
-                    .key(BigInteger.ZERO)
-                    .value(str)
-                    .enabled(true)
-                    .build();
-            Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(id, uniOptionalHelper(keyValueDao.update(expected2))));
+            var update = KeyValueTable.builder().id(id).key(BigInteger.TWO).build();
+            Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(id, uniOptionalHelper(keyValueDao.update(update))));
             Assertions.assertDoesNotThrow(() -> {
                 var test = uniOptionalHelper(keyValueDao.findById(id));
-                Assertions.assertNotNull(test);
-                Assertions.assertEquals(expected2, test);
+                var expected = expected(id, BigInteger.TWO, test);
+                Assertions.assertEquals(expected, test);
                 Assertions.assertNotNull(test.createTime());
                 Assertions.assertNotNull(test.updateTime());
             });
@@ -298,18 +302,15 @@ public class DataBaseIT {
                 Assertions.assertFalse(test.isEmpty());
                 Assertions.assertEquals(1, test.size());
             });
-            var custom = KeyValueTable.builder()
-                    .id(customId)
-                    .key(BigInteger.TEN)
-                    .enabled(true)
-                    .build();
+            var custom = KeyValueTable.builder().id(customId).key(BigInteger.TEN).build();
             Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(customId, uniOptionalHelper(keyValueDao.insert(custom))));
             Assertions.assertDoesNotThrow(() -> {
                 var test = multiAsListHelper(keyValueDao.findRange(0, 1));
                 Assertions.assertNotNull(test);
                 Assertions.assertFalse(test.isEmpty());
                 Assertions.assertEquals(1, test.size());
-                Assertions.assertEquals(custom, test.get(0));
+                var expected = expected(customId, BigInteger.TEN, test.get(0));
+                Assertions.assertEquals(expected, test.get(0));
             });
             Assertions.assertDoesNotThrow(() -> {
                 var test = multiAsListHelper(keyValueDao.findRange(0, Long.MAX_VALUE));
@@ -448,29 +449,32 @@ public class DataBaseIT {
             Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(0, uniOptionalHelper(roleDao.count())));
         }
 
+        RoleTable expected(UUID id, String role, RoleTable test) {
+            Assertions.assertNotNull(test);
+            return RoleTable.builder()
+                    .id(id)
+                    .role(role)
+                    .createTime(test.createTime())
+                    .updateTime(test.updateTime())
+                    .enabled(true)
+                    .build();
+        }
+
         @Test
         void test() {
-            var expected1 = RoleTable.builder()
-                    .id(id)
-                    .role("role")
-                    .build();
             Assertions.assertDoesNotThrow(() -> {
                 var test = uniOptionalHelper(roleDao.findById(id));
-                Assertions.assertNotNull(test);
-                Assertions.assertEquals(expected1, test);
+                var expected = expected(id, "role", test);
+                Assertions.assertEquals(expected, test);
                 Assertions.assertNotNull(test.createTime());
                 Assertions.assertNull(test.updateTime());
             });
-            var expected2 = RoleTable.builder()
-                    .id(id)
-                    .role("none")
-                    .description("oops")
-                    .build();
-            Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(id, uniOptionalHelper(roleDao.update(expected2))));
+            var update = RoleTable.builder().id(id).role("none").build();
+            Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(id, uniOptionalHelper(roleDao.update(update))));
             Assertions.assertDoesNotThrow(() -> {
                 var test = uniOptionalHelper(roleDao.findById(id));
-                Assertions.assertNotNull(test);
-                Assertions.assertEquals(expected2, test);
+                var expected = expected(id, "none", test);
+                Assertions.assertEquals(expected, test);
                 Assertions.assertNotNull(test.createTime());
                 Assertions.assertNotNull(test.updateTime());
             });
@@ -501,7 +505,8 @@ public class DataBaseIT {
                 Assertions.assertNotNull(test);
                 Assertions.assertFalse(test.isEmpty());
                 Assertions.assertEquals(1, test.size());
-                Assertions.assertEquals(custom, test.get(0));
+                var expected = expected(customId, "null", test.get(0));
+                Assertions.assertEquals(expected, test.get(0));
             });
             Assertions.assertDoesNotThrow(() -> {
                 var test = multiAsListHelper(roleDao.findRange(0, Long.MAX_VALUE));
@@ -526,7 +531,6 @@ public class DataBaseIT {
         UUID customId = TestData.uuid.ONE;
         UUID userId = TestData.uuid.ZERO;
         SessionTable entry;
-        JsonObject str = new JsonObject("{}");
 
         @BeforeEach
         void setUp() {
@@ -556,34 +560,39 @@ public class DataBaseIT {
             Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(0, uniOptionalHelper(userNameDao.count())));
         }
 
-        @Test
-        void test() {
-            var expected1 = SessionTable.builder()
+        SessionTable expected(UUID id, LocalDateTime validTime, SessionTable test) {
+            Assertions.assertNotNull(test);
+            return SessionTable.builder()
                     .id(id)
                     .userName(SessionTable.NONE)
                     .roles(Collections.emptySet())
-                    .validTime(TestData.time.EPOCH_TIME)
+                    .validTime(validTime)
+                    .createTime(test.createTime())
+                    .updateTime(test.updateTime())
                     .enabled(true)
                     .build();
+        }
+
+        @Test
+        void test() {
             Assertions.assertDoesNotThrow(() -> {
                 var test = uniOptionalHelper(sessionDao.findById(id));
-                Assertions.assertNotNull(test);
-                Assertions.assertEquals(expected1, test);
+                var expected = expected(id, TestData.time.EPOCH_TIME, test);
+                Assertions.assertEquals(expected, test);
                 Assertions.assertNotNull(test.createTime());
                 Assertions.assertNull(test.updateTime());
             });
-            var expected2 = SessionTable.builder()
+            var update = SessionTable.builder()
                     .id(id)
                     .userName(SessionTable.NONE)
                     .roles(Collections.emptySet())
                     .validTime(TestData.time.NOW)
-                    .enabled(true)
                     .build();
-            Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(id, uniOptionalHelper(sessionDao.update(expected2))));
+            Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(id, uniOptionalHelper(sessionDao.update(update))));
             Assertions.assertDoesNotThrow(() -> {
                 var test = uniOptionalHelper(sessionDao.findById(id));
-                Assertions.assertNotNull(test);
-                Assertions.assertEquals(expected2, test);
+                var expected = expected(id, TestData.time.NOW, test);
+                Assertions.assertEquals(expected, test);
                 Assertions.assertNotNull(test.createTime());
                 Assertions.assertNotNull(test.updateTime());
             });
@@ -813,33 +822,33 @@ public class DataBaseIT {
             Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(0, uniOptionalHelper(userNameDao.count())));
         }
 
-        @Test
-        void test() {
-            var expected1 = UserNameTable.builder()
+        UserNameTable expected(UUID id, String userName, UserNameTable test) {
+            Assertions.assertNotNull(test);
+            return UserNameTable.builder()
                     .id(id)
-                    .userName("user")
-                    .password("password")
+                    .userName(userName)
+                    .createTime(test.createTime())
+                    .updateTime(test.updateTime())
                     .enabled(true)
                     .build();
+        }
+
+        @Test
+        void test() {
             Assertions.assertDoesNotThrow(() -> {
                 var test = uniOptionalHelper(userNameDao.findById(id));
-                Assertions.assertNotNull(test);
-                Assertions.assertEquals(expected1, test);
+                var expected = expected(id, "user", test);
+                Assertions.assertEquals(expected, test);
                 Assertions.assertNotNull(test.createTime());
                 Assertions.assertNull(test.updateTime());
             });
-            var expected2 = UserNameTable.builder()
-                    .id(id)
-                    .userName("none")
-                    .password("oops")
-                    .enabled(true)
-                    .build();
+            var update = expected(id, "none", UserNameTable.builder().build());
             Assertions.assertDoesNotThrow(
-                    () -> Assertions.assertEquals(id, uniOptionalHelper(userNameDao.update(expected2))));
+                    () -> Assertions.assertEquals(id, uniOptionalHelper(userNameDao.update(update))));
             Assertions.assertDoesNotThrow(() -> {
                 var test = uniOptionalHelper(userNameDao.findById(id));
-                Assertions.assertNotNull(test);
-                Assertions.assertEquals(expected2, test);
+                var expected = expected(id, "none", test);
+                Assertions.assertEquals(expected, test);
                 Assertions.assertNotNull(test.createTime());
                 Assertions.assertNotNull(test.updateTime());
             });
@@ -860,19 +869,15 @@ public class DataBaseIT {
                 Assertions.assertFalse(test.isEmpty());
                 Assertions.assertEquals(1, test.size());
             });
-            var custom = UserNameTable.builder()
-                    .id(customId)
-                    .userName("userName")
-                    .password("password")
-                    .enabled(true)
-                    .build();
+            var custom = expected(customId, "userName", UserNameTable.builder().build());
             Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(customId, uniOptionalHelper(userNameDao.insert(custom))));
             Assertions.assertDoesNotThrow(() -> {
                 var test = multiAsListHelper(userNameDao.findRange(1, 1));
                 Assertions.assertNotNull(test);
                 Assertions.assertFalse(test.isEmpty());
                 Assertions.assertEquals(1, test.size());
-                Assertions.assertEquals(custom, test.get(0));
+                var expected = expected(customId, "userName", test.get(0));
+                Assertions.assertEquals(expected, test.get(0));
             });
             Assertions.assertDoesNotThrow(() -> {
                 var test = multiAsListHelper(userNameDao.findRange(0, Long.MAX_VALUE));
@@ -902,6 +907,7 @@ public class DataBaseIT {
         RoleTable role1;
         RoleTable role2;
         User user;
+        Principal principal;
 
         @BeforeEach
         void setUp() {
@@ -915,6 +921,7 @@ public class DataBaseIT {
                     .password("password")
                     .roles(Collections.emptySet())
                     .build();
+            principal = new QuarkusPrincipal(null);
         }
 
         @AfterEach
@@ -933,7 +940,7 @@ public class DataBaseIT {
                     .payload(new ApiResponse<>(TestData.uuid.ZERO, 201))
                     .build();
             Assertions.assertDoesNotThrow(() -> {
-                var actual = uniToAnswerHelper(userService.add(user));
+                var actual = uniToAnswerHelper(userService.add(new Request<>(user, principal)));
                 Assertions.assertEquals(expected, actual);
             });
             deleteUserName();
@@ -947,11 +954,11 @@ public class DataBaseIT {
                         .roles(set)
                         .build();
                 Assertions.assertDoesNotThrow(() -> {
-                    var actual = uniToAnswerHelper(userService.add(user));
+                    var actual = uniToAnswerHelper(userService.add(new Request<>(user, principal)));
                     Assertions.assertEquals(expected, actual);
                     var userView = uniOptionalHelper(userViewDao.findById(id));
                     Assertions.assertNotNull(userView);
-                    Assertions.assertEquals(set.size(), userView.getRoles().size());
+                    Assertions.assertEquals(set.size(), userView.roles().size());
                 });
                 Assertions.assertDoesNotThrow(() -> {
                     var expected200 = Answer.builder()
@@ -959,12 +966,12 @@ public class DataBaseIT {
                             .error(200)
                             .payload(new ApiResponse<>(TestData.uuid.ZERO, 200))
                             .build();
-                    var actual = uniToAnswerHelper(userService.delete(user.id()));
+                    var actual = uniToAnswerHelper(userService.delete(new Request<>(user.id(), principal)));
                     Assertions.assertNotNull(actual);
                     Assertions.assertEquals(expected200, actual);
-                    if (actual.getPayload() instanceof ApiResponse apiResponse) {
+                    if (actual.payload() instanceof ApiResponse apiResponse) {
                         Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(
-                                id, UUID.fromString(apiResponse.getId().toString())
+                                id, UUID.fromString(apiResponse.id().toString())
                         ));
                     }
                 });
@@ -977,7 +984,7 @@ public class DataBaseIT {
                     .build();
             for (var a : new String[][]{{"role1"}, {"role1", "role2"}}) {
                 Assertions.assertDoesNotThrow(() -> {
-                    var actual = uniToAnswerHelper(userService.add(user));
+                    var actual = uniToAnswerHelper(userService.add(new Request<>(user, principal)));
                     Assertions.assertEquals(expected, actual);
                 });
                 var set = Set.of(a);
@@ -990,19 +997,19 @@ public class DataBaseIT {
                         .roles(set)
                         .build();
                 Assertions.assertDoesNotThrow(() -> {
-                    var actual = uniToAnswerHelper(userService.put(user));
+                    var actual = uniToAnswerHelper(userService.put(new Request<>(user, principal)));
                     Assertions.assertEquals(expected2, actual);
                     var userView = uniOptionalHelper(userViewDao.findById(id));
                     Assertions.assertNotNull(userView);
-                    Assertions.assertEquals(set.size(), userView.getRoles().size());
+                    Assertions.assertEquals(set.size(), userView.roles().size());
                 });
                 // Thread.sleep(25_000);
                 Assertions.assertDoesNotThrow(() -> {
-                    var actual = uniToAnswerHelper(userService.delete(user.id()));
+                    var actual = uniToAnswerHelper(userService.delete(new Request<>(user.id(), principal)));
                     Assertions.assertNotNull(actual);
-                    if (actual.getPayload() instanceof ApiResponse apiResponse) {
+                    if (actual.payload() instanceof ApiResponse apiResponse) {
                         Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(
-                                id, UUID.fromString(apiResponse.getId().toString())
+                                id, UUID.fromString(apiResponse.id().toString())
                         ));
                     }
                 });
@@ -1014,9 +1021,9 @@ public class DataBaseIT {
                     .roles(Set.of("role1", "role2"))
                     .build();
             Assertions.assertDoesNotThrow(() -> {
-                Answer actual = uniToAnswerHelper(userService.add(custom));
-                if (actual.getPayload() instanceof ApiResponse apiResponse) {
-                    customId = UUID.fromString(apiResponse.getId().toString());
+                Answer actual = uniToAnswerHelper(userService.add(new Request<>(custom, principal)));
+                if (actual.payload() instanceof ApiResponse apiResponse) {
+                    customId = UUID.fromString(apiResponse.id().toString());
                     Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(
                             customId, uniOptionalHelper(userNameDao.delete(customId))
                     ));
@@ -1084,7 +1091,7 @@ public class DataBaseIT {
                 Assertions.assertEquals(id, test);
                 var userView = uniOptionalHelper(userViewDao.findById(id));
                 Assertions.assertNotNull(userView);
-                Assertions.assertEquals(0, userView.getRoles().size());
+                Assertions.assertEquals(0, userView.roles().size());
             });
             deleteUserName();
             checkUserNameTableIsEmpty();
@@ -1094,7 +1101,7 @@ public class DataBaseIT {
                 Assertions.assertEquals(id, test);
                 var userView = uniOptionalHelper(userViewDao.findById(id));
                 Assertions.assertNotNull(userView);
-                Assertions.assertEquals(1, userView.getRoles().size());
+                Assertions.assertEquals(1, userView.roles().size());
             });
             deleteUserName();
             checkUserNameTableIsEmpty();
@@ -1104,7 +1111,7 @@ public class DataBaseIT {
                 Assertions.assertEquals(id, test);
                 var userView = uniOptionalHelper(userViewDao.findById(id));
                 Assertions.assertNotNull(userView);
-                Assertions.assertEquals(2, userView.getRoles().size());
+                Assertions.assertEquals(2, userView.roles().size());
             });
             deleteUserName();
             checkUserNameTableIsEmpty();

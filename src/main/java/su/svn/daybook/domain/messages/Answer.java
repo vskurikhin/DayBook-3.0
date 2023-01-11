@@ -39,10 +39,10 @@ public final class Answer implements Serializable {
     private transient Class<?> payloadClass;
 
     @JsonIgnore
-    private transient volatile int hash;
+    private transient int hash;
 
     @JsonIgnore
-    private transient volatile boolean hashIsZero;
+    private transient boolean hashIsZero;
 
     Answer() {
         this(DEFAULT_MESSAGE, 0, EMPTY);
@@ -67,10 +67,6 @@ public final class Answer implements Serializable {
         return new Answer(NO_SUCH_ELEMENT, 404, EMPTY);
     }
 
-    public static Answer noNumber(String exceptionMessage) {
-        return new Answer("string does not have the number format", 404, exceptionMessage);
-    }
-
     public static <T> Answer of(@Nonnull T o) {
         return create(DEFAULT_MESSAGE, o);
     }
@@ -84,25 +80,25 @@ public final class Answer implements Serializable {
     }
 
     @Nonnull
-    public String getMessage() {
+    public String message() {
         return message;
     }
 
-    public int getError() {
+    public int error() {
         return error;
     }
 
     @Nullable
-    public Object getPayload() {
+    public Object payload() {
         return payload;
     }
 
-    public void setPayload(@Nonnull Object o) {
+    public void payload(@Nonnull Object o) {
         this.payload = o;
         this.payloadClass = o.getClass();
     }
 
-    public Class<?> getPayloadClass() {
+    public Class<?> payloadClass() {
         return payloadClass;
     }
 
@@ -182,7 +178,7 @@ public final class Answer implements Serializable {
         public Answer build() {
             Answer answer = new Answer(message != null ? message : EMPTY, error);
             if (payload != null) {
-                answer.setPayload(payload);
+                answer.payload(payload);
             }
             return answer;
         }

@@ -38,10 +38,10 @@ public final class Command implements Serializable {
     private final Class<?> payloadClass;
 
     @JsonIgnore
-    private transient volatile int hash;
+    private transient int hash;
 
     @JsonIgnore
-    private transient volatile boolean hashIsZero;
+    private transient boolean hashIsZero;
 
     Command() {
         this(BROADCAST, BROADCAST, DEFAULT_COMMAND);
@@ -66,8 +66,8 @@ public final class Command implements Serializable {
     public static Command createPongOf(@Nonnull Command ping) {
         return Command.builder()
                 .command(PONG)
-                .recipient(ping.getSender())
-                .sender(ping.getRecipient())
+                .recipient(ping.sender())
+                .sender(ping.recipient())
                 .build();
     }
 
@@ -84,25 +84,25 @@ public final class Command implements Serializable {
     }
 
     @Nonnull
-    public String getCommand() {
+    public String command() {
         return command;
     }
 
-    public String getRecipient() {
+    public String recipient() {
         return recipient;
     }
 
     @Nonnull
-    public String getSender() {
+    public String sender() {
         return sender;
     }
 
     @Nullable
-    public Object getPayload() {
+    public Object payload() {
         return payload;
     }
 
-    public Class<?> getPayloadClass() {
+    public Class<?> payloadClass() {
         return payloadClass;
     }
 
