@@ -11,39 +11,38 @@ class RoleTableTest {
 
     @Test
     void testConstructors() {
-        Assertions.assertDoesNotThrow(() -> new RoleTable());
         Assertions.assertDoesNotThrow(() -> new RoleTable(
                 null, NONE, null, null, null, null, true, true, 0
         ));
     }
     @Test
     void testGetters(){
-        var entry = new RoleTable();
-        Assertions.assertDoesNotThrow(entry::getId);
-        Assertions.assertDoesNotThrow(entry::getRole);
-        Assertions.assertDoesNotThrow(entry::getDescription);
-        Assertions.assertDoesNotThrow(entry::getUserName);
-        Assertions.assertDoesNotThrow(entry::getCreateTime);
-        Assertions.assertDoesNotThrow(entry::getUpdateTime);
-        Assertions.assertDoesNotThrow(entry::getEnabled);
-        Assertions.assertDoesNotThrow(entry::isEnabled);
-        Assertions.assertDoesNotThrow(entry::getVisible);
-        Assertions.assertDoesNotThrow(entry::isVisible);
-        Assertions.assertDoesNotThrow(entry::getFlags);
+        var entry = new RoleTable(
+                null, NONE, null, null, null, null, true, true, 0
+        );
+        Assertions.assertDoesNotThrow(entry::id);
+        Assertions.assertDoesNotThrow(entry::role);
+        Assertions.assertDoesNotThrow(entry::description);
+        Assertions.assertDoesNotThrow(entry::userName);
+        Assertions.assertDoesNotThrow(entry::createTime);
+        Assertions.assertDoesNotThrow(entry::updateTime);
+        Assertions.assertDoesNotThrow(entry::enabled);
+        Assertions.assertDoesNotThrow(entry::visible);
+        Assertions.assertDoesNotThrow(entry::flags);
     }
 
     @Test
     void testEqualsVerifier() {
         EqualsVerifier.forClass(RoleTable.class)
-                .withCachedHashCode("hash", "calculateHashCode", null)
-                .withIgnoredFields("createTime", "updateTime", "hash", "hashIsZero")
                 .suppress(Warning.NO_EXAMPLE_FOR_CACHED_HASHCODE)
                 .verify();
     }
 
     @Test
     void testToString() {
-        var entry = new RoleTable();
+        var entry = new RoleTable(
+                null, NONE, null, null, null, null, true, true, 0
+        );
         Assertions.assertDoesNotThrow(() -> Assertions.assertNotNull(entry.toString()));
     }
 

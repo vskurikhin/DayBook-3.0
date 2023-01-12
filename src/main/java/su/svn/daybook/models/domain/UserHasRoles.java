@@ -9,8 +9,9 @@
 package su.svn.daybook.models.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import su.svn.daybook.annotations.DomainField;
+import su.svn.daybook.domain.model.RoleTable;
+import su.svn.daybook.domain.model.UserNameTable;
 import su.svn.daybook.models.LongIdentification;
 
 import javax.annotation.Nonnull;
@@ -18,7 +19,6 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public final class UserHasRoles implements LongIdentification, Serializable {
 
     public static final String NONE = "4acd4523-e27d-43e7-88dc-f40637c98bf1";
@@ -27,8 +27,10 @@ public final class UserHasRoles implements LongIdentification, Serializable {
     private static final long serialVersionUID = 4722484157347652332L;
     @DomainField
     private final Long id;
+    @Nonnull
     @DomainField(nullable = false)
     private final String userName;
+    @Nonnull
     @DomainField
     private final String role;
     @DomainField
@@ -37,23 +39,19 @@ public final class UserHasRoles implements LongIdentification, Serializable {
     private final int flags;
 
     @JsonIgnore
-    private transient volatile int hash;
+    private transient int hash;
 
     @JsonIgnore
-    private transient volatile boolean hashIsZero;
+    private transient boolean hashIsZero;
 
     public UserHasRoles() {
-        this.id = null;
-        this.userName = NONE;
-        this.role = null;
-        this.visible = true;
-        this.flags = 0;
+        this(null, UserNameTable.NONE, RoleTable.NONE, true, 0);
     }
 
     public UserHasRoles(
             Long id,
             @Nonnull String userName,
-            String role,
+            @Nonnull String role,
             boolean visible,
             int flags) {
         this.id = id;
@@ -67,27 +65,23 @@ public final class UserHasRoles implements LongIdentification, Serializable {
         return new UserHasRoles.Builder();
     }
 
-    public Long getId() {
+    public Long id() {
         return id;
     }
 
-    public String getUserName() {
+    public String userName() {
         return userName;
     }
 
-    public String getRole() {
+    public String role() {
         return role;
     }
 
-    public boolean getVisible() {
+    public boolean visible() {
         return visible;
     }
 
-    public boolean isVisible() {
-        return visible;
-    }
-
-    public int getFlags() {
+    public int flags() {
         return flags;
     }
 
@@ -134,12 +128,16 @@ public final class UserHasRoles implements LongIdentification, Serializable {
 
     public static final class Builder {
         private Long id;
+        @Nonnull
         private String userName;
+        @Nonnull
         private String role;
         private boolean visible;
         private int flags;
 
         private Builder() {
+            this.userName = UserNameTable.NONE;
+            this.role = RoleTable.NONE;
         }
 
         public Builder id(Long id) {
@@ -152,7 +150,7 @@ public final class UserHasRoles implements LongIdentification, Serializable {
             return this;
         }
 
-        public Builder role(String role) {
+        public Builder role(@Nonnull String role) {
             this.role = role;
             return this;
         }

@@ -22,9 +22,9 @@ public final class Page<T extends Serializable> implements Serializable {
     private final boolean prevPage;
     private final List<T> content;
     @JsonIgnore
-    private transient volatile int hash;
+    private transient int hash;
     @JsonIgnore
-    private transient volatile boolean hashIsZero;
+    private transient boolean hashIsZero;
 
     public Page() {
         this(0, null, 0, null, false, false, null);

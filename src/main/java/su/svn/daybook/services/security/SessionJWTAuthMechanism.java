@@ -170,8 +170,8 @@ public class SessionJWTAuthMechanism implements HttpAuthenticationMechanism {
                 return new SessionPrincipal(
                         type,
                         jwtContext.getJwtClaims(),
-                        session.getUserName(),
-                        session.getRoles(),
+                        session.userName(),
+                        session.roles(),
                         UUID.fromString(jwtContext.getJwtClaims().getAudience().get(0))
                 );
             } catch (IllegalArgumentException | MalformedClaimException e) {

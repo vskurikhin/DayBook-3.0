@@ -102,10 +102,10 @@ public final class @Name@Table implements CasesOf@IdType@, Marked, Owned, TimeUp
     private final int flags;
 
     @JsonIgnore
-    private transient volatile int hash;
+    private transient int hash;
 
     @JsonIgnore
-    private transient volatile boolean hashIsZero;
+    private transient boolean hashIsZero;
 
     public @Name@Table() {
         this.id = null;

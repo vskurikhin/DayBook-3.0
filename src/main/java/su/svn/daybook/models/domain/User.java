@@ -8,9 +8,11 @@
 
 package su.svn.daybook.models.domain;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import su.svn.daybook.annotations.DomainField;
+import su.svn.daybook.domain.model.UserNameTable;
 import su.svn.daybook.models.UUIDIdentification;
 
 import javax.annotation.Nonnull;
@@ -23,45 +25,44 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public final class User implements UUIDIdentification, Serializable {
 
-    public static final String NONE = "4acd4523-e27d-43e7-88dc-f40637c98bf1";
-    public static final String ID = "id";
+    public static final String NONE = UserNameTable.NONE;
     @Serial
     private static final long serialVersionUID = -5637024055159017594L;
+    @JsonProperty
     @DomainField
     private final UUID id;
+    @JsonProperty
     @DomainField(nullable = false)
     private final String userName;
     @DomainField(getterOnly = true)
     private transient final String password;
+    @JsonProperty
     @DomainField
     private final Set<String> roles;
+    @JsonProperty
     @DomainField
     private final boolean visible;
+    @JsonProperty
     @DomainField
     private final int flags;
 
     @JsonIgnore
-    private transient volatile int hash;
+    private transient int hash;
 
     @JsonIgnore
-    private transient volatile boolean hashIsZero;
+    private transient boolean hashIsZero;
 
     public User() {
-        this.id = null;
-        this.userName = "guest";
-        this.password = "password";
-        this.roles = Collections.emptySet();
-        this.visible = true;
-        this.flags = 0;
+        this(null, "guest", null, Collections.emptySet(), true, 0);
     }
 
     public User(
             UUID id,
             @Nonnull String userName,
-            @Nonnull String password,
+            String password,
             @Nonnull Collection<String> roles,
             boolean visible,
             int flags) {
@@ -77,31 +78,37 @@ public final class User implements UUIDIdentification, Serializable {
         return new User.Builder();
     }
 
-    public UUID getId() {
+    public User.Builder toBuilder() {
+        return builder()
+                .id(this.id)
+                .userName(this.userName)
+                .password(this.password)
+                .roles(this.roles)
+                .visible(this.visible)
+                .flags(0);
+    }
+
+    public UUID id() {
         return id;
     }
 
-    public String getUserName() {
+    public String userName() {
         return userName;
     }
 
-    public String getPassword() {
+    public String password() {
         return password;
     }
 
-    public Set<String> getRoles() {
+    public Set<String> roles() {
         return roles;
     }
 
-    public boolean getVisible() {
+    public boolean visible() {
         return visible;
     }
 
-    public boolean isVisible() {
-        return visible;
-    }
-
-    public int getFlags() {
+    public int flags() {
         return flags;
     }
 
@@ -150,13 +157,15 @@ public final class User implements UUIDIdentification, Serializable {
 
     public static final class Builder {
         private UUID id;
-        private String userName;
+        private @Nonnull String userName;
         private String password;
-        private Collection<String> roles;
+        private @Nonnull Collection<String> roles;
         private boolean visible;
         private int flags;
 
         private Builder() {
+            this.userName = "guest";
+            this.roles = Collections.emptySet();
         }
 
         public Builder id(UUID id) {

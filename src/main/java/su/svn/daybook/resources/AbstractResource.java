@@ -7,8 +7,11 @@ import org.jboss.logging.Logger;
 import org.jboss.resteasy.reactive.RestResponse;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.messages.ApiResponse;
+import su.svn.daybook.domain.messages.Request;
 import su.svn.daybook.models.Identification;
 import su.svn.daybook.models.pagination.Page;
+import su.svn.daybook.models.pagination.PageRequest;
+import su.svn.daybook.services.security.AuthenticationContext;
 
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
@@ -26,16 +29,19 @@ abstract class AbstractResource {
     private static final Pattern PATH_PATTERN = Pattern.compile("^(/?.*[-a-zA-Z\\d]+)/*$");
 
     @Inject
+    AuthenticationContext authContext;
+
+    @Inject
     protected EventBus bus;
 
-    protected Uni<Response> request(String address, Object o, UriInfo uriInfo) {
-        return bus.<Answer>request(address, o)
+    protected <T> Uni<Response> request(String address, T o, UriInfo uriInfo) {
+        return bus.<Answer>request(address, new Request<>(o, authContext.getPrincipal()))
                 .map(msg -> createResponseBuilder(uriInfo, msg))
                 .map(Response.ResponseBuilder::build);
     }
 
-    protected Uni<Response> requestPage(String address, Object o) {
-        return bus.<Page<Answer>>request(address, o)
+    protected Uni<Response> requestPage(String address, PageRequest o) {
+        return bus.<Page<Answer>>request(address, new Request<>(o, authContext.getPrincipal()))
                 .map(this::createPageResponseBuilder)
                 .map(Response.ResponseBuilder::build);
     }
@@ -44,9 +50,9 @@ abstract class AbstractResource {
         if (message.body() == null) {
             return Response.status(406, "body is null");
         }
-        return message.body().getPayload() != null
+        return message.body().payload() != null
                 ? constructResponseBuilder(uriInfo, message.body())
-                : Response.status(message.body().getError(), message.body().getMessage());
+                : Response.status(message.body().error(), message.body().message());
     }
 
     protected Response.ResponseBuilder createPageResponseBuilder(Message<Page<Answer>> message) {
@@ -65,8 +71,8 @@ abstract class AbstractResource {
 
     @Nonnull
     private Serializable getAnswerPayload(Answer answer) {
-        if (answer.getPayload() != null) {
-            if (answer.getPayload() instanceof Serializable s) {
+        if (answer.payload() != null) {
+            if (answer.payload() instanceof Serializable s) {
                 return s;
             }
         }
@@ -81,7 +87,6 @@ abstract class AbstractResource {
     }
 
     protected RestResponse<String> exceptionMapper(Throwable x) {
-        LOG.errorf("badRequest: %s", x.getClass().getSimpleName());
         return switch (x.getClass().getSimpleName()) {
             case "AuthenticationFailedException", "ForbiddenException",
                     "ParseException", "UnauthorizedException"
@@ -97,18 +102,16 @@ abstract class AbstractResource {
     }
 
     private String badRequest(Throwable x) {
-        LOG.tracef("badRequest: %s", x.getCause());
         return String.format("""
                 {"error": 400,"message": "%s"}\
                 """, String.valueOf(x.getMessage()).replaceAll("\"", "'"));
     }
 
     private Response.ResponseBuilder constructResponseBuilder(UriInfo uriInfo, Answer answer) {
-        LOG.infof("uriInfo: %s, answer: %s", uriInfo, answer);
-        return switch (answer.getError()) {
-            case 200 -> Response.ok(answer.getPayload()).location(createUri(uriInfo, answer.getPayload()));
-            case 201 -> Response.created(createUri(uriInfo, answer.getPayload())).entity(answer.getPayload());
-            case 202 -> Response.accepted(answer.getPayload()).location(createUri(uriInfo, answer.getPayload()));
+        return switch (answer.error()) {
+            case 200 -> Response.ok(answer.payload()).location(createUri(uriInfo, answer.payload()));
+            case 201 -> Response.created(createUri(uriInfo, answer.payload())).entity(answer.payload());
+            case 202 -> Response.accepted(answer.payload()).location(createUri(uriInfo, answer.payload()));
             case 401 -> Response.status(Response.Status.UNAUTHORIZED).entity(answer);
             case 404 -> Response.status(Response.Status.NOT_FOUND).entity(answer);
             case 406 -> Response.status(Response.Status.NOT_ACCEPTABLE).entity(answer);
@@ -122,12 +125,12 @@ abstract class AbstractResource {
         LOG.tracef("path: %s, count: %d, m.group(1): %s", path, matcher.groupCount(), matcher.group(1));
         if (payload instanceof ApiResponse<?> api) {
             var builder = uriInfo.getRequestUriBuilder();
-            return builder.replacePath(path+ "/" + String.valueOf(api.getId()))
+            return builder.replacePath(path+ "/" + String.valueOf(api.id()))
                     .buildFromMap(Collections.emptyMap());
         }
         if (payload instanceof Identification<?> entry) {
             var builder = uriInfo.getRequestUriBuilder();
-            return builder.replacePath(path + "/" + String.valueOf(entry.getId()))
+            return builder.replacePath(path + "/" + String.valueOf(entry.id()))
                     .buildFromMap(Collections.emptyMap());
         }
         return uriInfo.getRequestUri();

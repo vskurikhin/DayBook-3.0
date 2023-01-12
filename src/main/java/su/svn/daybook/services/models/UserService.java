@@ -12,20 +12,24 @@ import io.quarkus.vertx.ConsumeEvent;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import org.jboss.logging.Logger;
+import su.svn.daybook.annotations.Logged;
+import su.svn.daybook.annotations.Principled;
 import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.messages.Answer;
+import su.svn.daybook.domain.messages.Request;
 import su.svn.daybook.models.domain.User;
 import su.svn.daybook.models.pagination.Page;
 import su.svn.daybook.models.pagination.PageRequest;
 import su.svn.daybook.services.ExceptionAnswerService;
 import su.svn.daybook.services.cache.UserCacheProvider;
 import su.svn.daybook.services.domain.UserDataService;
+import su.svn.daybook.services.security.AuthenticationContext;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.util.UUID;
 
-@ApplicationScoped
+@ApplicationScoped @Logged
 public class UserService extends AbstractService<UUID, User> {
 
     private static final Logger LOG = Logger.getLogger(UserService.class);
@@ -39,17 +43,22 @@ public class UserService extends AbstractService<UUID, User> {
     @Inject
     UserDataService userDataService;
 
+    @Inject
+    AuthenticationContext authContext;
+
     /**
      * This is method a Vertx message consumer and User creater
      *
-     * @param o - User
+     * @param request - User
      * @return - a lazy asynchronous action (LAA) with the Answer containing the User id as payload or empty payload
      */
+    @Principled
     @ConsumeEvent(EventAddress.USER_ADD)
-    public Uni<Answer> add(User o) {
-        LOG.tracef("add(%s)", o);
+    public Uni<Answer> add(Request<User> request) {
+        var principal = authContext.getPrincipal();
+        LOG.tracef("getPage(%s), principal: %s", request, principal);
         return userDataService
-                .add(o)
+                .add(request.payload())
                 .map(this::apiResponseCreatedAnswer)
                 .flatMap(userCacheProvider::invalidate)
                 .onFailure(exceptionAnswerService::testDuplicateException)
@@ -64,13 +73,13 @@ public class UserService extends AbstractService<UUID, User> {
      * @param o - id of the User
      * @return - a LAA with the Answer containing User id as payload or empty payload
      */
+    @Principled
     @ConsumeEvent(EventAddress.USER_DEL)
-    public Uni<Answer> delete(UUID id) {
-        LOG.tracef("delete(%s)", id);
+    public Uni<Answer> delete(Request<UUID> request) {
         return userDataService
-                .delete(id)
+                .delete(request.payload())
                 .map(this::apiResponseOkAnswer)
-                .flatMap(answer -> userCacheProvider.invalidateById(id, answer))
+                .flatMap(answer -> userCacheProvider.invalidateById(request.payload(), answer))
                 .onFailure(exceptionAnswerService::testNoSuchElementException)
                 .recoverWithUni(exceptionAnswerService::noSuchElementAnswer)
                 .onFailure(exceptionAnswerService::testException)
@@ -83,11 +92,11 @@ public class UserService extends AbstractService<UUID, User> {
      * @param o - id of the User
      * @return - a lazy asynchronous action with the Answer containing the User as payload or empty payload
      */
+    @Principled
     @ConsumeEvent(EventAddress.USER_GET)
-    public Uni<Answer> get(UUID id) {
-        LOG.tracef("get(%s)", id);
+    public Uni<Answer> get(Request<UUID> request) {
         return userCacheProvider
-                .get(id)
+                .get(request.payload())
                 .map(Answer::of)
                 .onFailure(exceptionAnswerService::testNoSuchElementException)
                 .recoverWithUni(exceptionAnswerService::noSuchElementAnswer)
@@ -101,32 +110,31 @@ public class UserService extends AbstractService<UUID, User> {
      * @return - the Answer's Multi-flow with all entries of User
      */
     public Multi<Answer> getAll() {
-        LOG.trace("getAll");
         return userDataService
                 .getAll()
                 .map(Answer::of);
     }
 
+    @Principled
     @ConsumeEvent(value = EventAddress.USER_PAGE)
-    public Uni<Page<Answer>> getPage(PageRequest pageRequest) {
+    public Uni<Page<Answer>> getPage(Request<PageRequest> request) {
         //noinspection DuplicatedCode
-        LOG.tracef("getPage(%s)", pageRequest);
-        return userCacheProvider.getPage(pageRequest);
+        return userCacheProvider.getPage(request.payload());
     }
 
     /**
      * This is method a Vertx message consumer and User updater
      *
-     * @param o - User
+     * @param request - User
      * @return - a LAA with the Answer containing User id as payload or empty payload
      */
+    @Principled
     @ConsumeEvent(EventAddress.USER_PUT)
-    public Uni<Answer> put(User o) {
-        LOG.tracef("put(%s)", o);
+    public Uni<Answer> put(Request<User> request) {
         return userDataService
-                .put(o)
+                .put(request.payload())
                 .map(this::apiResponseAcceptedAnswer)
-                .flatMap(answer -> userCacheProvider.invalidateById(o.getId(), answer))
+                .flatMap(answer -> userCacheProvider.invalidateById(request.payload().id(), answer))
                 .onFailure(exceptionAnswerService::testCompositeException)
                 .recoverWithUni(exceptionAnswerService::badRequestUniAnswer)
                 .onFailure(exceptionAnswerService::testDuplicateException)

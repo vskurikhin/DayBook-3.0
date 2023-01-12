@@ -93,7 +93,7 @@ class HasRelationJobHelper
         return deleteAllFromHasRelationByEntry()
                 .flatMap(c -> connection
                         .preparedQuery(job.sqlDeleteFromTable())
-                        .execute(Tuple.of(table.getId()))
+                        .execute(Tuple.of(table.id()))
                         .map(RowSet::iterator)
                         .map(job::getKeyByIteratorNext))
                 .map(Optional::of);

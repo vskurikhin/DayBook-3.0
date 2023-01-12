@@ -3,7 +3,7 @@ package su.svn.daybook.converters;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import su.svn.daybook.converters.getters.GettersAnnotatedDomainFiled;
-import su.svn.daybook.models.domain.Codifier;
+import su.svn.daybook.models.domain.User;
 
 class GettersAnnotatedDomainFiledFieldTest {
 
@@ -11,7 +11,7 @@ class GettersAnnotatedDomainFiledFieldTest {
 
     @BeforeEach
     void setUp() {
-        getters = new GettersAnnotatedDomainFiled<>(Codifier.class);
+        getters = new GettersAnnotatedDomainFiled<>(User.class);
     }
 
     @Test

@@ -1,5 +1,6 @@
 package su.svn.daybook.services.security;
 
+import io.quarkus.security.runtime.QuarkusPrincipal;
 import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
 import io.smallrye.mutiny.Uni;
@@ -13,11 +14,13 @@ import su.svn.daybook.domain.dao.SessionDao;
 import su.svn.daybook.domain.dao.UserViewDao;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.messages.ApiResponse;
+import su.svn.daybook.domain.messages.Request;
 import su.svn.daybook.domain.model.SessionTable;
 import su.svn.daybook.domain.model.UserView;
 import su.svn.daybook.models.security.AuthRequest;
 
 import javax.inject.Inject;
+import java.security.Principal;
 import java.util.Collections;
 import java.util.Optional;
 
@@ -44,8 +47,11 @@ class LoginServiceTest {
     @Inject
     LoginService loginService;
 
+    Principal principal;
+
     @BeforeEach
     void setUp() {
+        principal = new QuarkusPrincipal(null);
         mockSessionDao = Mockito.mock(SessionDao.class);
         mockUserViewDao = Mockito.mock(UserViewDao.class);
         Mockito.when(mockSessionDao.insert(ArgumentMatchers.any(SessionTable.class)))
@@ -65,10 +71,10 @@ class LoginServiceTest {
         stubUOUserView = Uni.createFrom().item(Optional.of(stubUserView));
         Mockito.when(mockUserViewDao.findByUserName(SessionTable.NONE)).thenReturn(stubUOUserView);
         Assertions.assertDoesNotThrow(() -> {
-            var answer = uniToAnswerHelper(loginService.login(stubAuthRequest));
-            Assertions.assertEquals("ANSWER", answer.getMessage());
-            Assertions.assertEquals(200, answer.getError());
-            Assertions.assertEquals(ApiResponse.class, answer.getPayloadClass());
+            var answer = uniToAnswerHelper(loginService.login(new Request<>(stubAuthRequest, principal)));
+            Assertions.assertEquals("ANSWER", answer.message());
+            Assertions.assertEquals(200, answer.error());
+            Assertions.assertEquals(ApiResponse.class, answer.payloadClass());
         });
     }
 
@@ -87,7 +93,7 @@ class LoginServiceTest {
                 .payload("Authentication failed: " + SessionTable.NONE + " password incorrect!")
                 .build();
         Assertions.assertDoesNotThrow(() -> {
-            Assertions.assertEquals(expected, uniToAnswerHelper(loginService.login(stubAuthRequest)));
+            Assertions.assertEquals(expected, uniToAnswerHelper(loginService.login(new Request<>(stubAuthRequest, principal))));
         });
     }
 
@@ -106,7 +112,7 @@ class LoginServiceTest {
                 .payload("Authentication failed: " + SessionTable.NONE + " user name incorrect!")
                 .build();
         Assertions.assertDoesNotThrow(() -> {
-            Assertions.assertEquals(expected, uniToAnswerHelper(loginService.login(stubAuthRequest)));
+            Assertions.assertEquals(expected, uniToAnswerHelper(loginService.login(new Request<>(stubAuthRequest, principal))));
         });
     }
 
@@ -129,7 +135,7 @@ class LoginServiceTest {
                 .payload("Create session fail!")
                 .build();
         Assertions.assertDoesNotThrow(() -> {
-            Assertions.assertEquals(expected, uniToAnswerHelper(loginService.login(stubAuthRequest)));
+            Assertions.assertEquals(expected, uniToAnswerHelper(loginService.login(new Request<>(stubAuthRequest, principal))));
         });
     }
 }

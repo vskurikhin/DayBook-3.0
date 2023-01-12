@@ -8,9 +8,10 @@
 
 package su.svn.daybook.models.domain;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import su.svn.daybook.annotations.DomainField;
+import su.svn.daybook.domain.model.WordTable;
 import su.svn.daybook.models.StringIdentification;
 
 import javax.annotation.Nonnull;
@@ -18,13 +19,14 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public final class Word implements StringIdentification, Serializable {
 
-    public static final String NONE = "9e9574c8-990d-490a-be46-748e3160dbe1";
+    public static final String NONE = WordTable.NONE;
     @Serial
     private static final long serialVersionUID = 165354442157702336L;
     public static final String ID = "word";
+    @Nonnull
     @DomainField(nullable = false)
     private final String word;
     @DomainField
@@ -33,15 +35,13 @@ public final class Word implements StringIdentification, Serializable {
     private final int flags;
 
     @JsonIgnore
-    private transient volatile int hash;
+    private transient int hash;
 
     @JsonIgnore
-    private transient volatile boolean hashIsZero;
+    private transient boolean hashIsZero;
 
     public Word() {
-        this.word = NONE;
-        this.visible = true;
-        this.flags = 0;
+        this(NONE, true, 0);
     }
 
     public Word(
@@ -58,23 +58,19 @@ public final class Word implements StringIdentification, Serializable {
     }
 
     @JsonIgnore
-    public String getId() {
+    public String id() {
         return word;
     }
 
-    public String getWord() {
+    public String word() {
         return word;
     }
 
-    public boolean getVisible() {
+    public boolean visible() {
         return visible;
     }
 
-    public boolean isVisible() {
-        return visible;
-    }
-
-    public int getFlags() {
+    public int flags() {
         return flags;
     }
 
@@ -116,11 +112,13 @@ public final class Word implements StringIdentification, Serializable {
     }
 
     public static final class Builder {
+        @Nonnull
         private String word;
         private boolean visible;
         private int flags;
 
         private Builder() {
+            this.word = NONE;
         }
 
         public Builder id(@Nonnull String id) {

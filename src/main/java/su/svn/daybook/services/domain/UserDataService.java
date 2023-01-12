@@ -22,7 +22,6 @@ import su.svn.daybook.services.security.PBKDF2Encoder;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -48,12 +47,12 @@ public class UserDataService implements DataService<UUID, UserView, User> {
 
     public Uni<UUID> add(User o) {
         LOG.tracef("add(%s)", o);
-        return addUserAndRoles(userMapper.convertToUserNameTable(passwordEncoding(o)), o.getRoles());
+        return addUserAndRoles(userMapper.convertToUserNameTable(passwordEncoding(o)), o.roles());
     }
 
     private Uni<UUID> addUserAndRoles(UserNameTable entry, Set<String> roles) {
         return userTransactionalJob
-                .insert(entry, roles, UserNameTable::getUserName)
+                .insert(entry, roles, UserNameTable::userName)
                 .map(o -> lookup(o, entry));
     }
 
@@ -89,22 +88,22 @@ public class UserDataService implements DataService<UUID, UserView, User> {
 
     public Uni<UUID> put(User o) {
         LOG.tracef("put(%s)", o);
-        return putEntry(userMapper.convertToUserNameTable(passwordEncoding(o)), o.getRoles());
+        return putEntry(userMapper.convertToUserNameTable(passwordEncoding(o)), o.roles());
     }
 
     private Uni<UUID> putEntry(UserNameTable entry, Set<String> roles) {
         return userTransactionalJob
-                .update(entry, roles, UserNameTable::getUserName)
+                .update(entry, roles, UserNameTable::userName)
                 .map(o -> lookup(o, entry));
     }
 
     private User passwordEncoding(User o) {
         return User
                 .builder()
-                .id(o.getId())
-                .userName(o.getUserName())
-                .password(passwordEncoder.encode(o.getPassword()))
-                .roles(o.getRoles())
+                .id(o.id())
+                .userName(o.userName())
+                .password(passwordEncoder.encode(o.password()))
+                .roles(o.roles())
                 .build();
     }
 
@@ -122,7 +121,7 @@ public class UserDataService implements DataService<UUID, UserView, User> {
 
     private Uni<UUID> deleteEntry(UserNameTable o) {
         return userTransactionalJob
-                .delete(o, UserNameTable::getUserName)
+                .delete(o, UserNameTable::userName)
                 .map(i -> lookup(i, o));
     }
 }

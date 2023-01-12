@@ -21,13 +21,12 @@ class SessionTest {
     @Test
     void testGetters() {
         var entry = new Session();
-        Assertions.assertDoesNotThrow(entry::getId);
-        Assertions.assertDoesNotThrow(entry::getUserName);
-        Assertions.assertDoesNotThrow(entry::getRoles);
-        Assertions.assertDoesNotThrow(entry::getValidTime);
-        Assertions.assertDoesNotThrow(entry::getVisible);
-        Assertions.assertDoesNotThrow(entry::isVisible);
-        Assertions.assertDoesNotThrow(entry::getFlags);
+        Assertions.assertDoesNotThrow(entry::id);
+        Assertions.assertDoesNotThrow(entry::userName);
+        Assertions.assertDoesNotThrow(entry::roles);
+        Assertions.assertDoesNotThrow(entry::validTime);
+        Assertions.assertDoesNotThrow(entry::visible);
+        Assertions.assertDoesNotThrow(entry::flags);
     }
 
     @Test

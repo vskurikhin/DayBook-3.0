@@ -8,13 +8,15 @@
 
 package su.svn.daybook.services.models;
 
-import io.quarkus.cache.CacheKey;
 import io.quarkus.vertx.ConsumeEvent;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import org.jboss.logging.Logger;
+import su.svn.daybook.annotations.Logged;
+import su.svn.daybook.annotations.Principled;
 import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.messages.Answer;
+import su.svn.daybook.domain.messages.Request;
 import su.svn.daybook.models.domain.Word;
 import su.svn.daybook.models.pagination.Page;
 import su.svn.daybook.models.pagination.PageRequest;
@@ -25,7 +27,7 @@ import su.svn.daybook.services.domain.WordDataService;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-@ApplicationScoped
+@ApplicationScoped @Logged
 public class WordService extends AbstractService<String, Word> {
 
     private static final Logger LOG = Logger.getLogger(WordService.class);
@@ -42,14 +44,14 @@ public class WordService extends AbstractService<String, Word> {
     /**
      * This is method a Vertx message consumer and Word creater
      *
-     * @param o - Word
+     * @param request - Word
      * @return - a lazy asynchronous action (LAA) with the Answer containing the Word id as payload or empty payload
      */
+    @Principled
     @ConsumeEvent(EventAddress.WORD_ADD)
-    public Uni<Answer> add(Word o) {
-        LOG.tracef("add(%s)", o);
+    public Uni<Answer> add(Request<Word> request) {
         return wordDataService
-                .add(o)
+                .add(request.payload())
                 .map(this::apiResponseCreatedAnswer)
                 .flatMap(wordCacheProvider::invalidate)
                 .onFailure(exceptionAnswerService::testDuplicateException)
@@ -61,17 +63,17 @@ public class WordService extends AbstractService<String, Word> {
     /**
      * This is method a Vertx message consumer and Word deleter
      *
-     * @param id - id of the Word
+     * @param request - id of the Word
      * @return - a LAA with the Answer containing Word id as payload or empty payload
      */
+    @Principled
     @ConsumeEvent(EventAddress.WORD_DEL)
-    public Uni<Answer> delete(String id) {
+    public Uni<Answer> delete(Request<String> request) {
         //noinspection DuplicatedCode
-        LOG.tracef("delete(%s)", id);
         return wordDataService
-                .delete(id)
+                .delete(request.payload())
                 .map(this::apiResponseOkAnswer)
-                .flatMap(answer -> wordCacheProvider.invalidateById(id, answer))
+                .flatMap(answer -> wordCacheProvider.invalidateById(request.payload(), answer))
                 .onFailure(exceptionAnswerService::testNoSuchElementException)
                 .recoverWithUni(exceptionAnswerService::noSuchElementAnswer)
                 .onFailure(exceptionAnswerService::testException)
@@ -81,14 +83,14 @@ public class WordService extends AbstractService<String, Word> {
     /**
      * This is method a Vertx message consumer and Word provider by id
      *
-     * @param id - id of the Word
+     * @param request - id of the Word
      * @return - a lazy asynchronous action with the Answer containing the Word as payload or empty payload
      */
+    @Principled
     @ConsumeEvent(EventAddress.WORD_GET)
-    public Uni<Answer> get(String id) {
-        LOG.tracef("get(%s)", id);
+    public Uni<Answer> get(Request<String> request) {
         return wordCacheProvider
-                .get(id)
+                .get(request.payload())
                 .map(Answer::of)
                 .onFailure(exceptionAnswerService::testNoSuchElementException)
                 .recoverWithUni(exceptionAnswerService::noSuchElementAnswer)
@@ -102,33 +104,32 @@ public class WordService extends AbstractService<String, Word> {
      * @return - the Answer's Multi-flow with all entries of Word
      */
     public Multi<Answer> getAll() {
-        LOG.trace("getAll");
         return wordDataService
                 .getAll()
                 .map(Answer::of);
     }
 
+    @Principled
     @ConsumeEvent(value = EventAddress.WORD_PAGE)
-    public Uni<Page<Answer>> getPage(@CacheKey PageRequest pageRequest) {
+    public Uni<Page<Answer>> getPage(Request<PageRequest> request) {
         //noinspection DuplicatedCode
-        LOG.tracef("getPage(%s)", pageRequest);
-        return wordCacheProvider.getPage(pageRequest);
+        return wordCacheProvider.getPage(request.payload());
     }
 
     /**
      * This is method a Vertx message consumer and Word updater
      *
-     * @param o - Word
+     * @param request - Word
      * @return - a LAA with the Answer containing Word id as payload or empty payload
      */
+    @Principled
     @ConsumeEvent(EventAddress.WORD_PUT)
-    public Uni<Answer> put(Word o) {
+    public Uni<Answer> put(Request<Word> request) {
         //noinspection DuplicatedCode
-        LOG.tracef("put(%s)", o);
         return wordDataService
-                .put(o)
+                .put(request.payload())
                 .map(this::apiResponseAcceptedAnswer)
-                .flatMap(answer -> wordCacheProvider.invalidateById(o.getId(), answer))
+                .flatMap(answer -> wordCacheProvider.invalidateById(request.payload().id(), answer))
                 .onFailure(exceptionAnswerService::testDuplicateException)
                 .recoverWithUni(exceptionAnswerService::notAcceptableDuplicateAnswer)
                 .onFailure(exceptionAnswerService::testIllegalArgumentException)

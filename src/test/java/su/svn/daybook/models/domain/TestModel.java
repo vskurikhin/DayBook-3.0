@@ -44,7 +44,7 @@ public final class TestModel implements LongIdentification, Serializable {
         return new TestModel.Builder();
     }
 
-    public Long getId() {
+    public Long id() {
         return id;
     }
 

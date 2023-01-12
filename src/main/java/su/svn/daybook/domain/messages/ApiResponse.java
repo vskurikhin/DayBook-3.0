@@ -9,33 +9,37 @@
 package su.svn.daybook.domain.messages;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.io.Serializable;
 import java.util.Objects;
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public final class ApiResponse<I extends Comparable<? extends Serializable>> {
 
     public static final int BAD_REQUEST = 400;
+    @JsonProperty
     private final I id;
 
+    @JsonProperty
     private final Integer code;
 
+    @JsonProperty
     private final Integer error;
 
+    @JsonProperty
     private final String message;
 
+    @JsonProperty
     private final Object payload;
 
     @JsonIgnore
     private transient final Class<?> payloadClass;
 
     @JsonIgnore
-    private transient volatile int hash;
+    private transient int hash;
 
     @JsonIgnore
-    private transient volatile boolean hashIsZero;
+    private transient boolean hashIsZero;
 
     ApiResponse() {
         this(null, null, null, null);
@@ -71,43 +75,35 @@ public final class ApiResponse<I extends Comparable<? extends Serializable>> {
         this.payloadClass = payload != null ? payload.getClass() : null;
     }
 
-    public static ApiResponse<String> auth(int error) {
-        return new ApiResponse<>(null, null, error, null);
-    }
-
     public static ApiResponse<String> auth(Object payload) {
         return new ApiResponse<>(null, null, 202, payload);
-    }
-
-    public static ApiResponse<String> message(String message) {
-        return new ApiResponse<>(null, message, null, null);
     }
 
     public static <T extends Comparable<? extends Serializable>> ApiResponse.Builder<T> builder() {
         return new ApiResponse.Builder<>();
     }
 
-    public I getId() {
+    public I id() {
         return id;
     }
 
-    public Integer getCode() {
+    public Integer code() {
         return code;
     }
 
-    public Integer getError() {
+    public Integer error() {
         return error;
     }
 
-    public String getMessage() {
+    public String message() {
         return message;
     }
 
-    public Object getPayload() {
+    public Object payload() {
         return payload;
     }
 
-    public Class<?> getPayloadClass() {
+    public Class<?> payloadClass() {
         return payloadClass;
     }
 

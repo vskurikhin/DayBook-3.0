@@ -12,7 +12,6 @@ class UserViewTest {
 
     @Test
     void testConstructors() {
-        Assertions.assertDoesNotThrow(() -> new UserView());
         Assertions.assertDoesNotThrow(() -> new UserView(
                 UUID.randomUUID(), "guest", "password", Collections.emptySet(), null, null, false, true, 0
         ));
@@ -20,32 +19,26 @@ class UserViewTest {
 
     @Test
     void testGetters() {
-        var entry = new UserView();
-        Assertions.assertDoesNotThrow(entry::getId);
-        Assertions.assertDoesNotThrow(entry::getUserName);
-        Assertions.assertDoesNotThrow(entry::getPassword);
-        Assertions.assertDoesNotThrow(entry::getRoles);
-        Assertions.assertDoesNotThrow(entry::getCreateTime);
-        Assertions.assertDoesNotThrow(entry::getUpdateTime);
-        Assertions.assertDoesNotThrow(entry::getEnabled);
-        Assertions.assertDoesNotThrow(entry::isEnabled);
-        Assertions.assertDoesNotThrow(entry::getVisible);
-        Assertions.assertDoesNotThrow(entry::isVisible);
-        Assertions.assertDoesNotThrow(entry::getFlags);
+        var entry = UserView.builder().build();
+        Assertions.assertDoesNotThrow(entry::id);
+        Assertions.assertDoesNotThrow(entry::userName);
+        Assertions.assertDoesNotThrow(entry::password);
+        Assertions.assertDoesNotThrow(entry::roles);
+        Assertions.assertDoesNotThrow(entry::createTime);
+        Assertions.assertDoesNotThrow(entry::updateTime);
+        Assertions.assertDoesNotThrow(entry::enabled);
+        Assertions.assertDoesNotThrow(entry::visible);
+        Assertions.assertDoesNotThrow(entry::flags);
     }
 
     @Test
     void testEqualsVerifier() {
-        EqualsVerifier.forClass(UserView.class)
-                .withCachedHashCode("hash", "calculateHashCode", null)
-                .withIgnoredFields("createTime", "updateTime", "hash", "hashIsZero")
-                .suppress(Warning.NO_EXAMPLE_FOR_CACHED_HASHCODE)
-                .verify();
+        EqualsVerifier.forClass(UserView.class).verify();
     }
 
     @Test
     void testToString() {
-        var entry = new UserView();
+        var entry = UserView.builder().build();
         Assertions.assertDoesNotThrow(() -> Assertions.assertNotNull(entry.toString()));
     }
 

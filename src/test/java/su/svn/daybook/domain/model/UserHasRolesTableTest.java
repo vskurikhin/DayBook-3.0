@@ -1,49 +1,42 @@
 package su.svn.daybook.domain.model;
 
 import nl.jqno.equalsverifier.EqualsVerifier;
-import nl.jqno.equalsverifier.Warning;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import static su.svn.daybook.domain.model.UserHasRolesTable.NONE;
 
 class UserHasRolesTableTest {
 
     @Test
     void testConstructors() {
-        Assertions.assertDoesNotThrow(() -> new UserHasRolesTable());
         Assertions.assertDoesNotThrow(() -> new UserHasRolesTable(
-                null, NONE, NONE, null, null, true, true, 0
+                null, UserNameTable.NONE, RoleTable.NONE, null, null, true, true, 0
         ));
     }
+
     @Test
-    void testGetters(){
-        var entry = new UserHasRolesTable();
-        Assertions.assertDoesNotThrow(entry::getId);
-        Assertions.assertDoesNotThrow(entry::getUserName);
-        Assertions.assertDoesNotThrow(entry::getRole);
-        Assertions.assertDoesNotThrow(entry::getUserName);
-        Assertions.assertDoesNotThrow(entry::getCreateTime);
-        Assertions.assertDoesNotThrow(entry::getUpdateTime);
-        Assertions.assertDoesNotThrow(entry::getEnabled);
-        Assertions.assertDoesNotThrow(entry::isEnabled);
-        Assertions.assertDoesNotThrow(entry::getVisible);
-        Assertions.assertDoesNotThrow(entry::isVisible);
-        Assertions.assertDoesNotThrow(entry::getFlags);
+    void testGetters() {
+        var entry = UserHasRolesTable.builder().build();
+        Assertions.assertDoesNotThrow(entry::id);
+        Assertions.assertDoesNotThrow(entry::userName);
+        Assertions.assertDoesNotThrow(entry::role);
+        Assertions.assertDoesNotThrow(entry::userName);
+        Assertions.assertDoesNotThrow(entry::createTime);
+        Assertions.assertDoesNotThrow(entry::updateTime);
+        Assertions.assertDoesNotThrow(entry::enabled);
+        Assertions.assertDoesNotThrow(entry::visible);
+        Assertions.assertDoesNotThrow(entry::flags);
     }
 
     @Test
     void testEqualsVerifier() {
         EqualsVerifier.forClass(UserHasRolesTable.class)
-                .withCachedHashCode("hash", "calculateHashCode", null)
-                .withIgnoredFields("createTime", "updateTime", "hash", "hashIsZero")
-                .suppress(Warning.NO_EXAMPLE_FOR_CACHED_HASHCODE)
                 .verify();
     }
 
     @Test
     void testToString() {
-        var entry = new UserHasRolesTable();
+        var entry = UserHasRolesTable.builder().build();
         Assertions.assertDoesNotThrow(() -> Assertions.assertNotNull(entry.toString()));
     }
 
@@ -51,8 +44,8 @@ class UserHasRolesTableTest {
     void testBuilder() {
         Assertions.assertDoesNotThrow(() -> Assertions.assertNotNull(UserHasRolesTable.builder()
                 .id(null)
-                .userName(NONE)
-                .role(NONE)
+                .userName(UserNameTable.NONE)
+                .role(RoleTable.NONE)
                 .createTime(null)
                 .updateTime(null)
                 .enabled(true)

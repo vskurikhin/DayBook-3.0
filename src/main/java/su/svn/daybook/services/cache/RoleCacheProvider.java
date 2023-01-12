@@ -13,6 +13,7 @@ import io.quarkus.cache.CacheManager;
 import io.quarkus.cache.CacheResult;
 import io.smallrye.mutiny.Uni;
 import org.jboss.logging.Logger;
+import su.svn.daybook.annotations.Logged;
 import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.models.domain.Role;
@@ -43,15 +44,15 @@ public class RoleCacheProvider extends AbstractCacheProvider<UUID> {
         super(EventAddress.ROLE_GET, EventAddress.ROLE_PAGE, LOG);
     }
 
+    @Logged
     @CacheResult(cacheName = EventAddress.ROLE_GET)
     public Uni<Role> get(@CacheKey UUID id) {
-        LOG.tracef("get(%s)", id);
         return roleDataService.get(id);
     }
 
+    @Logged
     @CacheResult(cacheName = EventAddress.ROLE_PAGE)
     public Uni<Page<Answer>> getPage(@CacheKey PageRequest pageRequest) {
-        LOG.tracef("getPage(%s)", pageRequest);
         return pageService.getPage(pageRequest, roleDataService::count, roleDataService::findRange, Answer::of);
     }
 

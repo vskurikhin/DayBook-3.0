@@ -11,39 +11,32 @@ class KeyValueTableTest {
 
     @Test
     void testConstructors() {
-        Assertions.assertDoesNotThrow(() -> new KeyValueTable());
         Assertions.assertDoesNotThrow(() -> new KeyValueTable(
                 null, BigInteger.ZERO, null, null, null, null, true, true, 0
         ));
     }
     @Test
     void testGetters(){
-        var entry = new KeyValueTable();
-        Assertions.assertDoesNotThrow(entry::getId);
-        Assertions.assertDoesNotThrow(entry::getKey);
-        Assertions.assertDoesNotThrow(entry::getValue);
-        Assertions.assertDoesNotThrow(entry::getUserName);
-        Assertions.assertDoesNotThrow(entry::getCreateTime);
-        Assertions.assertDoesNotThrow(entry::getUpdateTime);
-        Assertions.assertDoesNotThrow(entry::getEnabled);
-        Assertions.assertDoesNotThrow(entry::isEnabled);
-        Assertions.assertDoesNotThrow(entry::getVisible);
-        Assertions.assertDoesNotThrow(entry::isVisible);
-        Assertions.assertDoesNotThrow(entry::getFlags);
+        var entry = KeyValueTable.builder().build();
+        Assertions.assertDoesNotThrow(entry::id);
+        Assertions.assertDoesNotThrow(entry::key);
+        Assertions.assertDoesNotThrow(entry::value);
+        Assertions.assertDoesNotThrow(entry::userName);
+        Assertions.assertDoesNotThrow(entry::createTime);
+        Assertions.assertDoesNotThrow(entry::updateTime);
+        Assertions.assertDoesNotThrow(entry::enabled);
+        Assertions.assertDoesNotThrow(entry::visible);
+        Assertions.assertDoesNotThrow(entry::flags);
     }
 
     @Test
     void testEqualsVerifier() {
-        EqualsVerifier.forClass(KeyValueTable.class)
-                .withCachedHashCode("hash", "calculateHashCode", null)
-                .withIgnoredFields("createTime", "updateTime", "hash", "hashIsZero")
-                .suppress(Warning.NO_EXAMPLE_FOR_CACHED_HASHCODE)
-                .verify();
+        EqualsVerifier.forClass(KeyValueTable.class).verify();
     }
 
     @Test
     void testToString() {
-        var entry = new KeyValueTable();
+        var entry = KeyValueTable.builder().build();
         Assertions.assertDoesNotThrow(() -> Assertions.assertNotNull(entry.toString()));
     }
 

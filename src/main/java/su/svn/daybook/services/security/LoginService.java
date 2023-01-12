@@ -11,9 +11,11 @@ package su.svn.daybook.services.security;
 import io.quarkus.vertx.ConsumeEvent;
 import io.smallrye.mutiny.Uni;
 import org.jboss.logging.Logger;
+import su.svn.daybook.annotations.Logged;
 import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.messages.ApiResponse;
+import su.svn.daybook.domain.messages.Request;
 import su.svn.daybook.domain.model.SessionTable;
 import su.svn.daybook.models.security.AuthRequest;
 import su.svn.daybook.models.security.User;
@@ -26,7 +28,7 @@ import javax.inject.Inject;
 import java.util.HashSet;
 import java.util.UUID;
 
-@ApplicationScoped
+@ApplicationScoped @Logged
 public class LoginService {
 
     private static final Logger LOG = Logger.getLogger(LoginService.class);
@@ -47,16 +49,16 @@ public class LoginService {
     ExceptionAnswerService exceptionAnswerService;
 
     @ConsumeEvent(EventAddress.LOGIN_REQUEST)
-    public Uni<Answer> login(@Nonnull AuthRequest authRequest) {
-        LOG.tracef("login(%s): requestId: %s", authRequest, authRequestContext.getRequestId());
-        authRequestContext.setAuthRequest(authRequest);
+    public Uni<Answer> login(@Nonnull Request<AuthRequest> request) {
+        LOG.tracef("login(%s): requestId: %s", request.payload(), authRequestContext.getRequestId());
+        authRequestContext.setAuthRequest(request.payload());
         return loginDataService
-                .findByUserName(authRequest.username())
+                .findByUserName(request.payload().username())
                 .flatMap(u -> authentication(User.from(u)))
                 .onFailure(exceptionAnswerService::testAuthenticationFailedException)
                 .recoverWithUni(exceptionAnswerService::authenticationFailedUniAnswer)
                 .onTermination()
-                .invoke(authRequestContext::clear);
+                .invoke(authRequestContext::close);
     }
 
     private Uni<Answer> authentication(User user) {

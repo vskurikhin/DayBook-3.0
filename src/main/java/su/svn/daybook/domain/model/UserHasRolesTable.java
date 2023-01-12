@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.01.05 18:24 by Victor N. Skurikhin.
+ * This file was last modified at 2023.01.11 10:42 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * UserHasRolesTable.java
@@ -8,7 +8,6 @@
 
 package su.svn.daybook.domain.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
@@ -23,17 +22,24 @@ import su.svn.daybook.models.Owned;
 import su.svn.daybook.models.TimeUpdated;
 
 import javax.annotation.Nonnull;
-import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public final class UserHasRolesTable implements LongIdentification, Marked, Owned, TimeUpdated, Serializable {
+public record UserHasRolesTable(
+        @ModelField Long id,
+        @Nonnull @ModelField String userName,
+        @Nonnull @ModelField String role,
+        LocalDateTime createTime,
+        LocalDateTime updateTime,
+        boolean enabled,
+        @ModelField boolean visible,
+        @ModelField int flags)
+        implements LongIdentification, Marked, Owned, TimeUpdated, Serializable {
 
-    public static final String NONE = "4acd4523-e27d-43e7-88dc-f40637c98bf1";
+    public static final String ID = "id";
     public static final String SELECT_FROM_SECURITY_USER_HAS_ROLES_WHERE_ID_$1 = """
             SELECT id, user_name, role, create_time, update_time, enabled, visible, flags
               FROM security.user_has_roles
@@ -86,58 +92,7 @@ public final class UserHasRolesTable implements LongIdentification, Marked, Owne
              RETURNING id
             """;
     public static final String COUNT_SECURITY_USER_HAS_ROLES = "SELECT count(*) FROM security.user_has_roles";
-    @Serial
-    private static final long serialVersionUID = 1351016300272270368L;
-    public static final String ID = "id";
-    @ModelField
-    private final Long id;
-    @ModelField
-    private final String userName;
-    @ModelField
-    private final String role;
-    private final LocalDateTime createTime;
-    private final LocalDateTime updateTime;
-    private final boolean enabled;
-    @ModelField
-    private final boolean visible;
-    @ModelField
-    private final int flags;
 
-    @JsonIgnore
-    private transient volatile int hash;
-
-    @JsonIgnore
-    private transient volatile boolean hashIsZero;
-
-    public UserHasRolesTable() {
-        this.id = null;
-        this.userName = NONE;
-        this.role = NONE;
-        this.createTime = null;
-        this.updateTime = null;
-        this.enabled = true;
-        this.visible = true;
-        this.flags = 0;
-    }
-
-    public UserHasRolesTable(
-            Long id,
-            @Nonnull String userName,
-            @Nonnull String role,
-            LocalDateTime createTime,
-            LocalDateTime updateTime,
-            boolean enabled,
-            boolean visible,
-            int flags) {
-        this.id = id;
-        this.userName = userName;
-        this.role = role;
-        this.createTime = createTime;
-        this.updateTime = updateTime;
-        this.enabled = enabled;
-        this.visible = visible;
-        this.flags = flags;
-    }
 
     public static UserHasRolesTable from(Row row) {
         return new UserHasRolesTable(
@@ -228,102 +183,21 @@ public final class UserHasRolesTable implements LongIdentification, Marked, Owne
         return Arrays.asList(id, userName, role, enabled, visible, flags);
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public String getUserName() {
-        return userName;
-    }
-
-    public String getRole() {
-        return role;
-    }
-
-    public LocalDateTime getCreateTime() {
-        return createTime;
-    }
-
-    public LocalDateTime getUpdateTime() {
-        return updateTime;
-    }
-
-    public boolean getEnabled() {
-        return enabled;
-    }
-
-    public boolean isEnabled() {
-        return enabled;
-    }
-
-    public boolean getVisible() {
-        return visible;
-    }
-
-    public boolean isVisible() {
-        return visible;
-    }
-
-    public int getFlags() {
-        return flags;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        var that = (UserHasRolesTable) o;
-        return enabled == that.enabled
-                && visible == that.visible
-                && flags == that.flags
-                && Objects.equals(id, that.id)
-                && Objects.equals(userName, that.userName)
-                && Objects.equals(role, that.role);
-    }
-
-    @Override
-    public int hashCode() {
-        int h = hash;
-        if (h == 0 && !hashIsZero) {
-            h = calculateHashCode();
-            if (h == 0) {
-                hashIsZero = true;
-            } else {
-                hash = h;
-            }
-        }
-        return h;
-    }
-
-    private int calculateHashCode() {
-        return Objects.hash(id, userName, role, enabled, visible, flags);
-    }
-
-    @Override
-    public String toString() {
-        return "UserHasRolesTable{" +
-                "id=" + id +
-                ", userName='" + userName + '\'' +
-                ", role='" + role + '\'' +
-                ", createTime=" + createTime +
-                ", updateTime=" + updateTime +
-                ", enabled=" + enabled +
-                ", visible=" + visible +
-                ", flags=" + flags +
-                '}';
-    }
-
     public static final class Builder {
-        private Long id;
-        private String userName;
-        private String role;
+        private @ModelField Long id;
+        private @Nonnull
+        @ModelField String userName;
+        private @Nonnull
+        @ModelField String role;
         private LocalDateTime createTime;
         private LocalDateTime updateTime;
         private boolean enabled;
-        private boolean visible;
-        private int flags;
+        private @ModelField boolean visible;
+        private @ModelField int flags;
 
         private Builder() {
+            this.userName = UserNameTable.NONE;
+            this.role = RoleTable.NONE;
             this.enabled = true;
         }
 

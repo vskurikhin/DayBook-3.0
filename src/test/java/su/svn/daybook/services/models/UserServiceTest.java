@@ -12,6 +12,7 @@ import su.svn.daybook.TestData;
 import su.svn.daybook.domain.dao.UserNameDao;
 import su.svn.daybook.domain.dao.UserViewDao;
 import su.svn.daybook.domain.messages.Answer;
+import su.svn.daybook.domain.messages.Request;
 import su.svn.daybook.domain.model.UserView;
 import su.svn.daybook.models.pagination.Page;
 import su.svn.daybook.models.pagination.PageRequest;
@@ -87,7 +88,7 @@ public class UserServiceTest {
                 .content(Collections.singletonList(Answer.of(TestData.USER.MODEL_0)))
                 .build();
 
-        Assertions.assertDoesNotThrow(() -> service.getPage(pageRequest)
+        Assertions.assertDoesNotThrow(() -> service.getPage(new Request<>(pageRequest, null))
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
                 .await()
@@ -112,7 +113,7 @@ public class UserServiceTest {
                 .content(Collections.emptyList())
                 .build();
 
-        Assertions.assertDoesNotThrow(() -> service.getPage(pageRequest)
+        Assertions.assertDoesNotThrow(() -> service.getPage(new Request<>(pageRequest, null))
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
                 .await()
@@ -136,7 +137,7 @@ public class UserServiceTest {
                 .content(Collections.emptyList())
                 .build();
 
-        Assertions.assertDoesNotThrow(() -> service.getPage(pageRequest)
+        Assertions.assertDoesNotThrow(() -> service.getPage(new Request<>(pageRequest, null))
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
                 .await()
@@ -147,7 +148,7 @@ public class UserServiceTest {
     @Test
     void testWhenGetThenEntry() {
         Mockito.when(userViewDaoMock.findById(TestData.uuid.ZERO)).thenReturn(UNI_OPTIONAL_TEST);
-        service.get(TestData.uuid.ZERO)
+        service.get(new Request<>(TestData.uuid.ZERO, null))
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(Answer.of(TestData.USER.MODEL_0), actual))
                 .await()
