@@ -25,7 +25,7 @@ class Filters {
     @ServerRequestFilter(preMatching = true)
     public void doRequestFilter(ContainerRequestContext requestContext) {
         var principal = securityContext != null ? securityContext.getUserPrincipal() : null;
-        LOG.infof(
+        LOG.tracef(
                 "Request: method: %s, URI: %s , principal: %s",
                 requestContext.getMethod(), requestContext.getUriInfo().getRequestUri(), principal
         );
@@ -36,7 +36,7 @@ class Filters {
     public void doResponseFilter(ContainerRequestContext requestContext,
                                  ContainerResponseContext responseContext) throws IOException {
         authContext.close();
-        LOG.infof(
+        LOG.tracef(
                 "Response: method: %s, URI: %s, headers: %s, entity: %s",
                 requestContext.getMethod(), requestContext.getUriInfo().getRequestUri(),
                 responseContext.getHeaders(), responseContext.getEntity()

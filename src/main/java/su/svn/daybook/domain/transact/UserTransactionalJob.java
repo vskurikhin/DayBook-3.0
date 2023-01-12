@@ -11,6 +11,7 @@ package su.svn.daybook.domain.transact;
 import io.vertx.mutiny.pgclient.PgPool;
 import io.vertx.mutiny.sqlclient.Row;
 import io.vertx.mutiny.sqlclient.RowIterator;
+import org.intellij.lang.annotations.Language;
 import org.jboss.logging.Logger;
 import su.svn.daybook.domain.model.UserNameTable;
 
@@ -24,10 +25,12 @@ public class UserTransactionalJob extends AbstractHasRelationJob<UUID, UserNameT
 
     private static final Logger LOG = Logger.getLogger(UserTransactionalJob.class);
 
+    @Language("SQL")
     public static final String COUNT_NOT_EXISTS_ROLES = """
             SELECT count(*) FROM unnest($1::text[]) AS r(role)
              WHERE role NOT IN (SELECT role FROM security.role);
             """;
+    @Language("SQL")
     public static final String UPDATE_SECURITY_USER_HAS_ROLES_2 = """
             INSERT INTO security.user_has_roles
              (user_name, role)
@@ -36,6 +39,7 @@ public class UserTransactionalJob extends AbstractHasRelationJob<UUID, UserNameT
                 WHERE (username, role) NOT IN
                  (SELECT user_name, role FROM security.user_has_roles));
             """;
+    @Language("SQL")
     public static final String UPDATE_SECURITY_USER_HAS_ROLES_4 = """
             INSERT INTO security.user_has_roles
              (user_name, role)
@@ -44,6 +48,7 @@ public class UserTransactionalJob extends AbstractHasRelationJob<UUID, UserNameT
                 WHERE (user_name, role) NOT IN
                  (SELECT user_name, role FROM security.user_has_roles));
             """;
+    @Language("SQL")
     public static final String CLEAR_SECURITY_USER_HAS_ROLES = """
             DELETE
             FROM security.user_has_roles
@@ -53,6 +58,7 @@ public class UserTransactionalJob extends AbstractHasRelationJob<UUID, UserNameT
                    WHERE user_name = $1
                      AND NOT (role = ANY ($2)));
             """;
+    @Language("SQL")
     public static final String DELETE_FROM_SECURITY_USER_HAS_ROLES_WHERE_USER_NAME_$1 = """
             DELETE FROM security.user_has_roles
              WHERE user_name = $1

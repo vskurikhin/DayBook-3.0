@@ -19,9 +19,9 @@ import javax.interceptor.AroundInvoke;
 import javax.interceptor.Interceptor;
 import javax.interceptor.InvocationContext;
 
-@Principled
-@Priority(2020)
+@Priority(Interceptor.Priority.APPLICATION + 21)
 @Interceptor
+@Principled
 public class PrincipledInterceptor {
 
     private static final Logger LOG = Logger.getLogger(PrincipledInterceptor.class);

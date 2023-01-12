@@ -53,8 +53,15 @@ public final class Word implements StringIdentification, Serializable {
         this.flags = flags;
     }
 
-    public static Word.Builder builder() {
-        return new Word.Builder();
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public Builder toBuilder() {
+        return builder()
+                .word(this.word)
+                .visible(this.visible)
+                .flags(this.flags);
     }
 
     @JsonIgnore

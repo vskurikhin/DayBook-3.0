@@ -9,12 +9,9 @@
 package su.svn.daybook.domain.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.smallrye.mutiny.Multi;
-import io.smallrye.mutiny.Uni;
-import io.vertx.mutiny.pgclient.PgPool;
 import io.vertx.mutiny.sqlclient.Row;
-import io.vertx.mutiny.sqlclient.RowSet;
 import io.vertx.mutiny.sqlclient.Tuple;
+import org.intellij.lang.annotations.Language;
 import su.svn.daybook.annotations.ModelField;
 import su.svn.daybook.models.Marked;
 import su.svn.daybook.models.Owned;
@@ -38,26 +35,17 @@ public record SessionTable(
         @ModelField int flags)
         implements CasesOfUUID, Marked, Owned, TimeUpdated, Serializable {
 
-    public static final String NONE = "3de2845b-eb5f-49e5-a1b4-ed90abd92c52";
     public static final String ID = "id";
-    public static final String COUNT = "count";
-    public static final String SELECT_FROM_SECURITY_SESSION_WHERE_ID_$1 = """
-            SELECT id, user_name, roles, valid_time, create_time, update_time, enabled, visible, flags
-              FROM security.session
-             WHERE id = $1 AND enabled
+    public static final String NONE = "3de2845b-eb5f-49e5-a1b4-ed90abd92c52";
+    @Language("SQL")
+    public static final String COUNT_SECURITY_SESSION = "SELECT count(*) FROM security.session";
+    @Language("SQL")
+    public static final String DELETE_FROM_SECURITY_SESSION_WHERE_ID_$1 = """
+            DELETE FROM security.session
+             WHERE id = $1
+             RETURNING id
             """;
-    public static final String SELECT_ALL_FROM_SECURITY_SESSION_ORDER_BY_ID_ASC = """
-            SELECT id, user_name, roles, valid_time, create_time, update_time, enabled, visible, flags
-              FROM security.session
-             WHERE enabled
-             ORDER BY id ASC
-            """;
-    public static final String SELECT_ALL_FROM_SECURITY_SESSION_ORDER_BY_ID_ASC_OFFSET_LIMIT = """
-            SELECT id, user_name, roles, valid_time, create_time, update_time, enabled, visible, flags
-              FROM security.session
-             WHERE enabled
-             ORDER BY id ASC OFFSET $1 LIMIT $2
-            """;
+    @Language("SQL")
     public static final String INSERT_INTO_SECURITY_SESSION = """
             INSERT INTO security.session
              (id, user_name, roles, valid_time, enabled, visible, flags)
@@ -65,6 +53,7 @@ public record SessionTable(
              ($1, $2, $3, $4, $5, $6, $7)
              RETURNING id
             """;
+    @Language("SQL")
     public static final String INSERT_INTO_SECURITY_SESSION_DEFAULT_ID = """
             INSERT INTO security.session
              (id, user_name, roles, valid_time, enabled, visible, flags)
@@ -72,6 +61,27 @@ public record SessionTable(
              (DEFAULT, $1, $2, $3, $4, $5, $6)
              RETURNING id
             """;
+    @Language("SQL")
+    public static final String SELECT_FROM_SECURITY_SESSION_WHERE_ID_$1 = """
+            SELECT id, user_name, roles, valid_time, create_time, update_time, enabled, visible, flags
+              FROM security.session
+             WHERE id = $1 AND enabled
+            """;
+    @Language("SQL")
+    public static final String SELECT_ALL_FROM_SECURITY_SESSION_ORDER_BY_ID_ASC = """
+            SELECT id, user_name, roles, valid_time, create_time, update_time, enabled, visible, flags
+              FROM security.session
+             WHERE enabled
+             ORDER BY id ASC
+            """;
+    @Language("SQL")
+    public static final String SELECT_ALL_FROM_SECURITY_SESSION_ORDER_BY_ID_ASC_OFFSET_LIMIT = """
+            SELECT id, user_name, roles, valid_time, create_time, update_time, enabled, visible, flags
+              FROM security.session
+             WHERE enabled
+             ORDER BY id ASC OFFSET $1 LIMIT $2
+            """;
+    @Language("SQL")
     public static final String UPDATE_SECURITY_SESSION_WHERE_ID_$1 = """
             UPDATE security.session SET
               user_name = $2,
@@ -83,15 +93,9 @@ public record SessionTable(
              WHERE id = $1
              RETURNING id
             """;
-    public static final String DELETE_FROM_SECURITY_SESSION_WHERE_ID_$1 = """
-            DELETE FROM security.session
-             WHERE id = $1
-             RETURNING id
-            """;
-    public static final String COUNT_SECURITY_SESSION = "SELECT count(*) FROM security.session";
 
-    public static SessionTable.Builder builder() {
-        return new SessionTable.Builder();
+    public static Builder builder() {
+        return new Builder();
     }
 
     public static SessionTable from(Row row) {
@@ -108,62 +112,8 @@ public record SessionTable(
         );
     }
 
-    public static Multi<SessionTable> findAll(PgPool client) {
-        return client
-                .query(SELECT_ALL_FROM_SECURITY_SESSION_ORDER_BY_ID_ASC)
-                .execute()
-                .onItem()
-                .transformToMulti(set -> Multi.createFrom().iterable(set))
-                .map(SessionTable::from);
-    }
-
-    public static Uni<SessionTable> findById(PgPool client, UUID id) {
-        return client
-                .preparedQuery(SELECT_FROM_SECURITY_SESSION_WHERE_ID_$1)
-                .execute(Tuple.of(id))
-                .map(RowSet::iterator)
-                .map(iterator -> iterator.hasNext() ? SessionTable.from(iterator.next()) : null);
-    }
-
-    public static Multi<SessionTable> findRange(PgPool client, long offset, long limit) {
-        return client
-                .preparedQuery(SELECT_ALL_FROM_SECURITY_SESSION_ORDER_BY_ID_ASC_OFFSET_LIMIT)
-                .execute(Tuple.of(offset, limit))
-                .onItem()
-                .transformToMulti(set -> Multi.createFrom().iterable(set))
-                .map(SessionTable::from);
-    }
-
-    public static Uni<UUID> delete(PgPool client, UUID id) {
-        return client.withTransaction(
-                connection -> connection.preparedQuery(DELETE_FROM_SECURITY_SESSION_WHERE_ID_$1)
-                        .execute(Tuple.of(id))
-                        .map(pgRowSet -> pgRowSet.iterator().next().getUUID(ID)));
-    }
-
-    public static Uni<Long> count(PgPool client) {
-        return client
-                .preparedQuery(COUNT_SECURITY_SESSION)
-                .execute()
-                .map(pgRowSet -> pgRowSet.iterator().next().getLong(COUNT));
-    }
-
-    public Uni<UUID> insert(PgPool client) {
-        return client.withTransaction(
-                connection -> connection.preparedQuery(caseInsertSql())
-                        .execute(caseInsertTuple())
-                        .map(RowSet::iterator)
-                        .map(iterator -> iterator.hasNext() ? iterator.next().getUUID(ID) : null));
-    }
-
-    public Uni<UUID> update(PgPool client) {
-        return client.withTransaction(
-                connection -> connection.preparedQuery(UPDATE_SECURITY_SESSION_WHERE_ID_$1)
-                        .execute(updateTuple())
-                        .map(pgRowSet -> pgRowSet.iterator().next().getUUID(ID)));
-    }
-
-    private String caseInsertSql() {
+    @Override
+    public String caseInsertSql() {
         return id != null ? INSERT_INTO_SECURITY_SESSION : INSERT_INTO_SECURITY_SESSION_DEFAULT_ID;
     }
 

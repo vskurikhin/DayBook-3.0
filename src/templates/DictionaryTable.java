@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2022.01.12 22:58 by Victor N. Skurikhin.
+ * This file was last modified at 2023.01.10 19:49 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * @Name@Table.java
@@ -8,64 +8,95 @@
 
 package su.svn.daybook.domain.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.smallrye.mutiny.Multi;
-import io.smallrye.mutiny.Uni;
-import io.vertx.mutiny.pgclient.PgPool;
 import io.vertx.mutiny.sqlclient.Row;
-import io.vertx.mutiny.sqlclient.RowSet;
 import io.vertx.mutiny.sqlclient.Tuple;
+import org.intellij.lang.annotations.Language;
 import su.svn.daybook.annotations.ModelField;
 import su.svn.daybook.models.Marked;
 import su.svn.daybook.models.Owned;
 import su.svn.daybook.models.TimeUpdated;
 
 import javax.annotation.Nonnull;
-import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public final class @Name@Table implements CasesOf@IdType@, Marked, Owned, TimeUpdated, Serializable {
+public record @Name@Table(
+        @ModelField @IdType@ id,
+        @ModelField(nullable = false) @Nonnull @KType@ @key@,
+        @ModelField @VType@ @value@,
+        String userName,
+        LocalDateTime createTime,
+        LocalDateTime updateTime,
+        boolean enabled,
+        @ModelField boolean visible,
+        @ModelField int flags)
+        implements CasesOf@IdType@, Marked, Owned, TimeUpdated, Serializable {
 
+    public static final String ID = "id";
     public static final String NONE = "@uuid@";
+    @Language("SQL")
+    public static final String COUNT_@SCHEMA@_@TABLE@ = "SELECT count(*) FROM @schema@.@table@";
+    @Language("SQL")
+    public static final String INSERT_INTO_@SCHEMA@_@TABLE@_RETURNING_S = """
+            INSERT INTO @schema@.@table@
+             (id, @key@, @value@, user_name, enabled, visible, flags)
+             VALUES
+             ($1, $2, $3, $4, $5, $6, $7)
+             RETURNING %s
+            """;
+    @Language("SQL")
+    public static final String INSERT_INTO_@SCHEMA@_@TABLE@_DEFAULT_ID_RETURNING_S = """
+            INSERT INTO @schema@.@table@
+             (id, @key@, @value@, user_name, enabled, visible, flags)
+             VALUES
+             (DEFAULT, $1, $2, $3, $4, $5, $6)
+             RETURNING %s
+            """;
+    @Language("SQL")
+    public static final String DELETE_FROM_@SCHEMA@_@TABLE@_WHERE_ID_$1_RETURNING_S = """
+            DELETE FROM @schema@.@table@
+             WHERE id = $1
+             RETURNING %s
+            """;
+    @Language("SQL")
+    public static final String SELECT_ALL_FROM_@SCHEMA@_@TABLE@_ORDER_BY_S = """
+            SELECT id, @key@, @value@, user_name, create_time, update_time, enabled, visible, flags
+              FROM @schema@.@table@
+             WHERE enabled
+             ORDER BY %s
+            """;
+    @Language("SQL")
+    public static final String SELECT_ALL_FROM_@SCHEMA@_@TABLE@_ORDER_BY_S_OFFSET_$1_LIMIT_$2 = """
+            SELECT id, @key@, @value@, user_name, create_time, update_time, enabled, visible, flags
+              FROM @schema@.@table@
+             WHERE enabled
+             ORDER BY %s OFFSET $1 LIMIT $2
+            """;
+    @Language("SQL")
     public static final String SELECT_FROM_@SCHEMA@_@TABLE@_WHERE_ID_$1 = """
             SELECT id, @key@, @value@, user_name, create_time, update_time, enabled, visible, flags
               FROM @schema@.@table@
              WHERE id = $1 AND enabled
             """;
-    public static final String SELECT_ALL_FROM_@SCHEMA@_@TABLE@_ORDER_BY_ID_ASC = """
+    @Language("SQL")
+    public static final String SELECT_FROM_@SCHEMA@_@TABLE@_WHERE_KEY_$1 = """
             SELECT id, @key@, @value@, user_name, create_time, update_time, enabled, visible, flags
               FROM @schema@.@table@
-             WHERE enabled
-             ORDER BY id ASC
+             WHERE @key@ = $1 AND enabled
             """;
-    public static final String SELECT_ALL_FROM_@SCHEMA@_@TABLE@_ORDER_BY_ID_ASC_OFFSET_LIMIT = """
+    @Language("SQL")
+    public static final String SELECT_FROM_@SCHEMA@_@TABLE@_WHERE_VALUE_$1 = """
             SELECT id, @key@, @value@, user_name, create_time, update_time, enabled, visible, flags
               FROM @schema@.@table@
-             WHERE enabled
-             ORDER BY id ASC OFFSET $1 LIMIT $2
+             WHERE @value@ = $1 AND enabled
             """;
-    public static final String INSERT_INTO_@SCHEMA@_@TABLE@ = """
-            INSERT INTO @schema@.@table@
-             (id, @key@, @value@, user_name, enabled, visible, flags)
-             VALUES
-             ($1, $2, $3, $4, $5, $6, $7)
-             RETURNING id
-            """;
-    public static final String INSERT_INTO_@SCHEMA@_@TABLE@_DEFAULT_ID = """
-            INSERT INTO @schema@.@table@
-             (id, @key@, @value@, user_name, enabled, visible, flags)
-             VALUES
-             (DEFAULT, $1, $2, $3, $4, $5, $6)
-             RETURNING id
-            """;
-    public static final String UPDATE_@SCHEMA@_@TABLE@_WHERE_ID_$1 = """
+    @Language("SQL")
+    public static final String UPDATE_@SCHEMA@_@TABLE@_WHERE_ID_$1_RETURNING_S = """
             UPDATE @schema@.@table@ SET
               @key@ = $2,
               @value@ = $3,
@@ -74,76 +105,17 @@ public final class @Name@Table implements CasesOf@IdType@, Marked, Owned, TimeUp
               visible = $6,
               flags = $7
              WHERE id = $1
-             RETURNING id
+             RETURNING %s
             """;
-    public static final String DELETE_FROM_@SCHEMA@_@TABLE@_WHERE_ID_$1 = """
-            DELETE FROM @schema@.@table@
-             WHERE id = $1
-             RETURNING id
-            """;
-    public static final String COUNT_@SCHEMA@_@TABLE@ = "SELECT count(*) FROM @schema@.@table@";
-    @Serial
-    private static final long serialVersionUID = @serialVersionUID@L;
-    public static final String ID = "id";
-    public static final String COUNT = "count";
-    @ModelField
-    private final @IdType@ id;
-    @ModelField
-    private final @KType@ @key@;
-    @ModelField
-    private final @VType@ @value@;
-    private final String userName;
-    private final LocalDateTime createTime;
-    private final LocalDateTime updateTime;
-    private final boolean enabled;
-    @ModelField
-    private final boolean visible;
-    @ModelField
-    private final int flags;
 
-    @JsonIgnore
-    private transient int hash;
-
-    @JsonIgnore
-    private transient boolean hashIsZero;
-
-    public @Name@Table() {
-        this.id = null;
-        this.@key@ = @KType@.ZERO;
-        this.@value@ = null;
-        this.userName = null;
-        this.createTime = null;
-        this.updateTime = null;
-        this.enabled = true;
-        this.visible = true;
-        this.flags = 0;
-    }
-
-    public @Name@Table(
-            @IdType@ id,
-            @Nonnull @KType@ @key@,
-            @VType@ @value@,
-            String userName,
-            LocalDateTime createTime,
-            LocalDateTime updateTime,
-            boolean enabled,
-            boolean visible,
-            int flags) {
-        this.id = id;
-        this.@key@ = @key@;
-        this.@value@ = @value@;
-        this.userName = userName;
-        this.createTime = createTime;
-        this.updateTime = updateTime;
-        this.enabled = enabled;
-        this.visible = visible;
-        this.flags = flags;
+    public static Builder builder() {
+        return new Builder();
     }
 
     public static @Name@Table from(Row row) {
         return new @Name@Table(
                 row.get@IdType@(ID),
-                row.get@KType@("@key@"),
+                row.getBigDecimal("@key@").to@KType@(),
                 row.get@VType@("@value@"),
                 row.getString("user_name"),
                 row.getLocalDateTime("create_time"),
@@ -154,77 +126,9 @@ public final class @Name@Table implements CasesOf@IdType@, Marked, Owned, TimeUp
         );
     }
 
-    public static Multi<@Name@Table> findAll(PgPool client) {
-        return client
-                .query(SELECT_ALL_FROM_@SCHEMA@_@TABLE@_ORDER_BY_ID_ASC)
-                .execute()
-                .onItem()
-                .transformToMulti(set -> Multi.createFrom().iterable(set))
-                .onItem()
-                .transform(@Name@Table::from);
-
-    }
-
-    public static Uni<@Name@Table> findById(PgPool client, @IdType@ id) {
-        return client
-                .preparedQuery(SELECT_FROM_@SCHEMA@_@TABLE@_WHERE_ID_$1)
-                .execute(Tuple.of(id))
-                .onItem()
-                .transform(RowSet::iterator)
-                .onItem()
-                .transform(iterator -> iterator.hasNext() ? @Name@Table.from(iterator.next()) : null);
-    }
-
-    public static Multi<@Name@Table> findRange(PgPool client, long offset, long limit) {
-        return client
-                .preparedQuery(SELECT_ALL_FROM_@SCHEMA@_@TABLE@_ORDER_BY_ID_ASC_OFFSET_LIMIT)
-                .execute(Tuple.of(offset, limit))
-                .onItem()
-                .transformToMulti(set -> Multi.createFrom().iterable(set))
-                .onItem()
-                .transform(@Name@Table::from);
-    }
-
-    public static Uni<@IdType@> delete(PgPool client, @IdType@ id) {
-        return client.withTransaction(
-                connection -> connection.preparedQuery(DELETE_FROM_@SCHEMA@_@TABLE@_WHERE_ID_$1)
-                        .execute(Tuple.of(id))
-                        .onItem()
-                        .transform(pgRowSet -> pgRowSet.iterator().next().get@IdType@(ID)));
-    }
-
-    public static Uni<Long> count(PgPool client) {
-        return client
-                .preparedQuery(COUNT_@SCHEMA@_@TABLE@)
-                .execute()
-                .onItem()
-                .transform(pgRowSet -> pgRowSet.iterator().next().getLong(COUNT));
-    }
-
-    public static @Name@Table.Builder builder() {
-        return new @Name@Table.Builder();
-    }
-
-    public Uni<@IdType@> insert(PgPool client) {
-        return client.withTransaction(
-                connection -> connection.preparedQuery(caseInsertSql())
-                        .execute(caseInsertTuple())
-                        .onItem()
-                        .transform(RowSet::iterator)
-                        .onItem()
-                        .transform(iterator -> iterator.hasNext() ? iterator.next().get@IdType@(ID) : null));
-    }
-
-    public Uni<@IdType@> update(PgPool client) {
-        return client.withTransaction(
-                connection -> connection.preparedQuery(UPDATE_@SCHEMA@_@TABLE@_WHERE_ID_$1)
-                        .execute(updateTuple())
-                        .onItem()
-                        .transform(pgRowSet -> pgRowSet.iterator().next().get@IdType@(ID)));
-    }
-
-    private String caseInsertSql() {
-        return id != null ? INSERT_INTO_@SCHEMA@_@TABLE@ : INSERT_INTO_@SCHEMA@_@TABLE@_DEFAULT_ID;
+    @Override
+    public String caseInsertSql() {
+        return id != null ? INSERT_INTO_@SCHEMA@_@TABLE@_RETURNING_S : INSERT_INTO_@SCHEMA@_@TABLE@_DEFAULT_ID_RETURNING_S;
     }
 
     @Override
@@ -241,109 +145,20 @@ public final class @Name@Table implements CasesOf@IdType@, Marked, Owned, TimeUp
         return Arrays.asList(id, @key@, @value@, userName, enabled, visible, flags);
     }
 
-    public @IdType@ getId() {
-        return id;
-    }
-
-    public @KType@ get@Key@() {
-        return @key@;
-    }
-
-    public @VType@ get@Value@() {
-        return @value@;
-    }
-
-    public String getUserName() {
-        return userName;
-    }
-
-    public LocalDateTime getCreateTime() {
-        return createTime;
-    }
-
-    public LocalDateTime getUpdateTime() {
-        return updateTime;
-    }
-
-    public boolean getEnabled() {
-        return enabled;
-    }
-
-    public boolean isEnabled() {
-        return enabled;
-    }
-
-    public boolean getVisible() {
-        return visible;
-    }
-
-    public boolean isVisible() {
-        return visible;
-    }
-
-    public int getFlags() {
-        return flags;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        var that = (@Name@Table) o;
-        return enabled == that.enabled
-                && visible == that.visible
-                && flags == that.flags
-                && Objects.equals(id, that.id)
-                && Objects.equals(@key@, that.@key@)
-                && Objects.equals(@value@, that.@value@)
-                && Objects.equals(userName, that.userName);
-    }
-
-    @Override
-    public int hashCode() {
-        int h = hash;
-        if (h == 0 && !hashIsZero) {
-            h = calculateHashCode();
-            if (h == 0) {
-                hashIsZero = true;
-            } else {
-                hash = h;
-            }
-        }
-        return h;
-    }
-
-    private int calculateHashCode() {
-        return Objects.hash(id, @key@, @value@, userName, enabled, visible, flags);
-    }
-
-    @Override
-    public String toString() {
-        return "@Name@Table{" +
-                "id=" + id +
-                ", @key@='" + @key@ + '\'' +
-                ", @value@='" + @value@ + '\'' +
-                ", userName='" + userName + '\'' +
-                ", createTime=" + createTime +
-                ", updateTime=" + updateTime +
-                ", enabled=" + enabled +
-                ", visible=" + visible +
-                ", flags=" + flags +
-                '}';
-    }
-
     public static final class Builder {
-        private @IdType@ id;
-        private @KType@ @key@;
-        private @VType@ @value@;
+        private @ModelField @IdType@ id;
+        private @ModelField
+        @Nonnull @KType@ @key@;
+        private @ModelField @VType@ @value@;
         private String userName;
         private LocalDateTime createTime;
         private LocalDateTime updateTime;
         private boolean enabled;
-        private boolean visible;
-        private int flags;
+        private @ModelField boolean visible;
+        private @ModelField int flags;
 
         private Builder() {
+            this.@key@ = @KType@.ZERO;
             this.enabled = true;
         }
 

@@ -59,6 +59,15 @@ public final class UserName implements UUIDIdentification, Serializable {
         return new Builder();
     }
 
+    public Builder toBuilder() {
+        return builder()
+                .id(this.id)
+                .userName(this.userName)
+                .password(this.password)
+                .visible(this.visible)
+                .flags(this.flags);
+    }
+
     public UUID id() {
         return id;
     }

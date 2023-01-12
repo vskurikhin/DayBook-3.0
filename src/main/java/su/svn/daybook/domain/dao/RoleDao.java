@@ -10,7 +10,8 @@ package su.svn.daybook.domain.dao;
 
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
-import org.jboss.logging.Logger;
+import su.svn.daybook.annotations.Logged;
+import su.svn.daybook.annotations.SQL;
 import su.svn.daybook.domain.model.RoleTable;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -19,50 +20,54 @@ import java.util.Optional;
 import java.util.UUID;
 
 @ApplicationScoped
-public class RoleDao {
-
-    private static final Logger LOG = Logger.getLogger(RoleDao.class);
+public class RoleDao extends AbstractDao<UUID, RoleTable> {
 
     @Inject
     io.vertx.mutiny.pgclient.PgPool client;
 
-    public Multi<RoleTable> findAll() {
-        LOG.trace("findAll()");
-        return RoleTable.findAll(client);
+    RoleDao() {
+        super(RoleTable.ID, r -> r.getUUID(RoleTable.ID), RoleTable::from);
     }
 
-    public Uni<Optional<RoleTable>> findById(UUID id) {
-        LOG.tracef("findById(%s)", id);
-        return RoleTable.findById(client, id)
-                .map(Optional::ofNullable);
-    }
-
-    public Multi<RoleTable> findRange(long offset, long limit) {
-        LOG.tracef("findRange(%d, %d)", offset, limit);
-        return RoleTable.findRange(client, offset, limit);
-    }
-
-    public Uni<Optional<UUID>> insert(RoleTable entry) {
-        LOG.tracef("insert(%s)", entry);
-        return entry.insert(client)
-                .map(Optional::ofNullable);
-    }
-
-    public Uni<Optional<UUID>> update(RoleTable entry) {
-        LOG.tracef("update(%s)", entry);
-        return entry.update(client)
-                .map(Optional::ofNullable);
-    }
-
-    public Uni<Optional<UUID>> delete(UUID id) {
-        LOG.tracef("delete(%s)", id);
-        return RoleTable.delete(client, id)
-                .map(Optional::ofNullable);
-    }
-
+    @Logged
+    @SQL(RoleTable.COUNT_SECURITY_ROLE)
     public Uni<Optional<Long>> count() {
-        LOG.trace("count()");
-        return RoleTable.count(client)
-                .map(Optional::ofNullable);
+        return super.countSQL().map(Optional::ofNullable);
+    }
+
+    @Logged
+    @SQL(RoleTable.DELETE_FROM_SECURITY_ROLE_WHERE_ID_$1)
+    public Uni<Optional<UUID>> delete(UUID id) {
+        return super.deleteSQL(id).map(Optional::ofNullable);
+    }
+
+    @Logged
+    @SQL(RoleTable.SELECT_ALL_FROM_SECURITY_ROLE_ORDER_BY_ID_ASC)
+    public Multi<RoleTable> findAll() {
+        return super.findAllSQL();
+    }
+
+    @Logged
+    @SQL(RoleTable.SELECT_FROM_SECURITY_ROLE_WHERE_ID_$1)
+    public Uni<Optional<RoleTable>> findById(UUID id) {
+        return super.findByIdSQL(id).map(Optional::ofNullable);
+    }
+
+    @Logged
+    @SQL(RoleTable.SELECT_ALL_FROM_SECURITY_ROLE_ORDER_BY_ID_ASC_OFFSET_LIMIT)
+    public Multi<RoleTable> findRange(long offset, long limit) {
+        return super.findRangeSQL(offset, limit);
+    }
+
+    @Logged
+    @SQL
+    public Uni<Optional<UUID>> insert(RoleTable entry) {
+        return super.insertSQL(entry).map(Optional::ofNullable);
+    }
+
+    @Logged
+    @SQL(RoleTable.UPDATE_SECURITY_ROLE_WHERE_ID_$1)
+    public Uni<Optional<UUID>> update(RoleTable entry) {
+        return super.updateSQL(entry).map(Optional::ofNullable);
     }
 }

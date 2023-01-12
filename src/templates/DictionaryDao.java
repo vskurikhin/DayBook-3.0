@@ -10,59 +10,84 @@ package su.svn.daybook.domain.dao;
 
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
-import org.jboss.logging.Logger;
+import su.svn.daybook.annotations.Logged;
+import su.svn.daybook.annotations.SQL;
 import su.svn.daybook.domain.model.@Name@Table;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 import java.util.Optional;
 import java.util.UUID;
 
 @ApplicationScoped
-public class @Name@Dao {
+public class @Name@Dao extends AbstractDao<@IdType@, @Name@Table> {
 
-    private static final Logger LOG = Logger.getLogger(@Name@Dao.class);
-
-    @Inject
-    io.vertx.mutiny.pgclient.PgPool client;
-
-    public Multi<@Name@Table> findAll() {
-        LOG.trace("findAll()");
-        return @Name@Table.findAll(client);
+    @Name@Dao() {
+        super(@Name@Table.ID, r -> r.get@IdType@(@Name@Table.ID), @Name@Table::from);
     }
 
-    public Uni<Optional<@Name@Table>> findById(@IdType@ id) {
-        LOG.tracef("findById(%s)", id);
-        return @Name@Table.findById(client, id)
-                .map(Optional::ofNullable);
-    }
-
-    public Multi<@Name@Table> findRange(long offset, long limit) {
-        LOG.tracef("findRange(%d, %d)", offset, limit);
-        return @Name@Table.findRange(client, offset, limit);
-    }
-
-    public Uni<Optional<@IdType@>> insert(@Name@Table entry) {
-        LOG.tracef("insert(%s)", entry);
-        return entry.insert(client)
-                .map(Optional::ofNullable);
-    }
-
-    public Uni<Optional<@IdType@>> update(@Name@Table entry) {
-        LOG.tracef("update(%s)", entry);
-        return entry.update(client)
-                .map(Optional::ofNullable);
-    }
-
-    public Uni<Optional<@IdType@>> delete(@IdType@ id) {
-        LOG.tracef("delete(%s)", id);
-        return @Name@Table.delete(client, id)
-                .map(Optional::ofNullable);
-    }
-
+    @Logged
+    @SQL(@Name@Table.COUNT_@SCHEMA@_@TABLE@)
     public Uni<Optional<Long>> count() {
-        LOG.trace("count()");
-        return @Name@Table.count(client)
-                .map(Optional::ofNullable);
+        return super.countSQL().map(Optional::ofNullable);
+    }
+
+    @Logged
+    @SQL(@Name@Table.DELETE_FROM_@SCHEMA@_@TABLE@_WHERE_ID_$1_RETURNING_S)
+    public Uni<Optional<@IdType@>> delete(@IdType@ id) {
+        return super.deleteSQL(id).map(Optional::ofNullable);
+    }
+
+    @Logged
+    @SQL(@Name@Table.SELECT_ALL_FROM_@SCHEMA@_@TABLE@_ORDER_BY_S)
+    public Multi<@Name@Table> findAll() {
+        return super.findAllSQL();
+    }
+
+    @Logged
+    @SQL(@Name@Table.SELECT_FROM_@SCHEMA@_@TABLE@_WHERE_ID_$1)
+    public Uni<Optional<@Name@Table>> findById(@IdType@ id) {
+        return super.findByIdSQL(id).map(Optional::ofNullable);
+    }
+
+    @Logged
+    @SQL(@Name@Table.SELECT_FROM_@SCHEMA@_@TABLE@_WHERE_KEY_$1)
+    public Uni<Optional<@Name@Table>> findBy@Key@(@KType@ @key@) {
+        return super.findBy@Key@SQL(@key@).map(Optional::ofNullable);
+    }
+
+    @Logged
+    @SQL(@Name@Table.SELECT_FROM_@SCHEMA@_@TABLE@_WHERE_VALUE_$1)
+    public Multi<@Name@Table> findBy@Value@(@VType@ @value@) {
+        return super.findBy@Value@SQL(@value@);
+    }
+
+    @Logged
+    @SQL(@Name@Table.SELECT_ALL_FROM_@SCHEMA@_@TABLE@_ORDER_BY_S_OFFSET_$1_LIMIT_$2)
+    public Multi<@Name@Table> findRange(long offset, long limit) {
+        return super.findRangeSQL(offset, limit);
+    }
+
+    @Logged
+    @SQL
+    public Uni<Optional<@IdType@>> insert(@Name@Table entry) {
+        return super.insertSQL(entry).map(Optional::ofNullable);
+    }
+
+    @Logged
+    @SQL
+    public Uni<Optional<@Name@Table>> insertEntry(@Name@Table entry) {
+        return super.insertSQLEntry(entry).map(Optional::ofNullable);
+    }
+
+    @Logged
+    @SQL(@Name@Table.UPDATE_@SCHEMA@_@TABLE@_WHERE_ID_$1_RETURNING_S)
+    public Uni<Optional<@IdType@>> update(@Name@Table entry) {
+        return super.updateSQL(entry).map(Optional::ofNullable);
+    }
+
+    @Logged
+    @SQL(@Name@Table.UPDATE_@SCHEMA@_@TABLE@_WHERE_ID_$1_RETURNING_S)
+    public Uni<Optional<@Name@Table>> updateEntry(@Name@Table entry) {
+        return super.updateSQLEntry(entry).map(Optional::ofNullable);
     }
 }

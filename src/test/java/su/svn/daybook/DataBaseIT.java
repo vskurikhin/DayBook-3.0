@@ -256,15 +256,23 @@ public class DataBaseIT {
             Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(0, uniOptionalHelper(keyValueDao.count())));
         }
 
-        KeyValueTable expected(UUID id, BigInteger key, KeyValueTable test) {
-            Assertions.assertNotNull(test);
+        KeyValueTable.Builder builder(UUID id, BigInteger key, KeyValueTable test) {
             return KeyValueTable.builder()
                     .id(id)
                     .key(key)
                     .createTime(test.createTime())
                     .updateTime(test.updateTime())
-                    .enabled(true)
-                    .build();
+                    .enabled(true);
+        }
+
+        KeyValueTable expected(UUID id, BigInteger key, KeyValueTable test) {
+            Assertions.assertNotNull(test);
+            return builder(id, key, test).build();
+        }
+
+        KeyValueTable expected(UUID id, BigInteger key, JsonObject value, KeyValueTable test) {
+            Assertions.assertNotNull(test);
+            return builder(id, key, test).value(value).build();
         }
 
         @Test
@@ -280,6 +288,13 @@ public class DataBaseIT {
             Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(id, uniOptionalHelper(keyValueDao.update(update))));
             Assertions.assertDoesNotThrow(() -> {
                 var test = uniOptionalHelper(keyValueDao.findById(id));
+                var expected = expected(id, BigInteger.TWO, test);
+                Assertions.assertEquals(expected, test);
+                Assertions.assertNotNull(test.createTime());
+                Assertions.assertNotNull(test.updateTime());
+            });
+            Assertions.assertDoesNotThrow(() -> {
+                var test = uniOptionalHelper(keyValueDao.findByKey(BigInteger.TWO));
                 var expected = expected(id, BigInteger.TWO, test);
                 Assertions.assertEquals(expected, test);
                 Assertions.assertNotNull(test.createTime());
@@ -302,14 +317,40 @@ public class DataBaseIT {
                 Assertions.assertFalse(test.isEmpty());
                 Assertions.assertEquals(1, test.size());
             });
-            var custom = KeyValueTable.builder().id(customId).key(BigInteger.TEN).build();
-            Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(customId, uniOptionalHelper(keyValueDao.insert(custom))));
+            var custom = KeyValueTable.builder()
+                    .id(customId)
+                    .key(BigInteger.valueOf(7))
+                    .value(new JsonObject("{}"))
+                    .build();
+            Assertions.assertDoesNotThrow(() -> {
+                var test = uniOptionalHelper(keyValueDao.insertEntry(custom));
+                var expected = expected(customId, BigInteger.valueOf(7), new JsonObject("{}"), test);
+                Assertions.assertEquals(expected, test);
+            });
+            var customUpdate = KeyValueTable.builder()
+                    .id(customId)
+                    .key(BigInteger.TEN)
+                    .value(new JsonObject("{}"))
+                    .build();
+            Assertions.assertDoesNotThrow(() -> {
+                var test = uniOptionalHelper(keyValueDao.updateEntry(customUpdate));
+                var expected = expected(customId, BigInteger.TEN, new JsonObject("{}"), test);
+                Assertions.assertEquals(expected, test);
+            });
+            Assertions.assertDoesNotThrow(() -> {
+                var test = multiAsListHelper(keyValueDao.findByValue(new JsonObject("{}")));
+                Assertions.assertNotNull(test);
+                Assertions.assertFalse(test.isEmpty());
+                Assertions.assertEquals(1, test.size());
+                var expected = expected(customId, BigInteger.TEN, new JsonObject("{}"), test.get(0));
+                Assertions.assertEquals(expected, test.get(0));
+            });
             Assertions.assertDoesNotThrow(() -> {
                 var test = multiAsListHelper(keyValueDao.findRange(0, 1));
                 Assertions.assertNotNull(test);
                 Assertions.assertFalse(test.isEmpty());
                 Assertions.assertEquals(1, test.size());
-                var expected = expected(customId, BigInteger.TEN, test.get(0));
+                var expected = expected(customId, BigInteger.TEN, new JsonObject("{}"), test.get(0));
                 Assertions.assertEquals(expected, test.get(0));
             });
             Assertions.assertDoesNotThrow(() -> {

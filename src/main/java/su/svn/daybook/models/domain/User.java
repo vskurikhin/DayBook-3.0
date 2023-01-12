@@ -74,8 +74,8 @@ public final class User implements UUIDIdentification, Serializable {
         this.flags = flags;
     }
 
-    public static User.Builder builder() {
-        return new User.Builder();
+    public static Builder builder() {
+        return new Builder();
     }
 
     public User.Builder toBuilder() {
@@ -85,7 +85,7 @@ public final class User implements UUIDIdentification, Serializable {
                 .password(this.password)
                 .roles(this.roles)
                 .visible(this.visible)
-                .flags(0);
+                .flags(this.flags);
     }
 
     public UUID id() {

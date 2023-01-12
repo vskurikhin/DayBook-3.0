@@ -17,9 +17,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import su.svn.daybook.TestData;
+import su.svn.daybook.TestUtils;
 import su.svn.daybook.domain.dao.@Name@Dao;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.messages.ApiResponse;
+import su.svn.daybook.domain.messages.Request;
 import su.svn.daybook.domain.model.@Name@Table;
 import su.svn.daybook.models.pagination.Page;
 import su.svn.daybook.models.pagination.PageRequest;
@@ -43,9 +45,9 @@ class @Name@ServiceTest {
 
     static final Multi<@Name@Table> MULTI_TEST = Multi.createFrom().item(TestData.@TABLE@.TABLE_0);
 
-    static final Multi<@Name@Table> MULTI_WITH_NULL = TestData.createMultiWithNull(@Name@Table.class);
+    static final Multi<@Name@Table> MULTI_WITH_NULL = TestUtils.createMultiWithNull(@Name@Table.class);
 
-    static final Multi<@Name@Table> MULTI_EMPTIES = TestData.createMultiEmpties(@Name@Table.class);
+    static final Multi<@Name@Table> MULTI_EMPTIES = TestUtils.createMultiEmpties(@Name@Table.class);
 
     @BeforeEach
     void setUp() {
@@ -121,7 +123,7 @@ class @Name@ServiceTest {
                 .content(Collections.singletonList(Answer.of(TestData.@TABLE@.MODEL_0)))
                 .build();
 
-        Assertions.assertDoesNotThrow(() -> service.getPage(pageRequest)
+        Assertions.assertDoesNotThrow(() -> service.getPage(new Request<>(pageRequest, null))
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
                 .await()
@@ -145,7 +147,7 @@ class @Name@ServiceTest {
                 .content(Collections.emptyList())
                 .build();
 
-        Assertions.assertDoesNotThrow(() -> service.getPage(pageRequest)
+        Assertions.assertDoesNotThrow(() -> service.getPage(new Request<>(pageRequest, null))
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
                 .await()
@@ -169,7 +171,7 @@ class @Name@ServiceTest {
                 .content(Collections.emptyList())
                 .build();
 
-        Assertions.assertDoesNotThrow(() -> service.getPage(pageRequest)
+        Assertions.assertDoesNotThrow(() -> service.getPage(new Request<>(pageRequest, null))
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
                 .await()
@@ -179,7 +181,7 @@ class @Name@ServiceTest {
 
     @Test
     void testWhenGetThenEntry() {
-        Assertions.assertDoesNotThrow(() -> service.get(TestData.uuid.ZERO)
+        Assertions.assertDoesNotThrow(() -> service.get(new Request<>(TestData.uuid.ZERO, null))
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(Answer.of(TestData.@TABLE@.MODEL_0), actual))
                 .await()
@@ -194,7 +196,7 @@ class @Name@ServiceTest {
                 .payload(new ApiResponse<>(TestData.uuid.ZERO, 201))
                 .build();
         Mockito.when(mock.insert(TestData.@TABLE@.TABLE_0)).thenReturn(TestData.uuid.UNI_OPTIONAL_ZERO);
-        Assertions.assertDoesNotThrow(() -> service.add(TestData.@TABLE@.MODEL_0)
+        Assertions.assertDoesNotThrow(() -> service.add(new Request<>(TestData.@TABLE@.MODEL_0, null))
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
                 .await()
@@ -206,10 +208,10 @@ class @Name@ServiceTest {
         var expected = Answer.builder()
                 .message("bad request")
                 .error(400)
-                .payload("No value present for entry: " + TestData.@TABLE@.TABLE_0)
+                .payload("No @value@ present for entry: " + TestData.@TABLE@.TABLE_0)
                 .build();
         Mockito.when(mock.insert(TestData.@TABLE@.TABLE_0)).thenReturn(TestData.uuid.UNI_OPTIONAL_EMPTY);
-        Assertions.assertDoesNotThrow(() -> service.add(TestData.@TABLE@.MODEL_0)
+        Assertions.assertDoesNotThrow(() -> service.add(new Request<>(TestData.@TABLE@.MODEL_0, null))
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
                 .await()
@@ -224,7 +226,7 @@ class @Name@ServiceTest {
                 .payload(new ApiResponse<>(TestData.uuid.ZERO, 202))
                 .build();
         Mockito.when(mock.update(TestData.@TABLE@.TABLE_0)).thenReturn(TestData.uuid.UNI_OPTIONAL_ZERO);
-        Assertions.assertDoesNotThrow(() -> service.put(TestData.@TABLE@.MODEL_0)
+        Assertions.assertDoesNotThrow(() -> service.put(new Request<>(TestData.@TABLE@.MODEL_0, null))
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
                 .await()
@@ -234,7 +236,7 @@ class @Name@ServiceTest {
     @Test
     void testWhenPutThenEmpty() {
         Mockito.when(mock.update(TestData.@TABLE@.TABLE_0)).thenReturn(TestData.uuid.UNI_OPTIONAL_ZERO);
-        Assertions.assertThrows(RuntimeException.class, () -> service.put(TestData.@TABLE@.MODEL_0)
+        Assertions.assertThrows(RuntimeException.class, () -> service.put(new Request<>(TestData.@TABLE@.MODEL_0, null))
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(Answer.empty(), actual))
                 .await()
@@ -245,7 +247,7 @@ class @Name@ServiceTest {
     void testWhenDeleteThenId() {
         Mockito.when(mock.delete(TestData.uuid.ZERO)).thenReturn(TestData.uuid.UNI_OPTIONAL_ZERO);
         var expected = Answer.of(new ApiResponse<>(TestData.uuid.ZERO, 200));
-        Assertions.assertDoesNotThrow(() -> service.delete(TestData.uuid.ZERO)
+        Assertions.assertDoesNotThrow(() -> service.delete(new Request<>(TestData.uuid.ZERO, null))
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
                 .await()
@@ -257,11 +259,9 @@ class @Name@ServiceTest {
         var expected = Answer.builder()
                 .message(Answer.NO_SUCH_ELEMENT)
                 .error(404)
-                .payload("No value present for id: null")
+                .payload("No @value@ present for id: null")
                 .build();
-        Assertions.assertDoesNotThrow(() -> service.delete(null)
-                .onItem()
-                .invoke(actual -> Assertions.assertEquals(expected, actual))
+        Assertions.assertThrows(NullPointerException.class, () -> service.delete(null)
                 .await()
                 .indefinitely());
     }

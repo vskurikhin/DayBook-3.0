@@ -73,8 +73,8 @@ public final class Session implements UUIDIdentification, Serializable {
         this.flags = flags;
     }
 
-    public static Session.Builder builder() {
-        return new Session.Builder();
+    public static Builder builder() {
+        return new Builder();
     }
 
     public Session.Builder toBuilder() {
@@ -84,7 +84,7 @@ public final class Session implements UUIDIdentification, Serializable {
                 .roles(this.roles)
                 .validTime(this.validTime)
                 .visible(this.visible)
-                .flags(0);
+                .flags(this.flags);
     }
 
     public UUID id() {

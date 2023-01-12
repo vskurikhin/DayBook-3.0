@@ -13,7 +13,7 @@ import java.lang.annotation.*;
 
 @InterceptorBinding
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.TYPE, ElementType.METHOD, ElementType.CONSTRUCTOR})
+@Target({ElementType.METHOD, ElementType.TYPE})
 @Inherited
 public @interface Principled {
 }

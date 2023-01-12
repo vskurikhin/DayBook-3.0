@@ -8,7 +8,8 @@
 
 package su.svn.daybook.models.domain;
 
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.vertx.core.json.JsonObject;
 import su.svn.daybook.annotations.DomainField;
 import su.svn.daybook.domain.model.KeyValueTable;
@@ -65,17 +66,17 @@ public final class KeyValue implements UUIDIdentification, Serializable {
         this.flags = flags;
     }
 
-    public static KeyValue.Builder builder() {
+    public static Builder builder() {
         return new KeyValue.Builder();
     }
 
-    public KeyValue.Builder toBuilder() {
+    public Builder toBuilder() {
         return builder()
                 .id(this.id)
                 .key(this.key)
                 .value(this.value)
                 .visible(this.visible)
-                .flags(0);
+                .flags(this.flags);
     }
 
     public UUID id() {

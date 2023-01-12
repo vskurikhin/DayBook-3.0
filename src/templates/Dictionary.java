@@ -9,8 +9,9 @@
 package su.svn.daybook.models.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import su.svn.daybook.annotations.DomainField;
+import su.svn.daybook.domain.model.@Name@Table;
 import su.svn.daybook.models.@IdType@Identification;
 
 import javax.annotation.Nonnull;
@@ -19,21 +20,24 @@ import java.io.Serializable;
 import java.util.Objects;
 import java.util.UUID;
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public final class @Name@ implements @IdType@Identification, Serializable {
 
-    public static final String NONE = "@uuid@";
-    public static final String ID = "id";
+    public static final String NONE = @Name@Table.NONE;
     @Serial
     private static final long serialVersionUID = @serialVersionUID@L;
+    @JsonProperty
     @DomainField
     private final @IdType@ id;
+    @JsonProperty
     @DomainField(nullable = false)
     private final @KType@ @key@;
+    @JsonProperty
     @DomainField
     private final @VType@ @value@;
+    @JsonProperty
     @DomainField
     private final boolean visible;
+    @JsonProperty
     @DomainField
     private final int flags;
 
@@ -44,11 +48,7 @@ public final class @Name@ implements @IdType@Identification, Serializable {
     private transient boolean hashIsZero;
 
     public @Name@() {
-        this.id = null;
-        this.@key@ = @KType@.ZERO;
-        this.@value@ = null;
-        this.visible = true;
-        this.flags = 0;
+        this(null, @KType@.ZERO, null, true, 0);
     }
 
     public @Name@(
@@ -64,31 +64,36 @@ public final class @Name@ implements @IdType@Identification, Serializable {
         this.flags = flags;
     }
 
-    public static @Name@.Builder builder() {
+    public static Builder builder() {
         return new @Name@.Builder();
     }
 
-    public @IdType@ getId() {
+    public Builder toBuilder() {
+        return builder()
+                .id(this.id)
+                .@key@(this.@key@)
+                .@value@(this.@value@)
+                .visible(this.visible)
+                .flags(this.flags);
+    }
+
+    public @IdType@ id() {
         return id;
     }
 
-    public @KType@ get@Key@() {
+    public @KType@ @key@() {
         return @key@;
     }
 
-    public @VType@ get@Value@() {
+    public @VType@ @value@() {
         return @value@;
     }
 
-    public boolean getVisible() {
+    public boolean visible() {
         return visible;
     }
 
-    public boolean isVisible() {
-        return visible;
-    }
-
-    public int getFlags() {
+    public int flags() {
         return flags;
     }
 
@@ -135,12 +140,13 @@ public final class @Name@ implements @IdType@Identification, Serializable {
 
     public static final class Builder {
         private @IdType@ id;
-        private @KType@ @key@;
+        private @Nonnull @KType@ @key@;
         private @VType@ @value@;
         private boolean visible;
         private int flags;
 
         private Builder() {
+            this.@key@ = @KType@.ZERO;
         }
 
         public Builder id(@IdType@ id) {
