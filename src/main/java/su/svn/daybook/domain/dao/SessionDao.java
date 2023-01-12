@@ -22,7 +22,7 @@ import java.util.UUID;
 public class SessionDao extends AbstractDao<UUID, SessionTable> {
 
     SessionDao() {
-        super(r -> r.getUUID(SessionTable.ID), SessionTable::from);
+        super(SessionTable.ID, r -> r.getUUID(SessionTable.ID), SessionTable::from);
     }
 
     @Logged

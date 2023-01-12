@@ -8,7 +8,8 @@
 
 package su.svn.daybook.models.domain;
 
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.vertx.core.json.JsonObject;
 import su.svn.daybook.annotations.DomainField;
 import su.svn.daybook.domain.model.KeyValueTable;

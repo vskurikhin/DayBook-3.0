@@ -22,7 +22,7 @@ import java.util.UUID;
 public class UserViewDao extends AbstractViewDao<UUID, UserView> {
 
     UserViewDao() {
-        super(r -> r.getUUID(UserView.ID), UserView::from);
+        super(UserView.ID, r -> r.getUUID(UserView.ID), UserView::from);
     }
 
     @Logged

@@ -22,7 +22,7 @@ import java.util.UUID;
 public class @Name@Dao extends AbstractDao<@IdType@, @Name@Table> {
 
     @Name@Dao() {
-        super(r -> r.get@IdType@(@Name@Table.ID), @Name@Table::from);
+        super(@Name@Table.ID, r -> r.get@IdType@(@Name@Table.ID), @Name@Table::from);
     }
 
     @Logged
@@ -32,13 +32,13 @@ public class @Name@Dao extends AbstractDao<@IdType@, @Name@Table> {
     }
 
     @Logged
-    @SQL(@Name@Table.DELETE_FROM_@SCHEMA@_@TABLE@_WHERE_ID_$1)
+    @SQL(@Name@Table.DELETE_FROM_@SCHEMA@_@TABLE@_WHERE_ID_$1_RETURNING_S)
     public Uni<Optional<@IdType@>> delete(@IdType@ id) {
         return super.deleteSQL(id).map(Optional::ofNullable);
     }
 
     @Logged
-    @SQL(@Name@Table.SELECT_ALL_FROM_@SCHEMA@_@TABLE@_ORDER_BY_ID_ASC)
+    @SQL(@Name@Table.SELECT_ALL_FROM_@SCHEMA@_@TABLE@_ORDER_BY_S)
     public Multi<@Name@Table> findAll() {
         return super.findAllSQL();
     }
@@ -50,7 +50,19 @@ public class @Name@Dao extends AbstractDao<@IdType@, @Name@Table> {
     }
 
     @Logged
-    @SQL(@Name@Table.SELECT_ALL_FROM_@SCHEMA@_@TABLE@_ORDER_BY_ID_ASC_OFFSET_LIMIT)
+    @SQL(@Name@Table.SELECT_FROM_@SCHEMA@_@TABLE@_WHERE_KEY_$1)
+    public Uni<Optional<@Name@Table>> findBy@Key@(@KType@ @key@) {
+        return super.findBy@Key@SQL(@key@).map(Optional::ofNullable);
+    }
+
+    @Logged
+    @SQL(@Name@Table.SELECT_FROM_@SCHEMA@_@TABLE@_WHERE_VALUE_$1)
+    public Multi<@Name@Table> findBy@Value@(@VType@ @value@) {
+        return super.findBy@Value@SQL(@value@);
+    }
+
+    @Logged
+    @SQL(@Name@Table.SELECT_ALL_FROM_@SCHEMA@_@TABLE@_ORDER_BY_S_OFFSET_$1_LIMIT_$2)
     public Multi<@Name@Table> findRange(long offset, long limit) {
         return super.findRangeSQL(offset, limit);
     }
@@ -62,8 +74,20 @@ public class @Name@Dao extends AbstractDao<@IdType@, @Name@Table> {
     }
 
     @Logged
-    @SQL(@Name@Table.UPDATE_@SCHEMA@_@TABLE@_WHERE_ID_$1)
+    @SQL
+    public Uni<Optional<@Name@Table>> insertEntry(@Name@Table entry) {
+        return super.insertSQLEntry(entry).map(Optional::ofNullable);
+    }
+
+    @Logged
+    @SQL(@Name@Table.UPDATE_@SCHEMA@_@TABLE@_WHERE_ID_$1_RETURNING_S)
     public Uni<Optional<@IdType@>> update(@Name@Table entry) {
         return super.updateSQL(entry).map(Optional::ofNullable);
+    }
+
+    @Logged
+    @SQL(@Name@Table.UPDATE_@SCHEMA@_@TABLE@_WHERE_ID_$1_RETURNING_S)
+    public Uni<Optional<@Name@Table>> updateEntry(@Name@Table entry) {
+        return super.updateSQLEntry(entry).map(Optional::ofNullable);
     }
 }

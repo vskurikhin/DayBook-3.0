@@ -10,11 +10,13 @@ package su.svn.daybook.domain.dao;
 
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
+import io.vertx.core.json.JsonObject;
 import su.svn.daybook.annotations.Logged;
 import su.svn.daybook.annotations.SQL;
 import su.svn.daybook.domain.model.KeyValueTable;
 
 import javax.enterprise.context.ApplicationScoped;
+import java.math.BigInteger;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -22,7 +24,7 @@ import java.util.UUID;
 public class KeyValueDao extends AbstractDao<UUID, KeyValueTable> {
 
     KeyValueDao() {
-        super(r -> r.getUUID(KeyValueTable.ID), KeyValueTable::from);
+        super(KeyValueTable.ID, r -> r.getUUID(KeyValueTable.ID), KeyValueTable::from);
     }
 
     @Logged
@@ -32,13 +34,13 @@ public class KeyValueDao extends AbstractDao<UUID, KeyValueTable> {
     }
 
     @Logged
-    @SQL(KeyValueTable.DELETE_FROM_DICTIONARY_KEY_VALUE_WHERE_ID_$1)
+    @SQL(KeyValueTable.DELETE_FROM_DICTIONARY_KEY_VALUE_WHERE_ID_$1_RETURNING_S)
     public Uni<Optional<UUID>> delete(UUID id) {
         return super.deleteSQL(id).map(Optional::ofNullable);
     }
 
     @Logged
-    @SQL(KeyValueTable.SELECT_ALL_FROM_DICTIONARY_KEY_VALUE_ORDER_BY_ID_ASC)
+    @SQL(KeyValueTable.SELECT_ALL_FROM_DICTIONARY_KEY_VALUE_ORDER_BY_S)
     public Multi<KeyValueTable> findAll() {
         return super.findAllSQL();
     }
@@ -50,7 +52,19 @@ public class KeyValueDao extends AbstractDao<UUID, KeyValueTable> {
     }
 
     @Logged
-    @SQL(KeyValueTable.SELECT_ALL_FROM_DICTIONARY_KEY_VALUE_ORDER_BY_ID_ASC_OFFSET_LIMIT)
+    @SQL(KeyValueTable.SELECT_FROM_DICTIONARY_KEY_VALUE_WHERE_KEY_$1)
+    public Uni<Optional<KeyValueTable>> findByKey(BigInteger key) {
+        return super.findByKeySQL(key).map(Optional::ofNullable);
+    }
+
+    @Logged
+    @SQL(KeyValueTable.SELECT_FROM_DICTIONARY_KEY_VALUE_WHERE_VALUE_$1)
+    public Multi<KeyValueTable> findByValue(JsonObject value) {
+        return super.findByValueSQL(value);
+    }
+
+    @Logged
+    @SQL(KeyValueTable.SELECT_ALL_FROM_DICTIONARY_KEY_VALUE_ORDER_BY_S_OFFSET_$1_LIMIT_$2)
     public Multi<KeyValueTable> findRange(long offset, long limit) {
         return super.findRangeSQL(offset, limit);
     }
@@ -62,8 +76,20 @@ public class KeyValueDao extends AbstractDao<UUID, KeyValueTable> {
     }
 
     @Logged
-    @SQL(KeyValueTable.UPDATE_DICTIONARY_KEY_VALUE_WHERE_ID_$1)
+    @SQL
+    public Uni<Optional<KeyValueTable>> insertEntry(KeyValueTable entry) {
+        return super.insertSQLEntry(entry).map(Optional::ofNullable);
+    }
+
+    @Logged
+    @SQL(KeyValueTable.UPDATE_DICTIONARY_KEY_VALUE_WHERE_ID_$1_RETURNING_S)
     public Uni<Optional<UUID>> update(KeyValueTable entry) {
         return super.updateSQL(entry).map(Optional::ofNullable);
+    }
+
+    @Logged
+    @SQL(KeyValueTable.UPDATE_DICTIONARY_KEY_VALUE_WHERE_ID_$1_RETURNING_S)
+    public Uni<Optional<KeyValueTable>> updateEntry(KeyValueTable entry) {
+        return super.updateSQLEntry(entry).map(Optional::ofNullable);
     }
 }

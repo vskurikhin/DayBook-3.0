@@ -42,40 +42,40 @@ public record @Name@Table(
     @Language("SQL")
     public static final String COUNT_@SCHEMA@_@TABLE@ = "SELECT count(*) FROM @schema@.@table@";
     @Language("SQL")
-    public static final String INSERT_INTO_@SCHEMA@_@TABLE@ = """
+    public static final String INSERT_INTO_@SCHEMA@_@TABLE@_RETURNING_S = """
             INSERT INTO @schema@.@table@
              (id, @key@, @value@, user_name, enabled, visible, flags)
              VALUES
              ($1, $2, $3, $4, $5, $6, $7)
-             RETURNING id
+             RETURNING %s
             """;
     @Language("SQL")
-    public static final String INSERT_INTO_@SCHEMA@_@TABLE@_DEFAULT_ID = """
+    public static final String INSERT_INTO_@SCHEMA@_@TABLE@_DEFAULT_ID_RETURNING_S = """
             INSERT INTO @schema@.@table@
              (id, @key@, @value@, user_name, enabled, visible, flags)
              VALUES
              (DEFAULT, $1, $2, $3, $4, $5, $6)
-             RETURNING id
+             RETURNING %s
             """;
     @Language("SQL")
-    public static final String DELETE_FROM_@SCHEMA@_@TABLE@_WHERE_ID_$1 = """
+    public static final String DELETE_FROM_@SCHEMA@_@TABLE@_WHERE_ID_$1_RETURNING_S = """
             DELETE FROM @schema@.@table@
              WHERE id = $1
-             RETURNING id
+             RETURNING %s
             """;
     @Language("SQL")
-    public static final String SELECT_ALL_FROM_@SCHEMA@_@TABLE@_ORDER_BY_ID_ASC = """
+    public static final String SELECT_ALL_FROM_@SCHEMA@_@TABLE@_ORDER_BY_S = """
             SELECT id, @key@, @value@, user_name, create_time, update_time, enabled, visible, flags
               FROM @schema@.@table@
              WHERE enabled
-             ORDER BY id ASC
+             ORDER BY %s
             """;
     @Language("SQL")
-    public static final String SELECT_ALL_FROM_@SCHEMA@_@TABLE@_ORDER_BY_ID_ASC_OFFSET_LIMIT = """
+    public static final String SELECT_ALL_FROM_@SCHEMA@_@TABLE@_ORDER_BY_S_OFFSET_$1_LIMIT_$2 = """
             SELECT id, @key@, @value@, user_name, create_time, update_time, enabled, visible, flags
               FROM @schema@.@table@
              WHERE enabled
-             ORDER BY id ASC OFFSET $1 LIMIT $2
+             ORDER BY %s OFFSET $1 LIMIT $2
             """;
     @Language("SQL")
     public static final String SELECT_FROM_@SCHEMA@_@TABLE@_WHERE_ID_$1 = """
@@ -84,7 +84,19 @@ public record @Name@Table(
              WHERE id = $1 AND enabled
             """;
     @Language("SQL")
-    public static final String UPDATE_@SCHEMA@_@TABLE@_WHERE_ID_$1 = """
+    public static final String SELECT_FROM_@SCHEMA@_@TABLE@_WHERE_KEY_$1 = """
+            SELECT id, @key@, @value@, user_name, create_time, update_time, enabled, visible, flags
+              FROM @schema@.@table@
+             WHERE @key@ = $1 AND enabled
+            """;
+    @Language("SQL")
+    public static final String SELECT_FROM_@SCHEMA@_@TABLE@_WHERE_VALUE_$1 = """
+            SELECT id, @key@, @value@, user_name, create_time, update_time, enabled, visible, flags
+              FROM @schema@.@table@
+             WHERE @value@ = $1 AND enabled
+            """;
+    @Language("SQL")
+    public static final String UPDATE_@SCHEMA@_@TABLE@_WHERE_ID_$1_RETURNING_S = """
             UPDATE @schema@.@table@ SET
               @key@ = $2,
               @value@ = $3,
@@ -93,7 +105,7 @@ public record @Name@Table(
               visible = $6,
               flags = $7
              WHERE id = $1
-             RETURNING id
+             RETURNING %s
             """;
 
     public static Builder builder() {
@@ -116,7 +128,7 @@ public record @Name@Table(
 
     @Override
     public String caseInsertSql() {
-        return id != null ? INSERT_INTO_@SCHEMA@_@TABLE@ : INSERT_INTO_@SCHEMA@_@TABLE@_DEFAULT_ID;
+        return id != null ? INSERT_INTO_@SCHEMA@_@TABLE@_RETURNING_S : INSERT_INTO_@SCHEMA@_@TABLE@_DEFAULT_ID_RETURNING_S;
     }
 
     @Override

@@ -23,8 +23,8 @@ abstract class AbstractDao<I extends Comparable<? extends Serializable>, D exten
     public static final String INSERT = "insert";
     public static final String UPDATE = "update";
 
-    AbstractDao(@Nonnull Function<Row, I> idFunction, @Nonnull Function<Row, D> fromFunction) {
-        super(idFunction, fromFunction);
+    AbstractDao(String id,@Nonnull Function<Row, I> idFunction, @Nonnull Function<Row, D> fromFunction) {
+        super(id, idFunction, fromFunction);
     }
 
     protected Uni<I> deleteSQL(I id) {
@@ -44,10 +44,27 @@ abstract class AbstractDao<I extends Comparable<? extends Serializable>, D exten
         return Uni.createFrom().nullItem();
     }
 
+    protected Uni<D> insertSQLEntry(D entry) {
+        var s = sqlMap.get(INSERT);
+        var sql = (s != null && !"".equals(s)) ? s : entry.caseInsertSql();
+        if (sql != null) {
+            return executeByTupleReturnEntry(entry.caseInsertTuple(), sql);
+        }
+        return Uni.createFrom().nullItem();
+    }
+
     protected Uni<I> updateSQL(D entry) {
         var sql = sqlMap.get(UPDATE);
         if (sql != null && !"".equals(sql)) {
             return executeByTupleReturnId(entry.updateTuple(), sql);
+        }
+        return Uni.createFrom().nullItem();
+    }
+
+    protected Uni<D> updateSQLEntry(D entry) {
+        var sql = sqlMap.get(UPDATE);
+        if (sql != null && !"".equals(sql)) {
+            return executeByTupleReturnEntry(entry.updateTuple(), sql);
         }
         return Uni.createFrom().nullItem();
     }

@@ -22,7 +22,7 @@ import java.util.UUID;
 public class UserNameDao extends AbstractDao<UUID, UserNameTable> {
 
     UserNameDao() {
-        super(r -> r.getUUID(UserNameTable.ID), UserNameTable::from);
+        super(UserNameTable.ID, r -> r.getUUID(UserNameTable.ID), UserNameTable::from);
     }
 
     @Logged

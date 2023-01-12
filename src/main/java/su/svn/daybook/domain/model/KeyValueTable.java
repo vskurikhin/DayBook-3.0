@@ -44,40 +44,40 @@ public record KeyValueTable(
     @Language("SQL")
     public static final String COUNT_DICTIONARY_KEY_VALUE = "SELECT count(*) FROM dictionary.key_value";
     @Language("SQL")
-    public static final String INSERT_INTO_DICTIONARY_KEY_VALUE = """
+    public static final String INSERT_INTO_DICTIONARY_KEY_VALUE_RETURNING_S = """
             INSERT INTO dictionary.key_value
              (id, key, value, user_name, enabled, visible, flags)
              VALUES
              ($1, $2, $3, $4, $5, $6, $7)
-             RETURNING id
+             RETURNING %s
             """;
     @Language("SQL")
-    public static final String INSERT_INTO_DICTIONARY_KEY_VALUE_DEFAULT_ID = """
+    public static final String INSERT_INTO_DICTIONARY_KEY_VALUE_DEFAULT_ID_RETURNING_S = """
             INSERT INTO dictionary.key_value
              (id, key, value, user_name, enabled, visible, flags)
              VALUES
              (DEFAULT, $1, $2, $3, $4, $5, $6)
-             RETURNING id
+             RETURNING %s
             """;
     @Language("SQL")
-    public static final String DELETE_FROM_DICTIONARY_KEY_VALUE_WHERE_ID_$1 = """
+    public static final String DELETE_FROM_DICTIONARY_KEY_VALUE_WHERE_ID_$1_RETURNING_S = """
             DELETE FROM dictionary.key_value
              WHERE id = $1
-             RETURNING id
+             RETURNING %s
             """;
     @Language("SQL")
-    public static final String SELECT_ALL_FROM_DICTIONARY_KEY_VALUE_ORDER_BY_ID_ASC = """
+    public static final String SELECT_ALL_FROM_DICTIONARY_KEY_VALUE_ORDER_BY_S = """
             SELECT id, key, value, user_name, create_time, update_time, enabled, visible, flags
               FROM dictionary.key_value
              WHERE enabled
-             ORDER BY id ASC
+             ORDER BY %s
             """;
     @Language("SQL")
-    public static final String SELECT_ALL_FROM_DICTIONARY_KEY_VALUE_ORDER_BY_ID_ASC_OFFSET_LIMIT = """
+    public static final String SELECT_ALL_FROM_DICTIONARY_KEY_VALUE_ORDER_BY_S_OFFSET_$1_LIMIT_$2 = """
             SELECT id, key, value, user_name, create_time, update_time, enabled, visible, flags
               FROM dictionary.key_value
              WHERE enabled
-             ORDER BY id ASC OFFSET $1 LIMIT $2
+             ORDER BY %s OFFSET $1 LIMIT $2
             """;
     @Language("SQL")
     public static final String SELECT_FROM_DICTIONARY_KEY_VALUE_WHERE_ID_$1 = """
@@ -86,7 +86,19 @@ public record KeyValueTable(
              WHERE id = $1 AND enabled
             """;
     @Language("SQL")
-    public static final String UPDATE_DICTIONARY_KEY_VALUE_WHERE_ID_$1 = """
+    public static final String SELECT_FROM_DICTIONARY_KEY_VALUE_WHERE_KEY_$1 = """
+            SELECT id, key, value, user_name, create_time, update_time, enabled, visible, flags
+              FROM dictionary.key_value
+             WHERE key = $1 AND enabled
+            """;
+    @Language("SQL")
+    public static final String SELECT_FROM_DICTIONARY_KEY_VALUE_WHERE_VALUE_$1 = """
+            SELECT id, key, value, user_name, create_time, update_time, enabled, visible, flags
+              FROM dictionary.key_value
+             WHERE value = $1 AND enabled
+            """;
+    @Language("SQL")
+    public static final String UPDATE_DICTIONARY_KEY_VALUE_WHERE_ID_$1_RETURNING_S = """
             UPDATE dictionary.key_value SET
               key = $2,
               value = $3,
@@ -95,7 +107,7 @@ public record KeyValueTable(
               visible = $6,
               flags = $7
              WHERE id = $1
-             RETURNING id
+             RETURNING %s
             """;
 
     public static Builder builder() {
@@ -118,7 +130,7 @@ public record KeyValueTable(
 
     @Override
     public String caseInsertSql() {
-        return id != null ? INSERT_INTO_DICTIONARY_KEY_VALUE : INSERT_INTO_DICTIONARY_KEY_VALUE_DEFAULT_ID;
+        return id != null ? INSERT_INTO_DICTIONARY_KEY_VALUE_RETURNING_S : INSERT_INTO_DICTIONARY_KEY_VALUE_DEFAULT_ID_RETURNING_S;
     }
 
     @Override

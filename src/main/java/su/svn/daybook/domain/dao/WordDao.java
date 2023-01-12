@@ -21,7 +21,7 @@ import java.util.Optional;
 public class WordDao extends AbstractDao<String, WordTable> {
 
     WordDao() {
-        super(r -> r.getString(WordTable.ID), WordTable::from);
+        super(WordTable.ID, r -> r.getString(WordTable.ID), WordTable::from);
     }
 
     @Logged

@@ -28,11 +28,16 @@ import java.util.stream.Collectors;
 
 abstract class AbstractViewDao<I extends Comparable<? extends Serializable>, D extends Identification<I>> {
 
+    public static final String ASC = " ASC";
+    public static final String ASTERISK = "*";
     public static final String COUNT = "count";
     public static final String FIND_ALL = "findAll";
     public static final String FIND_BY_ID = "findById";
     public static final String FIND_BY_KEY = "findByKey";
+    public static final String FIND_BY_VALUE = "findByValue";
     public static final String FIND_RANGE = "findRange";
+
+    private final String id;
 
     private final Function<Row, I> idFunction;
 
@@ -43,7 +48,8 @@ abstract class AbstractViewDao<I extends Comparable<? extends Serializable>, D e
     @Inject
     io.vertx.mutiny.pgclient.PgPool client;
 
-    AbstractViewDao(@Nonnull Function<Row, I> idFunction, @Nonnull Function<Row, D> fromFunction) {
+    AbstractViewDao(String id, @Nonnull Function<Row, I> idFunction, @Nonnull Function<Row, D> fromFunction) {
+        this.id = id;
         this.idFunction = idFunction;
         this.fromFunction = fromFunction;
         this.sqlMap = Collections.unmodifiableMap(getSQLMethod());
@@ -76,8 +82,9 @@ abstract class AbstractViewDao<I extends Comparable<? extends Serializable>, D e
     protected Multi<D> findAllSQL() {
         var sql = sqlMap.get(FIND_ALL);
         if (sql != null && !"".equals(sql)) {
+            var order = new StringBuilder(this.id).append(ASC);
             return client
-                    .query(sql)
+                    .query(String.format(sql, order))
                     .execute()
                     .onItem()
                     .transformToMulti(set -> Multi.createFrom().iterable(set))
@@ -102,11 +109,26 @@ abstract class AbstractViewDao<I extends Comparable<? extends Serializable>, D e
         return Uni.createFrom().nullItem();
     }
 
+    protected <T> Multi<D> findByValueSQL(T value) {
+        var sql = sqlMap.get(FIND_BY_VALUE);
+        if (sql != null && !"".equals(sql)) {
+            var order = new StringBuilder(this.id).append(ASC);
+            return client
+                    .preparedQuery(String.format(sql, order))
+                    .execute(Tuple.of(value))
+                    .onItem()
+                    .transformToMulti(set -> Multi.createFrom().iterable(set))
+                    .map(fromFunction);
+        }
+        return Multi.createFrom().empty();
+    }
+
     protected Multi<D> findRangeSQL(long offset, long limit) {
         var sql = sqlMap.get(FIND_RANGE);
         if (sql != null && !"".equals(sql)) {
+            var order = new StringBuilder(this.id).append(ASC);
             return client
-                    .preparedQuery(sql)
+                    .preparedQuery(String.format(sql, order))
                     .execute(Tuple.of(offset, limit))
                     .onItem()
                     .transformToMulti(set -> Multi.createFrom().iterable(set))
@@ -117,7 +139,7 @@ abstract class AbstractViewDao<I extends Comparable<? extends Serializable>, D e
 
     Uni<D> executeByIdReturnEntry(I id, @Nonnull String sql) {
         return client
-                .preparedQuery(sql)
+                .preparedQuery(String.format(sql, ASTERISK))
                 .execute(Tuple.of(id))
                 .map(RowSet::iterator)
                 .map(iterator -> iterator.hasNext() ? fromFunction.apply(iterator.next()) : null);
@@ -126,7 +148,7 @@ abstract class AbstractViewDao<I extends Comparable<? extends Serializable>, D e
     <T extends Comparable<? extends Serializable>>
     Uni<D> executeByKeyReturnEntry(T key, @Nonnull String sql) {
         return client
-                .preparedQuery(sql)
+                .preparedQuery(String.format(sql, ASTERISK))
                 .execute(Tuple.of(key))
                 .map(RowSet::iterator)
                 .map(iterator -> iterator.hasNext() ? fromFunction.apply(iterator.next()) : null);
@@ -134,7 +156,7 @@ abstract class AbstractViewDao<I extends Comparable<? extends Serializable>, D e
 
     Uni<I> executeByIdReturnId(I id, @Nonnull String sql) {
         return client
-                .preparedQuery(sql)
+                .preparedQuery(String.format(sql, this.id))
                 .execute(Tuple.of(id))
                 .map(RowSet::iterator)
                 .map(iterator -> iterator.hasNext() ? idFunction.apply(iterator.next()) : null);
@@ -142,9 +164,17 @@ abstract class AbstractViewDao<I extends Comparable<? extends Serializable>, D e
 
     Uni<I> executeByTupleReturnId(Tuple tuple, @Nonnull String sql) {
         return client.withTransaction(
-                connection -> connection.preparedQuery(sql)
+                connection -> connection.preparedQuery(String.format(sql, this.id))
                         .execute(tuple)
                         .map(RowSet::iterator)
                         .map(iterator -> iterator.hasNext() ? idFunction.apply(iterator.next()) : null));
+    }
+
+    Uni<D> executeByTupleReturnEntry(Tuple tuple, @Nonnull String sql) {
+        return client.withTransaction(
+                connection -> connection.preparedQuery(String.format(sql, ASTERISK))
+                        .execute(tuple)
+                        .map(RowSet::iterator)
+                        .map(iterator -> iterator.hasNext() ? fromFunction.apply(iterator.next()) : null));
     }
 }

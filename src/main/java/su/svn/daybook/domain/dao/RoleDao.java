@@ -26,7 +26,7 @@ public class RoleDao extends AbstractDao<UUID, RoleTable> {
     io.vertx.mutiny.pgclient.PgPool client;
 
     RoleDao() {
-        super(r -> r.getUUID(RoleTable.ID), RoleTable::from);
+        super(RoleTable.ID, r -> r.getUUID(RoleTable.ID), RoleTable::from);
     }
 
     @Logged
