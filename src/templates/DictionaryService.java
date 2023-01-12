@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.01.07 11:52 by Victor N. Skurikhin.
+ * This file was last modified at 2023.01.09 21:44 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * @Name@Service.java
@@ -11,9 +11,11 @@ package su.svn.daybook.services.models;
 import io.quarkus.vertx.ConsumeEvent;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
-import org.jboss.logging.Logger;
+import su.svn.daybook.annotations.Logged;
+import su.svn.daybook.annotations.Principled;
 import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.messages.Answer;
+import su.svn.daybook.domain.messages.Request;
 import su.svn.daybook.models.domain.@Name@;
 import su.svn.daybook.models.pagination.Page;
 import su.svn.daybook.models.pagination.PageRequest;
@@ -26,9 +28,8 @@ import javax.inject.Inject;
 import java.util.UUID;
 
 @ApplicationScoped
+@Logged
 public class @Name@Service extends AbstractService<@IdType@, @Name@> {
-
-    private static final Logger LOG = Logger.getLogger(@Name@Service.class);
 
     @Inject
     ExceptionAnswerService exceptionAnswerService;
@@ -42,15 +43,15 @@ public class @Name@Service extends AbstractService<@IdType@, @Name@> {
     /**
      * This is method a Vertx message consumer and @Name@ creater
      *
-     * @param o - @Name@
+     * @param request - @Name@
      * @return - a lazy asynchronous action (LAA) with the Answer containing the @Name@ id as payload or empty payload
      */
+    @Principled
     @ConsumeEvent(EventAddress.@TABLE@_ADD)
-    public Uni<Answer> add(@Name@ o) {
+    public Uni<Answer> add(Request<@Name@> request) {
         //noinspection DuplicatedCode
-        LOG.tracef("add(%s)", o);
         return @name@DataService
-                .add(o)
+                .add(request.payload())
                 .map(this::apiResponseCreatedAnswer)
                 .flatMap(@name@CacheProvider::invalidate)
                 .onFailure(exceptionAnswerService::testDuplicateException)
@@ -62,17 +63,17 @@ public class @Name@Service extends AbstractService<@IdType@, @Name@> {
     /**
      * This is method a Vertx message consumer and @Name@ deleter
      *
-     * @param id - id of the @Name@
+     * @param request - id of the @Name@
      * @return - a LAA with the Answer containing @Name@ id as payload or empty payload
      */
+    @Principled
     @ConsumeEvent(EventAddress.@TABLE@_DEL)
-    public Uni<Answer> delete(@IdType@ id) {
+    public Uni<Answer> delete(Request<@IdType@> request) {
         //noinspection DuplicatedCode
-        LOG.tracef("delete(%s)", id);
         return @name@DataService
-                .delete(id)
+                .delete(request.payload())
                 .map(this::apiResponseOkAnswer)
-                .flatMap(answer -> @name@CacheProvider.invalidateById(id, answer))
+                .flatMap(answer -> @name@CacheProvider.invalidateById(request.payload(), answer))
                 .onFailure(exceptionAnswerService::testNoSuchElementException)
                 .recoverWithUni(exceptionAnswerService::noSuchElementAnswer)
                 .onFailure(exceptionAnswerService::testException)
@@ -82,15 +83,15 @@ public class @Name@Service extends AbstractService<@IdType@, @Name@> {
     /**
      * This is method a Vertx message consumer and @Name@ provider by id
      *
-     * @param id - id of the @Name@
+     * @param request - id of the @Name@
      * @return - a lazy asynchronous action with the Answer containing the @Name@ as payload or empty payload
      */
+    @Principled
     @ConsumeEvent(EventAddress.@TABLE@_GET)
-    public Uni<Answer> get(@IdType@ id) {
+    public Uni<Answer> get(Request<@IdType@> request) {
         //noinspection DuplicatedCode
-        LOG.tracef("get(%s)", id);
         return @name@CacheProvider
-                .get(id)
+                .get(request.payload())
                 .map(Answer::of)
                 .onFailure(exceptionAnswerService::testNoSuchElementException)
                 .recoverWithUni(exceptionAnswerService::noSuchElementAnswer)
@@ -105,33 +106,32 @@ public class @Name@Service extends AbstractService<@IdType@, @Name@> {
      */
     public Multi<Answer> getAll() {
         //noinspection DuplicatedCode
-        LOG.trace("getAll()");
         return @name@DataService
                 .getAll()
                 .map(Answer::of);
     }
 
+    @Principled
     @ConsumeEvent(EventAddress.@TABLE@_PAGE)
-    public Uni<Page<Answer>> getPage(PageRequest pageRequest) {
+    public Uni<Page<Answer>> getPage(Request<PageRequest> request) {
         //noinspection DuplicatedCode
-        LOG.tracef("getPage(%s)", pageRequest);
-        return @name@CacheProvider.getPage(pageRequest);
+        return @name@CacheProvider.getPage(request.payload());
     }
 
     /**
      * This is method a Vertx message consumer and @Name@ updater
      *
-     * @param o - @Name@
+     * @param request - @Name@
      * @return - a LAA with the Answer containing @Name@ id as payload or empty payload
      */
+    @Principled
     @ConsumeEvent(EventAddress.@TABLE@_PUT)
-    public Uni<Answer> put(@Name@ o) {
+    public Uni<Answer> put(Request<@Name@> request) {
         //noinspection DuplicatedCode
-        LOG.tracef("put(%s)", o);
         return @name@DataService
-                .put(o)
+                .put(request.payload())
                 .map(this::apiResponseAcceptedAnswer)
-                .flatMap(answer -> @name@CacheProvider.invalidateById(o.getId(), answer))
+                .flatMap(answer -> @name@CacheProvider.invalidateById(request.payload().id(), answer))
                 .onFailure(exceptionAnswerService::testDuplicateException)
                 .recoverWithUni(exceptionAnswerService::notAcceptableDuplicateAnswer)
                 .onFailure(exceptionAnswerService::testIllegalArgumentException)

@@ -68,6 +68,16 @@ public final class Role implements UUIDIdentification, Serializable {
         return new Builder();
     }
 
+    public Role.Builder toBuilder() {
+        return Role
+                .builder()
+                .id(this.id)
+                .role(this.role)
+                .description(this.description)
+                .visible(this.visible)
+                .flags(this.flags);
+    }
+
     public UUID id() {
         return id;
     }
@@ -86,16 +96,6 @@ public final class Role implements UUIDIdentification, Serializable {
 
     public int flags() {
         return flags;
-    }
-
-    public Role.Builder toBuilder() {
-        return Role
-                .builder()
-                .id(this.id)
-                .role(this.role)
-                .description(this.description)
-                .visible(this.visible)
-                .flags(this.flags);
     }
 
     @Override

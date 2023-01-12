@@ -93,8 +93,8 @@ public record WordTable(
         );
     }
 
-    public static WordTable.Builder builder() {
-        return new WordTable.Builder();
+    public static Builder builder() {
+        return new Builder();
     }
 
     public String id() {

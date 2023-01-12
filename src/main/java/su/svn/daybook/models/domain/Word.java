@@ -61,7 +61,7 @@ public final class Word implements StringIdentification, Serializable {
         return builder()
                 .word(this.word)
                 .visible(this.visible)
-                .flags(0);
+                .flags(this.flags);
     }
 
     @JsonIgnore

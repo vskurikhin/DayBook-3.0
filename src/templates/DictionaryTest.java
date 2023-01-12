@@ -18,12 +18,11 @@ class @Name@Test {
     @Test
     void testGetters() {
         var entry = new @Name@();
-        Assertions.assertDoesNotThrow(entry::getId);
-        Assertions.assertDoesNotThrow(entry::get@Key@);
-        Assertions.assertDoesNotThrow(entry::get@Value@);
-        Assertions.assertDoesNotThrow(entry::getVisible);
-        Assertions.assertDoesNotThrow(entry::isVisible);
-        Assertions.assertDoesNotThrow(entry::getFlags);
+        Assertions.assertDoesNotThrow(entry::id);
+        Assertions.assertDoesNotThrow(entry::@key@);
+        Assertions.assertDoesNotThrow(entry::@value@);
+        Assertions.assertDoesNotThrow(entry::visible);
+        Assertions.assertDoesNotThrow(entry::flags);
     }
 
     @Test
@@ -33,6 +32,14 @@ class @Name@Test {
                 .withIgnoredFields("hash", "hashIsZero")
                 .suppress(Warning.NO_EXAMPLE_FOR_CACHED_HASHCODE)
                 .verify();
+    }
+
+    @Test
+    void testHashCode() {
+        var test0 = new @Name@(null, @KType@.ZERO, null, true, -28667312);
+        Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(0, test0.hashCode()));
+        var test1 = new @Name@(null, @KType@.ZERO, null, true, 0);
+        Assertions.assertDoesNotThrow(() -> Assertions.assertNotEquals(0, test1.hashCode()));
     }
 
     @Test
@@ -50,5 +57,13 @@ class @Name@Test {
                 .visible(true)
                 .flags(0)
                 .build()));
+    }
+
+
+    @Test
+    void testToBuilder() {
+        var test = new @Name@();
+        var expected = new @Name@();
+        Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(expected, test.toBuilder().build()));
     }
 }

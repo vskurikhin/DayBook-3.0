@@ -75,7 +75,7 @@ public final class KeyValue implements UUIDIdentification, Serializable {
                 .key(this.key)
                 .value(this.value)
                 .visible(this.visible)
-                .flags(0);
+                .flags(this.flags);
     }
 
     public UUID id() {

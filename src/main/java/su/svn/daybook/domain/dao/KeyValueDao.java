@@ -13,7 +13,6 @@ import io.smallrye.mutiny.Uni;
 import su.svn.daybook.annotations.Logged;
 import su.svn.daybook.annotations.SQL;
 import su.svn.daybook.domain.model.KeyValueTable;
-import su.svn.daybook.domain.model.WordTable;
 
 import javax.enterprise.context.ApplicationScoped;
 import java.util.Optional;

@@ -84,7 +84,7 @@ public final class Session implements UUIDIdentification, Serializable {
                 .roles(this.roles)
                 .validTime(this.validTime)
                 .visible(this.visible)
-                .flags(0);
+                .flags(this.flags);
     }
 
     public UUID id() {
