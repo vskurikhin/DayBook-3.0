@@ -76,7 +76,7 @@ public class SessionService extends AbstractService<UUID, Session> {
         return sessionDataService
                 .delete(request.payload())
                 .map(this::apiResponseOkAnswer)
-                .flatMap(answer -> sessionCacheProvider.invalidateById(request.payload(), answer))
+                .flatMap(answer -> sessionCacheProvider.invalidateByKey(request.payload(), answer))
                 .onFailure(exceptionAnswerService::testNoSuchElementException)
                 .recoverWithUni(exceptionAnswerService::noSuchElementAnswer)
                 .onFailure(exceptionAnswerService::testException)
@@ -134,7 +134,7 @@ public class SessionService extends AbstractService<UUID, Session> {
         return sessionDataService
                 .put(request.payload())
                 .map(this::apiResponseAcceptedAnswer)
-                .flatMap(answer -> sessionCacheProvider.invalidateById(request.payload().id(), answer))
+                .flatMap(answer -> sessionCacheProvider.invalidateByKey(request.payload().id(), answer))
                 .onFailure(exceptionAnswerService::testDuplicateException)
                 .recoverWithUni(exceptionAnswerService::notAcceptableDuplicateAnswer)
                 .onFailure(exceptionAnswerService::testIllegalArgumentException)

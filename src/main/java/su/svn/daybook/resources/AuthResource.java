@@ -30,7 +30,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
-@Path(ResourcePath.AUTH) @Logged
+@Path(ResourcePath.AUTH)
+@Logged
 public class AuthResource extends AbstractResource {
 
     @PermitAll
@@ -43,14 +44,13 @@ public class AuthResource extends AbstractResource {
                     schema = @Schema(implementation = AuthRequest.class),
                     examples = @ExampleObject(
                             name = "default", value = """
-                                    {
-                                      "username": "root",
-                                      "password": "password"
-                                    }
-                                    """
+                            {
+                              "username": "root",
+                              "password": "password"
+                            }
+                            """
                     ))
     })
-
     public Uni<Response> login(AuthRequest authRequest, @Context UriInfo uriInfo) {
         return request(EventAddress.LOGIN_REQUEST, authRequest, uriInfo);
     }

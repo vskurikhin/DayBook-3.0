@@ -98,6 +98,7 @@ public enum EventAddress {
     public static final String SESSION_GET = "session_get";
     public static final String SESSION_PAGE= "session_page";
     public static final String SESSION_PUT = "session_put";
+    public static final String SESSION_NAME = "session_get";
 
     public static final String SETTING_ADD = "setting_add";
     public static final String SETTING_DEL = "setting_del";

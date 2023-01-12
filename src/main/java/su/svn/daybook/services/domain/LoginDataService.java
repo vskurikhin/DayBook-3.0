@@ -36,9 +36,16 @@ public class LoginDataService {
     AuthRequestContext authRequestContext;
 
     public Uni<UserView> findByUserName(String username) {
-        LOG.tracef("findByUserName(%s): requestId: %s", username, authRequestContext.getRequestId());
+        LOG.infof("findByUserName(%s): requestId: %s", username, authRequestContext.getRequestId());
         return userViewDao
                 .findByUserName(username)
+                .map(o -> o.orElseThrow(this::userAuthenticationFailedException));
+    }
+
+    public Uni<UserView> findByUserNameId(UUID id) {
+        LOG.tracef("findByUserNameId(%s): requestId: %s", id, authRequestContext.getRequestId());
+        return userViewDao
+                .findById(id)
                 .map(o -> o.orElseThrow(this::userAuthenticationFailedException));
     }
 

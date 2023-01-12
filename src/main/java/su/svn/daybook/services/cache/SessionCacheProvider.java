@@ -22,12 +22,13 @@ import su.svn.daybook.models.pagination.PageRequest;
 import su.svn.daybook.services.PageService;
 import su.svn.daybook.services.domain.SessionDataService;
 
+import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.util.UUID;
 
 @ApplicationScoped
-public class SessionCacheProvider extends AbstractCacheProvider<UUID> {
+public class SessionCacheProvider extends AbstractCacheProvider<UUID, Session> {
 
     private static final Logger LOG = Logger.getLogger(SessionCacheProvider.class);
 
@@ -42,6 +43,11 @@ public class SessionCacheProvider extends AbstractCacheProvider<UUID> {
 
     public SessionCacheProvider() {
         super(EventAddress.SESSION_GET, EventAddress.SESSION_PAGE, LOG);
+    }
+
+    @PostConstruct
+    public void setup() {
+        super.setup(UUID.class, Session.class);
     }
 
     @Logged
@@ -62,12 +68,12 @@ public class SessionCacheProvider extends AbstractCacheProvider<UUID> {
     }
 
     @Override
-    public Uni<Answer> invalidateById(UUID id, Answer answer) {
-        return invalidateCacheById(id).map(l -> answer);
+    public Uni<Answer> invalidateByKey(UUID id, Answer answer) {
+        return invalidateCacheByKey(id).map(l -> answer);
     }
 
-    @Override
-    protected CacheManager getCacheManager() {
-        return cacheManager;
+    @Logged
+    public Uni<Answer> invalidateByUserName(String userName, Answer answer) {
+        return super.invalidateByOther(userName, answer, Session::userName, Session::id);
     }
 }

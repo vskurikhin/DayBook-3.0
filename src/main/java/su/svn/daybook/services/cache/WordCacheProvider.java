@@ -9,7 +9,6 @@
 package su.svn.daybook.services.cache;
 
 import io.quarkus.cache.CacheKey;
-import io.quarkus.cache.CacheManager;
 import io.quarkus.cache.CacheResult;
 import io.smallrye.mutiny.Uni;
 import org.jboss.logging.Logger;
@@ -26,12 +25,9 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 @ApplicationScoped
-public class WordCacheProvider extends AbstractCacheProvider<String> {
+public class WordCacheProvider extends AbstractCacheProvider<String, Word> {
 
     private static final Logger LOG = Logger.getLogger(WordCacheProvider.class);
-
-    @Inject
-    CacheManager cacheManager;
 
     @Inject
     PageService pageService;
@@ -61,12 +57,7 @@ public class WordCacheProvider extends AbstractCacheProvider<String> {
     }
 
     @Override
-    public Uni<Answer> invalidateById(String id, Answer answer) {
-        return invalidateCacheById(id).map(l -> answer);
-    }
-
-    @Override
-    protected CacheManager getCacheManager() {
-        return cacheManager;
+    public Uni<Answer> invalidateByKey(String id, Answer answer) {
+        return invalidateCacheByKey(id).map(l -> answer);
     }
 }

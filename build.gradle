@@ -135,9 +135,15 @@ test {
 }
 
 task startOpenSSLGenRsa(type: Exec) {
-    workingDir = "src/main/resources"
-    executable "openssl"
-    args "genrsa",  "-out", "rsaPrivateKey.pem", "2048"
+    def file = new File("src/main/resources/rsaPrivateKey.pem")
+    if (!file.exists()) {
+        workingDir = "src/main/resources"
+        executable "openssl"
+        args "genrsa", "-out", "rsaPrivateKey.pem", "2048"
+    } else {
+        executable "echo"
+        args "Ok"
+    }
 }
 task startOpenSSLPubKey(type: Exec) {
     workingDir = "src/main/resources"

@@ -68,6 +68,12 @@ public record SessionTable(
              WHERE id = $1 AND enabled
             """;
     @Language("SQL")
+    public static final String SELECT_FROM_SECURITY_SESSION_WHERE_USER_NAME_$1 = """
+            SELECT id, user_name, roles, valid_time, create_time, update_time, enabled, visible, flags
+              FROM security.session
+             WHERE user_name = $1 AND enabled
+            """;
+    @Language("SQL")
     public static final String SELECT_ALL_FROM_SECURITY_SESSION_ORDER_BY_ID_ASC = """
             SELECT id, user_name, roles, valid_time, create_time, update_time, enabled, visible, flags
               FROM security.session

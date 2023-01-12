@@ -45,8 +45,12 @@ public class UserViewDao extends AbstractViewDao<UUID, UserView> {
 
     @Logged
     @SQL(UserView.SELECT_FROM_SECURITY_USER_VIEW_WHERE_USER_NAME_$1)
-    public Uni<Optional<UserView>> findByUserName(String username) {
+    public Uni<Optional<UserView>> findByKey(String username) {
         return super.findByKeySQL(username).map(Optional::ofNullable);
+    }
+
+    public Uni<Optional<UserView>> findByUserName(String username) {
+        return findByKey(username);
     }
 
     @Logged

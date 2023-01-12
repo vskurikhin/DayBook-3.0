@@ -73,7 +73,7 @@ public class WordService extends AbstractService<String, Word> {
         return wordDataService
                 .delete(request.payload())
                 .map(this::apiResponseOkAnswer)
-                .flatMap(answer -> wordCacheProvider.invalidateById(request.payload(), answer))
+                .flatMap(answer -> wordCacheProvider.invalidateByKey(request.payload(), answer))
                 .onFailure(exceptionAnswerService::testNoSuchElementException)
                 .recoverWithUni(exceptionAnswerService::noSuchElementAnswer)
                 .onFailure(exceptionAnswerService::testException)
@@ -129,7 +129,7 @@ public class WordService extends AbstractService<String, Word> {
         return wordDataService
                 .put(request.payload())
                 .map(this::apiResponseAcceptedAnswer)
-                .flatMap(answer -> wordCacheProvider.invalidateById(request.payload().id(), answer))
+                .flatMap(answer -> wordCacheProvider.invalidateByKey(request.payload().id(), answer))
                 .onFailure(exceptionAnswerService::testDuplicateException)
                 .recoverWithUni(exceptionAnswerService::notAcceptableDuplicateAnswer)
                 .onFailure(exceptionAnswerService::testIllegalArgumentException)

@@ -21,6 +21,7 @@ import su.svn.daybook.models.domain.User;
 import su.svn.daybook.models.pagination.Page;
 import su.svn.daybook.models.pagination.PageRequest;
 import su.svn.daybook.services.ExceptionAnswerService;
+import su.svn.daybook.services.cache.LoginCacheProvider;
 import su.svn.daybook.services.cache.UserCacheProvider;
 import su.svn.daybook.services.domain.UserDataService;
 import su.svn.daybook.services.security.AuthenticationContext;
@@ -36,6 +37,9 @@ public class UserService extends AbstractService<UUID, User> {
 
     @Inject
     ExceptionAnswerService exceptionAnswerService;
+
+    @Inject
+    LoginCacheProvider loginCacheProvider;
 
     @Inject
     UserCacheProvider userCacheProvider;
@@ -79,7 +83,8 @@ public class UserService extends AbstractService<UUID, User> {
         return userDataService
                 .delete(request.payload())
                 .map(this::apiResponseOkAnswer)
-                .flatMap(answer -> userCacheProvider.invalidateById(request.payload(), answer))
+                .flatMap(answer -> userCacheProvider.invalidateByKey(request.payload(), answer))
+                .flatMap(answer -> loginCacheProvider.invalidateById(request.payload(), answer))
                 .onFailure(exceptionAnswerService::testNoSuchElementException)
                 .recoverWithUni(exceptionAnswerService::noSuchElementAnswer)
                 .onFailure(exceptionAnswerService::testException)
@@ -134,7 +139,8 @@ public class UserService extends AbstractService<UUID, User> {
         return userDataService
                 .put(request.payload())
                 .map(this::apiResponseAcceptedAnswer)
-                .flatMap(answer -> userCacheProvider.invalidateById(request.payload().id(), answer))
+                .flatMap(answer -> userCacheProvider.invalidateByKey(request.payload().id(), answer))
+                .flatMap(answer -> loginCacheProvider.invalidateByKey(request.payload().userName(), answer))
                 .onFailure(exceptionAnswerService::testCompositeException)
                 .recoverWithUni(exceptionAnswerService::badRequestUniAnswer)
                 .onFailure(exceptionAnswerService::testDuplicateException)
