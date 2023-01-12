@@ -10,59 +10,61 @@ package su.svn.daybook.domain.dao;
 
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
-import org.jboss.logging.Logger;
+import su.svn.daybook.annotations.Logged;
+import su.svn.daybook.annotations.SQL;
 import su.svn.daybook.domain.model.KeyValueTable;
+import su.svn.daybook.domain.model.WordTable;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 import java.util.Optional;
 import java.util.UUID;
 
 @ApplicationScoped
-public class KeyValueDao {
+public class KeyValueDao extends AbstractDao<UUID, KeyValueTable> {
 
-    private static final Logger LOG = Logger.getLogger(KeyValueDao.class);
-
-    @Inject
-    io.vertx.mutiny.pgclient.PgPool client;
-
-    public Multi<KeyValueTable> findAll() {
-        LOG.trace("findAll()");
-        return KeyValueTable.findAll(client);
+    KeyValueDao() {
+        super(r -> r.getUUID(KeyValueTable.ID), KeyValueTable::from);
     }
 
-    public Uni<Optional<KeyValueTable>> findById(UUID id) {
-        LOG.tracef("findById(%s)", id);
-        return KeyValueTable.findById(client, id)
-                .map(Optional::ofNullable);
-    }
-
-    public Multi<KeyValueTable> findRange(long offset, long limit) {
-        LOG.tracef("findRange(%d, %d)", offset, limit);
-        return KeyValueTable.findRange(client, offset, limit);
-    }
-
-    public Uni<Optional<UUID>> insert(KeyValueTable entry) {
-        LOG.tracef("insert(%s)", entry);
-        return entry.insert(client)
-                .map(Optional::ofNullable);
-    }
-
-    public Uni<Optional<UUID>> update(KeyValueTable entry) {
-        LOG.tracef("update(%s)", entry);
-        return entry.update(client)
-                .map(Optional::ofNullable);
-    }
-
-    public Uni<Optional<UUID>> delete(UUID id) {
-        LOG.tracef("delete(%s)", id);
-        return KeyValueTable.delete(client, id)
-                .map(Optional::ofNullable);
-    }
-
+    @Logged
+    @SQL(KeyValueTable.COUNT_DICTIONARY_KEY_VALUE)
     public Uni<Optional<Long>> count() {
-        LOG.trace("count()");
-        return KeyValueTable.count(client)
-                .map(Optional::ofNullable);
+        return super.countSQL().map(Optional::ofNullable);
+    }
+
+    @Logged
+    @SQL(KeyValueTable.DELETE_FROM_DICTIONARY_KEY_VALUE_WHERE_ID_$1)
+    public Uni<Optional<UUID>> delete(UUID id) {
+        return super.deleteSQL(id).map(Optional::ofNullable);
+    }
+
+    @Logged
+    @SQL(KeyValueTable.SELECT_ALL_FROM_DICTIONARY_KEY_VALUE_ORDER_BY_ID_ASC)
+    public Multi<KeyValueTable> findAll() {
+        return super.findAllSQL();
+    }
+
+    @Logged
+    @SQL(KeyValueTable.SELECT_FROM_DICTIONARY_KEY_VALUE_WHERE_ID_$1)
+    public Uni<Optional<KeyValueTable>> findById(UUID id) {
+        return super.findByIdSQL(id).map(Optional::ofNullable);
+    }
+
+    @Logged
+    @SQL(KeyValueTable.SELECT_ALL_FROM_DICTIONARY_KEY_VALUE_ORDER_BY_ID_ASC_OFFSET_LIMIT)
+    public Multi<KeyValueTable> findRange(long offset, long limit) {
+        return super.findRangeSQL(offset, limit);
+    }
+
+    @Logged
+    @SQL
+    public Uni<Optional<UUID>> insert(KeyValueTable entry) {
+        return super.insertSQL(entry).map(Optional::ofNullable);
+    }
+
+    @Logged
+    @SQL(KeyValueTable.UPDATE_DICTIONARY_KEY_VALUE_WHERE_ID_$1)
+    public Uni<Optional<UUID>> update(KeyValueTable entry) {
+        return super.updateSQL(entry).map(Optional::ofNullable);
     }
 }

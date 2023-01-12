@@ -9,6 +9,8 @@
 package su.svn.daybook.interceptors;
 
 import io.quarkus.arc.Priority;
+import io.smallrye.mutiny.Multi;
+import io.smallrye.mutiny.Uni;
 import org.jboss.logging.JBossLogManagerProvider;
 import org.jboss.logging.Logger;
 import su.svn.daybook.annotations.Logged;
@@ -24,6 +26,7 @@ public class LoggingInterceptor {
 
     JBossLogManagerProvider provider = new JBossLogManagerProvider();
 
+    @SuppressWarnings("ReactiveStreamsUnusedPublisher")
     @AroundInvoke
     Object logInvocation(InvocationContext context) {
         Logger logger = provider.getLogger(context.getTarget().getClass().getName());
@@ -32,13 +35,34 @@ public class LoggingInterceptor {
         try {
             ret = context.proceed();
         } catch (Exception e) {
-            logger.error(" ", e);
+            logger.errorf("%s%s: ERROR: ", context.getMethod().getName(), toString(context.getParameters()), e);
         }
-        logger.tracef("%s <- %s%s", ret, context.getMethod().getName(), toString(context.getParameters()));
+        if (ret instanceof Multi<?> multi) {
+            return multi.onItem()
+                    .invoke(o ->  acceptForLogging(logger, context, o, null));
+        } else if (ret instanceof Uni<?> uni) {
+            return uni
+                    .onItemOrFailure()
+                    .invoke((o, t) -> acceptForLogging(logger, context, o, t));
+        } else {
+            var str = String.valueOf(ret);
+            var s = str.substring(0, Math.min(str.length(), 1024));
+            logger.tracef("%s <- %s%s", s, context.getMethod().getName(), toString(context.getParameters()));
+        }
         return ret;
     }
 
-    public static String toString(Object[] a) {
+    private void acceptForLogging(Logger logger, InvocationContext context, Object o, Throwable t) {
+        if (o != null) {
+            var str = o.toString();
+            var s = str.substring(0, Math.min(str.length(), 1024));
+            logger.tracef("%s <- %s%s", s, context.getMethod().getName(), toString(context.getParameters()));
+        } else {
+            logger.errorf("%s <- %s%s", t, context.getMethod().getName(), toString(context.getParameters()));
+        }
+    }
+
+    private static String toString(Object[] a) {
         if (a == null)
             return "null";
 

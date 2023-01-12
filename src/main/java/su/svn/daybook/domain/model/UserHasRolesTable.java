@@ -9,12 +9,9 @@
 package su.svn.daybook.domain.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.smallrye.mutiny.Multi;
-import io.smallrye.mutiny.Uni;
-import io.vertx.mutiny.pgclient.PgPool;
 import io.vertx.mutiny.sqlclient.Row;
-import io.vertx.mutiny.sqlclient.RowSet;
 import io.vertx.mutiny.sqlclient.Tuple;
+import org.intellij.lang.annotations.Language;
 import su.svn.daybook.annotations.ModelField;
 import su.svn.daybook.models.LongIdentification;
 import su.svn.daybook.models.Marked;
@@ -40,23 +37,21 @@ public record UserHasRolesTable(
         implements LongIdentification, Marked, Owned, TimeUpdated, Serializable {
 
     public static final String ID = "id";
-    public static final String SELECT_FROM_SECURITY_USER_HAS_ROLES_WHERE_ID_$1 = """
-            SELECT id, user_name, role, create_time, update_time, enabled, visible, flags
-              FROM security.user_has_roles
-             WHERE id = $1 AND enabled
+    @Language("SQL")
+    public static final String COUNT_SECURITY_USER_HAS_ROLES = "SELECT count(*) FROM security.user_has_roles";
+    @Language("SQL")
+    public static final String DELETE_FROM_SECURITY_USER_HAS_ROLES_WHERE_ID_$1 = """
+            DELETE FROM security.user_has_roles
+             WHERE id = $1
+             RETURNING id
             """;
-    public static final String SELECT_ALL_FROM_SECURITY_USER_HAS_ROLES_ORDER_BY_ID_ASC = """
-            SELECT id, user_name, role, create_time, update_time, enabled, visible, flags
-              FROM security.user_has_roles
-             WHERE enabled
-             ORDER BY id ASC
+    @Language("SQL")
+    public static final String DELETE_FROM_SECURITY_USER_HAS_ROLES_WHERE_USER_NAME_$1 = """
+            DELETE FROM security.user_has_roles
+             WHERE user_name = $1
+             RETURNING id
             """;
-    public static final String SELECT_ALL_FROM_SECURITY_USER_HAS_ROLES_ORDER_BY_ID_ASC_OFFSET_LIMIT = """
-            SELECT id, user_name, role, create_time, update_time, enabled, visible, flags
-              FROM security.user_has_roles
-             WHERE enabled
-             ORDER BY id ASC OFFSET $1 LIMIT $2
-            """;
+    @Language("SQL")
     public static final String INSERT_INTO_SECURITY_USER_HAS_ROLES = """
             INSERT INTO security.user_has_roles
              (id, user_name, role, enabled, visible, flags)
@@ -64,6 +59,7 @@ public record UserHasRolesTable(
              ($1, $2, $3, $4, $5, $6)
              RETURNING id
             """;
+    @Language("SQL")
     public static final String INSERT_INTO_SECURITY_USER_HAS_ROLES_DEFAULT_ID = """
             INSERT INTO security.user_has_roles
              (id, user_name, role, enabled, visible, flags)
@@ -71,6 +67,27 @@ public record UserHasRolesTable(
              (DEFAULT, $1, $2, $3, $4, $5)
              RETURNING id
             """;
+    @Language("SQL")
+    public static final String SELECT_FROM_SECURITY_USER_HAS_ROLES_WHERE_ID_$1 = """
+            SELECT id, user_name, role, create_time, update_time, enabled, visible, flags
+              FROM security.user_has_roles
+             WHERE id = $1 AND enabled
+            """;
+    @Language("SQL")
+    public static final String SELECT_ALL_FROM_SECURITY_USER_HAS_ROLES_ORDER_BY_ID_ASC = """
+            SELECT id, user_name, role, create_time, update_time, enabled, visible, flags
+              FROM security.user_has_roles
+             WHERE enabled
+             ORDER BY id ASC
+            """;
+    @Language("SQL")
+    public static final String SELECT_ALL_FROM_SECURITY_USER_HAS_ROLES_ORDER_BY_ID_ASC_OFFSET_LIMIT = """
+            SELECT id, user_name, role, create_time, update_time, enabled, visible, flags
+              FROM security.user_has_roles
+             WHERE enabled
+             ORDER BY id ASC OFFSET $1 LIMIT $2
+            """;
+    @Language("SQL")
     public static final String UPDATE_SECURITY_USER_HAS_ROLES_WHERE_ID_$1 = """
             UPDATE security.user_has_roles SET
               user_name = $2,
@@ -81,17 +98,6 @@ public record UserHasRolesTable(
              WHERE id = $1
              RETURNING id
             """;
-    public static final String DELETE_FROM_SECURITY_USER_HAS_ROLES_WHERE_USER_NAME_$1 = """
-            DELETE FROM security.user_has_roles
-             WHERE user_name = $1
-             RETURNING id
-            """;
-    public static final String DELETE_FROM_SECURITY_USER_HAS_ROLES_WHERE_ID_$1 = """
-            DELETE FROM security.user_has_roles
-             WHERE id = $1
-             RETURNING id
-            """;
-    public static final String COUNT_SECURITY_USER_HAS_ROLES = "SELECT count(*) FROM security.user_has_roles";
 
 
     public static UserHasRolesTable from(Row row) {
@@ -107,68 +113,8 @@ public record UserHasRolesTable(
         );
     }
 
-    public static Multi<UserHasRolesTable> findAll(PgPool client) {
-        return client
-                .query(SELECT_ALL_FROM_SECURITY_USER_HAS_ROLES_ORDER_BY_ID_ASC)
-                .execute()
-                .onItem()
-                .transformToMulti(set -> Multi.createFrom().iterable(set))
-                .map(UserHasRolesTable::from);
-
-    }
-
-    public static Uni<UserHasRolesTable> findById(PgPool client, Long id) {
-        return client
-                .preparedQuery(SELECT_FROM_SECURITY_USER_HAS_ROLES_WHERE_ID_$1)
-                .execute(Tuple.of(id))
-                .map(RowSet::iterator)
-                .map(iterator -> iterator.hasNext() ? UserHasRolesTable.from(iterator.next()) : null);
-    }
-
-    public static Multi<UserHasRolesTable> findRange(PgPool client, long offset, long limit) {
-        return client
-                .preparedQuery(SELECT_ALL_FROM_SECURITY_USER_HAS_ROLES_ORDER_BY_ID_ASC_OFFSET_LIMIT)
-                .execute(Tuple.of(offset, limit))
-                .onItem()
-                .transformToMulti(set -> Multi.createFrom().iterable(set))
-                .map(UserHasRolesTable::from);
-    }
-
-    public static Uni<Long> delete(PgPool client, Long id) {
-        return client.withTransaction(
-                connection -> connection.preparedQuery(DELETE_FROM_SECURITY_USER_HAS_ROLES_WHERE_ID_$1)
-                        .execute(Tuple.of(id))
-                        .onItem()
-                        .transform(pgRowSet -> pgRowSet.iterator().next().getLong(ID)));
-    }
-
-    public static Uni<Long> count(PgPool client) {
-        return client
-                .preparedQuery(COUNT_SECURITY_USER_HAS_ROLES)
-                .execute()
-                .map(pgRowSet -> pgRowSet.iterator().next().getLong("count"));
-    }
-
-    public static UserHasRolesTable.Builder builder() {
-        return new UserHasRolesTable.Builder();
-    }
-
-    public Uni<Long> insert(PgPool client) {
-        return client.withTransaction(
-                connection -> connection.preparedQuery(caseInsertSql())
-                        .execute(caseInsertTuple())
-                        .onItem()
-                        .transform(RowSet::iterator)
-                        .onItem()
-                        .transform(iterator -> iterator.hasNext() ? iterator.next().getLong(ID) : null));
-    }
-
-    public Uni<Long> update(PgPool client) {
-        return client.withTransaction(
-                connection -> connection.preparedQuery(UPDATE_SECURITY_USER_HAS_ROLES_WHERE_ID_$1)
-                        .execute(Tuple.tuple(listOf()))
-                        .onItem()
-                        .transform(pgRowSet -> pgRowSet.iterator().next().getLong(ID)));
+    public static Builder builder() {
+        return new Builder();
     }
 
     private String caseInsertSql() {

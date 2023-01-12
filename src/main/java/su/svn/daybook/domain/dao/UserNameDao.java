@@ -10,59 +10,60 @@ package su.svn.daybook.domain.dao;
 
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
-import org.jboss.logging.Logger;
+import su.svn.daybook.annotations.Logged;
+import su.svn.daybook.annotations.SQL;
 import su.svn.daybook.domain.model.UserNameTable;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 import java.util.Optional;
 import java.util.UUID;
 
 @ApplicationScoped
-public class UserNameDao {
+public class UserNameDao extends AbstractDao<UUID, UserNameTable> {
 
-    private static final Logger LOG = Logger.getLogger(UserNameDao.class);
-
-    @Inject
-    io.vertx.mutiny.pgclient.PgPool client;
-
-    public Multi<UserNameTable> findAll() {
-        LOG.trace("findAll");
-        return UserNameTable.findAll(client);
+    UserNameDao() {
+        super(r -> r.getUUID(UserNameTable.ID), UserNameTable::from);
     }
 
-    public Uni<Optional<UserNameTable>> findById(UUID id) {
-        LOG.tracef("findById(%s)", id);
-        return UserNameTable.findById(client, id)
-                .map(Optional::ofNullable);
-    }
-
-    public Multi<UserNameTable> findRange(long offset, long limit) {
-        LOG.tracef("findRange(%d, %d)", offset, limit);
-        return UserNameTable.findRange(client, offset, limit);
-    }
-
-    public Uni<Optional<UUID>> insert(UserNameTable entry) {
-        LOG.tracef("insert(%s)", entry);
-        return entry.insert(client)
-                .map(Optional::ofNullable);
-    }
-
-    public Uni<Optional<UUID>> update(UserNameTable entry) {
-        LOG.tracef("update(%s)", entry);
-        return entry.update(client)
-                .map(Optional::ofNullable);
-    }
-
-    public Uni<Optional<UUID>> delete(UUID id) {
-        LOG.tracef("delete(%s)", id);
-        return UserNameTable.delete(client, id)
-                .map(Optional::ofNullable);
-    }
-
+    @Logged
+    @SQL(UserNameTable.COUNT_SECURITY_USER_NAME)
     public Uni<Optional<Long>> count() {
-        LOG.trace("count()");
-        return UserNameTable.count(client)
-                .map(Optional::ofNullable);
+        return super.countSQL().map(Optional::ofNullable);
+    }
+
+    @Logged
+    @SQL(UserNameTable.DELETE_FROM_SECURITY_USER_NAME_WHERE_ID_$1)
+    public Uni<Optional<UUID>> delete(UUID id) {
+        return super.deleteSQL(id).map(Optional::ofNullable);
+    }
+
+    @Logged
+    @SQL(UserNameTable.SELECT_ALL_FROM_SECURITY_USER_NAME_ORDER_BY_ID_ASC)
+    public Multi<UserNameTable> findAll() {
+        return super.findAllSQL();
+    }
+
+    @Logged
+    @SQL(UserNameTable.SELECT_FROM_SECURITY_USER_NAME_WHERE_ID_$1)
+    public Uni<Optional<UserNameTable>> findById(UUID id) {
+        return super.findByIdSQL(id).map(Optional::ofNullable);
+    }
+
+    @Logged
+    @SQL(UserNameTable.SELECT_ALL_FROM_SECURITY_USER_NAME_ORDER_BY_ID_ASC_OFFSET_LIMIT)
+    public Multi<UserNameTable> findRange(long offset, long limit) {
+        return super.findRangeSQL(offset, limit);
+    }
+
+    @Logged
+    @SQL
+    public Uni<Optional<UUID>> insert(UserNameTable entry) {
+        return super.insertSQL(entry).map(Optional::ofNullable);
+    }
+
+    @Logged
+    @SQL(UserNameTable.UPDATE_SECURITY_USER_NAME_WHERE_ID_$1)
+    public Uni<Optional<UUID>> update(UserNameTable entry) {
+        return super.updateSQL(entry).map(Optional::ofNullable);
     }
 }

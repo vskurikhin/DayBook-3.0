@@ -10,47 +10,48 @@ package su.svn.daybook.domain.dao;
 
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
-import org.jboss.logging.Logger;
+import su.svn.daybook.annotations.Logged;
+import su.svn.daybook.annotations.SQL;
 import su.svn.daybook.domain.model.UserView;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 import java.util.Optional;
 import java.util.UUID;
 
 @ApplicationScoped
-public class UserViewDao {
+public class UserViewDao extends AbstractViewDao<UUID, UserView> {
 
-    private static final Logger LOG = Logger.getLogger(UserViewDao.class);
-
-    @Inject
-    io.vertx.mutiny.pgclient.PgPool client;
-
-    public Multi<UserView> findAll() {
-        LOG.trace("findAll");
-        return UserView.findAll(client);
+    UserViewDao() {
+        super(r -> r.getUUID(UserView.ID), UserView::from);
     }
 
-    public Uni<Optional<UserView>> findById(UUID id) {
-        LOG.tracef("findById(%s)", id);
-        return UserView.findById(client, id)
-                .map(Optional::ofNullable);
-    }
-
-    public Uni<Optional<UserView>> findByUserName(String userName) {
-        LOG.tracef("findByUserName(%s)", userName);
-        return UserView.findByUserName(client, userName)
-                .map(Optional::ofNullable);
-    }
-
-    public Multi<UserView> findRange(long offset, long limit) {
-        LOG.tracef("findRange(%d, %d)", offset, limit);
-        return UserView.findRange(client, offset, limit);
-    }
-
+    @Logged
+    @SQL(UserView.COUNT_SECURITY_USER_VIEW)
     public Uni<Optional<Long>> count() {
-        LOG.trace("count()");
-        return UserView.count(client)
-                .map(Optional::ofNullable);
+        return super.countSQL().map(Optional::ofNullable);
+    }
+
+    @Logged
+    @SQL(UserView.SELECT_ALL_FROM_SECURITY_USER_VIEW_ORDER_BY_USER_NAME_ASC)
+    public Multi<UserView> findAll() {
+        return super.findAllSQL();
+    }
+
+    @Logged
+    @SQL(UserView.SELECT_FROM_SECURITY_USER_VIEW_WHERE_ID_$1)
+    public Uni<Optional<UserView>> findById(UUID id) {
+        return super.findByIdSQL(id).map(Optional::ofNullable);
+    }
+
+    @Logged
+    @SQL(UserView.SELECT_FROM_SECURITY_USER_VIEW_WHERE_USER_NAME_$1)
+    public Uni<Optional<UserView>> findByUserName(String username) {
+        return super.findByKeySQL(username).map(Optional::ofNullable);
+    }
+
+    @Logged
+    @SQL(UserView.SELECT_ALL_FROM_SECURITY_USER_VIEW_ORDER_BY_USER_NAME_ASC_OFFSET_LIMIT)
+    public Multi<UserView> findRange(long offset, long limit) {
+        return super.findRangeSQL(offset, limit);
     }
 }

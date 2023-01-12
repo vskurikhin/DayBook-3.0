@@ -14,6 +14,7 @@ import su.svn.daybook.models.Identification;
 import java.io.Serializable;
 
 public interface CasesOfId<K  extends Comparable<? extends Serializable>> extends Identification<K> {
+    String caseInsertSql();
     Tuple caseInsertTuple();
     Tuple updateTuple();
 }

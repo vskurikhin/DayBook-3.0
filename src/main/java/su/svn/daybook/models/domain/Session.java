@@ -73,8 +73,8 @@ public final class Session implements UUIDIdentification, Serializable {
         this.flags = flags;
     }
 
-    public static Session.Builder builder() {
-        return new Session.Builder();
+    public static Builder builder() {
+        return new Builder();
     }
 
     public Session.Builder toBuilder() {

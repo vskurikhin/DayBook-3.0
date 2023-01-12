@@ -64,8 +64,8 @@ public final class Role implements UUIDIdentification, Serializable {
         this.flags = flags;
     }
 
-    public static Role.Builder builder() {
-        return new Role.Builder();
+    public static Builder builder() {
+        return new Builder();
     }
 
     public UUID id() {

@@ -65,11 +65,11 @@ public final class KeyValue implements UUIDIdentification, Serializable {
         this.flags = flags;
     }
 
-    public static KeyValue.Builder builder() {
+    public static Builder builder() {
         return new KeyValue.Builder();
     }
 
-    public KeyValue.Builder toBuilder() {
+    public Builder toBuilder() {
         return builder()
                 .id(this.id)
                 .key(this.key)

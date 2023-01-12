@@ -74,8 +74,8 @@ public final class User implements UUIDIdentification, Serializable {
         this.flags = flags;
     }
 
-    public static User.Builder builder() {
-        return new User.Builder();
+    public static Builder builder() {
+        return new Builder();
     }
 
     public User.Builder toBuilder() {
