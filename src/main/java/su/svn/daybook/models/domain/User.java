@@ -37,6 +37,7 @@ public final class User implements UUIDIdentification, Serializable {
     @JsonProperty
     @DomainField(nullable = false)
     private final String userName;
+    @JsonProperty
     @DomainField(getterOnly = true)
     private transient final String password;
     @JsonProperty

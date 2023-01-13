@@ -14,26 +14,35 @@ import io.smallrye.mutiny.Uni;
 import org.jboss.logging.Logger;
 import su.svn.daybook.domain.messages.Answer;
 
+import javax.inject.Inject;
 import java.io.Serializable;
 import java.util.List;
+import java.util.function.Function;
 
-abstract class AbstractCacheProvider<K extends Comparable<? extends Serializable>> {
+abstract class AbstractCacheProvider<K extends Comparable<? extends Serializable>, T> {
+
+    public abstract Uni<Answer> invalidate(Answer answer);
+
+    public abstract Uni<Answer> invalidateByKey(K id, Answer answer);
 
     private final Logger log;
     private final String getCacheName;
     private final String pageCacheName;
 
-    protected AbstractCacheProvider(String getCacheName, String pageCacheName, Logger log) {
+    private CacheCollector<K, T> cacheCollector;
+
+    @Inject
+    CacheManager cacheManager;
+
+    AbstractCacheProvider(String getCacheName, String pageCacheName, Logger log) {
         this.getCacheName = getCacheName;
         this.pageCacheName = pageCacheName;
         this.log = log;
     }
 
-    public abstract Uni<Answer> invalidate(Answer answer);
-
-    public abstract Uni<Answer> invalidateById(K id, Answer answer);
-
-    protected abstract CacheManager getCacheManager();
+    protected void setup(Class<K> kClass, Class<T> tClass) {
+        this.cacheCollector = new QuarkusCaffeineCacheCollector<>(cacheManager, getCacheName, kClass, tClass);
+    }
 
     protected Uni<Answer> invalidateAllPagesCache(Answer answer) {
         log.tracef("invalidatedPagesCacheByName(%s) cacheName: %s", answer, pageCacheName);
@@ -43,10 +52,10 @@ abstract class AbstractCacheProvider<K extends Comparable<? extends Serializable
                 .recoverWithUni(t -> Uni.createFrom().item(answer));
     }
 
-    protected Uni<List<Void>> invalidateCacheById(K id) {
+    protected Uni<List<Void>> invalidateCacheByKey(K id) {
         log.tracef("invalidateCacheById(%s) cacheName: %s", id, getCacheName);
 
-        var getVoid = getCacheManager()
+        var getVoid = cacheManager
                 .getCache(getCacheName)
                 .map(cache -> cache.invalidate(id))
                 .orElse(Uni.createFrom().voidItem());
@@ -57,9 +66,22 @@ abstract class AbstractCacheProvider<K extends Comparable<? extends Serializable
                 .invoke(voids -> log.tracef("invalidate of %d caches", voids.size()));
     }
 
+    protected <O> Uni<Answer> invalidateByOther(O o, Answer answer, Function<T, O> fOther, Function<T, K> fKey) {
+        if (cacheCollector != null) {
+            return cacheCollector.flowByOther(o, fOther)
+                    .onItem()
+                    .transformToUni(e -> invalidateByKey(fKey.apply(e), answer))
+                    .concatenate()
+                    .collect()
+                    .asList()
+                    .map(l -> answer);
+        }
+        return Uni.createFrom().item(answer);
+    }
+
     private Uni<Void> invalidatedPagesCacheByName(String cacheName) {
         log.tracef("invalidatedPagesCacheByName(%s)", cacheName);
-        return getCacheManager()
+        return cacheManager
                 .getCache(cacheName)
                 .map(Cache::invalidateAll)
                 .orElse(Uni.createFrom().voidItem());

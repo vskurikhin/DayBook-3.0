@@ -10,6 +10,7 @@ package su.svn.daybook.domain.messages;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -29,10 +30,13 @@ public final class Answer implements Serializable {
 
     public static final String NO_SUCH_ELEMENT = "no such element";
 
+    @JsonProperty
     private final int error;
 
+    @JsonProperty
     private final String message;
 
+    @JsonProperty
     private Object payload;
 
     @JsonIgnore

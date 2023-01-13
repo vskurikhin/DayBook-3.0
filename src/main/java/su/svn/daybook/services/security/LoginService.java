@@ -20,6 +20,8 @@ import su.svn.daybook.domain.model.SessionTable;
 import su.svn.daybook.models.security.AuthRequest;
 import su.svn.daybook.models.security.User;
 import su.svn.daybook.services.ExceptionAnswerService;
+import su.svn.daybook.services.cache.LoginCacheProvider;
+import su.svn.daybook.services.cache.SessionCacheProvider;
 import su.svn.daybook.services.domain.LoginDataService;
 
 import javax.annotation.Nonnull;
@@ -28,13 +30,20 @@ import javax.inject.Inject;
 import java.util.HashSet;
 import java.util.UUID;
 
-@ApplicationScoped @Logged
+@ApplicationScoped
+@Logged
 public class LoginService {
 
     private static final Logger LOG = Logger.getLogger(LoginService.class);
 
     @Inject
+    LoginCacheProvider loginCacheProvider;
+
+    @Inject
     LoginDataService loginDataService;
+
+    @Inject
+    SessionCacheProvider sessionCacheProvider;
 
     @Inject
     PBKDF2Encoder passwordEncoder;
@@ -52,8 +61,8 @@ public class LoginService {
     public Uni<Answer> login(@Nonnull Request<AuthRequest> request) {
         LOG.tracef("login(%s): requestId: %s", request.payload(), authRequestContext.getRequestId());
         authRequestContext.setAuthRequest(request.payload());
-        return loginDataService
-                .findByUserName(request.payload().username())
+        return loginCacheProvider
+                .get(request.payload().username())
                 .flatMap(u -> authentication(User.from(u)))
                 .onFailure(exceptionAnswerService::testAuthenticationFailedException)
                 .recoverWithUni(exceptionAnswerService::authenticationFailedUniAnswer)
@@ -65,7 +74,9 @@ public class LoginService {
         var authRequest = authRequestContext.getAuthRequest();
         if (user.password() != null) {
             if (user.password().equals(passwordEncoder.encode(authRequest.password()))) {
-                return generateToken(user).map(token -> Answer.of(ApiResponse.auth(token)));
+                return generateToken(user)
+                        .map(token -> Answer.of(ApiResponse.auth(token)))
+                        .flatMap(answer -> sessionCacheProvider.invalidateByUserName(user.username(), answer));
             }
         }
         throw authRequestContext.authenticationFailed();

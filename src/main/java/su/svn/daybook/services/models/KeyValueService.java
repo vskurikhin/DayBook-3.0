@@ -73,7 +73,7 @@ public class KeyValueService extends AbstractService<UUID, KeyValue> {
         return keyValueDataService
                 .delete(request.payload())
                 .map(this::apiResponseOkAnswer)
-                .flatMap(answer -> keyValueCacheProvider.invalidateById(request.payload(), answer))
+                .flatMap(answer -> keyValueCacheProvider.invalidateByKey(request.payload(), answer))
                 .onFailure(exceptionAnswerService::testNoSuchElementException)
                 .recoverWithUni(exceptionAnswerService::noSuchElementAnswer)
                 .onFailure(exceptionAnswerService::testException)
@@ -131,7 +131,7 @@ public class KeyValueService extends AbstractService<UUID, KeyValue> {
         return keyValueDataService
                 .put(request.payload())
                 .map(this::apiResponseAcceptedAnswer)
-                .flatMap(answer -> keyValueCacheProvider.invalidateById(request.payload().id(), answer))
+                .flatMap(answer -> keyValueCacheProvider.invalidateByKey(request.payload().id(), answer))
                 .onFailure(exceptionAnswerService::testDuplicateException)
                 .recoverWithUni(exceptionAnswerService::notAcceptableDuplicateAnswer)
                 .onFailure(exceptionAnswerService::testIllegalArgumentException)

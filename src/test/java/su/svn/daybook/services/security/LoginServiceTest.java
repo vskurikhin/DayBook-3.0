@@ -1,5 +1,6 @@
 package su.svn.daybook.services.security;
 
+import io.quarkus.cache.CacheManager;
 import io.quarkus.security.runtime.QuarkusPrincipal;
 import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
@@ -12,12 +13,14 @@ import org.mockito.Mockito;
 import su.svn.daybook.TestData;
 import su.svn.daybook.domain.dao.SessionDao;
 import su.svn.daybook.domain.dao.UserViewDao;
+import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.messages.ApiResponse;
 import su.svn.daybook.domain.messages.Request;
 import su.svn.daybook.domain.model.SessionTable;
 import su.svn.daybook.domain.model.UserView;
 import su.svn.daybook.models.security.AuthRequest;
+import su.svn.daybook.utils.CacheUtil;
 
 import javax.inject.Inject;
 import java.security.Principal;
@@ -42,6 +45,9 @@ class LoginServiceTest {
     Uni<Optional<UserView>> stubUOUserView;
 
     @Inject
+    CacheManager cacheManager;
+
+    @Inject
     PBKDF2Encoder passwordEncoder;
 
     @Inject
@@ -58,6 +64,7 @@ class LoginServiceTest {
                 .thenReturn(TestData.uuid.UNI_OPTIONAL_ZERO);
         QuarkusMock.installMockForType(mockSessionDao, SessionDao.class);
         QuarkusMock.installMockForType(mockUserViewDao, UserViewDao.class);
+        CacheUtil.invalidateAll(cacheManager, EventAddress.LOGIN_REQUEST);
     }
 
     @Test
@@ -115,7 +122,6 @@ class LoginServiceTest {
             Assertions.assertEquals(expected, uniToAnswerHelper(loginService.login(new Request<>(stubAuthRequest, principal))));
         });
     }
-
 
     @Test
     void loginFailedCreateSessionFail() {

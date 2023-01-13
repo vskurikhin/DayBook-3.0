@@ -36,7 +36,7 @@ import org.jose4j.jwt.MalformedClaimException;
 import org.jose4j.jwt.consumer.JwtContext;
 import su.svn.daybook.models.domain.Session;
 import su.svn.daybook.models.security.SessionPrincipal;
-import su.svn.daybook.services.domain.SessionDataService;
+import su.svn.daybook.services.cache.SessionCacheProvider;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Alternative;
@@ -63,7 +63,7 @@ public class SessionJWTAuthMechanism implements HttpAuthenticationMechanism {
     private JWTAuthContextInfo authContextInfo;
 
     @Inject
-    SessionDataService sessionDataService;
+    SessionCacheProvider sessionCacheProvider;
 
     @Override
     public Uni<SecurityIdentity> authenticate(RoutingContext context, IdentityProviderManager identityProviderManager) {
@@ -75,7 +75,7 @@ public class SessionJWTAuthMechanism implements HttpAuthenticationMechanism {
     }
 
     private Uni<SecurityIdentity> rebuildSecurityIdentity(RoutingContext context, SecurityIdentity securityIdentity) {
-        var rb = new SessionSecurityIdentityReBuilder(authContextInfo, sessionDataService, context);
+        var rb = new SessionSecurityIdentityReBuilder(authContextInfo, sessionCacheProvider, context);
         return rb.apply(securityIdentity);
     }
 
@@ -101,7 +101,7 @@ public class SessionJWTAuthMechanism implements HttpAuthenticationMechanism {
 
         private final JWTAuthContextInfo authContextInfo;
 
-        private final SessionDataService sessionDataService;
+        private final SessionCacheProvider sessionCacheProvider;
 
         private final RoutingContext context;
 
@@ -109,10 +109,10 @@ public class SessionJWTAuthMechanism implements HttpAuthenticationMechanism {
 
         SessionSecurityIdentityReBuilder(
                 JWTAuthContextInfo authContextInfo,
-                SessionDataService sessionDataService,
+                SessionCacheProvider sessionCacheProvider,
                 RoutingContext context) {
             this.authContextInfo = authContextInfo;
-            this.sessionDataService = sessionDataService;
+            this.sessionCacheProvider = sessionCacheProvider;
             this.context = context;
         }
 
@@ -153,7 +153,7 @@ public class SessionJWTAuthMechanism implements HttpAuthenticationMechanism {
                 var subName = jwtContext.getJwtClaims().getClaimValue(Claims.sub.name());
                 LOG.tracef("authenticate->createPrincipal->subject: %s", subName);
                 if (subName instanceof String subject) {
-                    return sessionDataService
+                    return sessionCacheProvider
                             .get(UUID.fromString(subject))
                             .map(session -> createPrincipal(type, jwtContext, session));
                 }

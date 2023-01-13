@@ -48,6 +48,13 @@ public class SessionDataService implements DataService<UUID, SessionTable, Sessi
                 .map(o -> lookupLong(o, "count for SessionTable"));
     }
 
+    public Multi<Session> findByName(String userName) {
+        LOG.tracef("findByName(%s)", userName);
+        return sessionDao
+                .findByValue(userName)
+                .map(sessionMapper::convertToModel);
+    }
+
     public Multi<Session> findRange(long offset, long limit) {
         LOG.tracef("findRange(%d, %d)", offset, limit);
         return sessionDao

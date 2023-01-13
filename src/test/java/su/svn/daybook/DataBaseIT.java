@@ -962,7 +962,7 @@ public class DataBaseIT {
                     .password("password")
                     .roles(Collections.emptySet())
                     .build();
-            principal = new QuarkusPrincipal(null);
+            principal = null/*new QuarkusPrincipal(null)*/;
         }
 
         @AfterEach

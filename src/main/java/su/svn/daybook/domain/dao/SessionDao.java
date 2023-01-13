@@ -49,6 +49,17 @@ public class SessionDao extends AbstractDao<UUID, SessionTable> {
         return super.findByIdSQL(id).map(Optional::ofNullable);
     }
 
+
+    @Logged
+    @SQL(SessionTable.SELECT_FROM_SECURITY_SESSION_WHERE_USER_NAME_$1)
+    public Multi<SessionTable> findByValue(String username) {
+        return super.findByValueSQL(username);
+    }
+
+    public Multi<SessionTable> findByName(String username) {
+        return findByValue(username);
+    }
+
     @Logged
     @SQL(SessionTable.SELECT_ALL_FROM_SECURITY_SESSION_ORDER_BY_ID_ASC_OFFSET_LIMIT)
     public Multi<SessionTable> findRange(long offset, long limit) {

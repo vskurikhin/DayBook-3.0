@@ -81,7 +81,7 @@ public class RoleService extends AbstractService<UUID, Role> {
         return roleDataService
                 .delete(request.payload())
                 .map(this::apiResponseOkAnswer)
-                .flatMap(answer -> roleCacheProvider.invalidateById(request.payload(), answer))
+                .flatMap(answer -> roleCacheProvider.invalidateByKey(request.payload(), answer))
                 .onFailure(exceptionAnswerService::testNoSuchElementException)
                 .recoverWithUni(exceptionAnswerService::noSuchElementAnswer)
                 .onFailure(exceptionAnswerService::testException)
@@ -139,7 +139,7 @@ public class RoleService extends AbstractService<UUID, Role> {
         return roleDataService
                 .put(request.payload())
                 .map(this::apiResponseAcceptedAnswer)
-                .flatMap(answer -> roleCacheProvider.invalidateById(request.payload().id(), answer))
+                .flatMap(answer -> roleCacheProvider.invalidateByKey(request.payload().id(), answer))
                 .onFailure(exceptionAnswerService::testDuplicateException)
                 .recoverWithUni(exceptionAnswerService::notAcceptableDuplicateAnswer)
                 .onFailure(exceptionAnswerService::testIllegalArgumentException)
