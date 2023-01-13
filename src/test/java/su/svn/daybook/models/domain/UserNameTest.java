@@ -50,5 +50,6 @@ class UserNameTest {
                 .visible(true)
                 .flags(0)
                 .build()));
+        Assertions.assertDoesNotThrow(() -> new UserName().toBuilder().build());
     }
 }

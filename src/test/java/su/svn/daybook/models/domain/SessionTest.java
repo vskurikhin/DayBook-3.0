@@ -54,5 +54,6 @@ class SessionTest {
                 .visible(true)
                 .flags(0)
                 .build()));
+        Assertions.assertDoesNotThrow(() -> new Session().toBuilder().build());
     }
 }
