@@ -49,5 +49,6 @@ class WordTest {
                 .visible(true)
                 .flags(0)
                 .build()));
+        Assertions.assertDoesNotThrow(() -> new Word().toBuilder().build());
     }
 }
