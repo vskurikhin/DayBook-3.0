@@ -18,6 +18,7 @@ import su.svn.daybook.services.mappers.WordMapper;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.util.NoSuchElementException;
 
 @ApplicationScoped
 public class WordDataService implements DataService<String, WordTable, Word> {

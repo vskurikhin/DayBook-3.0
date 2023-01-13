@@ -8,6 +8,6 @@ class ExceptionAnswerServiceTest {
 
     @BeforeEach
     void setUp() {
-        // TODO
+        // TODO var e = new io.vertx.pgclient.PgException("ERROR", "duplicate key value violates unique constraint", null, null);
     }
 }
