@@ -8,6 +8,7 @@
 
 package su.svn.daybook.services.cache;
 
+import io.micrometer.core.annotation.Counted;
 import io.quarkus.cache.CacheKey;
 import io.quarkus.cache.CacheResult;
 import io.smallrye.mutiny.Uni;
@@ -41,12 +42,14 @@ public class UserCacheProvider extends AbstractCacheProvider<UUID, User> {
     }
 
     @Logged
+    @Counted
     @CacheResult(cacheName = EventAddress.USER_GET)
     public Uni<User> get(@CacheKey UUID id) {
         return userDataService.get(id);
     }
 
     @Logged
+    @Counted
     @CacheResult(cacheName = EventAddress.USER_PAGE)
     public Uni<Page<Answer>> getPage(@CacheKey PageRequest pageRequest) {
         return pageService.getPage(pageRequest, userDataService::count, userDataService::findRange, Answer::of);

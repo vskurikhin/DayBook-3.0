@@ -14,13 +14,15 @@ import io.smallrye.mutiny.Uni;
 import org.jboss.logging.JBossLogManagerProvider;
 import org.jboss.logging.Logger;
 import su.svn.daybook.annotations.Logged;
+import su.svn.daybook.domain.messages.Request;
+import su.svn.daybook.models.security.SessionPrincipal;
 
 import javax.interceptor.AroundInvoke;
 import javax.interceptor.Interceptor;
 import javax.interceptor.InvocationContext;
 
 @Logged
-@Priority(Interceptor.Priority.APPLICATION + 20)
+@Priority(Interceptor.Priority.APPLICATION + 21)
 @Interceptor
 public class LoggingInterceptor {
 
@@ -29,36 +31,51 @@ public class LoggingInterceptor {
     @SuppressWarnings("ReactiveStreamsUnusedPublisher")
     @AroundInvoke
     Object logInvocation(InvocationContext context) {
-        Logger logger = provider.getLogger(context.getTarget().getClass().getName());
-        logger.tracef("%s%s", context.getMethod().getName(), toString(context.getParameters()));
         Object ret = null;
+        Logger logger = provider.getLogger(context.getTarget().getClass().getSuperclass().getName());
+        logger.tracef("%s%s", context.getMethod().getName(), toString(context.getParameters()));
         try {
             ret = context.proceed();
         } catch (Exception e) {
-            logger.errorf("%s%s: ERROR: ", context.getMethod().getName(), toString(context.getParameters()), e);
+            log(logger, context, e);
         }
         if (ret instanceof Multi<?> multi) {
-            return multi.onItem()
-                    .invoke(o ->  acceptForLogging(logger, context, o, null));
+            return multi
+                    .onItem()
+                    .invoke(o -> log(logger, context, o, null));
         } else if (ret instanceof Uni<?> uni) {
             return uni
                     .onItemOrFailure()
-                    .invoke((o, t) -> acceptForLogging(logger, context, o, t));
+                    .invoke((o, t) -> log(logger, context, o, t));
         } else {
             var str = String.valueOf(ret);
             var s = str.substring(0, Math.min(str.length(), 1024));
-            logger.tracef("%s <- %s%s", s, context.getMethod().getName(), toString(context.getParameters()));
+            log(logger, context, s, null);
         }
         return ret;
     }
 
-    private void acceptForLogging(Logger logger, InvocationContext context, Object o, Throwable t) {
+    private String getSid(InvocationContext ctx) {
+        var method = ctx.getMethod();
+        if (method.getParameterCount() > 0 && ctx.getParameters()[0] instanceof Request<?> request) {
+            if (request.principal() instanceof SessionPrincipal sessionPrincipal) {
+                return sessionPrincipal.getSessionId();
+            }
+        }
+        return null;
+    }
+
+    private void log(Logger log, InvocationContext ctx, Throwable t) {
+        log.errorf("%s <- %s%s", t, ctx.getMethod().getName(), toString(ctx.getParameters()));
+    }
+
+    private void log(Logger log, InvocationContext ctx, Object o, Throwable t) {
         if (o != null) {
             var str = o.toString();
             var s = str.substring(0, Math.min(str.length(), 1024));
-            logger.tracef("%s <- %s%s", s, context.getMethod().getName(), toString(context.getParameters()));
+            log.tracef("%s <- %s%s", s, ctx.getMethod().getName(), toString(ctx.getParameters()));
         } else {
-            logger.errorf("%s <- %s%s", t, context.getMethod().getName(), toString(context.getParameters()));
+            log.errorf("%s <- %s%s", t, ctx.getMethod().getName(), toString(ctx.getParameters()));
         }
     }
 

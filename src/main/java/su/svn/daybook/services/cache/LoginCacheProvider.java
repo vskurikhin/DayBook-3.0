@@ -8,6 +8,7 @@
 
 package su.svn.daybook.services.cache;
 
+import io.micrometer.core.annotation.Counted;
 import io.quarkus.cache.CacheKey;
 import io.quarkus.cache.CacheResult;
 import io.smallrye.mutiny.Uni;
@@ -41,6 +42,7 @@ public class LoginCacheProvider extends AbstractCacheProvider<String, UserView> 
     }
 
     @Logged
+    @Counted
     @CacheResult(cacheName = EventAddress.LOGIN_REQUEST)
     public Uni<UserView> get(@CacheKey String userName) {
         return loginDataService.findByUserName(userName);

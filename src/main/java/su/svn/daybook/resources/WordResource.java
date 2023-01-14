@@ -35,7 +35,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
-@Path(ResourcePath.WORD) @Logged
+@Path(ResourcePath.WORD)
+@Logged
 public class WordResource extends AbstractResource {
 
     @GET

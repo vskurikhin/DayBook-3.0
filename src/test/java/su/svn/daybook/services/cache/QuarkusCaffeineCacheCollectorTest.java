@@ -18,6 +18,7 @@ import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 @QuarkusTest
@@ -52,6 +53,12 @@ class QuarkusCaffeineCacheCollectorTest {
     @Test
     void flowByOther() {
         testClass.get("test");
+        cacheManager.getCacheNames().stream().forEach(new Consumer<String>() {
+            @Override
+            public void accept(String s) {
+                System.out.println("s = '" + s + "'");
+            }
+        });
         Assertions.assertDoesNotThrow(() -> {
             var test = cacheCollector.flowByOther(publicKey1, KeyPair::getPublic)
                     .collect()

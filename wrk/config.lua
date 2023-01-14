@@ -2,10 +2,18 @@
 math.randomseed(os.time())
 math.random(); math.random(); math.random()
 
+token = '__COPY__HERE__'
+
 request = function()
-  path = "/word?page=" .. math.random(54)  .. "&limit=4096"
-  -- Return the request object with the current URL path
-  return wrk.format('GET', path, {['Host'] = 'localhost'})
+  path = "/api/v1/word/-?page=" .. math.random(109)  .. "&limit=2048"
+  return wrk.format(
+          'GET',
+          path,
+          {
+            ['Host'] = 'localhost',
+            ["Content-Type"] = "application/json",
+            ["Authorization"] = "Bearer " .. token .. ""
+          })
 end
 
 response = function(status, headers, body)
