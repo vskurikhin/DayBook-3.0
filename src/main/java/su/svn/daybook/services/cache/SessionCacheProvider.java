@@ -8,6 +8,7 @@
 
 package su.svn.daybook.services.cache;
 
+import io.micrometer.core.annotation.Counted;
 import io.quarkus.cache.CacheKey;
 import io.quarkus.cache.CacheManager;
 import io.quarkus.cache.CacheResult;
@@ -51,12 +52,14 @@ public class SessionCacheProvider extends AbstractCacheProvider<UUID, Session> {
     }
 
     @Logged
+    @Counted
     @CacheResult(cacheName = EventAddress.SESSION_GET)
     public Uni<Session> get(@CacheKey UUID id) {
         return sessionDataService.get(id);
     }
 
     @Logged
+    @Counted
     @CacheResult(cacheName = EventAddress.SESSION_PAGE)
     public Uni<Page<Answer>> getPage(@CacheKey PageRequest pageRequest) {
         return pageService.getPage(pageRequest, sessionDataService::count, sessionDataService::findRange, Answer::of);

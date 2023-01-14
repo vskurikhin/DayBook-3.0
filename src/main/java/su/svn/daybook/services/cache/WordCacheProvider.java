@@ -8,6 +8,8 @@
 
 package su.svn.daybook.services.cache;
 
+import io.micrometer.core.annotation.Counted;
+import io.micrometer.core.annotation.Timed;
 import io.quarkus.cache.CacheKey;
 import io.quarkus.cache.CacheResult;
 import io.smallrye.mutiny.Uni;
@@ -23,7 +25,6 @@ import su.svn.daybook.services.domain.WordDataService;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import java.util.NoSuchElementException;
 
 @ApplicationScoped
 public class WordCacheProvider extends AbstractCacheProvider<String, Word> {
@@ -41,12 +42,14 @@ public class WordCacheProvider extends AbstractCacheProvider<String, Word> {
     }
 
     @Logged
+    @Counted
     @CacheResult(cacheName = EventAddress.WORD_GET)
     public Uni<Word> get(@CacheKey String id) {
-         return wordDataService.get(id);
+        return wordDataService.get(id);
     }
 
     @Logged
+    @Counted
     @CacheResult(cacheName = EventAddress.WORD_PAGE)
     public Uni<Page<Answer>> getPage(@CacheKey PageRequest pageRequest) {
         return pageService.getPage(pageRequest, wordDataService::count, wordDataService::findRange, Answer::of);
