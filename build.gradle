@@ -13,6 +13,7 @@ import org.apache.tools.ant.filters.ReplaceTokens
 //file:noinspection GradlePackageUpdate
 
 plugins {
+    id "com.moowork.node" version "1.3.1"
     id 'application'
     id 'io.quarkus'
     id 'java'
