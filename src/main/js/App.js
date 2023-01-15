@@ -1,25 +1,34 @@
-import logo from './logo.svg';
 import './App.css';
 
+import Login from "./component/Login";
+import useToken from './hooks/useToken';
+
+import React from 'react';
+import {Provider} from 'react-redux';
+import {TodoForm} from './component/TodoForm';
+import {TodoList} from './component/TodoList';
+import {store} from './redux/store';
+
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+    const {token, setToken} = useToken();
+
+    if (!token) {
+        return (
+            <Provider store={store}>
+                <Login setToken={setToken}/>
+            </Provider>
+        );
+    }
+
+    return (
+        <Provider store={store}>
+            <div className="App">
+                <h1>Список задач</h1>
+                <TodoForm/>
+                <TodoList/>
+            </div>
+        </Provider>
+    );
 }
 
 export default App;

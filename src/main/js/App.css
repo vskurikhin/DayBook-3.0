@@ -1,38 +1,50 @@
 .App {
-  text-align: center;
+    max-width: 1000px;
+    margin: 1em auto
 }
-
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.todo-form {
+    padding: 10px;
+    margin-bottom: 20px;
+    background-color: #eee;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    display: flex;
 }
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+    .todo-form input[type="text"] {
+        flex-grow: 1;
+        padding: 5px;
+        margin-right: 5px;
+    }
+.todo-list {
+    padding: 10px;
+    margin-bottom: 20px;
+    background-color: #eee;
+    border: 1px solid #ddd;
+    border-radius: 5px;
 }
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+.todo-item {
+    padding: 10px;
+    margin-bottom: 10px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    display: flex;
+    justify-content: space-between;
 }
-
-.App-link {
-  color: #61dafb;
+.todo-item:last-child {
+    margin-bottom: 0;
 }
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+    .todo-item input:checked + span {
+        text-decoration: line-through;
+    }
+    .todo-item .remove {
+        color: #f00;
+        font-weight: bold;
+        cursor: pointer;
+    }
+.error {
+    color: #f00;
+}
+.info {
+    color: #0a0;
 }

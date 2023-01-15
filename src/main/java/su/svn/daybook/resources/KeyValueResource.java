@@ -39,7 +39,7 @@ import java.util.UUID;
 @Path(ResourcePath.KEY_VALUE) @Logged
 public class KeyValueResource extends AbstractResource implements Resource<UUID, KeyValue> {
 
-    @Operation(hidden = true)
+    // @Operation(hidden = true)
     @GET
     @Path(ResourcePath.ID)
     @Produces(MediaType.APPLICATION_JSON)
@@ -47,7 +47,7 @@ public class KeyValueResource extends AbstractResource implements Resource<UUID,
         return request(EventAddress.KEY_VALUE_GET, id, uriInfo);
     }
 
-    @Operation(hidden = true)
+    // @Operation(hidden = true)
     @GET
     @Path(ResourcePath.PAGE)
     @Produces(MediaType.APPLICATION_JSON)
@@ -55,7 +55,7 @@ public class KeyValueResource extends AbstractResource implements Resource<UUID,
         return requestPage(EventAddress.KEY_VALUE_PAGE, new PageRequest(page, limit));
     }
 
-    @Operation(hidden = true)
+    // @Operation(hidden = true)
     @POST
     @Path(ResourcePath.NONE)
     @Consumes(MediaType.APPLICATION_JSON)
@@ -64,7 +64,7 @@ public class KeyValueResource extends AbstractResource implements Resource<UUID,
         return request(EventAddress.KEY_VALUE_ADD, entry, uriInfo);
     }
 
-    @Operation(hidden = true)
+    // @Operation(hidden = true)
     @PUT
     @Path(ResourcePath.NONE)
     @Consumes(MediaType.APPLICATION_JSON)
@@ -73,7 +73,7 @@ public class KeyValueResource extends AbstractResource implements Resource<UUID,
         return request(EventAddress.KEY_VALUE_PUT, entry, uriInfo);
     }
 
-    @Operation(hidden = true)
+    // @Operation(hidden = true)
     @DELETE
     @Path(ResourcePath.ID)
     @Produces(MediaType.APPLICATION_JSON)
