@@ -1,35 +1,40 @@
-import { useGetOneTodoQuery, useUpdateTodoMutation, useRemoveTodoMutation } from '../redux/todoApi';
+import {useState} from 'react';
+import {useUpdateTodoMutation, useRemoveTodoMutation} from '../redux/todoApi';
 
 export function TodoItem(props) {
-    const { data, isFetching, isSuccess } = useGetOneTodoQuery(props.id);
 
-    const [updateTodo, { isLoading: isUpdating }] = useUpdateTodoMutation();
-    const [removeTodo, { isLoading: isRemoving, isSuccess: isRemoved }] = useRemoveTodoMutation();
+    const [title, setTitle] = useState(props.item.value.map.title);
+    const [visible, setVisible] = useState(props.item.visible);
+    const [updateTodo, {isLoading: isUpdating}] = useUpdateTodoMutation();
+    const [removeTodo, {isLoading: isRemoving, isSuccess: isRemoved}] = useRemoveTodoMutation();
+
+    const handleChange = (event) => {
+        setTitle(event.target.value);
+    };
 
     const handleToggle = () => {
         updateTodo({
-            id: props.id,
-            value: data.value,
-            visible: !data.visible,
+            id: props.item.id,
+            value: '{"title": "' + title + '"}',
+            visible: visible,
         });
+        setVisible(visible);
     };
 
     if (isRemoved) return null; // NEW если задача удалена
-    if (isFetching) return <p className="info">Получение задачи {props.id} с сервера...</p>;
-    if (!isSuccess) return <p className="error">Не удалось загрузить задачу {props.id}</p>;
     if (isUpdating) return <p className="info">Обновление задачи {props.id} на сервере...</p>;
     if (isRemoving) return <p className="info">Удаление задачи {props.id} на сервере</p>;
 
-    console.log(JSON.stringify(data.value.map))
+    console.log(JSON.stringify(props.item.value.map))
 
     return (
-        <div className="todo-item">
+        <div className="todo-form">
             <span>
-                <input type="checkbox" checked={data.visible} onChange={handleToggle} />
+                <input type="checkbox" checked={visible} onChange={handleToggle}/>
                 &nbsp;
-                <span>{data.value.map.title}</span>
+                <input type="text" value={title} onChange={handleChange} placeholder="Старая задача"/>
             </span>
-            <span className="remove" onClick={() => removeTodo(props.id)}>
+            <span className="remove" onClick={() => removeTodo(props.item.id)}>
                 &times;
             </span>
         </div>

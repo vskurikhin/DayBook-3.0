@@ -1,39 +1,41 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import {createApi, fetchBaseQuery} from '@reduxjs/toolkit/query/react';
 
 export const todoApi = createApi({
     reducerPath: 'todo',
-    baseQuery: fetchBaseQuery({ baseUrl: 'http://localhost:8080/api' }),
+    baseQuery: fetchBaseQuery({
+        baseUrl: 'http://localhost:8080/api/v1'
+    }),
     tagTypes: ['todo'],
     endpoints: (builder) => ({
         getAllTodo: builder.query({
-            query: () => '/v1/key-values',
-            providesTags: [{ type: 'todo', id: 'list' }],
+            query: () => '/key-values',
+            providesTags: [{type: 'todo', id: 'list'}],
         }),
         getOneTodo: builder.query({
-            query: (id) => `/v1/key-value/${id}`,
-            providesTags: (res, err, arg) => [{ type: 'todo', id: arg }],
+            query: (id) => `/key-value/${id}`,
+            providesTags: (res, err, arg) => [{type: 'todo', id: arg}],
         }),
         createTodo: builder.mutation({
             query: (data) => ({
-                url: '/v1/key-value',
+                url: '/key-value',
                 method: 'POST',
                 body: data,
             }),
-            invalidatesTags: [{ type: 'todo', id: 'list' }],
+            invalidatesTags: [{type: 'todo', id: 'list'}],
         }),
         updateTodo: builder.mutation({
             query: (data) => {
                 return {
-                    url: `/v1/key-value`,
+                    url: `/key-value`,
                     method: 'PUT',
                     body: data,
                 };
             },
-            invalidatesTags: (res, err, arg) => [{ type: 'todo', id: arg.id }],
+            invalidatesTags: (res, err, arg) => [{type: 'todo', id: arg.id}],
         }),
         removeTodo: builder.mutation({
             query: (id) => ({
-                url: `/v1/key-value/${id}`,
+                url: `/key-value/${id}`,
                 method: 'DELETE',
             }),
             // NEW при удалении задачи не надо ничего запрашивать с сервера

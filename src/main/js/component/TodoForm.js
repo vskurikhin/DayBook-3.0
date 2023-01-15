@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useCreateTodoMutation } from '../redux/todoApi.js';
+import {useState} from 'react';
+import {useCreateTodoMutation} from '../redux/todoApi.js';
 
 export function TodoForm(props) {
     const [text, setText] = useState('');
@@ -12,7 +12,7 @@ export function TodoForm(props) {
     const handleClick = () => {
         if (text.trim().length !== 0) {
             const data = {
-                value:  '{"title": "' + text.trim() + '"}',
+                value: '{"title": "' + text.trim() + '"}',
                 visible: true,
             };
             createTodo(data);
@@ -22,7 +22,7 @@ export function TodoForm(props) {
 
     return (
         <div className="todo-form">
-            <input type="text" value={text} onChange={handleChange} placeholder="Новая задача" />
+            <input type="text" value={text} onChange={handleChange} placeholder="Новая задача"/>
             <button onClick={handleClick}>Добавить</button>
         </div>
     );

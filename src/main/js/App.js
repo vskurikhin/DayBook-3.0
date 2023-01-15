@@ -1,17 +1,31 @@
 import './App.css';
 
-import { TodoList } from './component/TodoList.js';
-import { TodoForm } from './component/TodoForm.js';
-import { Provider } from 'react-redux';
-import { store } from './redux/store.js';
+import Login from "./component/Login";
+import useToken from './hooks/useToken';
+
+import React from 'react';
+import {Provider} from 'react-redux';
+import {TodoForm} from './component/TodoForm';
+import {TodoList} from './component/TodoList';
+import {store} from './redux/store';
 
 function App() {
+    const {token, setToken} = useToken();
+
+    if (!token) {
+        return (
+            <Provider store={store}>
+                <Login setToken={setToken}/>
+            </Provider>
+        );
+    }
+
     return (
         <Provider store={store}>
             <div className="App">
                 <h1>Список задач</h1>
-                <TodoForm />
-                <TodoList />
+                <TodoForm/>
+                <TodoList/>
             </div>
         </Provider>
     );
