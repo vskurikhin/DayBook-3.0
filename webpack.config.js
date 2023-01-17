@@ -20,6 +20,11 @@ module.exports = smp.wrap({
         filename: 'app-bundle.js'
     },
     resolve: {extensions: ['.js', '.jsx', '.scss']},
+    performance: {
+        hints: false,
+        maxEntrypointSize: 512000,
+        maxAssetSize: 512000
+    },
     module: {
         rules: [
             {
