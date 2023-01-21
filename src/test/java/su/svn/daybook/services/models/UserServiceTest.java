@@ -78,11 +78,12 @@ public class UserServiceTest {
         Mockito.when(userViewDaoMock.findRange(0L, Short.MAX_VALUE - 1)).thenReturn(MULTI_TEST);
         Mockito.when(userViewDaoMock.count()).thenReturn(TestData.UNI_OPTIONAL_ONE_LONG);
 
-        PageRequest pageRequest = new PageRequest(0L, (short) (Short.MAX_VALUE - 1));
+        PageRequest pageRequest = new PageRequest(1L, (short) (Short.MAX_VALUE - 1));
         var expected = Page.<Answer>builder()
+                .page(1)
                 .totalPages(1L)
-                .totalElements(1)
-                .pageSize((short) 1)
+                .totalRecords(1)
+                .rows((short) 1)
                 .prevPage(false)
                 .nextPage(false)
                 .content(Collections.singletonList(Answer.of(TestData.USER.MODEL_0)))
@@ -106,8 +107,8 @@ public class UserServiceTest {
         PageRequest pageRequest = new PageRequest(0L, (short) (Short.MAX_VALUE - 2));
         var expected = Page.<Answer>builder()
                 .totalPages(0L)
-                .totalElements(0)
-                .pageSize((short) 0)
+                .totalRecords(0)
+                .rows((short) 0)
                 .prevPage(false)
                 .nextPage(false)
                 .content(Collections.emptyList())
@@ -130,8 +131,8 @@ public class UserServiceTest {
         PageRequest pageRequest = new PageRequest(0, (short) 0);
         var expected = Page.<Answer>builder()
                 .totalPages(0L)
-                .totalElements(1)
-                .pageSize((short) 0)
+                .totalRecords(1)
+                .rows((short) 0)
                 .prevPage(false)
                 .nextPage(false)
                 .content(Collections.emptyList())

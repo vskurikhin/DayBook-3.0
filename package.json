@@ -10,6 +10,8 @@
     "@testing-library/react": "^13.0.0",
     "@testing-library/user-event": "^13.2.1",
     "mini-css-extract-plugin": "^2.7.2",
+    "primeicons": "^6.0.1",
+    "primereact": "^8.7.3",
     "prop-types": "^15.8.1",
     "re-reselect": "^4.0.1",
     "react": "^18.2.0",

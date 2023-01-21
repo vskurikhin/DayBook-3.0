@@ -116,8 +116,8 @@ class @Name@ServiceTest {
         PageRequest pageRequest = new PageRequest(0L, (short) (Short.MAX_VALUE - 1));
         var expected = Page.<Answer>builder()
                 .totalPages(1L)
-                .totalElements(1)
-                .pageSize((short) 1)
+                .totalRecords(1)
+                .rows((short) 1)
                 .prevPage(false)
                 .nextPage(false)
                 .content(Collections.singletonList(Answer.of(TestData.@TABLE@.MODEL_0)))
@@ -140,8 +140,8 @@ class @Name@ServiceTest {
         PageRequest pageRequest = new PageRequest(0L, (short) (Short.MAX_VALUE - 2));
         var expected = Page.<Answer>builder()
                 .totalPages(0L)
-                .totalElements(0)
-                .pageSize((short) 0)
+                .totalRecords(0)
+                .rows((short) 0)
                 .prevPage(false)
                 .nextPage(false)
                 .content(Collections.emptyList())
@@ -164,8 +164,8 @@ class @Name@ServiceTest {
         PageRequest pageRequest = new PageRequest(0, (short) 0);
         var expected = Page.<Answer>builder()
                 .totalPages(0L)
-                .totalElements(1)
-                .pageSize((short) 0)
+                .totalRecords(1)
+                .rows((short) 0)
                 .prevPage(false)
                 .nextPage(false)
                 .content(Collections.emptyList())

@@ -21,13 +21,13 @@ class ResourcePathTest {
     @Test
     void testMethodStringEquals() {
         Assertions.assertTrue(ResourcePath.Null.stringEquals(null));
-        Assertions.assertTrue(ResourcePath.KeyValue.stringEquals("/key-value"));
+        Assertions.assertTrue(ResourcePath.KeyValue.stringEquals("/api/v1/key-value"));
     }
 
     @Test
     void testMethodLookup() {
         Assertions.assertEquals(ResourcePath.Null, ResourcePath.lookup(null));
-        Assertions.assertEquals(ResourcePath.KeyValue, ResourcePath.lookup("/key-value"));
+        Assertions.assertEquals(ResourcePath.KeyValue, ResourcePath.lookup("/api/v1/key-value"));
         Assertions.assertNull(ResourcePath.lookup("VmeVXS0318/Zb/O8Xots9Qr3VCWIrsH3YNGeTpdrdGKnZhEz91SW3rFQqCCupzpWb"));
     }
 }

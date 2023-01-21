@@ -47,4 +47,10 @@ public class AuthenticationContext implements Closeable {
         this.principal = null;
         this.id = null;
     }
+
+    @Override
+    protected void finalize() throws Throwable {
+        LOG.infof("finalize(%s).id: %s", this, id);
+        super.finalize();
+    }
 }
