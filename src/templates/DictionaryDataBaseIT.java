@@ -24,7 +24,7 @@ import static su.svn.daybook.TestUtils.uniOptionalHelper;
 
 @QuarkusTest
 @QuarkusTestResource(value = PostgresDatabaseTestResource.class, restrictToAnnotatedClass = true)
-public class DataBase@Name@TableIT {
+public class @Name@DataBaseIT {
     @Inject
     @Name@Dao @name@Dao;
 

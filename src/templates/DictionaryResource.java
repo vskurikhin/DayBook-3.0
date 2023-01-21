@@ -39,7 +39,7 @@ import java.util.UUID;
 @Path(ResourcePath.@TABLE@) @Logged
 public class @Name@Resource extends AbstractResource implements Resource<@IdType@, @Name@> {
 
-    @Operation(hidden = true)
+    // @Operation(hidden = true)
     @GET
     @Path(ResourcePath.ID)
     @Produces(MediaType.APPLICATION_JSON)
@@ -47,7 +47,7 @@ public class @Name@Resource extends AbstractResource implements Resource<@IdType
         return request(EventAddress.@TABLE@_GET, id, uriInfo);
     }
 
-    @Operation(hidden = true)
+    // @Operation(hidden = true)
     @GET
     @Path(ResourcePath.PAGE)
     @Produces(MediaType.APPLICATION_JSON)
@@ -55,7 +55,7 @@ public class @Name@Resource extends AbstractResource implements Resource<@IdType
         return requestPage(EventAddress.@TABLE@_PAGE, new PageRequest(page, limit));
     }
 
-    @Operation(hidden = true)
+    // @Operation(hidden = true)
     @POST
     @Path(ResourcePath.NONE)
     @Consumes(MediaType.APPLICATION_JSON)
@@ -64,7 +64,7 @@ public class @Name@Resource extends AbstractResource implements Resource<@IdType
         return request(EventAddress.@TABLE@_ADD, entry, uriInfo);
     }
 
-    @Operation(hidden = true)
+    // @Operation(hidden = true)
     @PUT
     @Path(ResourcePath.NONE)
     @Consumes(MediaType.APPLICATION_JSON)
@@ -73,7 +73,7 @@ public class @Name@Resource extends AbstractResource implements Resource<@IdType
         return request(EventAddress.@TABLE@_PUT, entry, uriInfo);
     }
 
-    @Operation(hidden = true)
+    // @Operation(hidden = true)
     @DELETE
     @Path(ResourcePath.ID)
     @Produces(MediaType.APPLICATION_JSON)

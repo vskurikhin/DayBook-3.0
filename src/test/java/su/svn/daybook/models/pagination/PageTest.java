@@ -3,7 +3,6 @@ package su.svn.daybook.models.pagination;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import nl.jqno.equalsverifier.Warning;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
@@ -14,7 +13,7 @@ class PageTest {
     void testConstructors() {
         Assertions.assertDoesNotThrow(() -> new Page<>());
         Assertions.assertDoesNotThrow(() -> new Page<>(
-                0L, (short) 0, 0, 0L, false, false, Collections.emptyList()
+                0L, 0L, (short) 0, 0, 0L, false, false, Collections.emptyList()
         ));
     }
 
@@ -22,9 +21,9 @@ class PageTest {
     void testGetters() {
         var entry = new Page<>();
         Assertions.assertDoesNotThrow(entry::getContent);
-        Assertions.assertDoesNotThrow(entry::getPageNumber);
-        Assertions.assertDoesNotThrow(entry::getPageSize);
-        Assertions.assertDoesNotThrow(entry::getTotalElements);
+        Assertions.assertDoesNotThrow(entry::getPage);
+        Assertions.assertDoesNotThrow(entry::getRows);
+        Assertions.assertDoesNotThrow(entry::getTotalRecords);
         Assertions.assertDoesNotThrow(entry::getTotalPages);
         Assertions.assertDoesNotThrow(entry::isNextPage);
         Assertions.assertDoesNotThrow(entry::isPrevPage);
@@ -49,11 +48,12 @@ class PageTest {
     void testBuilder() {
         Assertions.assertDoesNotThrow(() -> Assertions.assertNotNull(Page.builder()
                 .content(Collections.emptyList())
-                .pageNumber(0)
-                .pageSize((short) 0)
+                .first(0)
+                .page(0)
+                .rows((short) 0)
                 .nextPage(false)
                 .prevPage(false)
-                .totalElements(0)
+                .totalRecords(0)
                 .totalPages(0L)
                 .build()));
         Assertions.assertDoesNotThrow(() -> Assertions.assertNotNull(new Page<>().toBuilder().build()));

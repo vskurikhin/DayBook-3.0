@@ -51,7 +51,7 @@ public class PageService {
 
         LOG.tracef("fetchPageAnswer(%d, %s, BiFunction)", count, pageRequest);
         var limit = pageRequest.getLimit();
-        var offset = pageRequest.getPageNumber() * limit;
+        var offset = (pageRequest.getPageNumber() - 1) * limit;
         LOG.tracef("fetchPageAnswer: limit=%d, offset=%d", limit, offset);
         var uniCount = Uni.createFrom().item(count);
         var uniPageRequest = Uni.createFrom().item(pageRequest);
@@ -70,17 +70,18 @@ public class PageService {
         var pageNumber = request.getPageNumber();
         var totalPages = request.calculateTotalPages(totalElements);
         var currentPageSize = posts.size();
-        var hasPrevPage = pageNumber > 0 && totalElements > 0;
+        var hasPrevPage = pageNumber > 1 && totalElements > 0;
         var hasNextPage = pageNumber < (totalPages - 1);
         LOG.infof(
                 "preparePageAnswer: pageNumber=%d, totalPages=%d, currentPageSize=%d, hasPrevPage=%s, hasNextPage=%s",
                 pageNumber, totalPages, currentPageSize, hasPrevPage, hasNextPage
         );
         return Page.<Answer>builder()
-                .pageNumber(pageNumber)
-                .pageSize((short) currentPageSize)
+                .first(0)
+                .page(pageNumber)
+                .rows((short) currentPageSize)
                 .totalPages(totalPages)
-                .totalElements(totalElements)
+                .totalRecords(totalElements)
                 .prevPage(hasPrevPage)
                 .nextPage(hasNextPage)
                 .content(posts)

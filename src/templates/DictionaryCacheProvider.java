@@ -8,8 +8,8 @@
 
 package su.svn.daybook.services.cache;
 
+import io.micrometer.core.annotation.Counted;
 import io.quarkus.cache.CacheKey;
-import io.quarkus.cache.CacheManager;
 import io.quarkus.cache.CacheResult;
 import io.smallrye.mutiny.Uni;
 import org.jboss.logging.Logger;
@@ -27,12 +27,9 @@ import javax.inject.Inject;
 import java.util.UUID;
 
 @ApplicationScoped
-public class @Name@CacheProvider extends AbstractCacheProvider<@IdType@> {
+public class @Name@CacheProvider extends AbstractCacheProvider<@IdType@, @Name@> {
 
     private static final Logger LOG = Logger.getLogger(@Name@CacheProvider.class);
-
-    @Inject
-    CacheManager cacheManager;
 
     @Inject
     PageService pageService;
@@ -45,12 +42,14 @@ public class @Name@CacheProvider extends AbstractCacheProvider<@IdType@> {
     }
 
     @Logged
+    @Counted
     @CacheResult(cacheName = EventAddress.@TABLE@_GET)
     public Uni<@Name@> get(@CacheKey @IdType@ id) {
         return @name@DataService.get(id);
     }
 
     @Logged
+    @Counted
     @CacheResult(cacheName = EventAddress.@TABLE@_PAGE)
     public Uni<Page<Answer>> getPage(@CacheKey PageRequest pageRequest) {
         return pageService.getPage(pageRequest, @name@DataService::count, @name@DataService::findRange, Answer::of);
@@ -62,12 +61,7 @@ public class @Name@CacheProvider extends AbstractCacheProvider<@IdType@> {
     }
 
     @Override
-    public Uni<Answer> invalidateById(@IdType@ id, Answer answer) {
-        return invalidateCacheById(id).map(l -> answer);
-    }
-
-    @Override
-    protected CacheManager getCacheManager() {
-        return cacheManager;
+    public Uni<Answer> invalidateBy@Key@(@IdType@ id, Answer answer) {
+        return invalidateCacheBy@Key@(id).map(l -> answer);
     }
 }

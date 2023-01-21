@@ -13,11 +13,12 @@ const smp = new SpeedMeasurePlugin();
 //формируем настройки
 module.exports = smp.wrap({
     entry: {
-        index: path.join(__dirname, 'src/main/js/index.js')
+        index: path.join(__dirname, 'src/main/js/index.js'),
+        // posts: path.join(__dirname, 'src/main/js/posts/index.js')
     },
     output: {
         path: path.join(__dirname, 'src/main/resources/META-INF/resources'),
-        filename: 'app-bundle.js'
+        filename: 'app-bundle-[name].js'
     },
     resolve: {extensions: ['.js', '.jsx', '.scss']},
     performance: {

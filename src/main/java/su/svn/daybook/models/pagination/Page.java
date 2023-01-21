@@ -14,9 +14,14 @@ public final class Page<T extends Serializable> implements Serializable {
     public static final long UPPER_BOUND = 70366596661249L;
     @Serial
     private static final long serialVersionUID = 2449524933936750999L;
-    private final long pageNumber;
-    private final Short pageSize;
-    private final long totalElements;
+    @JsonIgnore
+    private final long first;
+    @JsonIgnore
+    private final long page; // page number
+    @JsonIgnore
+    private final Short rows; // page size
+    private final long totalRecords;
+    @JsonIgnore
     private final Long totalPages;
     private final boolean nextPage;
     private final boolean prevPage;
@@ -27,20 +32,22 @@ public final class Page<T extends Serializable> implements Serializable {
     private transient boolean hashIsZero;
 
     public Page() {
-        this(0, null, 0, null, false, false, null);
+        this(0, 0, null, 0, null, false, false, null);
     }
 
     public Page(
-            long pageNumber,
-            Short pageSize,
-            long totalElements,
+            long first,
+            long page,
+            Short rows,
+            long totalRecords,
             Long totalPages,
             boolean nextPage,
             boolean prevPage,
             List<T> content) {
-        this.pageNumber = pageNumber;
-        this.pageSize = pageSize;
-        this.totalElements = totalElements;
+        this.first = first;
+        this.page = page;
+        this.rows = rows;
+        this.totalRecords = totalRecords;
         this.totalPages = totalPages;
         this.prevPage = prevPage;
         this.nextPage = nextPage;
@@ -53,9 +60,9 @@ public final class Page<T extends Serializable> implements Serializable {
 
     public <L extends Serializable> Builder<L> convertToBuilderWith(List<L> list) {
         return new Builder<L>()
-                .pageNumber(this.pageNumber)
-                .pageSize(this.pageSize)
-                .totalElements(this.totalElements)
+                .page(this.page)
+                .rows(this.rows)
+                .totalRecords(this.totalRecords)
                 .totalPages(this.totalPages)
                 .prevPage(this.prevPage)
                 .nextPage(this.nextPage)
@@ -64,23 +71,27 @@ public final class Page<T extends Serializable> implements Serializable {
 
     public Builder<T> toBuilder() {
         return new Builder<T>()
-                .pageNumber(this.pageNumber)
-                .pageSize(this.pageSize)
-                .totalElements(this.totalElements)
+                .page(this.page)
+                .rows(this.rows)
+                .totalRecords(this.totalRecords)
                 .totalPages(this.totalPages)
                 .content(this.content);
     }
 
-    public long getPageNumber() {
-        return pageNumber;
+    public long getFirst() {
+        return first;
     }
 
-    public Short getPageSize() {
-        return pageSize;
+    public long getPage() {
+        return page;
     }
 
-    public long getTotalElements() {
-        return totalElements;
+    public Short getRows() {
+        return rows;
+    }
+
+    public long getTotalRecords() {
+        return totalRecords;
     }
 
     public Long getTotalPages() {
@@ -104,11 +115,12 @@ public final class Page<T extends Serializable> implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Page<?> page = (Page<?>) o;
-        return nextPage == page.nextPage
+        return first == page.first
+                && nextPage == page.nextPage
                 && prevPage == page.prevPage
-                && pageNumber == page.pageNumber
-                && Objects.equals(pageSize, page.pageSize)
-                && totalElements == page.totalElements
+                && this.page == page.page
+                && Objects.equals(rows, page.rows)
+                && totalRecords == page.totalRecords
                 && Objects.equals(totalPages, page.totalPages)
                 && Objects.equals(content, page.content);
     }
@@ -128,16 +140,17 @@ public final class Page<T extends Serializable> implements Serializable {
     }
 
     private int calculateHashCode() {
-        return Objects.hash(pageNumber, pageSize, totalElements, totalPages, nextPage, prevPage, content);
+        return Objects.hash(first, page, rows, totalRecords, totalPages, nextPage, prevPage, content);
     }
 
     @Override
     public String toString() {
         return "Page{" +
-                "totalPages=" + totalPages +
-                ", totalElements=" + totalElements +
-                ", pageSize=" + pageSize +
-                ", pageCount=" + pageNumber +
+                "first=" + first +
+                ", rows=" + rows +
+                ", page=" + page +
+                ", totalPages=" + totalPages +
+                ", totalRecords=" + totalRecords +
                 ", nextPage=" + nextPage +
                 ", prevPage=" + prevPage +
                 ", content=" + content +
@@ -145,9 +158,10 @@ public final class Page<T extends Serializable> implements Serializable {
     }
 
     public static final class Builder<V extends Serializable> {
-        private long pageNumber;
-        private Short pageSize;
-        private long totalElements;
+        private long first;
+        private long page;
+        private Short rows;
+        private long totalRecords;
         private Long totalPages;
         private boolean nextPage;
         private boolean prevPage;
@@ -156,18 +170,23 @@ public final class Page<T extends Serializable> implements Serializable {
         private Builder() {
         }
 
-        public Builder<V> pageNumber(long pageNumber) {
-            this.pageNumber = pageNumber;
+        public Builder<V> first(long first) {
+            this.first = first;
             return this;
         }
 
-        public Builder<V> pageSize(Short pageSize) {
-            this.pageSize = pageSize;
+        public Builder<V> page(long page) {
+            this.page = page;
             return this;
         }
 
-        public Builder<V> totalElements(long totalElements) {
-            this.totalElements = totalElements;
+        public Builder<V> rows(Short rows) {
+            this.rows = rows;
+            return this;
+        }
+
+        public Builder<V> totalRecords(long totalElements) {
+            this.totalRecords = totalElements;
             return this;
         }
 
@@ -175,7 +194,6 @@ public final class Page<T extends Serializable> implements Serializable {
             this.totalPages = totalPages;
             return this;
         }
-
 
         public Builder<V> nextPage(boolean nextPage) {
             this.nextPage = nextPage;
@@ -193,7 +211,7 @@ public final class Page<T extends Serializable> implements Serializable {
         }
 
         public Page<V> build() {
-            return new Page<>(pageNumber, pageSize, totalElements, totalPages, nextPage, prevPage, content);
+            return new Page<>(first, page, rows, totalRecords, totalPages, nextPage, prevPage, content);
         }
     }
 }

@@ -30,7 +30,8 @@ s/Value/@Value@/g;
 s/key/@key@/g;
 s/value/@value@/g;
 s/dictionary/@schema@/g;
-'
+s/dictionary/@schema@/g;
+s/Cache@Key@/CacheKey/g'
 for file in $list_files
 do
   directory=${file%/*}
