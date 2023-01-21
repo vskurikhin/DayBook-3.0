@@ -16,14 +16,14 @@ import javax.annotation.Nonnull;
 import java.io.Serializable;
 import java.util.function.Function;
 
-abstract class AbstractDao<I extends Comparable<? extends Serializable>, D extends CasesOfId<I>>
+public abstract class AbstractDao<I extends Comparable<? extends Serializable>, D extends CasesOfId<I>>
         extends AbstractViewDao<I, D> {
 
     public static final String DELETE = "delete";
     public static final String INSERT = "insert";
     public static final String UPDATE = "update";
 
-    AbstractDao(String id,@Nonnull Function<Row, I> idFunction, @Nonnull Function<Row, D> fromFunction) {
+    AbstractDao(String id, @Nonnull Function<Row, I> idFunction, @Nonnull Function<Row, D> fromFunction) {
         super(id, idFunction, fromFunction);
     }
 

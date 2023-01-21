@@ -21,31 +21,35 @@ import java.util.Optional;
 import java.util.UUID;
 
 @ApplicationScoped
-public class KeyValueDao extends AbstractDao<UUID, KeyValueTable> {
+public class KeyValueDao extends AbstractDao<UUID, KeyValueTable> implements DaoIface<UUID, KeyValueTable> {
 
     KeyValueDao() {
         super(KeyValueTable.ID, r -> r.getUUID(KeyValueTable.ID), KeyValueTable::from);
     }
 
     @Logged
+    @Override
     @SQL(KeyValueTable.COUNT_DICTIONARY_KEY_VALUE)
     public Uni<Optional<Long>> count() {
         return super.countSQL().map(Optional::ofNullable);
     }
 
     @Logged
+    @Override
     @SQL(KeyValueTable.DELETE_FROM_DICTIONARY_KEY_VALUE_WHERE_ID_$1_RETURNING_S)
     public Uni<Optional<UUID>> delete(UUID id) {
         return super.deleteSQL(id).map(Optional::ofNullable);
     }
 
     @Logged
+    @Override
     @SQL(KeyValueTable.SELECT_ALL_FROM_DICTIONARY_KEY_VALUE_ORDER_BY_S)
     public Multi<KeyValueTable> findAll() {
         return super.findAllSQL();
     }
 
     @Logged
+    @Override
     @SQL(KeyValueTable.SELECT_FROM_DICTIONARY_KEY_VALUE_WHERE_ID_$1)
     public Uni<Optional<KeyValueTable>> findById(UUID id) {
         return super.findByIdSQL(id).map(Optional::ofNullable);
@@ -64,30 +68,35 @@ public class KeyValueDao extends AbstractDao<UUID, KeyValueTable> {
     }
 
     @Logged
+    @Override
     @SQL(KeyValueTable.SELECT_ALL_FROM_DICTIONARY_KEY_VALUE_ORDER_BY_S_OFFSET_$1_LIMIT_$2)
     public Multi<KeyValueTable> findRange(long offset, long limit) {
         return super.findRangeSQL(offset, limit);
     }
 
     @Logged
+    @Override
     @SQL
     public Uni<Optional<UUID>> insert(KeyValueTable entry) {
         return super.insertSQL(entry).map(Optional::ofNullable);
     }
 
     @Logged
+    @Override
     @SQL
     public Uni<Optional<KeyValueTable>> insertEntry(KeyValueTable entry) {
         return super.insertSQLEntry(entry).map(Optional::ofNullable);
     }
 
     @Logged
+    @Override
     @SQL(KeyValueTable.UPDATE_DICTIONARY_KEY_VALUE_WHERE_ID_$1_RETURNING_S)
     public Uni<Optional<UUID>> update(KeyValueTable entry) {
         return super.updateSQL(entry).map(Optional::ofNullable);
     }
 
     @Logged
+    @Override
     @SQL(KeyValueTable.UPDATE_DICTIONARY_KEY_VALUE_WHERE_ID_$1_RETURNING_S)
     public Uni<Optional<KeyValueTable>> updateEntry(KeyValueTable entry) {
         return super.updateSQLEntry(entry).map(Optional::ofNullable);

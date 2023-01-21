@@ -8,7 +8,6 @@
 
 package su.svn.daybook;
 
-import io.quarkus.security.runtime.QuarkusPrincipal;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
 import io.vertx.core.json.JsonObject;
@@ -34,8 +33,8 @@ import static su.svn.daybook.TestUtils.*;
 @QuarkusTest
 @QuarkusTestResource(value = PostgresDatabaseTestResource.class, restrictToAnnotatedClass = true)
 public class DataBaseIT {
-//    @Inject
-//    CodifierDao codifierDao;
+    @Inject
+    CodifierDao codifierDao;
 //    @Inject
 //    I18nDao i18nDao;
     @Inject
@@ -65,83 +64,95 @@ public class DataBaseIT {
     @Inject
     WordDao wordDao;
 
-//    @Nested
-//    @DisplayName("CodifierDao")
-//    class CodifierDaoTest {
-//        String id;
-//        String str = "str";
-//        CodifierTable entry;
-//
-//        @BeforeEach
-//        void setUp() {
-//            entry = CodifierTable.builder()
-//                    .code(str)
-//                    .enabled(true)
-//                    .build();
-//            Assertions.assertDoesNotThrow(() -> {
-//                id = uniOptionalHelper(codifierDao.insert(entry));
-//                Assertions.assertEquals(str, id);
-//            });
-//        }
-//
-//        @AfterEach
-//        void tearDown() {
-//            Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(id, uniOptionalHelper(codifierDao.delete(id))));
-//            Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(0, uniOptionalHelper(codifierDao.count())));
-//        }
-//
-//        @Test
-//        void test() {
-//            var expected1 = CodifierTable.builder()
-//                    .code(id)
-//                    .enabled(true)
-//                    .build();
-//            Assertions.assertDoesNotThrow(() -> {
-//                var test = uniOptionalHelper(codifierDao.findById(id));
-//                Assertions.assertNotNull(test);
-//                Assertions.assertEquals(expected1, test);
-//                Assertions.assertNotNull(test.getCreateTime());
-//                Assertions.assertNull(test.getUpdateTime());
-//            });
-//            Assertions.assertDoesNotThrow(() -> {
-//                var test = uniOptionalHelper(codifierDao.findByCode(id));
-//                Assertions.assertNotNull(test);
-//                Assertions.assertEquals(expected1, test);
-//                Assertions.assertNotNull(test.getCreateTime());
-//                Assertions.assertNull(test.getUpdateTime());
-//            });
-//            Assertions.assertDoesNotThrow(() -> {
-//                var test = multiAsListHelper(codifierDao.findRange(0, 0));
-//                Assertions.assertNotNull(test);
-//                Assertions.assertTrue(test.isEmpty());
-//            });
-//            Assertions.assertDoesNotThrow(() -> {
-//                var test = multiAsListHelper(codifierDao.findRange(0, 1));
-//                Assertions.assertNotNull(test);
-//                Assertions.assertFalse(test.isEmpty());
-//                Assertions.assertEquals(1, test.size());
-//            });
-//            var expected2 = CodifierTable.builder()
-//                    .code(id)
-//                    .value("value")
-//                    .enabled(true)
-//                    .build();
-//            Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(id, uniOptionalHelper(codifierDao.update(expected2))));
-//            Assertions.assertDoesNotThrow(() -> {
-//                var test = uniOptionalHelper(codifierDao.findById(id));
-//                Assertions.assertNotNull(test);
-//                Assertions.assertEquals(expected2, test);
-//                Assertions.assertNotNull(test.getCreateTime());
-//                Assertions.assertNotNull(test.getUpdateTime());
-//            });
-//            Assertions.assertDoesNotThrow(() -> {
-//                var test = multiAsListHelper(codifierDao.findAll());
-//                Assertions.assertNotNull(test);
-//                Assertions.assertFalse(test.isEmpty());
-//                Assertions.assertEquals(1, test.size());
-//            });
-//        }
-//    }
+    @Nested
+    @DisplayName("CodifierDao")
+    class CodifierDaoTest extends AbstractDaoTest<String, CodifierTable> {
+        String customId = "";
+        String str = "str";
+
+        @BeforeEach
+        void setUp() {
+            var entry = CodifierTable.builder()
+                    .code(str)
+                    .enabled(true)
+                    .build();
+            super.setUp(codifierDao, entry, customId);
+        }
+
+        @AfterEach
+        void tearDown() {
+            super.tearDown();
+        }
+
+        CodifierTable.Builder builder(String id, CodifierTable test) {
+            return CodifierTable.builder()
+                    .code(id)
+                    .createTime(test.createTime())
+                    .updateTime(test.updateTime())
+                    .enabled(true);
+        }
+
+        CodifierTable expected(String id, CodifierTable test) {
+            Assertions.assertNotNull(test);
+            return builder(id, test).build();
+        }
+
+        CodifierTable expected(String id, String value, CodifierTable test) {
+            Assertions.assertNotNull(test);
+            return builder(id, test).value(value).build();
+        }
+
+        @Test
+        void test() {
+            super.whenFindByIdThenEntry(this::expected);
+
+            var update = CodifierTable.builder().code(super.id).value("value1").build();
+            super.whenUpdateAndFindByIdThenEntry((id, test) -> expected(id, "value1", test), update);
+
+            super.whenFindAllThenMultiWithOneItem();
+            super.whenFindRangeZeroThenEmptiestMulti();
+            super.whenFindRangeFromZeroLimitOneThenMultiWithOneItem();
+
+            var custom = CodifierTable.builder()
+                    .code(customId)
+                    .value("value2")
+                    .build();
+            super.whenInsertCustomThenEntry((id, test) -> expected(id, "value2", test), custom);
+            var customUpdate = CodifierTable.builder()
+                    .code(super.customId)
+                    .value("value3")
+                    .build();
+            super.whenUpdateCustomAndFindByIdThenEntry(
+                    (id, test) -> expected(id, "value3", test),
+                    customUpdate
+            );
+
+            super.whenFindRangeFromZeroToOneThenMultiWithOneItemCustom(
+                    (id, test) -> expected(id, "value3", test)
+            );
+            super.whenFindRangeFromZeroToMaxValueThenMultiWithTwoItems();
+            super.whenFindRangeFromOneLimitOneMultiWithOneItem();
+
+            Assertions.assertDoesNotThrow(() -> {
+                var test = uniOptionalHelper(codifierDao.findByKey(super.id));
+                var expected = expected(super.id, "value1", test);
+                Assertions.assertEquals(expected, test);
+                Assertions.assertNotNull(test.createTime());
+                Assertions.assertNotNull(test.updateTime());
+            });
+
+            Assertions.assertDoesNotThrow(() -> {
+                var test = multiAsListHelper(codifierDao.findByValue("value3"));
+                Assertions.assertNotNull(test);
+                Assertions.assertFalse(test.isEmpty());
+                Assertions.assertEquals(1, test.size());
+                var expected = expected(customId, "value3", test.get(0));
+                Assertions.assertEquals(expected, test.get(0));
+            });
+
+            super.whenDeleteCustomThenOk();
+        }
+    }
 //
 //    @Nested
 //    @DisplayName("I18nDao")
@@ -234,26 +245,21 @@ public class DataBaseIT {
 
     @Nested
     @DisplayName("KeyValueDao")
-    class KeyValueDaoTest {
-        UUID id;
-        UUID customId = TestData.uuid.ONE;
-        KeyValueTable entry;
+    class KeyValueDaoTest extends AbstractDaoTest<UUID, KeyValueTable> {
 
         @BeforeEach
         void setUp() {
-            entry = KeyValueTable.builder()
+            var entry = KeyValueTable.builder()
                     .key(BigInteger.ONE)
                     .enabled(true)
                     .build();
-            Assertions.assertDoesNotThrow(() -> {
-                id = uniOptionalHelper(keyValueDao.insert(entry));
-            });
+            UUID customId = TestData.uuid.ONE;
+            super.setUp(keyValueDao, entry, customId);
         }
 
         @AfterEach
         void tearDown() {
-            Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(id, uniOptionalHelper(keyValueDao.delete(id))));
-            Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(0, uniOptionalHelper(keyValueDao.count())));
+            super.tearDown();
         }
 
         KeyValueTable.Builder builder(UUID id, BigInteger key, KeyValueTable test) {
@@ -277,66 +283,48 @@ public class DataBaseIT {
 
         @Test
         void test() {
-            Assertions.assertDoesNotThrow(() -> {
-                var test = uniOptionalHelper(keyValueDao.findById(id));
-                var expected = expected(id, BigInteger.ONE, test);
-                Assertions.assertEquals(expected, test);
-                Assertions.assertNotNull(test.createTime());
-                Assertions.assertNull(test.updateTime());
-            });
-            var update = KeyValueTable.builder().id(id).key(BigInteger.TWO).build();
-            Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(id, uniOptionalHelper(keyValueDao.update(update))));
-            Assertions.assertDoesNotThrow(() -> {
-                var test = uniOptionalHelper(keyValueDao.findById(id));
-                var expected = expected(id, BigInteger.TWO, test);
-                Assertions.assertEquals(expected, test);
-                Assertions.assertNotNull(test.createTime());
-                Assertions.assertNotNull(test.updateTime());
-            });
-            Assertions.assertDoesNotThrow(() -> {
-                var test = uniOptionalHelper(keyValueDao.findByKey(BigInteger.TWO));
-                var expected = expected(id, BigInteger.TWO, test);
-                Assertions.assertEquals(expected, test);
-                Assertions.assertNotNull(test.createTime());
-                Assertions.assertNotNull(test.updateTime());
-            });
-            Assertions.assertDoesNotThrow(() -> {
-                var test = multiAsListHelper((keyValueDao.findAll()));
-                Assertions.assertNotNull(test);
-                Assertions.assertFalse(test.isEmpty());
-                Assertions.assertEquals(1, test.size());
-            });
-            Assertions.assertDoesNotThrow(() -> {
-                var test = multiAsListHelper(keyValueDao.findRange(0, 0));
-                Assertions.assertNotNull(test);
-                Assertions.assertTrue(test.isEmpty());
-            });
-            Assertions.assertDoesNotThrow(() -> {
-                var test = multiAsListHelper(keyValueDao.findRange(0, 1));
-                Assertions.assertNotNull(test);
-                Assertions.assertFalse(test.isEmpty());
-                Assertions.assertEquals(1, test.size());
-            });
+            super.whenFindByIdThenEntry((id, test) -> expected(id, BigInteger.ONE, test));
+
+            var update = KeyValueTable.builder().id(super.id).key(BigInteger.TWO).build();
+            super.whenUpdateAndFindByIdThenEntry((id, test) -> expected(id, BigInteger.TWO, test), update);
+
+            super.whenFindAllThenMultiWithOneItem();
+            super.whenFindRangeZeroThenEmptiestMulti();
+            super.whenFindRangeFromZeroLimitOneThenMultiWithOneItem();
+
             var custom = KeyValueTable.builder()
                     .id(customId)
                     .key(BigInteger.valueOf(7))
                     .value(new JsonObject("{}"))
                     .build();
-            Assertions.assertDoesNotThrow(() -> {
-                var test = uniOptionalHelper(keyValueDao.insertEntry(custom));
-                var expected = expected(customId, BigInteger.valueOf(7), new JsonObject("{}"), test);
-                Assertions.assertEquals(expected, test);
-            });
+            super.whenInsertCustomThenEntry(
+                    (id, test) -> expected(id, BigInteger.valueOf(7), new JsonObject("{}"), test),
+                    custom
+            );
             var customUpdate = KeyValueTable.builder()
                     .id(customId)
                     .key(BigInteger.TEN)
                     .value(new JsonObject("{}"))
                     .build();
+            super.whenUpdateCustomAndFindByIdThenEntry(
+                    (id, test) -> expected(id, BigInteger.TEN, new JsonObject("{}"), test),
+                    customUpdate
+            );
+
+            super.whenFindRangeFromZeroToOneThenMultiWithOneItemCustom(
+                    (id, test) -> expected(id, BigInteger.TEN, new JsonObject("{}"), test)
+            );
+            super.whenFindRangeFromZeroToMaxValueThenMultiWithTwoItems();
+            super.whenFindRangeFromOneLimitOneMultiWithOneItem();
+
             Assertions.assertDoesNotThrow(() -> {
-                var test = uniOptionalHelper(keyValueDao.updateEntry(customUpdate));
-                var expected = expected(customId, BigInteger.TEN, new JsonObject("{}"), test);
+                var test = uniOptionalHelper(keyValueDao.findByKey(BigInteger.TWO));
+                var expected = expected(super.id, BigInteger.TWO, test);
                 Assertions.assertEquals(expected, test);
+                Assertions.assertNotNull(test.createTime());
+                Assertions.assertNotNull(test.updateTime());
             });
+
             Assertions.assertDoesNotThrow(() -> {
                 var test = multiAsListHelper(keyValueDao.findByValue(new JsonObject("{}")));
                 Assertions.assertNotNull(test);
@@ -345,28 +333,8 @@ public class DataBaseIT {
                 var expected = expected(customId, BigInteger.TEN, new JsonObject("{}"), test.get(0));
                 Assertions.assertEquals(expected, test.get(0));
             });
-            Assertions.assertDoesNotThrow(() -> {
-                var test = multiAsListHelper(keyValueDao.findRange(0, 1));
-                Assertions.assertNotNull(test);
-                Assertions.assertFalse(test.isEmpty());
-                Assertions.assertEquals(1, test.size());
-                var expected = expected(customId, BigInteger.TEN, new JsonObject("{}"), test.get(0));
-                Assertions.assertEquals(expected, test.get(0));
-            });
-            Assertions.assertDoesNotThrow(() -> {
-                var test = multiAsListHelper(keyValueDao.findRange(0, Long.MAX_VALUE));
-                Assertions.assertNotNull(test);
-                Assertions.assertFalse(test.isEmpty());
-                Assertions.assertEquals(2, test.size());
-            });
-            Assertions.assertDoesNotThrow(() -> {
-                var test = multiAsListHelper(keyValueDao.findRange(1, 1));
-                Assertions.assertNotNull(test);
-                Assertions.assertFalse(test.isEmpty());
-                Assertions.assertEquals(1, test.size());
-            });
-            Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(customId, uniOptionalHelper(keyValueDao.delete(customId)))
-            );
+
+            super.whenDeleteCustomThenOk();
         }
     }
 
