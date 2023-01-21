@@ -132,14 +132,14 @@ public final class Answer implements Serializable {
     }
 
     private int calculateHashCode() {
-        return Objects.hash(message, error, payload, payloadClass);
+        return Objects.hash(error, message, payload, payloadClass);
     }
 
     @Override
     public String toString() {
         return "Answer{" +
-                "message='" + message + '\'' +
-                ", error=" + error +
+                "error=" + error +
+                ", message='" + message + '\'' +
                 ", payload=" + payload +
                 ", payloadClass=" + ((payloadClass != null) ? payloadClass.getCanonicalName() : "null") +
                 '}';

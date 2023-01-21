@@ -50,6 +50,12 @@ public class TestData {
         public static final Request<UUID> REQUEST_3 = new Request<>(uuid.RANDOM2, null);
     }
 
+    public static class string {
+        public static final Uni<Optional<String>> UNI_OPTIONAL_STRING_ZERO_UUID = Uni.createFrom().item(Optional.of(
+                uuid.STRING_ZERO
+        ));
+    }
+
     public static class time {
         public static final LocalDateTime NOW = localDateTime(LocalDateTime.now());
         public static final LocalDateTime MAX = localDateTime(LocalDateTime.MAX);
@@ -68,31 +74,31 @@ public class TestData {
         public static Uni<Optional<UUID>> UNI_OPTIONAL_ZERO = Uni.createFrom().item(Optional.of(ZERO));
     }
 
-//    public static class CODIFIER {
-//        public static final Codifier MODEL_0 = new Codifier(
-//                CodifierTable.NONE, null, true, 0
-//        );
-//        public static final CodifierTable TABLE_0 = new CodifierTable(
-//                CodifierTable.NONE, null, null, null, null, true, true, 0
-//        );
-//        public static final Uni<Page<Answer>> UNI_PAGE_ANSWER_SINGLETON_TEST = Uni.createFrom()
-//                .item(
-//                        Page.<Answer>builder()
-//                                .content(Collections.singletonList(Answer.of(MODEL_0)))
-//                                .build()
-//                );
-//        public static final String JSON_0 = """
-//                {"code":"\
-//                """ + CodifierTable.NONE + """
-//                ","visible":true,"flags":0}\
-//                """;
-//        public static final String JSON_ARRAY_SINGLETON_0 = "[" + JSON_0 + "]";
-//        public static final String JSON_ID_0 = "{\"id\":\"" + CodifierTable.NONE + "\"}";
-//        public static final String JSON_PAGE_ARRAY_0 = """
-//                {"pageNumber":0,"totalElements":0,"nextPage":false,"prevPage":false,"content":\
-//                """ + JSON_ARRAY_SINGLETON_0 + """
-//                }""";
-//    }
+    public static class CODIFIER {
+        public static final Codifier MODEL_0 = new Codifier(
+                CodifierTable.NONE, null, true, 0
+        );
+        public static final CodifierTable TABLE_0 = new CodifierTable(
+                CodifierTable.NONE, null, null, null, null, true, true, 0
+        );
+        public static final Uni<Page<Answer>> UNI_PAGE_ANSWER_SINGLETON_TEST = Uni.createFrom()
+                .item(
+                        Page.<Answer>builder()
+                                .content(Collections.singletonList(Answer.of(MODEL_0)))
+                                .build()
+                );
+        public static final String JSON_0 = """
+                {"code":"\
+                """ + CodifierTable.NONE + """
+                ","visible":true,"flags":0}\
+                """;
+        public static final String JSON_ARRAY_SINGLETON_0 = "[" + JSON_0 + "]";
+        public static final String JSON_ID_0 = "{\"code\":\"" + CodifierTable.NONE + "\"}";
+        public static final String JSON_PAGE_ARRAY_0 = """
+                {"pageNumber":0,"totalElements":0,"nextPage":false,"prevPage":false,"content":\
+                """ + JSON_ARRAY_SINGLETON_0 + """
+                }""";
+    }
 //
 //    public static class I18N {
 //        public static final I18n MODEL_0 = new I18n(

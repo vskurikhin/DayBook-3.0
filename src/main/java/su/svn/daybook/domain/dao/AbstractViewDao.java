@@ -65,7 +65,7 @@ abstract class AbstractViewDao<I extends Comparable<? extends Serializable>, D e
     }
 
     private boolean testAnnotationSQL(Method method) {
-        return method.isAnnotationPresent(SQL.class);
+        return method.isAnnotationPresent(SQL.class) && !method.isBridge();
     }
 
     protected Uni<Long> countSQL() {

@@ -113,9 +113,9 @@ public final class ApiResponse<I extends Comparable<? extends Serializable>> {
         if (o == null || getClass() != o.getClass()) return false;
         ApiResponse<?> that = (ApiResponse<?>) o;
         return Objects.equals(id, that.id)
-                && Objects.equals(message, that.message)
                 && Objects.equals(code, that.code)
                 && Objects.equals(error, that.error)
+                && Objects.equals(message, that.message)
                 && Objects.equals(payload, that.payload);
     }
 
@@ -134,15 +134,16 @@ public final class ApiResponse<I extends Comparable<? extends Serializable>> {
     }
 
     private int calculateHashCode() {
-        return Objects.hash(id, message, code, error, payload);
+        return Objects.hash(id, code, error, message, payload);
     }
 
     @Override
     public String toString() {
         return "ApiResponse{" +
                 "id=" + id +
-                ", message='" + message + '\'' +
+                ", code=" + code +
                 ", error=" + error +
+                ", message='" + message + '\'' +
                 ", payload=" + payload +
                 ", payloadClass=" + ((payloadClass != null) ? payloadClass.getCanonicalName() : "null") +
                 '}';
