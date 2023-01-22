@@ -59,8 +59,8 @@ public class DataBaseIT {
     UserViewDao userViewDao;
 //    @Inject
 //    ValueTypeDao valueTypeDao;
-//    @Inject
-//    VocabularyDao vocabularyDao;
+    @Inject
+    VocabularyDao vocabularyDao;
     @Inject
     WordDao wordDao;
 
@@ -1222,135 +1222,132 @@ public class DataBaseIT {
 //        }
 //    }
 //
-//    @Nested
-//    @DisplayName("VocabularyDao and WordDao")
-//    class VocabularyDaoAndWordDaoTest {
-//        String veryLongWordIdForTest = "veryLongWordIdForTest";
-//        Long vocabularyId;
-//        VocabularyTable entry;
-//        WordTable word;
-//
-//        @BeforeEach
-//        void setUp() {
-//            entry = VocabularyTable.builder()
-//                    .word(veryLongWordIdForTest)
-//                    .enabled(true)
-//                    .build();
-//            word = WordTable.builder()
-//                    .word(veryLongWordIdForTest)
-//                    .enabled(true)
-//                    .build();
-//            Assertions.assertDoesNotThrow(
-//                    () -> Assertions.assertEquals(veryLongWordIdForTest, uniOptionalHelper(wordDao.insert(word))));
-//            Assertions.assertDoesNotThrow(
-//                    () -> vocabularyId = uniOptionalHelper(vocabularyDao.insert(entry)));
-//        }
-//
-//        @AfterEach
-//        void tearDown() {
-//            Assertions.assertDoesNotThrow(
-//                    () -> Assertions.assertEquals(vocabularyId, uniOptionalHelper(vocabularyDao.delete(vocabularyId))));
-//            Assertions.assertDoesNotThrow(
-//                    () -> Assertions.assertEquals(0, uniOptionalHelper(vocabularyDao.count())));
-//            Assertions.assertDoesNotThrow(
-//                    () -> Assertions.assertEquals(veryLongWordIdForTest, uniOptionalHelper(wordDao.delete(veryLongWordIdForTest))));
-//            Assertions.assertDoesNotThrow(
-//                    () -> Assertions.assertEquals(0, uniOptionalHelper(wordDao.count())));
-//        }
-//
-//        @Test
-//        void testWordDao() {
-//            var expected1 = WordTable.builder()
-//                    .word(veryLongWordIdForTest)
-//                    .enabled(true)
-//                    .build();
-//            Assertions.assertDoesNotThrow(() -> {
-//                var test = uniOptionalHelper(wordDao.findByWord(veryLongWordIdForTest));
-//                Assertions.assertNotNull(test);
-//                Assertions.assertEquals(expected1, test);
-//                Assertions.assertNotNull(test.getCreateTime());
-//                Assertions.assertNull(test.getUpdateTime());
-//            });
-//            var expected2 = WordTable.builder()
-//                    .word(veryLongWordIdForTest)
-//                    .enabled(true)
-//                    .visible(true)
-//                    .build();
-//            Assertions.assertDoesNotThrow(
-//                    () -> Assertions.assertEquals(veryLongWordIdForTest, uniOptionalHelper(wordDao.update(expected2))));
-//            Assertions.assertDoesNotThrow(() -> {
-//                var test = uniOptionalHelper(wordDao.findByWord(veryLongWordIdForTest));
-//                Assertions.assertNotNull(test);
-//                Assertions.assertEquals(expected2, test);
-//                Assertions.assertNotNull(test.getCreateTime());
-//                Assertions.assertNotNull(test.getUpdateTime());
-//            });
-//            Assertions.assertDoesNotThrow(() -> {
-//                var test = multiAsListHelper(wordDao.findAll());
-//                Assertions.assertNotNull(test);
-//                Assertions.assertFalse(test.isEmpty());
-//                Assertions.assertEquals(1, test.size());
-//            });
-//            Assertions.assertDoesNotThrow(() -> {
-//                var test = multiAsListHelper(wordDao.findRange(0, 0));
-//                Assertions.assertNotNull(test);
-//                Assertions.assertTrue(test.isEmpty());
-//            });
-//            Assertions.assertDoesNotThrow(() -> {
-//                var test = multiAsListHelper(wordDao.findRange(0, 1));
-//                Assertions.assertNotNull(test);
-//                Assertions.assertFalse(test.isEmpty());
-//                Assertions.assertEquals(1, test.size());
-//            });
-//        }
-//
-//        @Test
-//        void testVocabularyDao() {
-//            var expected1 = VocabularyTable.builder()
-//                    .id(1L)
-//                    .word(veryLongWordIdForTest)
-//                    .enabled(true)
-//                    .build();
-//            Assertions.assertDoesNotThrow(() -> {
-//                var test = uniOptionalHelper(vocabularyDao.findById(vocabularyId));
-//                Assertions.assertNotNull(test);
-//                Assertions.assertEquals(expected1, test);
-//                Assertions.assertNotNull(test.getCreateTime());
-//                Assertions.assertNull(test.getUpdateTime());
-//            });
-//            var expected2 = VocabularyTable.builder()
-//                    .id(1L)
-//                    .word(veryLongWordIdForTest)
-//                    .value("value")
-//                    .enabled(true)
-//                    .visible(true)
-//                    .build();
-//            Assertions.assertDoesNotThrow(
-//                    () -> Assertions.assertEquals(vocabularyId, uniOptionalHelper(vocabularyDao.update(expected2))));
-//            Assertions.assertDoesNotThrow(() -> {
-//                var test = uniOptionalHelper(vocabularyDao.findById(vocabularyId));
-//                Assertions.assertNotNull(test);
-//                Assertions.assertEquals(expected2, test);
-//                Assertions.assertNotNull(test.getCreateTime());
-//                Assertions.assertNotNull(test.getUpdateTime());
-//            });
-//            Assertions.assertDoesNotThrow(() -> {
-//                var test = multiAsListHelper(vocabularyDao.findAll());
-//                Assertions.assertNotNull(test);
-//                Assertions.assertFalse(test.isEmpty());
-//                Assertions.assertEquals(1, test.size());
-//            });
-//            Assertions.assertDoesNotThrow(() -> {
-//                var test = multiAsListHelper(vocabularyDao.findRange(0, 0));
-//                Assertions.assertNotNull(test);
-//                Assertions.assertTrue(test.isEmpty());
-//            });
-//            Assertions.assertDoesNotThrow(() -> {
-//                var test = multiAsListHelper(vocabularyDao.findRange(0, 1));
-//                Assertions.assertNotNull(test);
-//                Assertions.assertFalse(test.isEmpty());
-//                Assertions.assertEquals(1, test.size());
-//            });
-//        }
-//    }
+
+    @Nested
+    @DisplayName("VocabularyDao and WordDao")
+    class VocabularyDaoAndWordDaoTest extends AbstractDaoTest<Long, VocabularyTable> {
+
+        String ZERO = String.valueOf(0);
+        String ONE = String.valueOf(1);
+        String TWO = String.valueOf(2);
+        String TEN = String.valueOf(10);
+
+        String word1 = "word1";
+        String wordCustom = "custom";
+
+        AbstractDaoTest<String, WordTable> wordDaoTest = new AbstractDaoTest<>();
+
+        @BeforeEach
+        void setUp() {
+            var word = WordTable.builder()
+                    .word(word1)
+                    .enabled(true)
+                    .build();
+            wordDaoTest.setUp(wordDao, word, wordCustom);
+            var entry = VocabularyTable.builder()
+                    .word(word1)
+                    .enabled(true)
+                    .build();
+            Long customId = 0L;
+            super.setUp(vocabularyDao, entry, customId);
+        }
+
+        @AfterEach
+        void tearDown() {
+            super.tearDown();
+            wordDaoTest.tearDown();
+        }
+
+        VocabularyTable.Builder builder(Long id, String word, VocabularyTable test) {
+            return VocabularyTable.builder()
+                    .id(id)
+                    .word(word)
+                    .createTime(test.createTime())
+                    .updateTime(test.updateTime())
+                    .enabled(true);
+        }
+
+        VocabularyTable expected(Long id, String word, VocabularyTable test) {
+            Assertions.assertNotNull(test);
+            return builder(id, word, test).build();
+        }
+
+        VocabularyTable expected(Long id, String word, String value, VocabularyTable test) {
+            Assertions.assertNotNull(test);
+            return builder(id, word, test).value(value).build();
+        }
+
+        @Test
+        void test() {
+            super.whenFindByIdThenEntry((id, test) -> expected(id, word1, test));
+
+            var update = VocabularyTable.builder()
+                    .id(super.id)
+                    .word(word1)
+                    .value("value1")
+                    .build();
+            super.whenUpdateAndFindByIdThenEntry((id, test) -> expected(id, word1, "value1", test), update);
+
+            super.whenFindAllThenMultiWithOneItem();
+            super.whenFindRangeZeroThenEmptiestMulti();
+            super.whenFindRangeFromZeroLimitOneThenMultiWithOneItem();
+
+            var customWord = WordTable.builder()
+                    .word(wordCustom)
+                    .build();
+            wordDaoTest.whenInsertCustomThenEntry(
+                    (id, test) -> WordTable.builder()
+                            .word(wordCustom)
+                            .createTime(test.createTime())
+                            .updateTime(test.updateTime())
+                            .enabled(true).build(),
+                    customWord
+            );
+            var custom = VocabularyTable.builder()
+                    .id(customId)
+                    .word(wordCustom)
+                    .value("custom1")
+                    .build();
+            super.whenInsertCustomThenEntry(
+                    (id, test) -> expected(id, wordCustom, "custom1", test),
+                    custom
+            );
+            var customUpdate = VocabularyTable.builder()
+                    .id(customId)
+                    .word(wordCustom)
+                    .value("custom2")
+                    .build();
+            super.whenUpdateCustomAndFindByIdThenEntry(
+                    (id, test) -> expected(id, wordCustom, "custom2", test),
+                    customUpdate
+            );
+
+            super.whenFindRangeFromZeroToOneThenMultiWithOneItemCustom(
+                    (id, test) -> expected(id, wordCustom, "custom2", test)
+            );
+            super.whenFindRangeFromZeroToMaxValueThenMultiWithTwoItems();
+            super.whenFindRangeFromOneLimitOneMultiWithOneItem();
+
+            Assertions.assertDoesNotThrow(() -> {
+                var test = multiAsListHelper(vocabularyDao.findByWord(wordCustom));
+                Assertions.assertNotNull(test);
+                Assertions.assertFalse(test.isEmpty());
+                Assertions.assertEquals(1, test.size());
+                var expected = expected(customId, wordCustom, "custom2", test.get(0));
+                Assertions.assertEquals(expected, test.get(0));
+            });
+
+            Assertions.assertDoesNotThrow(() -> {
+                var test = multiAsListHelper(vocabularyDao.findByValue("custom2"));
+                Assertions.assertNotNull(test);
+                Assertions.assertFalse(test.isEmpty());
+                Assertions.assertEquals(1, test.size());
+                var expected = expected(customId, wordCustom, "custom2", test.get(0));
+                Assertions.assertEquals(expected, test.get(0));
+            });
+
+            super.whenDeleteCustomThenOk();
+            wordDaoTest.whenDeleteCustomThenOk();
+        }
+    }
 }

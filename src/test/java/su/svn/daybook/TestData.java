@@ -20,8 +20,10 @@ import su.svn.daybook.models.pagination.PageRequest;
 import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.Optional;
+import java.util.Random;
 import java.util.UUID;
 
 import static su.svn.daybook.TestUtils.localDateTime;
@@ -40,6 +42,14 @@ public class TestData {
 
     public static Uni<Optional<Long>> UNI_OPTIONAL_ONE_LONG = Uni.createFrom().item(Optional.of(1L));
     public static Uni<Optional<Long>> UNI_OPTIONAL_MINUS_ONE_LONG = Uni.createFrom().item(Optional.of(-1L));
+
+    public static class lng {
+        public static final long RANDOM1 = new Random(System.currentTimeMillis() - 1).nextLong();
+        public static final long RANDOM2 = new Random(System.currentTimeMillis() + 2).nextLong();
+        // public static Uni<Answer> UNI_ANSWER_API_RESPONSE_ZERO = Uni.createFrom().item(Answer.of(new ApiResponse<Long>(0L, 200)));
+        public static Uni<Optional<Long>> UNI_OPTIONAL_EMPTY = Uni.createFrom().item(Optional.empty());
+        public static Uni<Optional<Long>> UNI_OPTIONAL_ZERO = Uni.createFrom().item(Optional.of(0L));
+    }
 
     public static class request {
         public static final PageRequest PAGE_REQUEST = new PageRequest(0, (short) 1);
@@ -359,31 +369,31 @@ public class TestData {
 //                }""";
 //    }
 
-//    public static class VOCABULARY {
-//        public static final Vocabulary MODEL_0 = new Vocabulary(
-//                0L, VocabularyTable.NONE, null, true, 0
-//        );
-//        public static final VocabularyTable TABLE_0 = new VocabularyTable(
-//                0L, VocabularyTable.NONE, null, null, null, null, true, true, 0
-//        );
-//        public static final Uni<Page<Answer>> UNI_PAGE_ANSWER_SINGLETON_TEST = Uni.createFrom()
-//                .item(
-//                        Page.<Answer>builder()
-//                                .content(Collections.singletonList(Answer.of(MODEL_0)))
-//                                .build()
-//                );
-//        public static final String JSON_0 = """
-//                {"id":0,"word":"\
-//                """ + VocabularyTable.NONE + """
-//                ","visible":true,"flags":0}\
-//                """;
-//        public static final String JSON_ARRAY_SINGLETON_0 = "[" + JSON_0 + "]";
-//        public static final String JSON_ID_0 = "{\"id\":0";
-//        public static final String JSON_PAGE_ARRAY_0 = """
-//                {"pageNumber":0,"totalElements":0,"nextPage":false,"prevPage":false,"content":\
-//                """ + JSON_ARRAY_SINGLETON_0 + """
-//                }""";
-//    }
+    public static class VOCABULARY {
+        public static final Vocabulary MODEL_0 = new Vocabulary(
+                0L, VocabularyTable.NONE, null, true, 0
+        );
+        public static final VocabularyTable TABLE_0 = new VocabularyTable(
+                0L, VocabularyTable.NONE, null, null, null, null, true, true, 0
+        );
+        public static final Uni<Page<Answer>> UNI_PAGE_ANSWER_SINGLETON_TEST = Uni.createFrom()
+                .item(
+                        Page.<Answer>builder()
+                                .content(Collections.singletonList(Answer.of(MODEL_0)))
+                                .build()
+                );
+        public static final String JSON_0 = """
+                {"id":0,"word":"\
+                """ + VocabularyTable.NONE + """
+                ","visible":true,"flags":0}\
+                """;
+        public static final String JSON_ARRAY_SINGLETON_0 = "[" + JSON_0 + "]";
+        public static final String JSON_ID_0 = "{\"id\":0";
+        public static final String JSON_PAGE_ARRAY_0 = """
+                {"pageNumber":0,"totalElements":0,"nextPage":false,"prevPage":false,"content":\
+                """ + JSON_ARRAY_SINGLETON_0 + """
+                }""";
+    }
 
     public static class WORD {
         public static final Word MODEL_0 = new Word(

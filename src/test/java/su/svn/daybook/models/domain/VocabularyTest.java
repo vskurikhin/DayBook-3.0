@@ -5,29 +5,29 @@ import nl.jqno.equalsverifier.Warning;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-class @Name@Test {
+class VocabularyTest {
 
     @Test
     void testConstructors() {
-        Assertions.assertDoesNotThrow(() -> new @Name@());
-        Assertions.assertDoesNotThrow(() -> new @Name@(
-                null, @KType@.ZERO, null, true, 0
+        Assertions.assertDoesNotThrow(() -> new Vocabulary());
+        Assertions.assertDoesNotThrow(() -> new Vocabulary(
+                null, Vocabulary.NONE, null, true, 0
         ));
     }
 
     @Test
     void testGetters() {
-        var entry = new @Name@();
+        var entry = new Vocabulary();
         Assertions.assertDoesNotThrow(entry::id);
-        Assertions.assertDoesNotThrow(entry::@key@);
-        Assertions.assertDoesNotThrow(entry::@value@);
+        Assertions.assertDoesNotThrow(entry::word);
+        Assertions.assertDoesNotThrow(entry::value);
         Assertions.assertDoesNotThrow(entry::visible);
         Assertions.assertDoesNotThrow(entry::flags);
     }
 
     @Test
     void testEqualsVerifier() {
-        EqualsVerifier.forClass(@Name@.class)
+        EqualsVerifier.forClass(Vocabulary.class)
                 .withCachedHashCode("hash", "calculateHashCode", null)
                 .withIgnoredFields("hash", "hashIsZero")
                 .suppress(Warning.NO_EXAMPLE_FOR_CACHED_HASHCODE)
@@ -36,24 +36,22 @@ class @Name@Test {
 
     @Test
     void testHashCode() {
-        var test0 = new @Name@(null, @KType@.ZERO, null, true, -28667312);
-        Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(0, test0.hashCode()));
-        var test1 = new @Name@(null, @KType@.ZERO, null, true, 0);
+        var test1 = new Vocabulary(null, Vocabulary.NONE, null, true, 0);
         Assertions.assertDoesNotThrow(() -> Assertions.assertNotEquals(0, test1.hashCode()));
     }
 
     @Test
     void testToString() {
-        var entry = new @Name@();
+        var entry = new Vocabulary();
         Assertions.assertDoesNotThrow(() -> Assertions.assertNotNull(entry.toString()));
     }
 
     @Test
     void testBuilder() {
-        Assertions.assertDoesNotThrow(() -> Assertions.assertNotNull(@Name@.builder()
+        Assertions.assertDoesNotThrow(() -> Assertions.assertNotNull(Vocabulary.builder()
                 .id(null)
-                .@key@(@KType@.ZERO)
-                .@value@(null)
+                .word(Vocabulary.NONE)
+                .value(null)
                 .visible(true)
                 .flags(0)
                 .build()));
@@ -61,8 +59,8 @@ class @Name@Test {
 
     @Test
     void testToBuilder() {
-        var test = new @Name@();
-        var expected = new @Name@();
+        var test = new Vocabulary();
+        var expected = new Vocabulary();
         Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(expected, test.toBuilder().build()));
     }
 }
