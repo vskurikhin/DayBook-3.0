@@ -24,7 +24,6 @@ class InvokerBuildPartMethod
     }
 
     void invokeBuilderFor(Map.Entry<String, MethodRecord> entry, X essence) {
-        log.tracef("invokeBuilderFor(%s, %s)", entry, essence);
         var buildPart = entry.getValue();
         if (buildPart != null) {
             var fieldName = entry.getKey();
@@ -36,7 +35,6 @@ class InvokerBuildPartMethod
                 var buildPartMethod = buildPart.method();
                 if (buildPartMethod != null) {
                     try {
-                        log.tracef("invokeBuilderFor(%s, %s): set value: %s", entry, essence, String.valueOf(value));
                         buildPartMethod.invoke(builder, value);
                     } catch (ReflectiveOperationException e) {
                         log.error("build part method invoke ", e);

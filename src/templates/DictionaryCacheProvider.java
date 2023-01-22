@@ -13,7 +13,7 @@ import io.quarkus.cache.CacheKey;
 import io.quarkus.cache.CacheResult;
 import io.smallrye.mutiny.Uni;
 import org.jboss.logging.Logger;
-import su.svn.daybook.annotations.Logged;
+import su.svn.daybook.annotations.PrincipalLogging;
 import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.models.domain.@Name@;
@@ -41,15 +41,15 @@ public class @Name@CacheProvider extends AbstractCacheProvider<@IdType@, @Name@>
         super(EventAddress.@TABLE@_GET, EventAddress.@TABLE@_PAGE, LOG);
     }
 
-    @Logged
     @Counted
+    @PrincipalLogging
     @CacheResult(cacheName = EventAddress.@TABLE@_GET)
     public Uni<@Name@> get(@CacheKey @IdType@ id) {
         return @name@DataService.get(id);
     }
 
-    @Logged
     @Counted
+    @PrincipalLogging
     @CacheResult(cacheName = EventAddress.@TABLE@_PAGE)
     public Uni<Page<Answer>> getPage(@CacheKey PageRequest pageRequest) {
         return pageService.getPage(pageRequest, @name@DataService::count, @name@DataService::findRange, Answer::of);

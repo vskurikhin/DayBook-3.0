@@ -1,5 +1,6 @@
 package su.svn.daybook.converters.mappers;
 
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 import su.svn.daybook.converters.buildparts.BuildPartsAnnotatedDomainFiled;
 import su.svn.daybook.converters.buildparts.BuildPartsAnnotatedModelFiled;
@@ -9,6 +10,7 @@ import su.svn.daybook.models.Identification;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.inject.Inject;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.function.Supplier;
@@ -17,6 +19,10 @@ public abstract class AbstractMapper
         <K extends Comparable<? extends Serializable>, M extends Identification<K>, D extends Identification<K>> {
 
     public static final String BUILD_METHOD_NAME = "build";
+
+    @Inject
+    @ConfigProperty(defaultValue = "false")
+    boolean logging;
 
     private final BuildPartsAnnotatedModelFiled<D> buildPartsDomain;
     private final BuildPartsAnnotatedDomainFiled<M> buildPartsModel;
@@ -58,7 +64,9 @@ public abstract class AbstractMapper
     @Nullable
     @SuppressWarnings("unchecked")
     protected D convertModelToDomain(M model) {
-        log.tracef("convertModelToDomain(%s)", model);
+        if (logging) {
+            log.tracef("convertModelToDomain(%s)", model);
+        }
         buildPartsDomain.forEach(entry -> domainInvoker.invokeBuilderFor(entry, model));
         try {
             return (D) domainBuilderMethodBuild.invoke(domainBuilder);
@@ -71,7 +79,9 @@ public abstract class AbstractMapper
     @Nullable
     @SuppressWarnings("unchecked")
     protected M convertDomainToModel(D domain) {
-        log.tracef("convertDomainToModel(%s)", domain);
+        if (logging) {
+            log.tracef("convertDomainToModel(%s)", domain);
+        }
         buildPartsModel.forEach(entry -> modelInvoker.invokeBuilderFor(entry, domain));
         try {
             return (M) modelBuilderMethodBuild.invoke(modelBuilder);

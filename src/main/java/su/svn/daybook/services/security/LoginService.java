@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.01.05 15:20 by Victor N. Skurikhin.
+ * This file was last modified at 2023.01.22 14:59 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * LoginService.java
@@ -11,7 +11,7 @@ package su.svn.daybook.services.security;
 import io.quarkus.vertx.ConsumeEvent;
 import io.smallrye.mutiny.Uni;
 import org.jboss.logging.Logger;
-import su.svn.daybook.annotations.Logged;
+import su.svn.daybook.annotations.PrincipalLogging;
 import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.messages.ApiResponse;
@@ -30,8 +30,8 @@ import javax.inject.Inject;
 import java.util.HashSet;
 import java.util.UUID;
 
+@PrincipalLogging
 @ApplicationScoped
-@Logged
 public class LoginService {
 
     private static final Logger LOG = Logger.getLogger(LoginService.class);

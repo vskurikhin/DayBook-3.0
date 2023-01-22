@@ -147,8 +147,8 @@ public final class Page<T extends Serializable> implements Serializable {
     public String toString() {
         return "Page{" +
                 "first=" + first +
-                ", rows=" + rows +
                 ", page=" + page +
+                ", rows=" + rows +
                 ", totalPages=" + totalPages +
                 ", totalRecords=" + totalRecords +
                 ", nextPage=" + nextPage +

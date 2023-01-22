@@ -13,7 +13,7 @@ import io.quarkus.cache.CacheKey;
 import io.quarkus.cache.CacheResult;
 import io.smallrye.mutiny.Uni;
 import org.jboss.logging.Logger;
-import su.svn.daybook.annotations.Logged;
+import su.svn.daybook.annotations.PrincipalLogging;
 import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.models.domain.Codifier;
@@ -24,7 +24,6 @@ import su.svn.daybook.services.domain.CodifierDataService;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import java.util.UUID;
 
 @ApplicationScoped
 public class CodifierCacheProvider extends AbstractCacheProvider<String, Codifier> {
@@ -41,15 +40,15 @@ public class CodifierCacheProvider extends AbstractCacheProvider<String, Codifie
         super(EventAddress.CODIFIER_GET, EventAddress.CODIFIER_PAGE, LOG);
     }
 
-    @Logged
     @Counted
+    @PrincipalLogging
     @CacheResult(cacheName = EventAddress.CODIFIER_GET)
     public Uni<Codifier> get(@CacheKey String id) {
         return codifierDataService.get(id);
     }
 
-    @Logged
     @Counted
+    @PrincipalLogging
     @CacheResult(cacheName = EventAddress.CODIFIER_PAGE)
     public Uni<Page<Answer>> getPage(@CacheKey PageRequest pageRequest) {
         return pageService.getPage(pageRequest, codifierDataService::count, codifierDataService::findRange, Answer::of);

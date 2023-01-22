@@ -13,7 +13,7 @@ import io.quarkus.cache.CacheKey;
 import io.quarkus.cache.CacheResult;
 import io.smallrye.mutiny.Uni;
 import org.jboss.logging.Logger;
-import su.svn.daybook.annotations.Logged;
+import su.svn.daybook.annotations.PrincipalLogging;
 import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.model.UserView;
@@ -41,8 +41,8 @@ public class LoginCacheProvider extends AbstractCacheProvider<String, UserView> 
         super.setup(String.class, UserView.class);
     }
 
-    @Logged
     @Counted
+    @PrincipalLogging
     @CacheResult(cacheName = EventAddress.LOGIN_REQUEST)
     public Uni<UserView> get(@CacheKey String userName) {
         return loginDataService.findByUserName(userName);
@@ -58,7 +58,7 @@ public class LoginCacheProvider extends AbstractCacheProvider<String, UserView> 
         return invalidateCacheByKey(userName).map(l -> answer);
     }
 
-    @Logged
+    @PrincipalLogging
     public Uni<Answer> invalidateById(UUID id, Answer answer) {
         return super.invalidateByOther(id, answer, UserView::id, UserView::userName);
     }

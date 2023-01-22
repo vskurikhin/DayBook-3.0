@@ -11,6 +11,7 @@ list_files="
 ./src/test/java/su/svn/daybook/domain/model/KeyValueTableTest.java
 ./src/test/java/su/svn/daybook/models/domain/KeyValueTest.java
 ./src/test/java/su/svn/daybook/services/models/KeyValueServiceTest.java
+./src/test/java/su/svn/daybook/KeyValueDataBaseIT.java
 "
 pattern_file_name='s/KeyValue/Dictionary/'
 list_pattern='

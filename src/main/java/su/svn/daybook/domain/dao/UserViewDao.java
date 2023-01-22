@@ -10,7 +10,7 @@ package su.svn.daybook.domain.dao;
 
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
-import su.svn.daybook.annotations.Logged;
+import su.svn.daybook.annotations.PrincipalLogging;
 import su.svn.daybook.annotations.SQL;
 import su.svn.daybook.domain.model.UserView;
 
@@ -25,25 +25,24 @@ public class UserViewDao extends AbstractViewDao<UUID, UserView> {
         super(UserView.ID, r -> r.getUUID(UserView.ID), UserView::from);
     }
 
-    @Logged
+    @PrincipalLogging
     @SQL(UserView.COUNT_SECURITY_USER_VIEW)
     public Uni<Optional<Long>> count() {
         return super.countSQL().map(Optional::ofNullable);
     }
 
-    @Logged
     @SQL(UserView.SELECT_ALL_FROM_SECURITY_USER_VIEW_ORDER_BY_USER_NAME_ASC)
     public Multi<UserView> findAll() {
         return super.findAllSQL();
     }
 
-    @Logged
+    @PrincipalLogging
     @SQL(UserView.SELECT_FROM_SECURITY_USER_VIEW_WHERE_ID_$1)
     public Uni<Optional<UserView>> findById(UUID id) {
         return super.findByIdSQL(id).map(Optional::ofNullable);
     }
 
-    @Logged
+    @PrincipalLogging
     @SQL(UserView.SELECT_FROM_SECURITY_USER_VIEW_WHERE_USER_NAME_$1)
     public Uni<Optional<UserView>> findByKey(String username) {
         return super.findByKeySQL(username).map(Optional::ofNullable);
@@ -53,7 +52,6 @@ public class UserViewDao extends AbstractViewDao<UUID, UserView> {
         return findByKey(username);
     }
 
-    @Logged
     @SQL(UserView.SELECT_ALL_FROM_SECURITY_USER_VIEW_ORDER_BY_USER_NAME_ASC_OFFSET_LIMIT)
     public Multi<UserView> findRange(long offset, long limit) {
         return super.findRangeSQL(offset, limit);

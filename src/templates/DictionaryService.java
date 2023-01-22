@@ -14,8 +14,7 @@ import io.smallrye.mutiny.Uni;
 import su.svn.daybook.annotations.ExceptionBadRequestAnswer;
 import su.svn.daybook.annotations.ExceptionDuplicateAnswer;
 import su.svn.daybook.annotations.ExceptionNoSuchElementAnswer;
-import su.svn.daybook.annotations.Logged;
-import su.svn.daybook.annotations.Principled;
+import su.svn.daybook.annotations.PrincipalLogging;
 import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.messages.Request;
@@ -29,8 +28,8 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.util.UUID;
 
+@PrincipalLogging
 @ApplicationScoped
-@Logged
 public class @Name@Service extends AbstractService<@IdType@, @Name@> {
 
     @Inject
@@ -45,7 +44,6 @@ public class @Name@Service extends AbstractService<@IdType@, @Name@> {
      * @param request - @Name@
      * @return - a lazy asynchronous action (LAA) with the Answer containing the @Name@ id as payload or empty payload
      */
-    @Principled
     @ExceptionBadRequestAnswer
     @ExceptionDuplicateAnswer
     @ConsumeEvent(EventAddress.@TABLE@_ADD)
@@ -63,7 +61,6 @@ public class @Name@Service extends AbstractService<@IdType@, @Name@> {
      * @param request - id of the @Name@
      * @return - a LAA with the Answer containing @Name@ id as payload or empty payload
      */
-    @Principled
     @ExceptionBadRequestAnswer
     @ExceptionNoSuchElementAnswer
     @ConsumeEvent(EventAddress.@TABLE@_DEL)
@@ -81,7 +78,6 @@ public class @Name@Service extends AbstractService<@IdType@, @Name@> {
      * @param request - id of the @Name@
      * @return - a lazy asynchronous action with the Answer containing the @Name@ as payload or empty payload
      */
-    @Principled
     @ExceptionBadRequestAnswer
     @ExceptionNoSuchElementAnswer
     @ConsumeEvent(EventAddress.@TABLE@_GET)
@@ -104,7 +100,6 @@ public class @Name@Service extends AbstractService<@IdType@, @Name@> {
                 .map(Answer::of);
     }
 
-    @Principled
     @ExceptionBadRequestAnswer
     @ConsumeEvent(EventAddress.@TABLE@_PAGE)
     public Uni<Page<Answer>> getPage(Request<PageRequest> request) {
@@ -118,7 +113,6 @@ public class @Name@Service extends AbstractService<@IdType@, @Name@> {
      * @param request - @Name@
      * @return - a LAA with the Answer containing @Name@ id as payload or empty payload
      */
-    @Principled
     @ExceptionBadRequestAnswer
     @ExceptionDuplicateAnswer
     @ExceptionNoSuchElementAnswer

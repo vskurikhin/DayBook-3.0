@@ -14,8 +14,7 @@ import io.smallrye.mutiny.Uni;
 import su.svn.daybook.annotations.ExceptionBadRequestAnswer;
 import su.svn.daybook.annotations.ExceptionDuplicateAnswer;
 import su.svn.daybook.annotations.ExceptionNoSuchElementAnswer;
-import su.svn.daybook.annotations.Logged;
-import su.svn.daybook.annotations.Principled;
+import su.svn.daybook.annotations.PrincipalLogging;
 import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.messages.Request;
@@ -28,8 +27,8 @@ import su.svn.daybook.services.domain.WordDataService;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+@PrincipalLogging
 @ApplicationScoped
-@Logged
 public class WordService extends AbstractService<String, Word> {
 
     @Inject
@@ -44,7 +43,6 @@ public class WordService extends AbstractService<String, Word> {
      * @param request - Word
      * @return - a lazy asynchronous action (LAA) with the Answer containing the Word id as payload or empty payload
      */
-    @Principled
     @ExceptionBadRequestAnswer
     @ExceptionDuplicateAnswer
     @ConsumeEvent(EventAddress.WORD_ADD)
@@ -61,7 +59,6 @@ public class WordService extends AbstractService<String, Word> {
      * @param request - id of the Word
      * @return - a LAA with the Answer containing Word id as payload or empty payload
      */
-    @Principled
     @ExceptionBadRequestAnswer
     @ExceptionNoSuchElementAnswer
     @ConsumeEvent(EventAddress.WORD_DEL)
@@ -79,7 +76,6 @@ public class WordService extends AbstractService<String, Word> {
      * @param request - id of the Word
      * @return - a lazy asynchronous action with the Answer containing the Word as payload or empty payload
      */
-    @Principled
     @ExceptionBadRequestAnswer
     @ExceptionNoSuchElementAnswer
     @ConsumeEvent(EventAddress.WORD_GET)
@@ -100,7 +96,6 @@ public class WordService extends AbstractService<String, Word> {
                 .map(Answer::of);
     }
 
-    @Principled
     @ExceptionBadRequestAnswer
     @ConsumeEvent(value = EventAddress.WORD_PAGE)
     public Uni<Page<Answer>> getPage(Request<PageRequest> request) {
@@ -114,7 +109,6 @@ public class WordService extends AbstractService<String, Word> {
      * @param request - Word
      * @return - a LAA with the Answer containing Word id as payload or empty payload
      */
-    @Principled
     @ExceptionBadRequestAnswer
     @ExceptionDuplicateAnswer
     @ExceptionNoSuchElementAnswer

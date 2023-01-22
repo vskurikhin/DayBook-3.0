@@ -5,6 +5,8 @@ import nl.jqno.equalsverifier.Warning;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.math.@KType@;
+
 class @Name@Test {
 
     @Test
@@ -58,7 +60,6 @@ class @Name@Test {
                 .flags(0)
                 .build()));
     }
-
 
     @Test
     void testToBuilder() {
