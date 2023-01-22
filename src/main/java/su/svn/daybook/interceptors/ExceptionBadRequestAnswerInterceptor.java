@@ -13,9 +13,7 @@ import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.operators.uni.builders.UniCreateFromItemSupplier;
 import org.jboss.logging.Logger;
 import su.svn.daybook.annotations.ExceptionBadRequestAnswer;
-import su.svn.daybook.services.ExceptionAnswerService;
 
-import javax.inject.Inject;
 import javax.interceptor.AroundInvoke;
 import javax.interceptor.Interceptor;
 import javax.interceptor.InvocationContext;
@@ -29,22 +27,19 @@ public class ExceptionBadRequestAnswerInterceptor extends ExceptionInterceptor {
 
     private static final Logger LOG = Logger.getLogger(ExceptionBadRequestAnswerInterceptor.class);
 
-    @Inject
-    ExceptionAnswerService exceptionAnswerService;
-
     @AroundInvoke
     Object onFailureRecoverWithUniAnswerBadRequest(InvocationContext context) {
         Object ret = null;
-        Function<Throwable, Object> f = t -> exceptionAnswerService.badRequestObject(t);
+        Function<Throwable, Object> f = this::badRequestObject;
         try {
-            ret = onFailureRecoverWithUniAnswer(context, f, t -> exceptionAnswerService.testIllegalArgumentException(t));
+            ret = onFailureRecoverWithUniAnswer(context, f, this::testIllegalArgumentException);
         } catch (Exception e) {
             LOG.error(" ", e);
-            return Uni.createFrom().item(exceptionAnswerService.badRequestObject(e));
+            return Uni.createFrom().item(badRequestObject(e));
         }
         if (ret instanceof Uni<?> uni) {
             return uni
-                    .onFailure(exceptionAnswerService::testException)
+                    .onFailure(this::testException)
                     .recoverWithUni(t -> new UniCreateFromItemSupplier(() -> f.apply(t)));
         }
         return ret;

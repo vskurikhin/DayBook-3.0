@@ -14,7 +14,7 @@ import io.quarkus.cache.CacheManager;
 import io.quarkus.cache.CacheResult;
 import io.smallrye.mutiny.Uni;
 import org.jboss.logging.Logger;
-import su.svn.daybook.annotations.Logged;
+import su.svn.daybook.annotations.PrincipalLogging;
 import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.models.domain.Session;
@@ -51,15 +51,15 @@ public class SessionCacheProvider extends AbstractCacheProvider<UUID, Session> {
         super.setup(UUID.class, Session.class);
     }
 
-    @Logged
     @Counted
+    @PrincipalLogging
     @CacheResult(cacheName = EventAddress.SESSION_GET)
     public Uni<Session> get(@CacheKey UUID id) {
         return sessionDataService.get(id);
     }
 
-    @Logged
     @Counted
+    @PrincipalLogging
     @CacheResult(cacheName = EventAddress.SESSION_PAGE)
     public Uni<Page<Answer>> getPage(@CacheKey PageRequest pageRequest) {
         return pageService.getPage(pageRequest, sessionDataService::count, sessionDataService::findRange, Answer::of);
@@ -75,7 +75,7 @@ public class SessionCacheProvider extends AbstractCacheProvider<UUID, Session> {
         return invalidateCacheByKey(id).map(l -> answer);
     }
 
-    @Logged
+    @PrincipalLogging
     public Uni<Answer> invalidateByUserName(String userName, Answer answer) {
         return super.invalidateByOther(userName, answer, Session::userName, Session::id);
     }

@@ -14,8 +14,7 @@ import io.smallrye.mutiny.Uni;
 import su.svn.daybook.annotations.ExceptionBadRequestAnswer;
 import su.svn.daybook.annotations.ExceptionDuplicateAnswer;
 import su.svn.daybook.annotations.ExceptionNoSuchElementAnswer;
-import su.svn.daybook.annotations.Logged;
-import su.svn.daybook.annotations.Principled;
+import su.svn.daybook.annotations.PrincipalLogging;
 import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.messages.Request;
@@ -29,8 +28,8 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.util.UUID;
 
+@PrincipalLogging
 @ApplicationScoped
-@Logged
 public class KeyValueService extends AbstractService<UUID, KeyValue> {
 
     @Inject
@@ -45,7 +44,6 @@ public class KeyValueService extends AbstractService<UUID, KeyValue> {
      * @param request - KeyValue
      * @return - a lazy asynchronous action (LAA) with the Answer containing the KeyValue id as payload or empty payload
      */
-    @Principled
     @ExceptionBadRequestAnswer
     @ExceptionDuplicateAnswer
     @ConsumeEvent(EventAddress.KEY_VALUE_ADD)
@@ -63,7 +61,6 @@ public class KeyValueService extends AbstractService<UUID, KeyValue> {
      * @param request - id of the KeyValue
      * @return - a LAA with the Answer containing KeyValue id as payload or empty payload
      */
-    @Principled
     @ExceptionBadRequestAnswer
     @ExceptionNoSuchElementAnswer
     @ConsumeEvent(EventAddress.KEY_VALUE_DEL)
@@ -81,7 +78,6 @@ public class KeyValueService extends AbstractService<UUID, KeyValue> {
      * @param request - id of the KeyValue
      * @return - a lazy asynchronous action with the Answer containing the KeyValue as payload or empty payload
      */
-    @Principled
     @ExceptionBadRequestAnswer
     @ExceptionNoSuchElementAnswer
     @ConsumeEvent(EventAddress.KEY_VALUE_GET)
@@ -104,7 +100,6 @@ public class KeyValueService extends AbstractService<UUID, KeyValue> {
                 .map(Answer::of);
     }
 
-    @Principled
     @ExceptionBadRequestAnswer
     @ConsumeEvent(EventAddress.KEY_VALUE_PAGE)
     public Uni<Page<Answer>> getPage(Request<PageRequest> request) {
@@ -118,7 +113,6 @@ public class KeyValueService extends AbstractService<UUID, KeyValue> {
      * @param request - KeyValue
      * @return - a LAA with the Answer containing KeyValue id as payload or empty payload
      */
-    @Principled
     @ExceptionBadRequestAnswer
     @ExceptionDuplicateAnswer
     @ExceptionNoSuchElementAnswer

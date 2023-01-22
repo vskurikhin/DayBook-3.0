@@ -13,7 +13,7 @@ import io.smallrye.mutiny.Uni;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.jboss.resteasy.reactive.RestResponse;
 import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
-import su.svn.daybook.annotations.Logged;
+import su.svn.daybook.annotations.PrincipalLogging;
 import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.enums.ResourcePath;
 import su.svn.daybook.models.domain.KeyValue;
@@ -36,7 +36,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.util.UUID;
 
-@Path(ResourcePath.KEY_VALUE) @Logged
+@PrincipalLogging
+@Path(ResourcePath.KEY_VALUE)
 public class KeyValueResource extends AbstractResource implements Resource<UUID, KeyValue> {
 
     // @Operation(hidden = true)

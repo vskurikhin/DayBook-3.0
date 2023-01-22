@@ -14,8 +14,7 @@ import io.smallrye.mutiny.Uni;
 import su.svn.daybook.annotations.ExceptionBadRequestAnswer;
 import su.svn.daybook.annotations.ExceptionDuplicateAnswer;
 import su.svn.daybook.annotations.ExceptionNoSuchElementAnswer;
-import su.svn.daybook.annotations.Logged;
-import su.svn.daybook.annotations.Principled;
+import su.svn.daybook.annotations.PrincipalLogging;
 import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.messages.Request;
@@ -30,8 +29,8 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.util.UUID;
 
+@PrincipalLogging
 @ApplicationScoped
-@Logged
 public class RoleService extends AbstractService<UUID, Role> {
 
     @Inject
@@ -49,7 +48,6 @@ public class RoleService extends AbstractService<UUID, Role> {
      * @param request - Role
      * @return - a lazy asynchronous action (LAA) with the Answer containing the Role id as payload or empty payload
      */
-    @Principled
     @ExceptionBadRequestAnswer
     @ExceptionDuplicateAnswer
     @ConsumeEvent(EventAddress.ROLE_ADD)
@@ -67,7 +65,6 @@ public class RoleService extends AbstractService<UUID, Role> {
      * @param request - id of the Role
      * @return - a LAA with the Answer containing Role id as payload or empty payload
      */
-    @Principled
     @ExceptionBadRequestAnswer
     @ExceptionNoSuchElementAnswer
     @ConsumeEvent(EventAddress.ROLE_DEL)
@@ -85,7 +82,6 @@ public class RoleService extends AbstractService<UUID, Role> {
      * @param request - id of the Role
      * @return - a lazy asynchronous action with the Answer containing the Role as payload or empty payload
      */
-    @Principled
     @ExceptionBadRequestAnswer
     @ExceptionNoSuchElementAnswer
     @ConsumeEvent(EventAddress.ROLE_GET)
@@ -108,7 +104,6 @@ public class RoleService extends AbstractService<UUID, Role> {
                 .map(Answer::of);
     }
 
-    @Principled
     @ExceptionBadRequestAnswer
     @ConsumeEvent(EventAddress.ROLE_PAGE)
     public Uni<Page<Answer>> getPage(Request<PageRequest> request) {
@@ -122,7 +117,6 @@ public class RoleService extends AbstractService<UUID, Role> {
      * @param request - Role
      * @return - a LAA with the Answer containing Role id as payload or empty payload
      */
-    @Principled
     @ExceptionBadRequestAnswer
     @ExceptionDuplicateAnswer
     @ExceptionNoSuchElementAnswer

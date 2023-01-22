@@ -10,9 +10,7 @@ package su.svn.daybook.interceptors;
 
 import io.quarkus.arc.Priority;
 import su.svn.daybook.annotations.ExceptionNoSuchElementAnswer;
-import su.svn.daybook.services.ExceptionAnswerService;
 
-import javax.inject.Inject;
 import javax.interceptor.AroundInvoke;
 import javax.interceptor.Interceptor;
 import javax.interceptor.InvocationContext;
@@ -21,13 +19,9 @@ import javax.interceptor.InvocationContext;
 @Priority(Interceptor.Priority.LIBRARY_BEFORE + 3)
 @Interceptor
 public class ExceptionNoSuchElementAnswerInterceptor extends ExceptionInterceptor {
-    @Inject
-    ExceptionAnswerService exceptionAnswerService;
 
     @AroundInvoke
     Object onFailureRecoverWithUniAnswerNoSuchElement(InvocationContext context) throws Exception {
-        return onFailureRecoverWithUniAnswer(context,
-                t -> exceptionAnswerService.noSuchElementObject(t),
-                t -> exceptionAnswerService.testNoSuchElementException(t));
+        return onFailureRecoverWithUniAnswer(context, this::noSuchElementObject, this::testNoSuchElementException);
     }
 }

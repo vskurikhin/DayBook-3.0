@@ -21,6 +21,8 @@ import javax.interceptor.AroundInvoke;
 import javax.interceptor.Interceptor;
 import javax.interceptor.InvocationContext;
 
+@Deprecated
+@SuppressWarnings("DuplicatedCode")
 @Logged
 @Priority(Interceptor.Priority.APPLICATION + 21)
 @Interceptor

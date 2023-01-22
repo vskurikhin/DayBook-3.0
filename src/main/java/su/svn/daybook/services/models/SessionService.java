@@ -11,11 +11,7 @@ package su.svn.daybook.services.models;
 import io.quarkus.vertx.ConsumeEvent;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
-import su.svn.daybook.annotations.ExceptionBadRequestAnswer;
-import su.svn.daybook.annotations.ExceptionDuplicateAnswer;
-import su.svn.daybook.annotations.ExceptionNoSuchElementAnswer;
-import su.svn.daybook.annotations.Logged;
-import su.svn.daybook.annotations.Principled;
+import su.svn.daybook.annotations.*;
 import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.messages.Request;
@@ -29,8 +25,8 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.util.UUID;
 
+@PrincipalLogging
 @ApplicationScoped
-@Logged
 public class SessionService extends AbstractService<UUID, Session> {
 
     @Inject
@@ -45,7 +41,6 @@ public class SessionService extends AbstractService<UUID, Session> {
      * @param request - Session
      * @return - a lazy asynchronous action (LAA) with the Answer containing the Session id as payload or empty payload
      */
-    @Principled
     @ExceptionBadRequestAnswer
     @ExceptionDuplicateAnswer
     @ConsumeEvent(EventAddress.SESSION_ADD)
@@ -63,7 +58,6 @@ public class SessionService extends AbstractService<UUID, Session> {
      * @param request - id of the Session
      * @return - a LAA with the Answer containing Session id as payload or empty payload
      */
-    @Principled
     @ExceptionBadRequestAnswer
     @ExceptionNoSuchElementAnswer
     @ConsumeEvent(EventAddress.SESSION_DEL)
@@ -81,7 +75,6 @@ public class SessionService extends AbstractService<UUID, Session> {
      * @param request - id of the Session
      * @return - a lazy asynchronous action with the Answer containing the Session as payload or empty payload
      */
-    @Principled
     @ExceptionBadRequestAnswer
     @ExceptionNoSuchElementAnswer
     @ConsumeEvent(EventAddress.SESSION_GET)
@@ -104,7 +97,6 @@ public class SessionService extends AbstractService<UUID, Session> {
                 .map(Answer::of);
     }
 
-    @Principled
     @ExceptionBadRequestAnswer
     @ConsumeEvent(EventAddress.SESSION_PAGE)
     public Uni<Page<Answer>> getPage(Request<PageRequest> request) {
@@ -118,7 +110,6 @@ public class SessionService extends AbstractService<UUID, Session> {
      * @param request - Session
      * @return - a LAA with the Answer containing Session id as payload or empty payload
      */
-    @Principled
     @ExceptionBadRequestAnswer
     @ExceptionDuplicateAnswer
     @ExceptionNoSuchElementAnswer

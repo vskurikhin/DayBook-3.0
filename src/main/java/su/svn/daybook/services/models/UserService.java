@@ -14,8 +14,7 @@ import io.smallrye.mutiny.Uni;
 import su.svn.daybook.annotations.ExceptionBadRequestAnswer;
 import su.svn.daybook.annotations.ExceptionDuplicateAnswer;
 import su.svn.daybook.annotations.ExceptionNoSuchElementAnswer;
-import su.svn.daybook.annotations.Logged;
-import su.svn.daybook.annotations.Principled;
+import su.svn.daybook.annotations.PrincipalLogging;
 import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.messages.Request;
@@ -31,8 +30,8 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.util.UUID;
 
+@PrincipalLogging
 @ApplicationScoped
-@Logged
 public class UserService extends AbstractService<UUID, User> {
 
     @Inject
@@ -53,7 +52,6 @@ public class UserService extends AbstractService<UUID, User> {
      * @param request - User
      * @return - a lazy asynchronous action (LAA) with the Answer containing the User id as payload or empty payload
      */
-    @Principled
     @ExceptionBadRequestAnswer
     @ExceptionDuplicateAnswer
     @ConsumeEvent(EventAddress.USER_ADD)
@@ -70,7 +68,6 @@ public class UserService extends AbstractService<UUID, User> {
      * @param o - id of the User
      * @return - a LAA with the Answer containing User id as payload or empty payload
      */
-    @Principled
     @ExceptionBadRequestAnswer
     @ExceptionNoSuchElementAnswer
     @ConsumeEvent(EventAddress.USER_DEL)
@@ -88,7 +85,6 @@ public class UserService extends AbstractService<UUID, User> {
      * @param o - id of the User
      * @return - a lazy asynchronous action with the Answer containing the User as payload or empty payload
      */
-    @Principled
     @ExceptionBadRequestAnswer
     @ExceptionNoSuchElementAnswer
     @ConsumeEvent(EventAddress.USER_GET)
@@ -109,7 +105,6 @@ public class UserService extends AbstractService<UUID, User> {
                 .map(Answer::of);
     }
 
-    @Principled
     @ExceptionBadRequestAnswer
     @ConsumeEvent(value = EventAddress.USER_PAGE)
     public Uni<Page<Answer>> getPage(Request<PageRequest> request) {
@@ -123,7 +118,6 @@ public class UserService extends AbstractService<UUID, User> {
      * @param request - User
      * @return - a LAA with the Answer containing User id as payload or empty payload
      */
-    @Principled
     @ExceptionBadRequestAnswer
     @ExceptionDuplicateAnswer
     @ExceptionNoSuchElementAnswer

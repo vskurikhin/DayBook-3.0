@@ -61,7 +61,6 @@ class KeyValueTest {
                 .build()));
     }
 
-
     @Test
     void testToBuilder() {
         var test = new KeyValue();

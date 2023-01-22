@@ -19,6 +19,7 @@ import javax.interceptor.AroundInvoke;
 import javax.interceptor.Interceptor;
 import javax.interceptor.InvocationContext;
 
+@Deprecated
 @Priority(Interceptor.Priority.APPLICATION + 20)
 @Interceptor
 @Principled

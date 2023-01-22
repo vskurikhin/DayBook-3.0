@@ -1,8 +1,8 @@
 /*
- * This file was last modified at 2023.01.09 23:14 by Victor N. Skurikhin.
+ * This file was last modified at 2023.01.22 14:59 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
- * AuthenticationContextImpl.java
+ * AuthenticationContext.java
  * $Id$
  */
 
@@ -26,7 +26,7 @@ public class AuthenticationContext implements Closeable {
 
     public AuthenticationContext() {
         this.id = UUID.randomUUID();
-        LOG.infof("AuthenticationContext(%s).id: %s", this, id);
+        LOG.debugf("AuthenticationContext(%s).id: %s", this, id);
     }
 
     public Principal getPrincipal() {
@@ -43,14 +43,14 @@ public class AuthenticationContext implements Closeable {
 
     @Override
     public void close() {
-        LOG.infof("close(%s).id: %s", this, id);
+        LOG.debugf("close(%s).id: %s", this, id);
         this.principal = null;
         this.id = null;
     }
 
     @Override
     protected void finalize() throws Throwable {
-        LOG.infof("finalize(%s).id: %s", this, id);
+        LOG.debugf("finalize(%s).id: %s", this, id);
         super.finalize();
     }
 }

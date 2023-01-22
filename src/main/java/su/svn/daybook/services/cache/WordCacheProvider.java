@@ -9,12 +9,11 @@
 package su.svn.daybook.services.cache;
 
 import io.micrometer.core.annotation.Counted;
-import io.micrometer.core.annotation.Timed;
 import io.quarkus.cache.CacheKey;
 import io.quarkus.cache.CacheResult;
 import io.smallrye.mutiny.Uni;
 import org.jboss.logging.Logger;
-import su.svn.daybook.annotations.Logged;
+import su.svn.daybook.annotations.PrincipalLogging;
 import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.models.domain.Word;
@@ -41,15 +40,15 @@ public class WordCacheProvider extends AbstractCacheProvider<String, Word> {
         super(EventAddress.WORD_GET, EventAddress.WORD_PAGE, LOG);
     }
 
-    @Logged
     @Counted
+    @PrincipalLogging
     @CacheResult(cacheName = EventAddress.WORD_GET)
     public Uni<Word> get(@CacheKey String id) {
         return wordDataService.get(id);
     }
 
-    @Logged
     @Counted
+    @PrincipalLogging
     @CacheResult(cacheName = EventAddress.WORD_PAGE)
     public Uni<Page<Answer>> getPage(@CacheKey PageRequest pageRequest) {
         return pageService.getPage(pageRequest, wordDataService::count, wordDataService::findRange, Answer::of);

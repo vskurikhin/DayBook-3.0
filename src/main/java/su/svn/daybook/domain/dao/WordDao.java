@@ -10,7 +10,7 @@ package su.svn.daybook.domain.dao;
 
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
-import su.svn.daybook.annotations.Logged;
+import su.svn.daybook.annotations.PrincipalLogging;
 import su.svn.daybook.annotations.SQL;
 import su.svn.daybook.domain.model.WordTable;
 
@@ -24,25 +24,24 @@ public class WordDao extends AbstractDao<String, WordTable> {
         super(WordTable.ID, r -> r.getString(WordTable.ID), WordTable::from);
     }
 
-    @Logged
+    @PrincipalLogging
     @SQL(WordTable.COUNT_DICTIONARY_WORD)
     public Uni<Optional<Long>> count() {
         return super.countSQL().map(Optional::ofNullable);
     }
 
-    @Logged
+    @PrincipalLogging
     @SQL(WordTable.DELETE_FROM_DICTIONARY_WORD_WHERE_ID_$1)
     public Uni<Optional<String>> delete(String id) {
         return super.deleteSQL(id).map(Optional::ofNullable);
     }
 
-    @Logged
     @SQL(WordTable.SELECT_ALL_FROM_DICTIONARY_WORD_ORDER_BY_ID_ASC)
     public Multi<WordTable> findAll() {
         return super.findAllSQL();
     }
 
-    @Logged
+    @PrincipalLogging
     @SQL(WordTable.SELECT_FROM_DICTIONARY_WORD_WHERE_ID_$1)
     public Uni<Optional<WordTable>> findById(String id) {
         return super.findByIdSQL(id).map(Optional::ofNullable);
@@ -52,19 +51,18 @@ public class WordDao extends AbstractDao<String, WordTable> {
         return findById(word);
     }
 
-    @Logged
     @SQL(WordTable.SELECT_ALL_FROM_DICTIONARY_WORD_ORDER_BY_WORD_ASC_OFFSET_LIMIT)
     public Multi<WordTable> findRange(long offset, long limit) {
         return super.findRangeSQL(offset, limit);
     }
 
-    @Logged
+    @PrincipalLogging
     @SQL(WordTable.INSERT_INTO_DICTIONARY_WORD)
     public Uni<Optional<String>> insert(WordTable entry) {
         return super.insertSQL(entry).map(Optional::ofNullable);
     }
 
-    @Logged
+    @PrincipalLogging
     @SQL(WordTable.UPDATE_DICTIONARY_WORD_WHERE_ID_$1)
     public Uni<Optional<String>> update(WordTable entry) {
         return super.updateSQL(entry).map(Optional::ofNullable);

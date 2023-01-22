@@ -11,6 +11,7 @@ package su.svn.daybook.annotations;
 import javax.interceptor.InterceptorBinding;
 import java.lang.annotation.*;
 
+@Deprecated
 @InterceptorBinding
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.METHOD, ElementType.CONSTRUCTOR})

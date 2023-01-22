@@ -10,7 +10,7 @@ package su.svn.daybook.domain.dao;
 
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
-import su.svn.daybook.annotations.Logged;
+import su.svn.daybook.annotations.PrincipalLogging;
 import su.svn.daybook.annotations.SQL;
 import su.svn.daybook.domain.model.@Name@Table;
 
@@ -19,73 +19,79 @@ import java.util.Optional;
 import java.util.UUID;
 
 @ApplicationScoped
-public class @Name@Dao extends AbstractDao<@IdType@, @Name@Table> {
+public class @Name@Dao extends AbstractDao<@IdType@, @Name@Table> implements DaoIface<@IdType@, @Name@Table> {
 
     @Name@Dao() {
         super(@Name@Table.ID, r -> r.get@IdType@(@Name@Table.ID), @Name@Table::from);
     }
 
-    @Logged
+    @Override
+    @PrincipalLogging
     @SQL(@Name@Table.COUNT_@SCHEMA@_@TABLE@)
     public Uni<Optional<Long>> count() {
         return super.countSQL().map(Optional::ofNullable);
     }
 
-    @Logged
+    @Override
+    @PrincipalLogging
     @SQL(@Name@Table.DELETE_FROM_@SCHEMA@_@TABLE@_WHERE_ID_$1_RETURNING_S)
     public Uni<Optional<@IdType@>> delete(@IdType@ id) {
         return super.deleteSQL(id).map(Optional::ofNullable);
     }
 
-    @Logged
+    @Override
     @SQL(@Name@Table.SELECT_ALL_FROM_@SCHEMA@_@TABLE@_ORDER_BY_S)
     public Multi<@Name@Table> findAll() {
         return super.findAllSQL();
     }
 
-    @Logged
+    @Override
+    @PrincipalLogging
     @SQL(@Name@Table.SELECT_FROM_@SCHEMA@_@TABLE@_WHERE_ID_$1)
     public Uni<Optional<@Name@Table>> findById(@IdType@ id) {
         return super.findByIdSQL(id).map(Optional::ofNullable);
     }
 
-    @Logged
+    @PrincipalLogging
     @SQL(@Name@Table.SELECT_FROM_@SCHEMA@_@TABLE@_WHERE_KEY_$1)
     public Uni<Optional<@Name@Table>> findBy@Key@(@KType@ @key@) {
         return super.findBy@Key@SQL(@key@).map(Optional::ofNullable);
     }
 
-    @Logged
     @SQL(@Name@Table.SELECT_FROM_@SCHEMA@_@TABLE@_WHERE_VALUE_$1)
     public Multi<@Name@Table> findBy@Value@(@VType@ @value@) {
         return super.findBy@Value@SQL(@value@);
     }
 
-    @Logged
+    @Override
     @SQL(@Name@Table.SELECT_ALL_FROM_@SCHEMA@_@TABLE@_ORDER_BY_S_OFFSET_$1_LIMIT_$2)
     public Multi<@Name@Table> findRange(long offset, long limit) {
         return super.findRangeSQL(offset, limit);
     }
 
-    @Logged
+    @Override
+    @PrincipalLogging
     @SQL
     public Uni<Optional<@IdType@>> insert(@Name@Table entry) {
         return super.insertSQL(entry).map(Optional::ofNullable);
     }
 
-    @Logged
+    @Override
+    @PrincipalLogging
     @SQL
     public Uni<Optional<@Name@Table>> insertEntry(@Name@Table entry) {
         return super.insertSQLEntry(entry).map(Optional::ofNullable);
     }
 
-    @Logged
+    @Override
+    @PrincipalLogging
     @SQL(@Name@Table.UPDATE_@SCHEMA@_@TABLE@_WHERE_ID_$1_RETURNING_S)
     public Uni<Optional<@IdType@>> update(@Name@Table entry) {
         return super.updateSQL(entry).map(Optional::ofNullable);
     }
 
-    @Logged
+    @Override
+    @PrincipalLogging
     @SQL(@Name@Table.UPDATE_@SCHEMA@_@TABLE@_WHERE_ID_$1_RETURNING_S)
     public Uni<Optional<@Name@Table>> updateEntry(@Name@Table entry) {
         return super.updateSQLEntry(entry).map(Optional::ofNullable);

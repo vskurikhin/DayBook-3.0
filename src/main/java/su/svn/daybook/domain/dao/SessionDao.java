@@ -10,7 +10,7 @@ package su.svn.daybook.domain.dao;
 
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
-import su.svn.daybook.annotations.Logged;
+import su.svn.daybook.annotations.PrincipalLogging;
 import su.svn.daybook.annotations.SQL;
 import su.svn.daybook.domain.model.SessionTable;
 
@@ -25,32 +25,29 @@ public class SessionDao extends AbstractDao<UUID, SessionTable> {
         super(SessionTable.ID, r -> r.getUUID(SessionTable.ID), SessionTable::from);
     }
 
-    @Logged
+    @PrincipalLogging
     @SQL(SessionTable.COUNT_SECURITY_SESSION)
     public Uni<Optional<Long>> count() {
         return super.countSQL().map(Optional::ofNullable);
     }
 
-    @Logged
+    @PrincipalLogging
     @SQL(SessionTable.DELETE_FROM_SECURITY_SESSION_WHERE_ID_$1)
     public Uni<Optional<UUID>> delete(UUID id) {
         return super.deleteSQL(id).map(Optional::ofNullable);
     }
 
-    @Logged
     @SQL(SessionTable.SELECT_ALL_FROM_SECURITY_SESSION_ORDER_BY_ID_ASC)
     public Multi<SessionTable> findAll() {
         return super.findAllSQL();
     }
 
-    @Logged
+    @PrincipalLogging
     @SQL(SessionTable.SELECT_FROM_SECURITY_SESSION_WHERE_ID_$1)
     public Uni<Optional<SessionTable>> findById(UUID id) {
         return super.findByIdSQL(id).map(Optional::ofNullable);
     }
 
-
-    @Logged
     @SQL(SessionTable.SELECT_FROM_SECURITY_SESSION_WHERE_USER_NAME_$1)
     public Multi<SessionTable> findByValue(String username) {
         return super.findByValueSQL(username);
@@ -60,19 +57,19 @@ public class SessionDao extends AbstractDao<UUID, SessionTable> {
         return findByValue(username);
     }
 
-    @Logged
+    @PrincipalLogging
     @SQL(SessionTable.SELECT_ALL_FROM_SECURITY_SESSION_ORDER_BY_ID_ASC_OFFSET_LIMIT)
     public Multi<SessionTable> findRange(long offset, long limit) {
         return super.findRangeSQL(offset, limit);
     }
 
-    @Logged
+    @PrincipalLogging
     @SQL
     public Uni<Optional<UUID>> insert(SessionTable entry) {
         return super.insertSQL(entry).map(Optional::ofNullable);
     }
 
-    @Logged
+    @PrincipalLogging
     @SQL(SessionTable.UPDATE_SECURITY_SESSION_WHERE_ID_$1)
     public Uni<Optional<UUID>> update(SessionTable entry) {
         return super.updateSQL(entry).map(Optional::ofNullable);
