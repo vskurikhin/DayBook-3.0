@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2022.01.12 22:58 by Victor N. Skurikhin.
+ * This file was last modified at 2023.01.22 18:04 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * WordDao.java
@@ -18,7 +18,7 @@ import javax.enterprise.context.ApplicationScoped;
 import java.util.Optional;
 
 @ApplicationScoped
-public class WordDao extends AbstractDao<String, WordTable> {
+public class WordDao extends AbstractDao<String, WordTable> implements DaoIface<String, WordTable> {
 
     WordDao() {
         super(WordTable.ID, r -> r.getString(WordTable.ID), WordTable::from);
@@ -57,14 +57,26 @@ public class WordDao extends AbstractDao<String, WordTable> {
     }
 
     @PrincipalLogging
-    @SQL(WordTable.INSERT_INTO_DICTIONARY_WORD)
+    @SQL(WordTable.INSERT_INTO_DICTIONARY_WORD_RETURNING_S)
     public Uni<Optional<String>> insert(WordTable entry) {
         return super.insertSQL(entry).map(Optional::ofNullable);
     }
 
+    @Override
+    @SQL(WordTable.INSERT_INTO_DICTIONARY_WORD_RETURNING_S)
+    public Uni<Optional<WordTable>> insertEntry(WordTable entry) {
+        return super.insertSQLEntry(entry).map(Optional::ofNullable);
+    }
+
     @PrincipalLogging
-    @SQL(WordTable.UPDATE_DICTIONARY_WORD_WHERE_ID_$1)
+    @SQL(WordTable.UPDATE_DICTIONARY_WORD_WHERE_ID_$1_RETURNING_S)
     public Uni<Optional<String>> update(WordTable entry) {
         return super.updateSQL(entry).map(Optional::ofNullable);
+    }
+
+    @Override
+    @SQL(WordTable.UPDATE_DICTIONARY_WORD_WHERE_ID_$1_RETURNING_S)
+    public Uni<Optional<WordTable>> updateEntry(WordTable entry) {
+        return super.updateSQLEntry(entry).map(Optional::ofNullable);
     }
 }

@@ -1,4 +1,12 @@
 #!/bin/sh
+#
+# This file was last modified at 2023.01.22 18:04 by Victor N. Skurikhin.
+# This is free and unencumbered software released into the public domain.
+# For more information, please refer to <http://unlicense.org>
+# seding.sh
+# $Id$
+#
+
 list_files="
 ./src/main/java/su/svn/daybook/domain/dao/KeyValueDao.java
 ./src/main/java/su/svn/daybook/domain/model/KeyValueTable.java
@@ -32,7 +40,12 @@ s/key/@key@/g;
 s/value/@value@/g;
 s/dictionary/@schema@/g;
 s/dictionary/@schema@/g;
-s/Cache@Key@/CacheKey/g'
+s/row.getBigDecimal("@key@").to@KType@()/row.getKey("@key@").to@KType@()/g;
+s/findBy@Key@SQL/findByKeySQL/g;
+s/findBy@Value@SQL/findBy@alueSQL/g
+s/Cache@Key@/CacheKey/g;
+s/invalidateBy@Key@/invalidateByKey/g;
+s/invalidateCacheBy@Key@/invalidateCacheByKey/g'
 for file in $list_files
 do
   directory=${file%/*}

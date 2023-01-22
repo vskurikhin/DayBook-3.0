@@ -55,12 +55,12 @@ public class @Name@Dao extends AbstractDao<@IdType@, @Name@Table> implements Dao
     @PrincipalLogging
     @SQL(@Name@Table.SELECT_FROM_@SCHEMA@_@TABLE@_WHERE_KEY_$1)
     public Uni<Optional<@Name@Table>> findBy@Key@(@KType@ @key@) {
-        return super.findBy@Key@SQL(@key@).map(Optional::ofNullable);
+        return super.findByKeySQL(@key@).map(Optional::ofNullable);
     }
 
     @SQL(@Name@Table.SELECT_FROM_@SCHEMA@_@TABLE@_WHERE_VALUE_$1)
     public Multi<@Name@Table> findBy@Value@(@VType@ @value@) {
-        return super.findBy@Value@SQL(@value@);
+        return super.findByValueSQL(@value@);
     }
 
     @Override

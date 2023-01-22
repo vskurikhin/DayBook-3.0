@@ -69,7 +69,7 @@ public class @Name@Service extends AbstractService<@IdType@, @Name@> {
         return @name@DataService
                 .delete(request.payload())
                 .map(this::apiResponseOkAnswer)
-                .flatMap(answer -> @name@CacheProvider.invalidateBy@Key@(request.payload(), answer));
+                .flatMap(answer -> @name@CacheProvider.invalidateByKey(request.payload(), answer));
     }
 
     /**
@@ -122,6 +122,6 @@ public class @Name@Service extends AbstractService<@IdType@, @Name@> {
         return @name@DataService
                 .put(request.payload())
                 .map(this::apiResponseAcceptedAnswer)
-                .flatMap(answer -> @name@CacheProvider.invalidateBy@Key@(request.payload().id(), answer));
+                .flatMap(answer -> @name@CacheProvider.invalidateByKey(request.payload().id(), answer));
     }
 }

@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.01.11 14:45 by Victor N. Skurikhin.
+ * This file was last modified at 2023.01.22 18:04 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * WordTable.java
@@ -43,12 +43,12 @@ public record WordTable(
              RETURNING word
             """;
     @Language("SQL")
-    public static final String INSERT_INTO_DICTIONARY_WORD = """
+    public static final String INSERT_INTO_DICTIONARY_WORD_RETURNING_S = """
             INSERT INTO dictionary.word
              (word, user_name, enabled, visible, flags)
              VALUES
              ($1, $2, $3, $4, $5)
-             RETURNING word
+             RETURNING %s
             """;
     @Language("SQL")
     public static final String SELECT_FROM_DICTIONARY_WORD_WHERE_ID_$1 = """
@@ -80,6 +80,16 @@ public record WordTable(
              WHERE word = $1
              RETURNING word
             """;
+    @Language("SQL")
+    public static final String UPDATE_DICTIONARY_WORD_WHERE_ID_$1_RETURNING_S = """
+            UPDATE dictionary.word SET
+              user_name = $2,
+              enabled = $3,
+              visible = $4,
+              flags = $5
+             WHERE word = $1
+             RETURNING %s
+            """;
 
     public static WordTable from(Row row) {
         return new WordTable(
@@ -103,7 +113,7 @@ public record WordTable(
 
     @Override
     public String caseInsertSql() {
-        return INSERT_INTO_DICTIONARY_WORD;
+        return INSERT_INTO_DICTIONARY_WORD_RETURNING_S;
     }
 
     @Override
