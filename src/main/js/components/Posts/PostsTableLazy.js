@@ -1,22 +1,29 @@
 import React, {useState, useEffect} from 'react';
 import {DataTable} from 'primereact/datatable';
 import {Column} from 'primereact/column';
-import WordService from '../../services/WordService';
+import VocabularyService from '../../services/VocabularyService';
 
 const PostsTableLazy = () => {
 
-    const [loading, setLoading] = useState(false);
-    const [totalRecords, setTotalRecords] = useState(0);
     const [customers, setCustomers] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const [selectAll, setSelectAll] = useState(false);
+    const [selectedCustomers, setSelectedCustomers] = useState(null);
+    const [totalRecords, setTotalRecords] = useState(0);
     const [lazyParams, setLazyParams] = useState({
         first: 0,
-        rows: 5,
+        rows: 10,
         page: 0,
         sortField: null,
         sortOrder: null,
+        filters: {
+            'word': { value: '', matchMode: 'contains' },
+            'visible': { value: '', matchMode: 'contains' },
+            'flags': { value: '', matchMode: 'contains' },
+        }
     });
 
-    const wordService = new WordService();
+    const wordService = new VocabularyService();
 
     let loadLazyTimeout = null;
 
@@ -34,24 +41,48 @@ const PostsTableLazy = () => {
         //imitate delay of a backend call
         loadLazyTimeout = setTimeout(() => {
             wordService.getCustomers(lazyParams).then(data => {
-                console.log('data')
-                console.log(data)
                 setTotalRecords(data.totalRecords);
                 setCustomers(data.content);
                 setLoading(false);
             });
-        }, Math.random() * 1000 + 250);
+        }, Math.random() * 3 + 1);
     }
 
     const onPage = (event) => {
-        console.log('onPage')
-        console.log(event)
         setLazyParams(event);
     }
 
+    const onSort = (event) => {
+        setLazyParams(event);
+    }
+
+    const onFilter = (event) => {
+        event['first'] = 0;
+        setLazyParams(event);
+    }
+
+    const onSelectionChange = (event) => {
+        const value = event.value;
+        setSelectedCustomers(value);
+        setSelectAll(value.length === totalRecords);
+    }
+
+    const onSelectAllChange = (event) => {
+        const selectAll = event.checked;
+
+        if (selectAll) {
+            customerService.getCustomers().then(data => {
+                setSelectAll(true);
+                setSelectedCustomers(data.content);
+            });
+        }
+        else {
+            setSelectAll(false);
+            setSelectedCustomers([]);
+        }
+    }
+
     const wordBodyTemplate = (rowData) => {
-        console.log('wordBodyTemplate rowData')
-        console.log(rowData)
         return (
             <React.Fragment>
                 {/*<img alt={rowData.representative.name} src={`images/avatar/${rowData.representative.image}`}*/}
@@ -63,8 +94,6 @@ const PostsTableLazy = () => {
     }
 
     const visibleBodyTemplate = (rowData) => {
-        console.log('visibleBodyTemplate rowData')
-        console.log(rowData)
         return (
             <React.Fragment>
                 {/*<img alt="flag" src="/images/flag/flag_placeholder.png"*/}
@@ -78,12 +107,16 @@ const PostsTableLazy = () => {
     return (
         <div>
             <div className="card">
-                <DataTable value={customers} lazy filterDisplay="row" responsiveLayout="scroll" dataKey="word"
-                           paginator first={lazyParams.first} rows={5} totalRecords={totalRecords} onPage={onPage}
-                           loading={loading}>
-                    <Column field="word" header="Word" sortable body={wordBodyTemplate}/>
-                    <Column field="visible" header="Visible" body={visibleBodyTemplate}/>
-                    <Column field="flags" header="Flags"/>
+                <DataTable value={customers} lazy filterDisplay="row" responsiveLayout="scroll" dataKey="id"
+                           paginator first={lazyParams.first} rows={10} totalRecords={totalRecords} onPage={onPage}
+                           onSort={onSort} sortField={lazyParams.sortField} sortOrder={lazyParams.sortOrder}
+                           onFilter={onFilter} filters={lazyParams.filters} loading={loading}
+                           selection={selectedCustomers} onSelectionChange={onSelectionChange}
+                           selectAll={selectAll} onSelectAllChange={onSelectAllChange}>
+                    <Column selectionMode="multiple" headerStyle={{ width: '3em' }}></Column>
+                    <Column field="word" header="Word" sortable body={wordBodyTemplate} filter filterPlaceholder="Search by word" />
+                    <Column field="visible" sortable header="Visible" body={visibleBodyTemplate} filter filterPlaceholder="Search by visible" />
+                    <Column field="flags" sortable filter header="Flags" filterPlaceholder="Search by flags" />
                 </DataTable>
             </div>
         </div>

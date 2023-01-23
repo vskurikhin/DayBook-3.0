@@ -20,7 +20,6 @@ import su.svn.daybook.models.pagination.PageRequest;
 import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.Random;
@@ -105,7 +104,7 @@ public class TestData {
         public static final String JSON_ARRAY_SINGLETON_0 = "[" + JSON_0 + "]";
         public static final String JSON_ID_0 = "{\"code\":\"" + CodifierTable.NONE + "\"}";
         public static final String JSON_PAGE_ARRAY_0 = """
-                {"pageNumber":0,"totalElements":0,"nextPage":false,"prevPage":false,"content":\
+                {"page":0,"totalRecords":0,"nextPage":false,"prevPage":false,"content":\
                 """ + JSON_ARRAY_SINGLETON_0 + """
                 }""";
     }
@@ -129,7 +128,7 @@ public class TestData {
 //        public static final String JSON_ARRAY_SINGLETON_0 = "[" + JSON_0 + "]";
 //        public static final String JSON_ID_0 = "{\"id\":0}";
 //        public static final String JSON_PAGE_ARRAY_0 = """
-//                {"pageNumber":0,"totalElements":0,"nextPage":false,"prevPage":false,"content":\
+//                {"page":0,"totalRecords":0,"nextPage":false,"prevPage":false,"content":\
 //                """ + JSON_ARRAY_SINGLETON_0 + """
 //                }""";
 //    }
@@ -156,7 +155,7 @@ public class TestData {
         public static final String JSON_ID_0 = "{\"id\":\"" + uuid.ZERO + "\"}";
         public static final String JSON_ID_0_200 = "{\"id\":\"00000000-0000-0000-0000-000000000000\",\"code\":200}";
         public static final String JSON_PAGE_ARRAY_0 = """
-                {"pageNumber":0,"totalElements":0,"nextPage":false,"prevPage":false,"content":\
+                {"page":0,"totalRecords":0,"nextPage":false,"prevPage":false,"content":\
                 """ + JSON_ARRAY_SINGLETON_0 + """
                 }""";
     }
@@ -180,7 +179,7 @@ public class TestData {
 //        public static final String JSON_ARRAY_SINGLETON_0 = "[" + JSON_0 + "]";
 //        public static final String JSON_ID_0 = "{\"id\":0}";
 //        public static final String JSON_PAGE_ARRAY_0 = """
-//                {"pageNumber":0,"totalElements":0,"nextPage":false,"prevPage":false,"content":\
+//                {"page":0,"totalRecords":0,"nextPage":false,"prevPage":false,"content":\
 //                """ + JSON_ARRAY_SINGLETON_0 + """
 //                }""";
 //    }
@@ -206,7 +205,7 @@ public class TestData {
         public static final String JSON_ARRAY_SINGLETON_0 = "[" + JSON_0 + "]";
         public static final String JSON_ID_0 = "{\"id\":\"00000000-0000-0000-0000-000000000000\"}";
         public static final String JSON_PAGE_ARRAY_0 = """
-                {"pageNumber":0,"totalElements":0,"nextPage":false,"prevPage":false,"content":\
+                {"page":0,"totalRecords":0,"nextPage":false,"prevPage":false,"content":\
                 """ + JSON_ARRAY_SINGLETON_0 + """
                 }""";
     }
@@ -233,7 +232,7 @@ public class TestData {
         public static final String JSON_ID_0 = "{\"id\":\"" + uuid.ZERO + "\"}";
         public static final String JSON_ID_0_200 = "{\"id\":\"00000000-0000-0000-0000-000000000000\",\"error\":200}";
         public static final String JSON_PAGE_ARRAY_0 = """
-                {"pageNumber":0,"totalElements":0,"nextPage":false,"prevPage":false,"content":\
+                {"page":0,"totalRecords":0,"nextPage":false,"prevPage":false,"content":\
                 """ + JSON_ARRAY_SINGLETON_0 + """
                 }""";
     }
@@ -259,7 +258,7 @@ public class TestData {
 //        public static final String JSON_ARRAY_SINGLETON_0 = "[" + JSON_0 + "]";
 //        public static final String JSON_ID_0 = "{\"id\":0}";
 //        public static final String JSON_PAGE_ARRAY_0 = """
-//                {"pageNumber":0,"totalElements":0,"nextPage":false,"prevPage":false,"content":\
+//                {"page":0,"totalRecords":0,"nextPage":false,"prevPage":false,"content":\
 //                """ + JSON_ARRAY_SINGLETON_0 + """
 //                }""";
 //    }
@@ -289,7 +288,7 @@ public class TestData {
 //                """;
 //        public static final String JSON_ARRAY_SINGLETON_0 = "[" + JSON_0 + "]";
 //        public static final String JSON_PAGE_ARRAY_0 = """
-//                {"pageNumber":0,"totalElements":0,"nextPage":false,"prevPage":false,"content":\
+//                {"page":0,"totalRecords":0,"nextPage":false,"prevPage":false,"content":\
 //                """ + JSON_ARRAY_SINGLETON_0 + """
 //                }""";
 //    }
@@ -338,7 +337,7 @@ public class TestData {
                 {"id":"00000000-0000-0000-0000-000000000000"}\
                 """;
         public static final String JSON_PAGE_ARRAY_0 = """
-                {"pageNumber":0,"totalElements":0,"nextPage":false,"prevPage":false,"content":\
+                {"page":0,"totalRecords":0,"nextPage":false,"prevPage":false,"content":\
                 """ + JSON_ARRAY_SINGLETON_0 + """
                 }""";
     }
@@ -364,7 +363,7 @@ public class TestData {
 //        public static final String JSON_ARRAY_SINGLETON_0 = "[" + JSON_0 + "]";
 //        public static final String JSON_ID_0 = "{\"id\":0}";
 //        public static final String JSON_PAGE_ARRAY_0 = """
-//                {"pageNumber":0,"totalElements":0,"nextPage":false,"prevPage":false,"content":\
+//                {"page":0,"totalRecords":0,"nextPage":false,"prevPage":false,"content":\
 //                """ + JSON_ARRAY_SINGLETON_0 + """
 //                }""";
 //    }
@@ -390,7 +389,7 @@ public class TestData {
         public static final String JSON_ARRAY_SINGLETON_0 = "[" + JSON_0 + "]";
         public static final String JSON_ID_0 = "{\"id\":0";
         public static final String JSON_PAGE_ARRAY_0 = """
-                {"pageNumber":0,"totalElements":0,"nextPage":false,"prevPage":false,"content":\
+                {"page":0,"totalRecords":0,"nextPage":false,"prevPage":false,"content":\
                 """ + JSON_ARRAY_SINGLETON_0 + """
                 }""";
     }
@@ -418,7 +417,7 @@ public class TestData {
         public static final String JSON_ARRAY_SINGLETON_0 = "[" + JSON_0 + "]";
         public static final String JSON_ID_0 = "{\"id\":\"" + WordTable.NONE + "\"}";
         public static final String JSON_PAGE_ARRAY_0 = """
-                {"pageNumber":0,"totalElements":0,"nextPage":false,"prevPage":false,"content":\
+                {"page":0,"totalRecords":0,"nextPage":false,"prevPage":false,"content":\
                 """ + JSON_ARRAY_SINGLETON_0 + """
                 }""";
     }

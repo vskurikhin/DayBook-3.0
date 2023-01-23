@@ -1,9 +1,9 @@
 import {Link, useParams} from 'react-router-dom';
-import WordService from '../../services/WordService';
+import VocabularyService from '../../services/VocabularyService';
 
 const SinglePost = () => {
     const {productId} = useParams();
-    const wordService = new WordService();
+    const wordService = new VocabularyService();
     const product = wordService.find(productId);
     // const product = products.find((product) => product.id === productId);
     const {image, name} = product;

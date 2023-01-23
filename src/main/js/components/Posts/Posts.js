@@ -1,4 +1,3 @@
-import DataTableLazyDemo from './DataTableLazyDemo';
 import PostsTableLazy from "./PostsTableLazy";
 
 const Posts = () => {

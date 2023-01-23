@@ -69,6 +69,7 @@ public class VocabularyDao extends AbstractDao<Long, VocabularyTable> implements
     }
 
     @Override
+    @PrincipalLogging
     @SQL(VocabularyTable.SELECT_ALL_FROM_DICTIONARY_VOCABULARY_ORDER_BY_S_OFFSET_$1_LIMIT_$2)
     public Multi<VocabularyTable> findRange(long offset, long limit) {
         return super.findRangeSQL(offset, limit);
