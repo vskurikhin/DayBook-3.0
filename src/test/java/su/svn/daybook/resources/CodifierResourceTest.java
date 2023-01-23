@@ -2,7 +2,7 @@
  * This file was last modified at 2021.12.15 12:44 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
- * KeyValueResourceTest.java
+ * CodifierResourceTest.java
  * $Id$
  */
 
@@ -20,7 +20,7 @@ import su.svn.daybook.TestData;
 import su.svn.daybook.domain.enums.ResourcePath;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.messages.Request;
-import su.svn.daybook.services.models.KeyValueService;
+import su.svn.daybook.services.models.CodifierService;
 
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
@@ -28,36 +28,36 @@ import javax.ws.rs.core.MediaType;
 import static io.restassured.RestAssured.given;
 
 @QuarkusTest
-class KeyValueResourceTest {
+class CodifierResourceTest {
 
     static Uni<Answer> test = Uni.createFrom()
             .item(1)
             .map(i -> Answer.of(TestData.KEY_VALUE.MODEL_0));
 
-    KeyValueService mock;
+    CodifierService mock;
 
     @BeforeEach
     void setUp() {
-        mock = Mockito.mock(KeyValueService.class);
-        Mockito.when(mock.get(TestData.request.UUID_REQUEST_0)).thenReturn(test);
-        Mockito.when(mock.get(TestData.request.UUID_REQUEST_1)).thenThrow(RuntimeException.class);
-        Mockito.when(mock.get(TestData.request.UUID_REQUEST_2)).thenReturn(TestData.UNI_ANSWER_EMPTY);
-        Mockito.when(mock.get(TestData.request.UUID_REQUEST_3)).thenReturn(TestData.UNI_ANSWER_NULL);
+        mock = Mockito.mock(CodifierService.class);
+        Mockito.when(mock.get(TestData.request.STRING_REQUEST_0)).thenReturn(test);
+        Mockito.when(mock.get(TestData.request.STRING_REQUEST_1)).thenThrow(RuntimeException.class);
+        Mockito.when(mock.get(TestData.request.STRING_REQUEST_2)).thenReturn(TestData.UNI_ANSWER_EMPTY);
+        Mockito.when(mock.get(TestData.request.STRING_REQUEST_3)).thenReturn(TestData.UNI_ANSWER_NULL);
         Mockito.when(mock.getAll()).thenReturn(Multi.createFrom().item(Answer.of(TestData.KEY_VALUE.MODEL_0)));
         Mockito.when(mock.getPage(TestData.request.REQUEST_4)).thenReturn(TestData.KEY_VALUE.UNI_PAGE_ANSWER_SINGLETON_TEST);
-        Mockito.when(mock.add(new Request<>(TestData.KEY_VALUE.MODEL_0, null)))
+        Mockito.when(mock.add(new Request<>(TestData.CODIFIER.MODEL_0, null)))
                 .thenReturn(TestData.uuid.UNI_ANSWER_API_RESPONSE_ZERO);
-        Mockito.when(mock.put(new Request<>(TestData.KEY_VALUE.MODEL_0, null)))
+        Mockito.when(mock.put(new Request<>(TestData.CODIFIER.MODEL_0, null)))
                 .thenReturn(TestData.uuid.UNI_ANSWER_API_RESPONSE_ZERO);
-        Mockito.when(mock.delete(TestData.request.UUID_REQUEST_0)).thenReturn(TestData.uuid.UNI_ANSWER_API_RESPONSE_ZERO);
-        QuarkusMock.installMockForType(mock, KeyValueService.class);
+        Mockito.when(mock.delete(TestData.request.STRING_REQUEST_0)).thenReturn(TestData.uuid.UNI_ANSWER_API_RESPONSE_ZERO);
+        QuarkusMock.installMockForType(mock, CodifierService.class);
     }
 
     @Test
     void testEndpointGet() {
         given()
                 .when()
-                .get(ResourcePath.API_PATH + "/key-value/" + TestData.uuid.STRING_ZERO)
+                .get(ResourcePath.API_PATH + "/code/" + 0)
                 .then()
                 .statusCode(200)
                 .body(CoreMatchers.startsWith(TestData.KEY_VALUE.JSON_0));
@@ -67,7 +67,7 @@ class KeyValueResourceTest {
     void testEndpointGetThenRuntimeException() {
         given()
                 .when()
-                .get(ResourcePath.API_PATH + "/key-value/" + TestData.uuid.ONE)
+                .get(ResourcePath.API_PATH + "/code/" + 1)
                 .then()
                 .statusCode(400);
     }
@@ -76,7 +76,7 @@ class KeyValueResourceTest {
     void testEndpointGetWhenEmpty() {
         given()
                 .when()
-                .get(ResourcePath.API_PATH + "/key-value/" + TestData.uuid.RANDOM1)
+                .get(ResourcePath.API_PATH + "/code/" + 2)
                 .then()
                 .statusCode(404);
     }
@@ -85,7 +85,7 @@ class KeyValueResourceTest {
     void testEndpointGetWhenNull() {
         given()
                 .when()
-                .get(ResourcePath.API_PATH + "/key-value/" + TestData.uuid.RANDOM2)
+                .get(ResourcePath.API_PATH + "/code/" + 3)
                 .then()
                 .statusCode(406);
     }
@@ -94,7 +94,7 @@ class KeyValueResourceTest {
     void testEndpointGetAll() {
         given()
                 .when()
-                .get(ResourcePath.API_PATH + "/key-values")
+                .get(ResourcePath.API_PATH + "/codes")
                 .then()
                 .statusCode(200)
                 .body(CoreMatchers.startsWith(TestData.KEY_VALUE.JSON_ARRAY_SINGLETON_0));
@@ -104,7 +104,7 @@ class KeyValueResourceTest {
     void testEndpointGetPage() {
         given()
                 .when()
-                .get(ResourcePath.API_PATH + "/key-value/-?page=0&limit=1")
+                .get(ResourcePath.API_PATH + "/code/-?page=0&limit=1")
                 .then()
                 .statusCode(200)
                 .body(CoreMatchers.startsWith(TestData.KEY_VALUE.JSON_PAGE_ARRAY_0));
@@ -116,7 +116,7 @@ class KeyValueResourceTest {
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                 .body(TestData.KEY_VALUE.JSON_0)
                 .when()
-                .post(ResourcePath.API_PATH + "/key-value")
+                .post(ResourcePath.API_PATH + "/code")
                 .then()
                 .statusCode(200)
                 .body(CoreMatchers.startsWith(TestData.KEY_VALUE.JSON_ID_0_200));
@@ -128,7 +128,7 @@ class KeyValueResourceTest {
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                 .body(TestData.KEY_VALUE.JSON_0)
                 .when()
-                .put(ResourcePath.API_PATH + "/key-value")
+                .put(ResourcePath.API_PATH + "/code")
                 .then()
                 .statusCode(200)
                 .body(CoreMatchers.startsWith(TestData.KEY_VALUE.JSON_ID_0_200));
@@ -138,7 +138,7 @@ class KeyValueResourceTest {
     void testEndpointDelete() {
         given()
                 .when()
-                .delete(ResourcePath.API_PATH + "/key-value/" + TestData.uuid.STRING_ZERO)
+                .delete(ResourcePath.API_PATH + "/code/" + 0)
                 .then()
                 .statusCode(200)
                 .body(CoreMatchers.startsWith(TestData.KEY_VALUE.JSON_ID_0_200));

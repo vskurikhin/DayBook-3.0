@@ -47,8 +47,8 @@ public class DataBaseIT {
     SessionDao sessionDao;
 //    @Inject
 //    SettingDao settingDao;
-//    @Inject
-//    TagLabelDao tagLabelDao;
+    @Inject
+    TagLabelDao tagLabelDao;
     @Inject
     UserNameDao userNameDao;
     @Inject
@@ -721,90 +721,89 @@ public class DataBaseIT {
 //        }
 //    }
 
-//    @Nested
-//    @DisplayName("TagLabelDao")
-//    class TagLabelDaoTest {
-//        String id;
-//        String str = "str";
-//        TagLabelTable entry;
-//
-//        @BeforeEach
-//        void setUp() {
-//            entry = TagLabelTable.builder()
-//                    .id(str)
-//                    .label(str)
-//                    .enabled(true)
-//                    .build();
-//            Assertions.assertDoesNotThrow(() -> {
-//                id = uniOptionalHelper(tagLabelDao.insert(entry));
-//            });
-//        }
-//
-//        @AfterEach
-//        void tearDown() {
-//            Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(id, uniOptionalHelper(tagLabelDao.delete(id))));
-//            Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(0, uniOptionalHelper(tagLabelDao.count())));
-//        }
-//
-//        @Test
-//        void test() {
-//            var expected1 = TagLabelTable.builder()
-//                    .id(id)
-//                    .label(str)
-//                    .enabled(true)
-//                    .build();
-//            Assertions.assertDoesNotThrow(() -> {
-//                var test = uniOptionalHelper(tagLabelDao.findById(id));
-//                Assertions.assertNotNull(test);
-//                Assertions.assertEquals(expected1, test);
-//                Assertions.assertNotNull(test.getCreateTime());
-//                Assertions.assertNull(test.getUpdateTime());
-//            });
-//            var expected2 = TagLabelTable.builder()
-//                    .id(id)
-//                    .label("value")
-//                    .enabled(true)
-//                    .build();
-//            Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(id, uniOptionalHelper(tagLabelDao.update(expected2))));
-//            Assertions.assertDoesNotThrow(() -> {
-//                var test = uniOptionalHelper(tagLabelDao.findById(id));
-//                Assertions.assertNotNull(test);
-//                Assertions.assertEquals(expected2, test);
-//                Assertions.assertNotNull(test.getCreateTime());
-//                Assertions.assertNotNull(test.getUpdateTime());
-//            });
-//            Assertions.assertDoesNotThrow(() -> {
-//                var test = multiAsListHelper(tagLabelDao.findAll());
-//                Assertions.assertNotNull(test);
-//                Assertions.assertFalse(test.isEmpty());
-//                Assertions.assertEquals(1, test.size());
-//            });
-//            Assertions.assertDoesNotThrow(() -> {
-//                var test = multiAsListHelper(tagLabelDao.findRange(0, 0));
-//                Assertions.assertNotNull(test);
-//                Assertions.assertTrue(test.isEmpty());
-//            });
-//            Assertions.assertDoesNotThrow(() -> {
-//                var test = multiAsListHelper(tagLabelDao.findRange(0, 1));
-//                Assertions.assertNotNull(test);
-//                Assertions.assertFalse(test.isEmpty());
-//                Assertions.assertEquals(1, test.size());
-//            });
-//            var custom = TagLabelTable.builder()
-//                    .label("label")
-//                    .enabled(true)
-//                    .build();
-//            var strId = new AtomicReference<String>();
-//            Assertions.assertDoesNotThrow(() -> strId.set(uniOptionalHelper(tagLabelDao.insert(custom))));
-//            Assertions.assertDoesNotThrow(() -> {
-//                var test = multiAsListHelper(tagLabelDao.findRange(0, Long.MAX_VALUE));
-//                Assertions.assertNotNull(test);
-//                Assertions.assertFalse(test.isEmpty());
-//                Assertions.assertEquals(2, test.size());
-//            });
-//            Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(strId.get(), uniOptionalHelper(tagLabelDao.delete(strId.get()))));
-//        }
-//    }
+    @Nested
+    @DisplayName("TagLabelDao")
+    class TagLabelDaoTest extends AbstractDaoTest<String, TagLabelTable> {
+
+        String ZERO = TestData.uuid.STRING_ZERO.replace("-", "").substring(16, 32);
+        String ONE = TestData.uuid.STRING_ONE.replace("-", "").substring(16, 32);
+        String TWO = TestData.uuid.STRING_TWO.replace("-", "").substring(16, 32);
+        String TEN = TestData.uuid.STRING_TEN.replace("-", "").substring(16, 32);
+
+        @BeforeEach
+        void setUp() {
+            var entry = TagLabelTable.builder()
+                    .label(ZERO)
+                    .enabled(true)
+                    .build();
+            String customId = ZERO;
+            super.setUp(tagLabelDao, entry, customId);
+        }
+
+        @AfterEach
+        void tearDown() {
+            super.tearDown();
+        }
+
+        TagLabelTable.Builder builder(String id, String label, TagLabelTable test) {
+            return TagLabelTable.builder()
+                    .id(id)
+                    .label(label)
+                    .createTime(test.createTime())
+                    .updateTime(test.updateTime())
+                    .enabled(true);
+        }
+
+        TagLabelTable expected(String id, String label, TagLabelTable test) {
+            Assertions.assertNotNull(test);
+            return builder(id, label, test).build();
+        }
+
+        @Test
+        void test() {
+            super.whenFindByIdThenEntry((id, test) -> expected(id, ZERO, test));
+
+            var update = TagLabelTable.builder().id(super.id).label(ONE).build();
+            super.whenUpdateAndFindByIdThenEntry((id, test) -> expected(id, ONE, test), update);
+
+            super.whenFindAllThenMultiWithOneItem();
+            super.whenFindRangeZeroThenEmptiestMulti();
+            super.whenFindRangeFromZeroLimitOneThenMultiWithOneItem();
+
+            var custom = TagLabelTable.builder()
+                    .id(customId)
+                    .label(TWO)
+                    .build();
+            super.whenInsertCustomThenEntry(
+                    (id, test) -> expected(id, TWO, test),
+                    custom
+            );
+            var customUpdate = TagLabelTable.builder()
+                    .id(customId)
+                    .label(TEN)
+                    .build();
+            super.whenUpdateCustomAndFindByIdThenEntry(
+                    (id, test) -> expected(id, TEN, test),
+                    customUpdate
+            );
+
+            super.whenFindRangeFromZeroToOneThenMultiWithOneItemCustom(
+                    (id, test) -> expected(id, TEN, test)
+            );
+            super.whenFindRangeFromZeroToMaxValueThenMultiWithTwoItems();
+            super.whenFindRangeFromOneLimitOneMultiWithOneItem();
+
+            Assertions.assertDoesNotThrow(() -> {
+                var test = uniOptionalHelper(tagLabelDao.findByLabel(ONE));
+                var expected = expected(super.id, ONE, test);
+                Assertions.assertEquals(expected, test);
+                Assertions.assertNotNull(test.createTime());
+                Assertions.assertNotNull(test.updateTime());
+            });
+
+            super.whenDeleteCustomThenOk();
+        }
+    }
 
     @Nested
     @DisplayName("UserNameDao")

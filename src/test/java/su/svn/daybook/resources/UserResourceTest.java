@@ -33,16 +33,16 @@ public class UserResourceTest {
     @BeforeAll
     public static void setup() {
         mock = Mockito.mock(UserService.class);
-        Mockito.when(mock.get(TestData.request.REQUEST_0)).thenReturn(test);
-        Mockito.when(mock.get(TestData.request.REQUEST_2)).thenReturn(TestData.UNI_ANSWER_EMPTY);
-        Mockito.when(mock.get(TestData.request.REQUEST_3)).thenReturn(TestData.UNI_ANSWER_NULL);
+        Mockito.when(mock.get(TestData.request.UUID_REQUEST_0)).thenReturn(test);
+        Mockito.when(mock.get(TestData.request.UUID_REQUEST_2)).thenReturn(TestData.UNI_ANSWER_EMPTY);
+        Mockito.when(mock.get(TestData.request.UUID_REQUEST_3)).thenReturn(TestData.UNI_ANSWER_NULL);
         Mockito.when(mock.getAll()).thenReturn(Multi.createFrom().item(Answer.of(TestData.USER.MODEL_0)));
         Mockito.when(mock.getPage(TestData.request.REQUEST_4)).thenReturn(TestData.USER.UNI_PAGE_ANSWER_SINGLETON_TEST);
         Mockito.when(mock.add(new Request<>(TestData.USER.MODEL_0, null)))
                 .thenReturn(TestData.UNI_ANSWER_API_RESPONSE_ZERO_UUID);
         Mockito.when(mock.put(new Request<>(TestData.USER.MODEL_0, null)))
                 .thenReturn(TestData.UNI_ANSWER_API_RESPONSE_ZERO_UUID);
-        Mockito.when(mock.delete(TestData.request.REQUEST_0)).thenReturn(TestData.UNI_ANSWER_API_RESPONSE_ZERO_UUID);
+        Mockito.when(mock.delete(TestData.request.UUID_REQUEST_0)).thenReturn(TestData.UNI_ANSWER_API_RESPONSE_ZERO_UUID);
         QuarkusMock.installMockForType(mock, UserService.class);
     }
 
@@ -59,7 +59,7 @@ public class UserResourceTest {
 
     @Test
     void testEndpointGetNoSuchElementException() {
-        Mockito.when(mock.get(TestData.request.REQUEST_0)).thenThrow(NoSuchElementException.class);
+        Mockito.when(mock.get(TestData.request.UUID_REQUEST_0)).thenThrow(NoSuchElementException.class);
         given()
                 .when()
                 .get(ResourcePath.API_PATH + "/user/" + TestData.uuid.STRING_ZERO)

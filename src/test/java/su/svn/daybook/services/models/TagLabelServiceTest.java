@@ -2,7 +2,7 @@
  * This file was last modified at 2021.12.15 13:12 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
- * @Name@ServiceTest.java
+ * TagLabelServiceTest.java
  * $Id$
  */
 
@@ -18,11 +18,11 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import su.svn.daybook.TestData;
 import su.svn.daybook.TestUtils;
-import su.svn.daybook.domain.dao.@Name@Dao;
+import su.svn.daybook.domain.dao.TagLabelDao;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.messages.ApiResponse;
 import su.svn.daybook.domain.messages.Request;
-import su.svn.daybook.domain.model.@Name@Table;
+import su.svn.daybook.domain.model.TagLabelTable;
 import su.svn.daybook.models.pagination.Page;
 import su.svn.daybook.models.pagination.PageRequest;
 
@@ -34,26 +34,26 @@ import java.util.List;
 import java.util.Optional;
 
 @QuarkusTest
-class @Name@ServiceTest {
+class TagLabelServiceTest {
 
     @Inject
-    @Name@Service service;
+    TagLabelService service;
 
-    static @Name@Dao mock;
+    static TagLabelDao mock;
 
-    static final Uni<Optional<@Name@Table>> UNI_OPTIONAL_TEST = Uni.createFrom().item(Optional.of(TestData.@TABLE@.TABLE_0));
+    static final Uni<Optional<TagLabelTable>> UNI_OPTIONAL_TEST = Uni.createFrom().item(Optional.of(TestData.TAG_LABEL.TABLE_0));
 
-    static final Multi<@Name@Table> MULTI_TEST = Multi.createFrom().item(TestData.@TABLE@.TABLE_0);
+    static final Multi<TagLabelTable> MULTI_TEST = Multi.createFrom().item(TestData.TAG_LABEL.TABLE_0);
 
-    static final Multi<@Name@Table> MULTI_WITH_NULL = TestUtils.createMultiWithNull(@Name@Table.class);
+    static final Multi<TagLabelTable> MULTI_WITH_NULL = TestUtils.createMultiWithNull(TagLabelTable.class);
 
-    static final Multi<@Name@Table> MULTI_EMPTIES = TestUtils.createMultiEmpties(@Name@Table.class);
+    static final Multi<TagLabelTable> MULTI_EMPTIES = TestUtils.createMultiEmpties(TagLabelTable.class);
 
     @BeforeEach
     void setUp() {
-        mock = Mockito.mock(@Name@Dao.class);
-        Mockito.when(mock.findById(TestData.uuid.ZERO)).thenReturn(UNI_OPTIONAL_TEST);
-        QuarkusMock.installMockForType(mock, @Name@Dao.class);
+        mock = Mockito.mock(TagLabelDao.class);
+        Mockito.when(mock.findById(TestData.uuid.STRING_ZERO)).thenReturn(UNI_OPTIONAL_TEST);
+        QuarkusMock.installMockForType(mock, TagLabelDao.class);
     }
 
     @Test
@@ -64,7 +64,7 @@ class @Name@ServiceTest {
         Assertions.assertDoesNotThrow(() -> result.addAll(service.getAll()
                 .subscribe()
                 .asStream()
-                .peek(actual -> Assertions.assertEquals(Answer.of(TestData.@TABLE@.MODEL_0), actual)).toList()));
+                .peek(actual -> Assertions.assertEquals(Answer.of(TestData.TAG_LABEL.MODEL_0), actual)).toList()));
         Assertions.assertTrue(result.size() > 0);
     }
 
@@ -121,7 +121,7 @@ class @Name@ServiceTest {
                 .rows((short) 1)
                 .prevPage(false)
                 .nextPage(false)
-                .content(Collections.singletonList(Answer.of(TestData.@TABLE@.MODEL_0)))
+                .content(Collections.singletonList(Answer.of(TestData.TAG_LABEL.MODEL_0)))
                 .build();
 
         Assertions.assertDoesNotThrow(() -> service.getPage(new Request<>(pageRequest, null))
@@ -182,9 +182,9 @@ class @Name@ServiceTest {
 
     @Test
     void testWhenGetThenEntry() {
-        Assertions.assertDoesNotThrow(() -> service.get(new Request<>(TestData.uuid.ZERO, null))
+        Assertions.assertDoesNotThrow(() -> service.get(new Request<>(TestData.uuid.STRING_ZERO, null))
                 .onItem()
-                .invoke(actual -> Assertions.assertEquals(Answer.of(TestData.@TABLE@.MODEL_0), actual))
+                .invoke(actual -> Assertions.assertEquals(Answer.of(TestData.TAG_LABEL.MODEL_0), actual))
                 .await()
                 .indefinitely());
     }
@@ -194,10 +194,10 @@ class @Name@ServiceTest {
         var expected = Answer.builder()
                 .message(Answer.DEFAULT_MESSAGE)
                 .error(201)
-                .payload(new ApiResponse<>(TestData.uuid.ZERO, 201))
+                .payload(new ApiResponse<>(TestData.TAG_LABEL.ID, 201))
                 .build();
-        Mockito.when(mock.insert(TestData.@TABLE@.TABLE_0)).thenReturn(TestData.uuid.UNI_OPTIONAL_ZERO);
-        Assertions.assertDoesNotThrow(() -> service.add(new Request<>(TestData.@TABLE@.MODEL_0, null))
+        Mockito.when(mock.insert(TestData.TAG_LABEL.TABLE_0)).thenReturn(TestData.TAG_LABEL.UNI_OPTIONAL_ID);
+        Assertions.assertDoesNotThrow(() -> service.add(new Request<>(TestData.TAG_LABEL.MODEL_0, null))
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
                 .await()
@@ -209,10 +209,10 @@ class @Name@ServiceTest {
         var expected = Answer.builder()
                 .message("bad request")
                 .error(400)
-                .payload("No @value@ present for entry: " + TestData.@TABLE@.TABLE_0)
+                .payload("No value present for entry: " + TestData.TAG_LABEL.TABLE_0)
                 .build();
-        Mockito.when(mock.insert(TestData.@TABLE@.TABLE_0)).thenReturn(TestData.uuid.UNI_OPTIONAL_EMPTY);
-        Assertions.assertDoesNotThrow(() -> service.add(new Request<>(TestData.@TABLE@.MODEL_0, null))
+        Mockito.when(mock.insert(TestData.TAG_LABEL.TABLE_0)).thenReturn(TestData.UNI_OPTIONAL_EMPTY_STRING);
+        Assertions.assertDoesNotThrow(() -> service.add(new Request<>(TestData.TAG_LABEL.MODEL_0, null))
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
                 .await()
@@ -224,10 +224,10 @@ class @Name@ServiceTest {
         var expected = Answer.builder()
                 .message(Answer.DEFAULT_MESSAGE)
                 .error(202)
-                .payload(new ApiResponse<>(TestData.uuid.ZERO, 202))
+                .payload(new ApiResponse<>(TestData.TAG_LABEL.ID, 202))
                 .build();
-        Mockito.when(mock.update(TestData.@TABLE@.TABLE_0)).thenReturn(TestData.uuid.UNI_OPTIONAL_ZERO);
-        Assertions.assertDoesNotThrow(() -> service.put(new Request<>(TestData.@TABLE@.MODEL_0, null))
+        Mockito.when(mock.update(TestData.TAG_LABEL.TABLE_0)).thenReturn(TestData.TAG_LABEL.UNI_OPTIONAL_ID);
+        Assertions.assertDoesNotThrow(() -> service.put(new Request<>(TestData.TAG_LABEL.MODEL_0, null))
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
                 .await()
@@ -236,8 +236,8 @@ class @Name@ServiceTest {
 
     @Test
     void testWhenPutThenEmpty() {
-        Mockito.when(mock.update(TestData.@TABLE@.TABLE_0)).thenReturn(TestData.uuid.UNI_OPTIONAL_ZERO);
-        Assertions.assertThrows(RuntimeException.class, () -> service.put(new Request<>(TestData.@TABLE@.MODEL_0, null))
+        Mockito.when(mock.update(TestData.TAG_LABEL.TABLE_0)).thenReturn(TestData.UNI_OPTIONAL_EMPTY_STRING);
+        Assertions.assertThrows(RuntimeException.class, () -> service.put(new Request<>(TestData.TAG_LABEL.MODEL_0, null))
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(Answer.empty(), actual))
                 .await()
@@ -246,9 +246,9 @@ class @Name@ServiceTest {
 
     @Test
     void testWhenDeleteThenId() {
-        Mockito.when(mock.delete(TestData.uuid.ZERO)).thenReturn(TestData.uuid.UNI_OPTIONAL_ZERO);
-        var expected = Answer.of(new ApiResponse<>(TestData.uuid.ZERO, 200));
-        Assertions.assertDoesNotThrow(() -> service.delete(new Request<>(TestData.uuid.ZERO, null))
+        Mockito.when(mock.delete(TestData.uuid.STRING_ZERO)).thenReturn(TestData.TAG_LABEL.UNI_OPTIONAL_ID);
+        var expected = Answer.of(new ApiResponse<>(TestData.TAG_LABEL.ID, 200));
+        Assertions.assertDoesNotThrow(() -> service.delete(new Request<>(TestData.uuid.STRING_ZERO, null))
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
                 .await()
@@ -260,7 +260,7 @@ class @Name@ServiceTest {
         var expected = Answer.builder()
                 .message(Answer.NO_SUCH_ELEMENT)
                 .error(404)
-                .payload("No @value@ present for id: null")
+                .payload("No value present for id: null")
                 .build();
         Assertions.assertThrows(NullPointerException.class, () -> service.delete(null)
                 .await()

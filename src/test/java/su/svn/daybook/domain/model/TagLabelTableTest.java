@@ -1,24 +1,22 @@
 package su.svn.daybook.domain.model;
 
 import nl.jqno.equalsverifier.EqualsVerifier;
-import nl.jqno.equalsverifier.Warning;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-class @Name@TableTest {
+class TagLabelTableTest {
 
     @Test
     void testConstructors() {
-        Assertions.assertDoesNotThrow(() -> new @Name@Table(
-                null, @KType@.ZERO, null, null, null, null, true, true, 0
+        Assertions.assertDoesNotThrow(() -> new TagLabelTable(
+                null, TagLabelTable.NONE,null, null, null, true, true, 0
         ));
     }
     @Test
     void testGetters(){
-        var entry = @Name@Table.builder().build();
+        var entry = TagLabelTable.builder().build();
         Assertions.assertDoesNotThrow(entry::id);
-        Assertions.assertDoesNotThrow(entry::@key@);
-        Assertions.assertDoesNotThrow(entry::@value@);
+        Assertions.assertDoesNotThrow(entry::label);
         Assertions.assertDoesNotThrow(entry::userName);
         Assertions.assertDoesNotThrow(entry::createTime);
         Assertions.assertDoesNotThrow(entry::updateTime);
@@ -29,21 +27,20 @@ class @Name@TableTest {
 
     @Test
     void testEqualsVerifier() {
-        EqualsVerifier.forClass(@Name@Table.class).verify();
+        EqualsVerifier.forClass(TagLabelTable.class).verify();
     }
 
     @Test
     void testToString() {
-        var entry = @Name@Table.builder().build();
+        var entry = TagLabelTable.builder().build();
         Assertions.assertDoesNotThrow(() -> Assertions.assertNotNull(entry.toString()));
     }
 
     @Test
     void testBuilder() {
-        Assertions.assertDoesNotThrow(() -> Assertions.assertNotNull(@Name@Table.builder()
+        Assertions.assertDoesNotThrow(() -> Assertions.assertNotNull(TagLabelTable.builder()
                 .id(null)
-                .@key@(@KType@.ZERO)
-                .@value@(null)
+                .label(TagLabelTable.NONE)
                 .userName(null)
                 .createTime(null)
                 .updateTime(null)

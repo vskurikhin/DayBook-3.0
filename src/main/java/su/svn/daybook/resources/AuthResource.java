@@ -55,7 +55,6 @@ public class AuthResource extends AbstractResource {
         return request(EventAddress.LOGIN_REQUEST, authRequest, uriInfo);
     }
 
-
     @ServerExceptionMapper
     public RestResponse<String> exception(Throwable x) {
         return exceptionMapper(x);
