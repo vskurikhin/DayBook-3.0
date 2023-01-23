@@ -16,9 +16,7 @@ public final class Page<T extends Serializable> implements Serializable {
     private static final long serialVersionUID = 2449524933936750999L;
     @JsonIgnore
     private final long first;
-    @JsonIgnore
     private final long page; // page number
-    @JsonIgnore
     private final Short rows; // page size
     private final long totalRecords;
     @JsonIgnore

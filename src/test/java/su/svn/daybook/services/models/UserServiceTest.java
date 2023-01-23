@@ -78,9 +78,9 @@ public class UserServiceTest {
         Mockito.when(userViewDaoMock.findRange(0L, Short.MAX_VALUE - 1)).thenReturn(MULTI_TEST);
         Mockito.when(userViewDaoMock.count()).thenReturn(TestData.UNI_OPTIONAL_ONE_LONG);
 
-        PageRequest pageRequest = new PageRequest(1L, (short) (Short.MAX_VALUE - 1));
+        PageRequest pageRequest = new PageRequest(0L, (short) (Short.MAX_VALUE - 1));
         var expected = Page.<Answer>builder()
-                .page(1)
+                .page(0)
                 .totalPages(1L)
                 .totalRecords(1)
                 .rows((short) 1)

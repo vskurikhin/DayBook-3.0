@@ -18,6 +18,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import su.svn.daybook.TestData;
+import su.svn.daybook.domain.enums.ResourcePath;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.messages.Request;
 import su.svn.daybook.services.models.KeyValueService;
@@ -57,7 +58,7 @@ class KeyValueResourceTest {
     void testEndpointGet() {
         given()
                 .when()
-                .get("/api/v1/key-value/" + TestData.uuid.STRING_ZERO)
+                .get(ResourcePath.API_PATH + "/key-value/" + TestData.uuid.STRING_ZERO)
                 .then()
                 .statusCode(200)
                 .body(CoreMatchers.startsWith(TestData.KEY_VALUE.JSON_0));
@@ -67,7 +68,7 @@ class KeyValueResourceTest {
     void testEndpointGetThenRuntimeException() {
         given()
                 .when()
-                .get("/api/v1/key-value/" + TestData.uuid.ONE)
+                .get(ResourcePath.API_PATH + "/key-value/" + TestData.uuid.ONE)
                 .then()
                 .statusCode(400);
     }
@@ -76,7 +77,7 @@ class KeyValueResourceTest {
     void testEndpointGetWhenEmpty() {
         given()
                 .when()
-                .get("/api/v1/key-value/" + TestData.uuid.RANDOM1)
+                .get(ResourcePath.API_PATH + "/key-value/" + TestData.uuid.RANDOM1)
                 .then()
                 .statusCode(404);
     }
@@ -85,7 +86,7 @@ class KeyValueResourceTest {
     void testEndpointGetWhenNull() {
         given()
                 .when()
-                .get("/api/v1/key-value/" + TestData.uuid.RANDOM2)
+                .get(ResourcePath.API_PATH + "/key-value/" + TestData.uuid.RANDOM2)
                 .then()
                 .statusCode(406);
     }
@@ -94,18 +95,17 @@ class KeyValueResourceTest {
     void testEndpointGetAll() {
         given()
                 .when()
-                .get("/api/v1/key-values")
+                .get(ResourcePath.API_PATH + "/key-values")
                 .then()
                 .statusCode(200)
                 .body(CoreMatchers.startsWith(TestData.KEY_VALUE.JSON_ARRAY_SINGLETON_0));
     }
 
     @Test
-    @Disabled // TODO remove
     void testEndpointGetPage() {
         given()
                 .when()
-                .get("/api/v1/key-value/-?page=0&limit=1")
+                .get(ResourcePath.API_PATH + "/key-value/-?page=0&limit=1")
                 .then()
                 .statusCode(200)
                 .body(CoreMatchers.startsWith(TestData.KEY_VALUE.JSON_PAGE_ARRAY_0));
@@ -117,7 +117,7 @@ class KeyValueResourceTest {
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                 .body(TestData.KEY_VALUE.JSON_0)
                 .when()
-                .post("/api/v1/key-value")
+                .post(ResourcePath.API_PATH + "/key-value")
                 .then()
                 .statusCode(200)
                 .body(CoreMatchers.startsWith(TestData.KEY_VALUE.JSON_ID_0_200));
@@ -129,7 +129,7 @@ class KeyValueResourceTest {
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                 .body(TestData.KEY_VALUE.JSON_0)
                 .when()
-                .put("/api/v1/key-value")
+                .put(ResourcePath.API_PATH + "/key-value")
                 .then()
                 .statusCode(200)
                 .body(CoreMatchers.startsWith(TestData.KEY_VALUE.JSON_ID_0_200));
@@ -139,7 +139,7 @@ class KeyValueResourceTest {
     void testEndpointDelete() {
         given()
                 .when()
-                .delete("/api/v1/key-value/" + TestData.uuid.STRING_ZERO)
+                .delete(ResourcePath.API_PATH + "/key-value/" + TestData.uuid.STRING_ZERO)
                 .then()
                 .statusCode(200)
                 .body(CoreMatchers.startsWith(TestData.KEY_VALUE.JSON_ID_0_200));

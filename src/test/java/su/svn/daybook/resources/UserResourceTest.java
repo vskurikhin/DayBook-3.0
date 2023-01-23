@@ -7,10 +7,10 @@ import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import su.svn.daybook.TestData;
+import su.svn.daybook.domain.enums.ResourcePath;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.messages.Request;
 import su.svn.daybook.services.models.UserService;
@@ -51,7 +51,7 @@ public class UserResourceTest {
     void testEndpointGet() {
         given()
                 .when()
-                .get("/api/v1/user/" + TestData.uuid.STRING_ZERO)
+                .get(ResourcePath.API_PATH + "/user/" + TestData.uuid.STRING_ZERO)
                 .then()
                 .statusCode(200)
                 .body(CoreMatchers.startsWith(TestData.USER.JSON_0));
@@ -62,7 +62,7 @@ public class UserResourceTest {
         Mockito.when(mock.get(TestData.request.REQUEST_0)).thenThrow(NoSuchElementException.class);
         given()
                 .when()
-                .get("/api/v1/user/" + TestData.uuid.STRING_ZERO)
+                .get(ResourcePath.API_PATH + "/user/" + TestData.uuid.STRING_ZERO)
                 .then()
                 .statusCode(400)
                 .body(CoreMatchers.startsWith("{\"error\": 400,\"message\": \"java.util.NoSuchElementException\"}"));
@@ -72,7 +72,7 @@ public class UserResourceTest {
     void testEndpointGetAll() {
         given()
                 .when()
-                .get("/api/v1/users")
+                .get(ResourcePath.API_PATH + "/users")
                 .then()
                 .statusCode(200)
                 .body(CoreMatchers.startsWith(TestData.USER.JSON_ARRAY_SINGLETON_0));
@@ -80,11 +80,10 @@ public class UserResourceTest {
 
 
     @Test
-    @Disabled // TODO remove
     void testEndpointGetPage() {
         given()
                 .when()
-                .get("/api/v1/user/-?page=0&limit=1")
+                .get(ResourcePath.API_PATH + "/user/-?page=0&limit=1")
                 .then()
                 .statusCode(200)
                 .body(CoreMatchers.startsWith(TestData.USER.JSON_PAGE_ARRAY_0));
@@ -98,7 +97,7 @@ public class UserResourceTest {
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                 .body(TestData.USER.JSON_0_1)
                 .when()
-                .post("/api/v1/user")
+                .post(ResourcePath.API_PATH + "/user")
                 .then()
                 .statusCode(200)
                 .body(CoreMatchers.startsWith(TestData.USER.JSON_ID_0));
@@ -111,7 +110,7 @@ public class UserResourceTest {
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                 .body(TestData.USER.JSON_0_1)
                 .when()
-                .put("/api/v1/user")
+                .put(ResourcePath.API_PATH + "/user")
                 .then()
                 .statusCode(200)
                 .body(CoreMatchers.startsWith(TestData.USER.JSON_ID_0));
@@ -121,7 +120,7 @@ public class UserResourceTest {
     void testEndpointDelete() {
         given()
                 .when()
-                .delete("/api/v1/user/" + TestData.uuid.STRING_ZERO)
+                .delete(ResourcePath.API_PATH + "/user/" + TestData.uuid.STRING_ZERO)
                 .then()
                 .statusCode(200)
                 .body(CoreMatchers.startsWith(TestData.USER.JSON_ID_0));

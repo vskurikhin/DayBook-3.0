@@ -15,10 +15,10 @@ import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import su.svn.daybook.TestData;
+import su.svn.daybook.domain.enums.ResourcePath;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.messages.Request;
 import su.svn.daybook.domain.model.WordTable;
@@ -27,7 +27,6 @@ import su.svn.daybook.services.models.WordService;
 
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
-
 import java.security.Principal;
 
 import static io.restassured.RestAssured.given;
@@ -67,7 +66,7 @@ class WordResourceTest {
     void testEndpointGet() {
         given()
                 .when()
-                .get("/api/v1/word/" + WordTable.NONE)
+                .get(ResourcePath.API_PATH + "/word/" + WordTable.NONE)
                 .then()
                 .statusCode(200)
                 .body(CoreMatchers.startsWith(TestData.WORD.JSON_0));
@@ -77,7 +76,7 @@ class WordResourceTest {
     void testEndpointGetWhenRuntimeException() {
         given()
                 .when()
-                .get("/api/v1/word/" + RuntimeException.class.getSimpleName())
+                .get(ResourcePath.API_PATH + "/word/" + RuntimeException.class.getSimpleName())
                 .then()
                 .statusCode(400);
     }
@@ -86,7 +85,7 @@ class WordResourceTest {
     void testEndpointGetWhenEmpty() {
         given()
                 .when()
-                .get("/api/v1/word/" + Integer.MAX_VALUE)
+                .get(ResourcePath.API_PATH + "/word/" + Integer.MAX_VALUE)
                 .then()
                 .statusCode(404);
     }
@@ -95,28 +94,26 @@ class WordResourceTest {
     void testEndpointGetWhenNull() {
         given()
                 .when()
-                .get("/api/v1/word/" + Integer.MIN_VALUE)
+                .get(ResourcePath.API_PATH + "/word/" + Integer.MIN_VALUE)
                 .then()
                 .statusCode(405);
     }
 
     @Test
-    @Disabled
     void testEndpointGetAll() {
         given()
                 .when()
-                .get("/api/v1/words")
+                .get(ResourcePath.API_PATH + "/words")
                 .then()
                 .statusCode(200)
                 .body(CoreMatchers.startsWith(TestData.WORD.JSON_ARRAY_SINGLETON_0));
     }
 
     @Test
-    @Disabled // TODO remove
     void testEndpointGetPage() {
         given()
                 .when()
-                .get("/api/v1/word/-?page=0&limit=1")
+                .get(ResourcePath.API_PATH + "/word/-?page=0&limit=1")
                 .then()
                 .statusCode(200)
                 .body(CoreMatchers.startsWith(TestData.WORD.JSON_PAGE_ARRAY_0));
@@ -128,7 +125,7 @@ class WordResourceTest {
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                 .body(TestData.WORD.JSON_0)
                 .when()
-                .post("/api/v1/word")
+                .post(ResourcePath.API_PATH + "/word")
                 .then()
                 .statusCode(200)
                 .body(CoreMatchers.startsWith(TestData.WORD.JSON_ID_0));
@@ -140,7 +137,7 @@ class WordResourceTest {
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                 .body(TestData.WORD.JSON_0)
                 .when()
-                .put("/api/v1/word")
+                .put(ResourcePath.API_PATH + "/word")
                 .then()
                 .statusCode(200)
                 .body(CoreMatchers.startsWith(TestData.WORD.JSON_ID_0));
@@ -150,7 +147,7 @@ class WordResourceTest {
     void testEndpointDelete() {
         given()
                 .when()
-                .delete("/api/v1/word/" + WordTable.NONE)
+                .delete(ResourcePath.API_PATH + "/word/" + WordTable.NONE)
                 .then()
                 .statusCode(200)
                 .body(CoreMatchers.startsWith(TestData.WORD.JSON_ID_0));
