@@ -2,7 +2,7 @@
 --
 
 --
---changeset a18578179:11011 failOnError:true logicalFilePath:src/main/resources/db/changelog/db/Change-Sets/11011_date_2021_01_15_time_00_40_01_issues_52_dictionary_language_triggers.sql
+--changeset 18578179:11092 endDelimiter:; failOnError:true logicalFilePath:src/main/resources/db/changelog/db/Change-Sets/11092_date_2023_01_24_time_12_11_53_issues_158_dictionary_language_triggers_language.sql
 --
 
 --
@@ -21,4 +21,5 @@ CREATE TRIGGER update_update_time_dictionary_language
 EXECUTE FUNCTION dictionary.update_update_time();
 
 --
---rollback DROP TRIGGER IF EXISTS update_create_time_dictionary_language ON dictionary.language; DROP TRIGGER IF EXISTS update_update_time_dictionary_language ON dictionary.language;
+--rollback DROP TRIGGER IF EXISTS update_update_time_dictionary_language ON dictionary.language; DROP TRIGGER IF EXISTS update_create_time_dictionary_language ON dictionary.language;
+

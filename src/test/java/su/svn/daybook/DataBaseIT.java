@@ -39,8 +39,8 @@ public class DataBaseIT {
 //    I18nDao i18nDao;
     @Inject
     KeyValueDao keyValueDao;
-//    @Inject
-//    LanguageDao languageDao;
+    @Inject
+    LanguageDao languageDao;
     @Inject
     RoleDao roleDao;
     @Inject
@@ -338,103 +338,89 @@ public class DataBaseIT {
         }
     }
 
-//    @Nested
-//    @DisplayName("LanguageDao")
-//    class LanguageDaoTest {
-//        Long id;
-//        Long customId = Long.MIN_VALUE;
-//        LanguageTable entry;
-//        String str = "str";
-//
-//        @BeforeEach
-//        void setUp() {
-//            entry = LanguageTable.builder()
-//                    .language(str)
-//                    .enabled(true)
-//                    .build();
-//            Assertions.assertDoesNotThrow(() -> {
-//                id = uniOptionalHelper(languageDao.insert(entry));
-//            });
-//        }
-//
-//        @AfterEach
-//        void tearDown() {
-//            Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(id, uniOptionalHelper(languageDao.delete(id))));
-//            Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(0, uniOptionalHelper(languageDao.count())));
-//        }
-//
-//        @Test
-//        void test() {
-//            var expected1 = LanguageTable.builder()
-//                    .id(id)
-//                    .language(str)
-//                    .enabled(true)
-//                    .build();
-//            Assertions.assertDoesNotThrow(() -> {
-//                var test = uniOptionalHelper(languageDao.findById(id));
-//                Assertions.assertNotNull(test);
-//                Assertions.assertEquals(expected1, test);
-//                Assertions.assertNotNull(test.getCreateTime());
-//                Assertions.assertNull(test.getUpdateTime());
-//            });
-//            Assertions.assertDoesNotThrow(() -> {
-//                var test = multiAsListHelper(languageDao.findRange(0, 0));
-//                Assertions.assertNotNull(test);
-//                Assertions.assertTrue(test.isEmpty());
-//            });
-//            Assertions.assertDoesNotThrow(() -> {
-//                var test = multiAsListHelper(languageDao.findRange(0, 1));
-//                Assertions.assertNotNull(test);
-//                Assertions.assertFalse(test.isEmpty());
-//                Assertions.assertEquals(1, test.size());
-//            });
-//            var expected2 = LanguageTable.builder()
-//                    .id(id)
-//                    .language("value")
-//                    .enabled(true)
-//                    .build();
-//            Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(id, uniOptionalHelper(languageDao.update(expected2))));
-//            Assertions.assertDoesNotThrow(() -> {
-//                var test = uniOptionalHelper(languageDao.findById(id));
-//                Assertions.assertNotNull(test);
-//                Assertions.assertEquals(expected2, test);
-//                Assertions.assertNotNull(test.getCreateTime());
-//                Assertions.assertNotNull(test.getUpdateTime());
-//            });
-//            Assertions.assertDoesNotThrow(() -> {
-//                var test = multiAsListHelper(languageDao.findAll());
-//                Assertions.assertNotNull(test);
-//                Assertions.assertFalse(test.isEmpty());
-//                Assertions.assertEquals(1, test.size());
-//            });
-//            var custom = LanguageTable.builder()
-//                    .id(customId)
-//                    .language("language")
-//                    .enabled(true)
-//                    .build();
-//            Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(customId, uniOptionalHelper(languageDao.insert(custom))));
-//            Assertions.assertDoesNotThrow(() -> {
-//                var test = multiAsListHelper(languageDao.findRange(0, 1));
-//                Assertions.assertNotNull(test);
-//                Assertions.assertFalse(test.isEmpty());
-//                Assertions.assertEquals(1, test.size());
-//                Assertions.assertEquals(custom, test.get(0));
-//            });
-//            Assertions.assertDoesNotThrow(() -> {
-//                var test = multiAsListHelper(languageDao.findRange(0, Long.MAX_VALUE));
-//                Assertions.assertNotNull(test);
-//                Assertions.assertFalse(test.isEmpty());
-//                Assertions.assertEquals(2, test.size());
-//            });
-//            Assertions.assertDoesNotThrow(() -> {
-//                var test = multiAsListHelper(languageDao.findRange(1, 1));
-//                Assertions.assertNotNull(test);
-//                Assertions.assertFalse(test.isEmpty());
-//                Assertions.assertEquals(1, test.size());
-//            });
-//            Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(customId, uniOptionalHelper(languageDao.delete(customId))));
-//        }
-//    }
+    @Nested
+    @DisplayName("LanguageDao")
+    class LanguageDaoTest extends AbstractDaoTest<Long, LanguageTable> {
+
+        String ZERO = TestData.uuid.STRING_ZERO;
+        String ONE = TestData.uuid.STRING_ONE;
+        String TWO = TestData.uuid.STRING_TWO;
+        String TEN = TestData.uuid.STRING_TEN;
+
+        @BeforeEach
+        void setUp() {
+            var entry = LanguageTable.builder()
+                    .language(ONE)
+                    .enabled(true)
+                    .build();
+            Long customId = 0L;
+            super.setUp(languageDao, entry, customId);
+        }
+
+        @AfterEach
+        void tearDown() {
+            super.tearDown();
+        }
+
+        LanguageTable.Builder builder(Long id, String language, LanguageTable test) {
+            return LanguageTable.builder()
+                    .id(id)
+                    .language(language)
+                    .createTime(test.createTime())
+                    .updateTime(test.updateTime())
+                    .enabled(true);
+        }
+
+        LanguageTable expected(Long id, String language, LanguageTable test) {
+            Assertions.assertNotNull(test);
+            return builder(id, language, test).build();
+        }
+
+        @Test
+        void test() {
+            super.whenFindByIdThenEntry((id, test) -> expected(id, ONE, test));
+
+            var update = LanguageTable.builder().id(super.id).language(TWO).build();
+            super.whenUpdateAndFindByIdThenEntry((id, test) -> expected(id, TWO, test), update);
+
+            super.whenFindAllThenMultiWithOneItem();
+            super.whenFindRangeZeroThenEmptiestMulti();
+            super.whenFindRangeFromZeroLimitOneThenMultiWithOneItem();
+
+            var custom = LanguageTable.builder()
+                    .id(customId)
+                    .language(ZERO)
+                    .build();
+            super.whenInsertCustomThenEntry(
+                    (id, test) -> expected(id, ZERO, test),
+                    custom
+            );
+            var customUpdate = LanguageTable.builder()
+                    .id(customId)
+                    .language(ZERO)
+                    .build();
+            super.whenUpdateCustomAndFindByIdThenEntry(
+                    (id, test) -> expected(id, ZERO, test),
+                    customUpdate
+            );
+
+            super.whenFindRangeFromZeroToOneThenMultiWithOneItemCustom(
+                    (id, test) -> expected(id, ZERO, test)
+            );
+            super.whenFindRangeFromZeroToMaxValueThenMultiWithTwoItems();
+            super.whenFindRangeFromOneLimitOneMultiWithOneItem();
+
+            Assertions.assertDoesNotThrow(() -> {
+                var test = uniOptionalHelper(languageDao.findByLanguage(TWO));
+                var expected = expected(super.id, TWO, test);
+                Assertions.assertEquals(expected, test);
+                Assertions.assertNotNull(test.createTime());
+                Assertions.assertNotNull(test.updateTime());
+            });
+
+            super.whenDeleteCustomThenOk();
+        }
+    }
 
     @Nested
     @DisplayName("RoleDao")
