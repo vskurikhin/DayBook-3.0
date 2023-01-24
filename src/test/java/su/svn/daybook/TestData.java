@@ -33,7 +33,8 @@ public class TestData {
 
     public static final Uni<Optional<Long>> UNI_OPTIONAL_EMPTY_LONG = Uni.createFrom().item(Optional.empty());
     public static final Uni<Optional<String>> UNI_OPTIONAL_EMPTY_STRING = Uni.createFrom().item(Optional.empty());
-    public static Uni<Answer> UNI_ANSWER_API_RESPONSE_ZERO_UUID = Uni.createFrom().item(Answer.of(new ApiResponse<>(uuid.ZERO)));
+    public static Uni<Answer> UNI_ANSWER_API_RESPONSE_ZERO_UUID = Uni.createFrom()
+            .item(Answer.of(new ApiResponse<>(uuid.ZERO)));
     public static Uni<Answer> UNI_ANSWER_EMPTY = Uni.createFrom().item(Answer.empty());
     public static Uni<Answer> UNI_ANSWER_NULL = Uni.createFrom().item(() -> null);
     public static Uni<Answer> UNI_ANSWER_API_RESPONSE_ZERO_LONG = Uni.createFrom().item(Answer.of(new ApiResponse<>(0L)));
@@ -42,10 +43,17 @@ public class TestData {
     public static Uni<Optional<Long>> UNI_OPTIONAL_ONE_LONG = Uni.createFrom().item(Optional.of(1L));
     public static Uni<Optional<Long>> UNI_OPTIONAL_MINUS_ONE_LONG = Uni.createFrom().item(Optional.of(-1L));
 
+    public static final String JSON_AUTH_LOGIN = """
+            {
+               "username": "root",
+               "password": "password"
+            }""";
+
     public static class lng {
         public static final long RANDOM1 = new Random(System.currentTimeMillis() - 1).nextLong();
         public static final long RANDOM2 = new Random(System.currentTimeMillis() + 2).nextLong();
-        // public static Uni<Answer> UNI_ANSWER_API_RESPONSE_ZERO = Uni.createFrom().item(Answer.of(new ApiResponse<Long>(0L, 200)));
+        public static Uni<Answer> UNI_ANSWER_API_RESPONSE_ZERO = Uni.createFrom()
+                .item(Answer.of(new ApiResponse<>(Long.valueOf(0), 200)));
         public static Uni<Optional<Long>> UNI_OPTIONAL_EMPTY = Uni.createFrom().item(Optional.empty());
         public static Uni<Optional<Long>> UNI_OPTIONAL_ZERO = Uni.createFrom().item(Optional.of(0L));
     }
@@ -53,10 +61,18 @@ public class TestData {
     public static class request {
         public static final PageRequest PAGE_REQUEST = new PageRequest(0, (short) 1);
         public static final Request<PageRequest> REQUEST_4 = new Request<>(PAGE_REQUEST, null);
-        public static final Request<UUID> REQUEST_0 = new Request<>(uuid.ZERO, null);
-        public static final Request<UUID> REQUEST_1 = new Request<>(uuid.ONE, null);
-        public static final Request<UUID> REQUEST_2 = new Request<>(uuid.RANDOM1, null);
-        public static final Request<UUID> REQUEST_3 = new Request<>(uuid.RANDOM2, null);
+        public static final Request<Long> LONG_REQUEST_0 = new Request<>(0L, null);
+        public static final Request<Long> LONG_REQUEST_1 = new Request<>(1L, null);
+        public static final Request<Long> LONG_REQUEST_2 = new Request<>(2L, null);
+        public static final Request<Long> LONG_REQUEST_3 = new Request<>(3L, null);
+        public static final Request<String> STRING_REQUEST_0 = new Request<>(String.valueOf(0), null);
+        public static final Request<String> STRING_REQUEST_1 = new Request<>(String.valueOf(1), null);
+        public static final Request<String> STRING_REQUEST_2 = new Request<>(String.valueOf(2), null);
+        public static final Request<String> STRING_REQUEST_3 = new Request<>(String.valueOf(3), null);
+        public static final Request<UUID> UUID_REQUEST_0 = new Request<>(uuid.ZERO, null);
+        public static final Request<UUID> UUID_REQUEST_1 = new Request<>(uuid.ONE, null);
+        public static final Request<UUID> UUID_REQUEST_2 = new Request<>(uuid.RANDOM1, null);
+        public static final Request<UUID> UUID_REQUEST_3 = new Request<>(uuid.RANDOM2, null);
     }
 
     public static class string {
@@ -74,6 +90,9 @@ public class TestData {
 
     public static class uuid {
         public static final String STRING_ZERO = "00000000-0000-0000-0000-000000000000";
+        public static final String STRING_ONE = "00000000-0000-0000-0000-000000000001";
+        public static final String STRING_TWO = "00000000-0000-0000-0000-000000000002";
+        public static final String STRING_TEN = "00000000-0000-0000-0000-000000000010";
         public static final UUID ZERO = new UUID(0, 0);
         public static final UUID ONE = new UUID(0, 1);
         public static final UUID RANDOM1 = UUID.randomUUID();
@@ -263,35 +282,36 @@ public class TestData {
 //                }""";
 //    }
 
-//    public static class TAG_LABEL {
-//        public static final String ID = TagLabelTable.NONE.replace("-", "").substring(0, 16);
-//        public static final Uni<Optional<String>> UNI_OPTIONAL_ID = Uni.createFrom().item(Optional.of(ID));
-//        public static Uni<Answer> UNI_ANSWER_API_RESPONSE_ID = Uni.createFrom().item(Answer.of(new ApiResponse<>(ID)));
-//        public static final TagLabel MODEL_0 = new TagLabel(
-//                ID, TagLabelTable.NONE, true, 0
-//        );
-//        public static final TagLabelTable TABLE_0 = new TagLabelTable(
-//                ID, TagLabelTable.NONE, null, null, null, true, true, 0
-//        );
-//        public static final Uni<Page<Answer>> UNI_PAGE_ANSWER_SINGLETON_TEST = Uni.createFrom()
-//                .item(
-//                        Page.<Answer>builder()
-//                                .content(Collections.singletonList(Answer.of(MODEL_0)))
-//                                .build()
-//                );
-//        public static final String JSON_0 = """
-//                {"id":"\
-//                """ + ID + """
-//                ","label":"\
-//                """ + TagLabelTable.NONE + """
-//                ","visible":true,"flags":0}\
-//                """;
-//        public static final String JSON_ARRAY_SINGLETON_0 = "[" + JSON_0 + "]";
-//        public static final String JSON_PAGE_ARRAY_0 = """
-//                {"page":0,"totalRecords":0,"nextPage":false,"prevPage":false,"content":\
-//                """ + JSON_ARRAY_SINGLETON_0 + """
-//                }""";
-//    }
+    public static class TAG_LABEL {
+        public static final String ID = TagLabelTable.NONE.replace("-", "").substring(0, 16);
+        public static final Uni<Optional<String>> UNI_OPTIONAL_ID = Uni.createFrom().item(Optional.of(ID));
+        public static Uni<Answer> UNI_ANSWER_API_RESPONSE_ID = Uni.createFrom().item(Answer.of(new ApiResponse<>(ID)));
+        public static final TagLabel MODEL_0 = new TagLabel(
+                ID, TagLabelTable.NONE, true, 0
+        );
+        public static final TagLabelTable TABLE_0 = new TagLabelTable(
+                ID, TagLabelTable.NONE, null, null, null, true, true, 0
+        );
+        public static final Uni<Page<Answer>> UNI_PAGE_ANSWER_SINGLETON_TEST = Uni.createFrom()
+                .item(
+                        Page.<Answer>builder()
+                                .content(Collections.singletonList(Answer.of(MODEL_0)))
+                                .build()
+                );
+        public static final String JSON_0 = """
+                {"id":"\
+                """ + ID + """
+                ","label":"\
+                """ + TagLabelTable.NONE + """
+                ","visible":true,"flags":0}\
+                """;
+        public static final String JSON_ID_0 = "{\"id\":0}";
+        public static final String JSON_ARRAY_SINGLETON_0 = "[" + JSON_0 + "]";
+        public static final String JSON_PAGE_ARRAY_0 = """
+                {"page":0,"totalRecords":0,"nextPage":false,"prevPage":false,"content":\
+                """ + JSON_ARRAY_SINGLETON_0 + """
+                }""";
+    }
 
     public static class USER {
         public static class NAME {
