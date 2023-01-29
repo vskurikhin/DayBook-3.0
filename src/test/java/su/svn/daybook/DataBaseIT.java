@@ -17,6 +17,7 @@ import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.messages.ApiResponse;
 import su.svn.daybook.domain.messages.Request;
 import su.svn.daybook.domain.model.*;
+import su.svn.daybook.domain.transact.I18nTransactionalJob;
 import su.svn.daybook.domain.transact.UserTransactionalJob;
 import su.svn.daybook.models.domain.User;
 import su.svn.daybook.resources.PostgresDatabaseTestResource;
@@ -35,8 +36,12 @@ import static su.svn.daybook.TestUtils.*;
 public class DataBaseIT {
     @Inject
     CodifierDao codifierDao;
-//    @Inject
-//    I18nDao i18nDao;
+    @Inject
+    I18nDao i18nDao;
+    @Inject
+    I18nTransactionalJob i18nTransactionalJob;
+    @Inject
+    I18nViewDao i18nViewDao;
     @Inject
     KeyValueDao keyValueDao;
     @Inject
@@ -153,95 +158,217 @@ public class DataBaseIT {
             super.whenDeleteCustomThenOk();
         }
     }
-//
-//    @Nested
-//    @DisplayName("I18nDao")
-//    class I18nDaoTest {
-//        Long id;
-//        Long customId = Long.MIN_VALUE;
-//        Long languageId = 0L;
-//        I18nTable entry;
-//        String str = "str";
-//
-//        @BeforeEach
-//        void setUp() {
-//            entry = I18nTable.builder()
-//                    .languageId(languageId)
-//                    .enabled(true)
-//                    .build();
-//            var language = LanguageTable.builder()
-//                    .id(languageId)
-//                    .build();
-//            Assertions.assertDoesNotThrow(() -> {
-//                id = uniOptionalHelper(languageDao.insert(language));
-//            });
-//            Assertions.assertDoesNotThrow(() -> {
-//                id = uniOptionalHelper(i18nDao.insert(entry));
-//            });
-//        }
-//
-//        @AfterEach
-//        void tearDown() {
-//            Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(id, uniOptionalHelper(i18nDao.delete(id))));
-//            Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(0, uniOptionalHelper(i18nDao.count())));
-//            Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(languageId, uniOptionalHelper(languageDao.delete(languageId))));
-//        }
-//
-//        @Test
-//        void test() {
-//            var expected1 = I18nTable.builder()
-//                    .id(id)
-//                    .languageId(languageId)
-//                    .enabled(true)
-//                    .build();
-//            Assertions.assertDoesNotThrow(() -> {
-//                var test = uniOptionalHelper(i18nDao.findById(id));
-//                Assertions.assertNotNull(test);
-//                Assertions.assertEquals(expected1, test);
-//                Assertions.assertNotNull(test.getCreateTime());
-//                Assertions.assertNull(test.getUpdateTime());
-//            });
-//            Assertions.assertDoesNotThrow(() -> {
-//                var test = multiAsListHelper(i18nDao.findRange(0, 0));
-//                Assertions.assertNotNull(test);
-//                Assertions.assertTrue(test.isEmpty());
-//            });
-//            Assertions.assertDoesNotThrow(() -> {
-//                var test = multiAsListHelper(i18nDao.findRange(0, 1));
-//                Assertions.assertNotNull(test);
-//                Assertions.assertFalse(test.isEmpty());
-//                Assertions.assertEquals(1, test.size());
-//            });
-//            var expected2 = I18nTable.builder()
-//                    .id(id)
-//                    .languageId(languageId)
-//                    .message(str)
-//                    .enabled(true)
-//                    .build();
-//            Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(id, uniOptionalHelper(i18nDao.update(expected2))));
-//            Assertions.assertDoesNotThrow(() -> {
-//                var test = uniOptionalHelper(i18nDao.findById(id));
-//                Assertions.assertNotNull(test);
-//                Assertions.assertEquals(expected2, test);
-//                Assertions.assertNotNull(test.getCreateTime());
-//                Assertions.assertNotNull(test.getUpdateTime());
-//            });
-//            Assertions.assertDoesNotThrow(() -> {
-//                var test = multiAsListHelper(i18nDao.findAll());
-//                Assertions.assertNotNull(test);
-//                Assertions.assertFalse(test.isEmpty());
-//                Assertions.assertEquals(1, test.size());
-//            });
-//            var test = I18nTable.builder()
-//                    .id(customId)
-//                    .languageId(languageId)
-//                    .enabled(true)
-//                    .build();
-//            Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(customId, uniOptionalHelper(i18nDao.insert(test))));
-//            Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(customId, uniOptionalHelper(i18nDao.delete(customId))));
-//
-//        }
-//    }
+
+    @Nested
+    @DisplayName("I18nDao")
+    class I18nDaoTest extends AbstractDaoTest<Long, I18nTable> {
+
+        AbstractDaoTest<Long, LanguageTable> languageDaoTest = new AbstractDaoTest<>();
+
+        @BeforeEach
+        void setUp() {
+            var language = LanguageTable.builder()
+                    .language(LanguageTable.NONE)
+                    .enabled(true)
+                    .build();
+            languageDaoTest.setUp(languageDao, language, 0L);
+            var entry = I18nTable.builder()
+                    .languageId(languageDaoTest.id)
+                    .message(I18nTable.NONE)
+                    .enabled(true)
+                    .build();
+            Long customId = 0L;
+            super.setUp(i18nDao, entry, customId);
+        }
+
+        @AfterEach
+        void tearDown() {
+            super.tearDown();
+            languageDaoTest.tearDown();
+        }
+
+        I18nTable.Builder builder(Long id, Long languageId, I18nTable test) {
+            return I18nTable.builder()
+                    .id(id)
+                    .languageId(languageId)
+                    .message(I18nTable.NONE)
+                    .createTime(test.createTime())
+                    .updateTime(test.updateTime())
+                    .enabled(true);
+        }
+
+        I18nTable expected(Long id, Long languageId, I18nTable test) {
+            Assertions.assertNotNull(test);
+            return builder(id, languageId, test).build();
+        }
+
+        I18nTable expected(Long id, Long languageId, String message, I18nTable test) {
+            Assertions.assertNotNull(test);
+            return builder(id, languageId, test).message(message).build();
+        }
+
+        @Test
+        void test() {
+            super.whenFindByIdThenEntry((id, test) -> expected(id, languageDaoTest.id, test));
+
+            var update = I18nTable.builder()
+                    .id(super.id)
+                    .languageId(languageDaoTest.id)
+                    .message(I18nTable.NONE)
+                    .build();
+            super.whenUpdateAndFindByIdThenEntry((id, test) -> expected(id, languageDaoTest.id, test), update);
+
+            super.whenFindAllThenMultiWithOneItem();
+            super.whenFindRangeZeroThenEmptiestMulti();
+            super.whenFindRangeFromZeroLimitOneThenMultiWithOneItem();
+
+            var customMessage = UUID.randomUUID().toString();
+            var custom = I18nTable.builder()
+                    .id(customId)
+                    .languageId(languageDaoTest.id)
+                    .message(customMessage)
+                    .build();
+            super.whenInsertCustomThenEntry(
+                    (id, test) -> expected(id, languageDaoTest.id, customMessage, test),
+                    custom
+            );
+            var customMessageUpdate = UUID.randomUUID().toString();
+            var customUpdate = I18nTable.builder()
+                    .id(customId)
+                    .languageId(languageDaoTest.id)
+                    .message(customMessageUpdate)
+                    .build();
+            super.whenUpdateCustomAndFindByIdThenEntry(
+                    (id, test) -> expected(id, languageDaoTest.id, customMessageUpdate, test),
+                    customUpdate
+            );
+
+            super.whenFindRangeFromZeroToOneThenMultiWithOneItemCustom(
+                    (id, test) -> expected(id, languageDaoTest.id, customMessageUpdate, test)
+            );
+            super.whenFindRangeFromZeroToMaxValueThenMultiWithTwoItems();
+            super.whenFindRangeFromOneLimitOneMultiWithOneItem();
+
+            Assertions.assertDoesNotThrow(() -> {
+                var test = uniOptionalHelper(i18nDao.findByLanguageId(languageDaoTest.id));
+                var expected = expected(super.id, languageDaoTest.id, test);
+                Assertions.assertEquals(expected, test);
+                Assertions.assertNotNull(test.createTime());
+                Assertions.assertNotNull(test.updateTime());
+            });
+
+            super.whenDeleteCustomThenOk();
+        }
+    }
+
+    @Nested
+    @DisplayName("I18nTransactionalJob")
+    class I18nTransactionalJobTest {
+
+        I18nTable insertEntry1 = I18nTable.builder()
+                .message(I18nTable.NONE)
+                .build();
+
+        I18nTable insertEntry2 = I18nTable.builder()
+                .message(UUID.randomUUID().toString())
+                .build();
+
+        @Test
+        void test() {
+            var result1 = i18nTransactionalJob.insert(insertEntry1, "en").await().indefinitely();
+            Assertions.assertTrue(result1.isPresent());
+
+            var result2 = i18nTransactionalJob.insert(insertEntry2, "en").await().indefinitely();
+            Assertions.assertTrue(result2.isPresent());
+
+            var result3 = i18nTransactionalJob.insert(insertEntry1, "ru").await().indefinitely();
+            Assertions.assertTrue(result3.isPresent());
+
+            var result4 = i18nTransactionalJob.insert(insertEntry2, "ru").await().indefinitely();
+            Assertions.assertTrue(result4.isPresent());
+
+            I18nTable updateEntry1 = I18nTable.builder()
+                    .id(result1.get())
+                    .message(I18nTable.NONE)
+                    .build();
+
+            var result5 = i18nTransactionalJob.update(updateEntry1, "en").await().indefinitely();
+            Assertions.assertTrue(result5.isPresent());
+        }
+    }
+
+    @Nested
+    @DisplayName("I18nViewDao")
+    class I18nViewDaoTest extends AbstractViewDaoTest<Long, I18nTable, I18nView> {
+
+        String messageEntry2;
+
+        AbstractDaoTest<Long, LanguageTable> languageDaoTest = new AbstractDaoTest<>();
+
+        @BeforeEach
+        void setUp() {
+            var language = LanguageTable.builder()
+                    .language(LanguageTable.NONE)
+                    .enabled(true)
+                    .build();
+            messageEntry2 = UUID.randomUUID().toString();
+            languageDaoTest.setUp(languageDao, language, 0L);
+            var entry1 = I18nTable.builder()
+                    .languageId(languageDaoTest.id)
+                    .message(I18nTable.NONE)
+                    .enabled(true)
+                    .build();
+            var entry2 = I18nTable.builder()
+                    .languageId(languageDaoTest.id)
+                    .message(messageEntry2)
+                    .enabled(true)
+                    .build();
+            super.setUp(i18nDao, i18nViewDao, entry1, entry2);
+        }
+
+        @AfterEach
+        void tearDown() {
+            super.tearDown();
+            languageDaoTest.tearDown();
+        }
+
+        I18nView.Builder builder(Long id, String language, I18nView test) {
+            return I18nView.builder()
+                    .id(id)
+                    .language(LanguageTable.NONE)
+                    .message(language)
+                    .createTime(test.createTime())
+                    .updateTime(test.updateTime())
+                    .enabled(true);
+        }
+
+        I18nView expected(Long id, String language, I18nView test) {
+            Assertions.assertNotNull(test);
+            return builder(id, language, test).build();
+        }
+
+        I18nView expected(Long id, String language, String message, I18nView test) {
+            Assertions.assertNotNull(test);
+            return builder(id, language, test).message(message).build();
+        }
+
+        @Test
+        void test() {
+            super.whenFindById1ThenEntry((id, test) -> expected(id, I18nTable.NONE, test));
+            super.whenFindById2ThenEntry((id, test) -> expected(id, messageEntry2, test));
+
+            super.whenFindAllThenMultiWithOneItem();
+            super.whenFindRangeZeroThenEmptiestMulti();
+
+            super.whenFindRangeFromZeroLimitOneThenMultiWithOneItem(
+                    (id, test) -> expected(id, I18nTable.NONE, test)
+            );
+            super.whenFindRangeFromOneLimitOneMultiWithOneItem(
+                    (id, test) -> expected(id, messageEntry2, test)
+            );
+            super.whenFindRangeFromZeroToMaxValueThenMultiWithTwoItems();
+        }
+    }
 
     @Nested
     @DisplayName("KeyValueDao")
@@ -1080,7 +1207,7 @@ public class DataBaseIT {
         @Test
         void test() {
             Assertions.assertDoesNotThrow(() -> {
-                var test = uniOptionalHelper(userTransactionalJob.insert(userName, Collections.emptySet(), UserNameTable::userName));
+                var test = uniOptionalHelper(userTransactionalJob.insert(userName, Collections.emptySet()));
                 Assertions.assertNotNull(test);
                 Assertions.assertEquals(id, test);
                 var userView = uniOptionalHelper(userViewDao.findById(id));
@@ -1090,7 +1217,7 @@ public class DataBaseIT {
             deleteUserName();
             checkUserNameTableIsEmpty();
             Assertions.assertDoesNotThrow(() -> {
-                var test = uniOptionalHelper(userTransactionalJob.insert(userName, Collections.singleton("role1"), UserNameTable::userName));
+                var test = uniOptionalHelper(userTransactionalJob.insert(userName, Collections.singleton("role1")));
                 Assertions.assertNotNull(test);
                 Assertions.assertEquals(id, test);
                 var userView = uniOptionalHelper(userViewDao.findById(id));
@@ -1100,7 +1227,7 @@ public class DataBaseIT {
             deleteUserName();
             checkUserNameTableIsEmpty();
             Assertions.assertDoesNotThrow(() -> {
-                var test = uniOptionalHelper(userTransactionalJob.insert(userName, Set.of("role1", "role2"), UserNameTable::userName));
+                var test = uniOptionalHelper(userTransactionalJob.insert(userName, Set.of("role1", "role2")));
                 Assertions.assertNotNull(test);
                 Assertions.assertEquals(id, test);
                 var userView = uniOptionalHelper(userViewDao.findById(id));
@@ -1110,7 +1237,7 @@ public class DataBaseIT {
             deleteUserName();
             checkUserNameTableIsEmpty();
             Assertions.assertThrows(java.util.concurrent.ExecutionException.class,
-                    () -> uniOptionalHelper(userTransactionalJob.insert(userName, Set.of("role1", "role2", "role3"), UserNameTable::userName)));
+                    () -> uniOptionalHelper(userTransactionalJob.insert(userName, Set.of("role1", "role2", "role3"))));
             checkUserNameTableIsEmpty();
             var custom = UserNameTable.builder()
                     .userName("userName")
@@ -1118,7 +1245,7 @@ public class DataBaseIT {
                     .enabled(true)
                     .build();
             Assertions.assertDoesNotThrow(() -> {
-                customId = uniOptionalHelper(userTransactionalJob.insert(custom, Set.of("role1", "role2"), UserNameTable::userName));
+                customId = uniOptionalHelper(userTransactionalJob.insert(custom, Set.of("role1", "role2")));
             });
             Assertions.assertDoesNotThrow(
                     () -> Assertions.assertEquals(customId, uniOptionalHelper(userNameDao.delete(customId))));

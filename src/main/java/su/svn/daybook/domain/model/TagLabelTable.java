@@ -127,6 +127,11 @@ public record TagLabelTable(
     }
 
     @Override
+    public String updateSql() {
+        return UPDATE_DICTIONARY_TAG_LABEL_WHERE_ID_$1_RETURNING_S;
+    }
+
+    @Override
     public Tuple updateTuple() {
         return Tuple.tuple(listOf());
     }

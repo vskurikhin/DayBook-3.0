@@ -68,8 +68,6 @@ class AbstractDaoTest<I extends Comparable<? extends Serializable>, E extends Ca
         });
     }
 
-
-    // Uni<Optional<I>>
     void whenFindAllThenMultiWithOneItem() {
         Assertions.assertDoesNotThrow(() -> {
             var test = multiAsListHelper((dao.findAll()));

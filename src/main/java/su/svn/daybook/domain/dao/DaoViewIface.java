@@ -10,21 +10,18 @@ package su.svn.daybook.domain.dao;
 
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
-import su.svn.daybook.domain.model.CasesOfId;
+import su.svn.daybook.models.Identification;
 
 import java.io.Serializable;
 import java.util.Optional;
 
-public interface DaoIface<I extends Comparable<? extends Serializable>, D extends CasesOfId<I>>
-        extends DaoViewIface<I, D> {
+public interface DaoViewIface<I extends Comparable<? extends Serializable>, D extends Identification<I>> {
 
-    Uni<Optional<I>> delete(I id);
+    Uni<Optional<Long>> count();
 
-    Uni<Optional<I>> insert(D entry);
+    Multi<D> findAll();
 
-    Uni<Optional<D>> insertEntry(D entry);
+    Uni<Optional<D>> findById(I id);
 
-    Uni<Optional<I>> update(D entry);
-
-    Uni<Optional<D>> updateEntry(D entry);
+    Multi<D> findRange(long offset, long limit);
 }

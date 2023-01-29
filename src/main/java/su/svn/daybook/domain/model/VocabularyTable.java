@@ -136,6 +136,11 @@ public record VocabularyTable(
     }
 
     @Override
+    public String updateSql() {
+        return UPDATE_DICTIONARY_VOCABULARY_WHERE_ID_$1_RETURNING_S;
+    }
+
+    @Override
     public Tuple updateTuple() {
         return Tuple.tuple(listOf());
     }

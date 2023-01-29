@@ -131,6 +131,11 @@ public record SessionTable(
     }
 
     @Override
+    public String updateSql() {
+        return UPDATE_SECURITY_SESSION_WHERE_ID_$1;
+    }
+
+    @Override
     public Tuple updateTuple() {
         return Tuple.tuple(listOf());
     }

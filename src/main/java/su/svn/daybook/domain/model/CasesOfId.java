@@ -16,5 +16,6 @@ import java.io.Serializable;
 public interface CasesOfId<K  extends Comparable<? extends Serializable>> extends Identification<K> {
     String caseInsertSql();
     Tuple caseInsertTuple();
+    String updateSql();
     Tuple updateTuple();
 }

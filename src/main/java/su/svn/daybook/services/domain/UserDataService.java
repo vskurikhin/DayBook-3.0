@@ -52,7 +52,7 @@ public class UserDataService implements DataService<UUID, UserView, User> {
 
     private Uni<UUID> addUserAndRoles(UserNameTable entry, Set<String> roles) {
         return userTransactionalJob
-                .insert(entry, roles, UserNameTable::userName)
+                .insert(entry, roles)
                 .map(o -> lookup(o, entry));
     }
 
@@ -93,7 +93,7 @@ public class UserDataService implements DataService<UUID, UserView, User> {
 
     private Uni<UUID> putEntry(UserNameTable entry, Set<String> roles) {
         return userTransactionalJob
-                .update(entry, roles, UserNameTable::userName)
+                .update(entry, roles)
                 .map(o -> lookup(o, entry));
     }
 
@@ -121,7 +121,7 @@ public class UserDataService implements DataService<UUID, UserView, User> {
 
     private Uni<UUID> deleteEntry(UserNameTable o) {
         return userTransactionalJob
-                .delete(o, UserNameTable::userName)
+                .delete(o)
                 .map(i -> lookup(i, o));
     }
 }
