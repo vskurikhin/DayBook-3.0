@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.01.22 18:04 by Victor N. Skurikhin.
+ * This file was last modified at 2023.02.19 17:08 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * WordTable.java
@@ -35,7 +35,7 @@ public record WordTable(
     public static final String NONE = "9e9574c8-990d-490a-be46-748e3160dbe1";
     public static final String ID = "word";
     @Language("SQL")
-    public static final String COUNT_DICTIONARY_WORD = "SELECT count(*) FROM dictionary.word";
+    public static final String COUNT_DICTIONARY_WORD = "SELECT count(*) FROM dictionary.word WHERE enabled";
     @Language("SQL")
     public static final String DELETE_FROM_DICTIONARY_WORD_WHERE_ID_$1 = """
             DELETE FROM dictionary.word

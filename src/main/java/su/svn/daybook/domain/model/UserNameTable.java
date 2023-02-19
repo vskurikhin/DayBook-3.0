@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.01.11 12:31 by Victor N. Skurikhin.
+ * This file was last modified at 2023.02.19 17:08 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * UserNameTable.java
@@ -37,7 +37,7 @@ public record UserNameTable(
     public static final String ID = "id";
     public static final String NONE = "4acd4523-e27d-43e7-88dc-f40637c98bf1";
     @Language("SQL")
-    public static final String COUNT_SECURITY_USER_NAME = "SELECT count(*) FROM security.user_name";
+    public static final String COUNT_SECURITY_USER_NAME = "SELECT count(*) FROM security.user_name WHERE enabled";
     @Language("SQL")
     public static final String DELETE_FROM_SECURITY_USER_NAME_WHERE_ID_$1 = """
             DELETE FROM security.user_name

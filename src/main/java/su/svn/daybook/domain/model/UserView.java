@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.01.11 12:53 by Victor N. Skurikhin.
+ * This file was last modified at 2023.02.19 17:08 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * UserView.java
@@ -36,7 +36,7 @@ public record UserView(
     public static final String ID = "id";
     public static final String NONE = UserNameTable.NONE;
     @Language("SQL")
-    public static final String COUNT_SECURITY_USER_VIEW = "SELECT count(*) FROM security.user_view";
+    public static final String COUNT_SECURITY_USER_VIEW = "SELECT count(*) FROM security.user_view WHERE enabled";
     @Language("SQL")
     public static final String SELECT_ALL_FROM_SECURITY_USER_VIEW_ORDER_BY_USER_NAME_ASC = """
             SELECT id, user_name, password, create_time, update_time, enabled, visible, flags, roles
