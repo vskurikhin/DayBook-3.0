@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.01.11 10:07 by Victor N. Skurikhin.
+ * This file was last modified at 2023.02.19 17:08 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * SessionTable.java
@@ -38,7 +38,7 @@ public record SessionTable(
     public static final String ID = "id";
     public static final String NONE = "3de2845b-eb5f-49e5-a1b4-ed90abd92c52";
     @Language("SQL")
-    public static final String COUNT_SECURITY_SESSION = "SELECT count(*) FROM security.session";
+    public static final String COUNT_SECURITY_SESSION = "SELECT count(*) FROM security.session WHERE enabled";
     @Language("SQL")
     public static final String DELETE_FROM_SECURITY_SESSION_WHERE_ID_$1 = """
             DELETE FROM security.session

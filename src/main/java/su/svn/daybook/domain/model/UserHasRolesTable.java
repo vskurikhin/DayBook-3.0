@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.01.11 10:42 by Victor N. Skurikhin.
+ * This file was last modified at 2023.02.19 17:08 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * UserHasRolesTable.java
@@ -38,7 +38,8 @@ public record UserHasRolesTable(
 
     public static final String ID = "id";
     @Language("SQL")
-    public static final String COUNT_SECURITY_USER_HAS_ROLES = "SELECT count(*) FROM security.user_has_roles";
+    public static final String COUNT_SECURITY_USER_HAS_ROLES = """
+            SELECT count(*) FROM security.user_has_roles WHERE enabled""";
     @Language("SQL")
     public static final String DELETE_FROM_SECURITY_USER_HAS_ROLES_WHERE_ID_$1 = """
             DELETE FROM security.user_has_roles

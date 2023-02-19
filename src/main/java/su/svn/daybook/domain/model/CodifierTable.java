@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.01.10 19:49 by Victor N. Skurikhin.
+ * This file was last modified at 2023.02.19 17:08 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * CodifierTable.java
@@ -37,7 +37,7 @@ public record CodifierTable(
     public static final String ID = "code";
     public static final String NONE = "1d63fe5b-8b11-4dcd-8158-f82aeea6a4b4";
     @Language("SQL")
-    public static final String COUNT_DICTIONARY_CODIFIER = "SELECT count(*) FROM dictionary.codifier";
+    public static final String COUNT_DICTIONARY_CODIFIER = "SELECT count(*) FROM dictionary.codifier WHERE enabled";
     @Language("SQL")
     public static final String INSERT_INTO_DICTIONARY_CODIFIER_RETURNING_S = """
             INSERT INTO dictionary.codifier
