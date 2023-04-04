@@ -50,7 +50,7 @@ public class DataBaseIT {
     RoleDao roleDao;
     @Inject
     SessionDao sessionDao;
-//    @Inject
+    //    @Inject
 //    SettingDao settingDao;
     @Inject
     TagLabelDao tagLabelDao;
@@ -62,7 +62,7 @@ public class DataBaseIT {
     UserTransactionalJob userTransactionalJob;
     @Inject
     UserViewDao userViewDao;
-//    @Inject
+    //    @Inject
 //    ValueTypeDao valueTypeDao;
     @Inject
     VocabularyDao vocabularyDao;
@@ -249,18 +249,56 @@ public class DataBaseIT {
             super.whenFindRangeFromZeroToMaxValueThenMultiWithTwoItems();
             super.whenFindRangeFromOneLimitOneMultiWithOneItem();
 
-            Assertions.assertDoesNotThrow(() -> {
-                var test = uniOptionalHelper(i18nDao.findByLanguageId(languageDaoTest.id));
-                var expected = expected(super.id, languageDaoTest.id, test);
-                Assertions.assertEquals(expected, test);
-                Assertions.assertNotNull(test.createTime());
-                Assertions.assertNotNull(test.updateTime());
-            });
+            Assertions.assertDoesNotThrow(() -> whenFindByIdThenOk(customUpdate));
+            Assertions.assertDoesNotThrow(() -> whenFindByKeyThenOk(customUpdate));
+            Assertions.assertDoesNotThrow(() -> whenFindByLanguageIdThenOk(customUpdate));
+            Assertions.assertDoesNotThrow(() -> whenFindByMessageThenOk(customUpdate));
 
             super.whenDeleteCustomThenOk();
         }
+
+        private void whenFindByIdThenOk(I18nTable entry) throws Exception {
+            var test = uniOptionalHelper(i18nDao.findById(entry.id()));
+            var expected = expected(test.id(), languageDaoTest.id, entry.message(), test);
+            Assertions.assertEquals(expected, test);
+            Assertions.assertNotNull(test.createTime());
+            Assertions.assertNotNull(test.updateTime());
+        }
+
+        private void whenFindByKeyThenOk(I18nTable entry) throws Exception {
+            var test = uniOptionalHelper(i18nDao.findByKey(entry.languageId(), entry.message()));
+            var expected = expected(test.id(), languageDaoTest.id, entry.message(), test);
+            Assertions.assertEquals(expected, test);
+            Assertions.assertNotNull(test.createTime());
+            Assertions.assertNotNull(test.updateTime());
+        }
+
+        private void whenFindByLanguageIdThenOk(I18nTable customUpdate) throws Exception {
+            List<I18nTable> list = multiAsListHelper(i18nDao.findByLanguageId(customUpdate.languageId()));
+            Assertions.assertFalse(list.isEmpty());
+            var optional = list.stream().filter(e -> customUpdate.id().equals(e.id())).findFirst();
+            Assertions.assertTrue(optional.isPresent());
+            var test = optional.get();
+            var expected = expected(test.id(), languageDaoTest.id, customUpdate.message(), test);
+            Assertions.assertEquals(expected, test);
+            Assertions.assertNotNull(test.createTime());
+            Assertions.assertNotNull(test.updateTime());
+        }
+
+        private void whenFindByMessageThenOk(I18nTable customUpdate) throws Exception {
+            List<I18nTable> list = multiAsListHelper(i18nDao.findByMessage(customUpdate.message()));
+            Assertions.assertFalse(list.isEmpty());
+            var optional = list.stream().filter(e -> customUpdate.id().equals(e.id())).findFirst();
+            Assertions.assertTrue(optional.isPresent());
+            var test = optional.get();
+            var expected = expected(test.id(), languageDaoTest.id, customUpdate.message(), test);
+            Assertions.assertEquals(expected, test);
+            Assertions.assertNotNull(test.createTime());
+            Assertions.assertNotNull(test.updateTime());
+        }
     }
 
+    @SuppressWarnings("UnusedReturnValue")
     @Nested
     @DisplayName("I18nTransactionalJob")
     class I18nTransactionalJobTest {
@@ -275,25 +313,69 @@ public class DataBaseIT {
 
         @Test
         void test() {
-            var result1 = i18nTransactionalJob.insert(insertEntry1, "en").await().indefinitely();
-            Assertions.assertTrue(result1.isPresent());
+            var result1 = whenInsertEntry1ForLangEnThenOk();
+            var result2 = whenInsertEntry2ForLangEnThenOk();
+            var result3 = whenInsertEntry1ForLangRuThenOk();
+            var result4 = whenInsertEntry2ForLangRuThenOk();
 
-            var result2 = i18nTransactionalJob.insert(insertEntry2, "en").await().indefinitely();
-            Assertions.assertTrue(result2.isPresent());
-
-            var result3 = i18nTransactionalJob.insert(insertEntry1, "ru").await().indefinitely();
-            Assertions.assertTrue(result3.isPresent());
-
-            var result4 = i18nTransactionalJob.insert(insertEntry2, "ru").await().indefinitely();
-            Assertions.assertTrue(result4.isPresent());
-
-            I18nTable updateEntry1 = I18nTable.builder()
-                    .id(result1.get())
+            var updateEntry1 = I18nTable.builder()
+                    .id(result1)
+                    .message(I18nTable.NONE)
+                    .build();
+            var updateEntry2 = I18nTable.builder()
+                    .id(result2)
+                    .message(I18nTable.NONE)
+                    .build();
+            var updateEntry3 = I18nTable.builder()
+                    .id(result3)
+                    .message(I18nTable.NONE)
+                    .build();
+            var updateEntry4 = I18nTable.builder()
+                    .id(result4)
                     .message(I18nTable.NONE)
                     .build();
 
-            var result5 = i18nTransactionalJob.update(updateEntry1, "en").await().indefinitely();
-            Assertions.assertTrue(result5.isPresent());
+            whenUpdateEntryForLangThenOk(updateEntry1, "en");
+            whenUpdateEntryForLangThenOk(updateEntry1, "jp");
+
+            i18nTransactionalJob.delete(updateEntry1).await().indefinitely();
+            i18nTransactionalJob.delete(updateEntry2).await().indefinitely();
+            i18nTransactionalJob.delete(updateEntry3).await().indefinitely();
+            i18nTransactionalJob.delete(updateEntry4).await().indefinitely();
+
+            var count = i18nDao.count().await().indefinitely();
+            Assertions.assertTrue(count.isPresent());
+            Assertions.assertEquals(0, count.get());
+        }
+
+        long whenInsertEntry1ForLangEnThenOk() {
+            var result = i18nTransactionalJob.insert(insertEntry1, "en").await().indefinitely();
+            Assertions.assertTrue(result.isPresent());
+            return result.get();
+        }
+
+        long whenInsertEntry2ForLangEnThenOk() {
+            var result = i18nTransactionalJob.insert(insertEntry2, "en").await().indefinitely();
+            Assertions.assertTrue(result.isPresent());
+            return result.get();
+        }
+
+        long whenInsertEntry1ForLangRuThenOk() {
+            var result = i18nTransactionalJob.insert(insertEntry1, "ru").await().indefinitely();
+            Assertions.assertTrue(result.isPresent());
+            return result.get();
+        }
+
+        long whenInsertEntry2ForLangRuThenOk() {
+            var result = i18nTransactionalJob.insert(insertEntry2, "ru").await().indefinitely();
+            Assertions.assertTrue(result.isPresent());
+            return result.get();
+        }
+
+        long whenUpdateEntryForLangThenOk(I18nTable entry, String lang) {
+            var result = i18nTransactionalJob.update(entry, lang).await().indefinitely();
+            Assertions.assertTrue(result.isPresent());
+            return result.get();
         }
     }
 

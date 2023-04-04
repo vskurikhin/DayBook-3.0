@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.01.10 19:49 by Victor N. Skurikhin.
+ * This file was last modified at 2023.02.19 17:08 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * LanguageTable.java
@@ -38,7 +38,7 @@ public record LanguageTable(
     public static final String ID = "id";
     public static final String NONE = "f53cb72e-1e95-4294-8bd7-0952f2ed69dc";
     @Language("SQL")
-    public static final String COUNT_DICTIONARY_LANGUAGE = "SELECT count(*) FROM dictionary.language";
+    public static final String COUNT_DICTIONARY_LANGUAGE = "SELECT count(*) FROM dictionary.language WHERE enabled";
     @Language("SQL")
     public static final String INSERT_INTO_DICTIONARY_LANGUAGE_RETURNING_S = """
             INSERT INTO dictionary.language
@@ -124,6 +124,11 @@ public record LanguageTable(
     @Override
     public Tuple caseInsertTuple() {
         return id != null ? Tuple.tuple(listOf()) : Tuple.of(language, userName, enabled, visible, flags);
+    }
+
+    @Override
+    public String deleteSql() {
+        return DELETE_FROM_DICTIONARY_LANGUAGE_WHERE_ID_$1_RETURNING_S;
     }
 
     @Override

@@ -1,4 +1,4 @@
-package su.svn.daybook.domain.transact;
+package su.svn.daybook.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

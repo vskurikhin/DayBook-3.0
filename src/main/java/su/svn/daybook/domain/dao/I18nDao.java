@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2022.01.12 22:58 by Victor N. Skurikhin.
+ * This file was last modified at 2023.04.04 21:29 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * I18nDao.java
@@ -15,6 +15,7 @@ import su.svn.daybook.annotations.SQL;
 import su.svn.daybook.domain.model.I18nTable;
 
 import javax.enterprise.context.ApplicationScoped;
+import java.util.List;
 import java.util.Optional;
 
 @ApplicationScoped
@@ -52,18 +53,21 @@ public class I18nDao extends AbstractDao<Long, I18nTable> implements DaoIface<Lo
     }
 
     @PrincipalLogging
-    @SQL(I18nTable.SELECT_FROM_DICTIONARY_I18N_WHERE_KEY_$1)
-    public Uni<Optional<I18nTable>> findByKey(Long languageId) {
-        return super.findByKeySQL(languageId).map(Optional::ofNullable);
+    @SQL(I18nTable.SELECT_FROM_DICTIONARY_I18N_WHERE_KEY_$1_$2)
+    public Uni<Optional<I18nTable>> findByKey(Long languageId, String message) {
+        var keys = List.of(languageId, message);
+        return super.findByKeySQL(keys).map(Optional::ofNullable);
     }
 
-    public Uni<Optional<I18nTable>> findByLanguageId(Long languageId) {
-        return findById(languageId);
+    @PrincipalLogging
+    @SQL(I18nTable.SELECT_FROM_DICTIONARY_I18N_WHERE_LANGUAGE_ID_$1)
+    public Multi<I18nTable> findByLanguageId(Long languageId) {
+        return super.findBy("findByLanguageId", languageId);
     }
 
-    @SQL(I18nTable.SELECT_FROM_DICTIONARY_I18N_WHERE_VALUE_$1)
+    @SQL(I18nTable.SELECT_FROM_DICTIONARY_I18N_WHERE_MESSAGE_$1)
     public Multi<I18nTable> findByMessage(String message) {
-        return super.findByValueSQL(message);
+        return super.findBy("findByMessage", message);
     }
 
     @Override

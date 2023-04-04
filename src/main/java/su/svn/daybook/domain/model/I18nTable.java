@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.01.10 19:49 by Victor N. Skurikhin.
+ * This file was last modified at 2023.04.04 21:29 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * I18nTable.java
@@ -84,16 +84,22 @@ public record I18nTable(
              WHERE id = $1 AND enabled
             """;
     @Language("SQL")
-    public static final String SELECT_FROM_DICTIONARY_I18N_WHERE_KEY_$1 = """
+    public static final String SELECT_FROM_DICTIONARY_I18N_WHERE_KEY_$1_$2 = """
             SELECT id, language_id, message, translation, user_name, create_time, update_time, enabled, visible, flags
               FROM dictionary.i18n
-             WHERE language_id = $1 AND enabled
+             WHERE language_id = $1 AND message = $2 AND enabled
             """;
     @Language("SQL")
-    public static final String SELECT_FROM_DICTIONARY_I18N_WHERE_VALUE_$1 = """
+    public static final String SELECT_FROM_DICTIONARY_I18N_WHERE_MESSAGE_$1 = """
             SELECT id, language_id, message, translation, user_name, create_time, update_time, enabled, visible, flags
               FROM dictionary.i18n
              WHERE message = $1 AND enabled
+            """;
+    @Language("SQL")
+    public static final String SELECT_FROM_DICTIONARY_I18N_WHERE_LANGUAGE_ID_$1 = """
+            SELECT id, language_id, message, translation, user_name, create_time, update_time, enabled, visible, flags
+              FROM dictionary.i18n
+             WHERE language_id = $1 AND enabled
             """;
     @Language("SQL")
     public static final String UPDATE_DICTIONARY_I18N_WHERE_ID_$1_RETURNING_S = """
@@ -150,6 +156,11 @@ public record I18nTable(
     @Override
     public Tuple caseInsertTuple() {
         return id != null ? Tuple.tuple(listOf()) : Tuple.tuple(listOfWithOutId());
+    }
+
+    @Override
+    public String deleteSql() {
+        return DELETE_FROM_DICTIONARY_I18N_WHERE_ID_$1_RETURNING_S;
     }
 
     @Override

@@ -1,7 +1,8 @@
-package su.svn.daybook.domain.transact;
+package su.svn.daybook.domain.enums;
 
 import io.vertx.mutiny.sqlclient.Row;
 import io.vertx.mutiny.sqlclient.RowIterator;
+import su.svn.daybook.models.Constants;
 
 import java.io.Serializable;
 import java.util.Optional;

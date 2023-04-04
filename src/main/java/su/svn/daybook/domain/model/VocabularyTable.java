@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.01.22 18:04 by Victor N. Skurikhin.
+ * This file was last modified at 2023.02.19 17:08 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * VocabularyTable.java
@@ -39,7 +39,8 @@ public record VocabularyTable(
     public static final String ID = "id";
     public static final String NONE = "49aedbd1-c7e5-4040-bde4-2fcc3d8c93d3";
     @Language("SQL")
-    public static final String COUNT_DICTIONARY_VOCABULARY = "SELECT count(*) FROM dictionary.vocabulary";
+    public static final String COUNT_DICTIONARY_VOCABULARY = """
+            SELECT count(*) FROM dictionary.vocabulary WHERE enabled""";
     @Language("SQL")
     public static final String INSERT_INTO_DICTIONARY_VOCABULARY_RETURNING_S = """
             INSERT INTO dictionary.vocabulary
@@ -133,6 +134,11 @@ public record VocabularyTable(
     @Override
     public Tuple caseInsertTuple() {
         return id != null ? Tuple.tuple(listOf()) : Tuple.of(word, value, userName, enabled, visible, flags);
+    }
+
+    @Override
+    public String deleteSql() {
+        return DELETE_FROM_DICTIONARY_VOCABULARY_WHERE_ID_$1_RETURNING_S;
     }
 
     @Override

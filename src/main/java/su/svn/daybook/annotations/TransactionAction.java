@@ -1,9 +1,11 @@
-package su.svn.daybook.domain.transact;
+package su.svn.daybook.annotations;
 
 import org.intellij.lang.annotations.Language;
+import su.svn.daybook.domain.enums.IteratorNextMapperEnum;
+import su.svn.daybook.domain.enums.SQLMapperEnum;
+import su.svn.daybook.domain.enums.TupleMapperEnum;
 
 import java.lang.annotation.ElementType;
-import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;

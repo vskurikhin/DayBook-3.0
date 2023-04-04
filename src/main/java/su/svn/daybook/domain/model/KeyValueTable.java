@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.01.10 19:49 by Victor N. Skurikhin.
+ * This file was last modified at 2023.02.19 17:08 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * KeyValueTable.java
@@ -42,7 +42,7 @@ public record KeyValueTable(
     public static final String ID = "id";
     public static final String NONE = "d94d93d9-d44c-403c-97b1-d071b6974d80";
     @Language("SQL")
-    public static final String COUNT_DICTIONARY_KEY_VALUE = "SELECT count(*) FROM dictionary.key_value";
+    public static final String COUNT_DICTIONARY_KEY_VALUE = "SELECT count(*) FROM dictionary.key_value WHERE enabled";
     @Language("SQL")
     public static final String INSERT_INTO_DICTIONARY_KEY_VALUE_RETURNING_S = """
             INSERT INTO dictionary.key_value
@@ -136,6 +136,11 @@ public record KeyValueTable(
     @Override
     public Tuple caseInsertTuple() {
         return id != null ? Tuple.tuple(listOf()) : Tuple.of(key, value, userName, enabled, visible, flags);
+    }
+
+    @Override
+    public String deleteSql() {
+        return DELETE_FROM_DICTIONARY_KEY_VALUE_WHERE_ID_$1_RETURNING_S;
     }
 
     @Override

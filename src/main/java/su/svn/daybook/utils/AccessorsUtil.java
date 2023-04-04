@@ -1,3 +1,11 @@
+/*
+ * This file was last modified at 2023.02.19 10:06 by Victor N. Skurikhin.
+ * This is free and unencumbered software released into the public domain.
+ * For more information, please refer to <http://unlicense.org>
+ * AccessorsUtil.java
+ * $Id$
+ */
+
 package su.svn.daybook.utils;
 
 import org.jboss.logging.Logger;
@@ -7,6 +15,7 @@ import javax.annotation.Nonnull;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.function.Function;
 
 public class AccessorsUtil
@@ -19,6 +28,10 @@ public class AccessorsUtil
 
     public static boolean isBooleanField(Field field) {
         return field.getType() == boolean.class || field.getType().equals(Boolean.class);
+    }
+
+    public static boolean isCorrectMethodAndEndsWithFieldName(String fieldName, String methodName) {
+        return isCorrectFieldAndMethodName(fieldName, methodName) && isMethodNameEndsWithFieldName(methodName, fieldName);
     }
 
     public static boolean isCorrectFieldAndMethodName(String fieldName, String methodName) {
@@ -71,5 +84,13 @@ public class AccessorsUtil
             return true;
         } else return methodName.startsWith(GETTER_PREFIX_HAS)
                 && (method.getReturnType() == boolean.class || Boolean.class.equals(method.getReturnType()));
+    }
+
+    public static boolean isNotVolatile(Method method) {
+        return !Modifier.isVolatile(method.getModifiers());
+    }
+
+    public static boolean isParameterCountZeroAndReturnTypeNotVoid(Method method) {
+        return method.getParameterCount() == 0 && method.getReturnType() != void.class;
     }
 }

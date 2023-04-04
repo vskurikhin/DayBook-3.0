@@ -40,7 +40,8 @@ public record @Name@Table(
     public static final String ID = "id";
     public static final String NONE = "@uuid@";
     @Language("SQL")
-    public static final String COUNT_@SCHEMA@_@TABLE@ = "SELECT count(*) FROM @schema@.@table@";
+    public static final String COUNT_@SCHEMA@_@TABLE@ = """
+            SELECT count(*) FROM @schema@.@table@ WHERE enabled""";
     @Language("SQL")
     public static final String INSERT_INTO_@SCHEMA@_@TABLE@_RETURNING_S = """
             INSERT INTO @schema@.@table@

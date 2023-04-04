@@ -3,6 +3,7 @@ package su.svn.daybook.domain.transact;
 import io.vertx.mutiny.sqlclient.Row;
 import io.vertx.mutiny.sqlclient.RowIterator;
 import io.vertx.mutiny.sqlclient.Tuple;
+import su.svn.daybook.annotations.TransactionAction;
 import su.svn.daybook.domain.model.CasesOfId;
 
 import javax.annotation.Nonnull;

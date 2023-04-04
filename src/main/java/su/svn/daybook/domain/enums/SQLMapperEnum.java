@@ -1,4 +1,4 @@
-package su.svn.daybook.domain.transact;
+package su.svn.daybook.domain.enums;
 
 import su.svn.daybook.domain.model.CasesOfId;
 

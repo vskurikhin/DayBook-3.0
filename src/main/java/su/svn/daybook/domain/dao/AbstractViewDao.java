@@ -119,7 +119,11 @@ abstract class AbstractViewDao<I extends Comparable<? extends Serializable>, D e
     }
 
     protected <T> Multi<D> findByValueSQL(T value) {
-        var sql = sqlMap.get(FIND_BY_VALUE);
+        return findBy(FIND_BY_VALUE, value);
+    }
+
+    protected <T> Multi<D> findBy(String sqlMapKey, T value) {
+        var sql = sqlMap.get(sqlMapKey);
         if (sql != null && !"".equals(sql)) {
             var order = new StringBuilder(this.id).append(ASC);
             return client

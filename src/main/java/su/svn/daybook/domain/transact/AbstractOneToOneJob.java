@@ -13,7 +13,8 @@ import io.vertx.mutiny.sqlclient.Pool;
 import io.vertx.mutiny.sqlclient.Row;
 import io.vertx.mutiny.sqlclient.RowIterator;
 import org.jboss.logging.Logger;
-import org.jetbrains.annotations.NotNull;
+import su.svn.daybook.annotations.TransactionAction;
+import su.svn.daybook.annotations.TransactionActions;
 import su.svn.daybook.domain.model.CasesOfId;
 
 import javax.annotation.Nonnull;
@@ -30,40 +31,57 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+@SuppressWarnings("CdiInjectionPointsInspection")
 abstract class AbstractOneToOneJob<
-        I extends Comparable<? extends Serializable>,
-        D extends CasesOfId<I>,
-        G extends Comparable<? extends Serializable>,
-        J extends CasesOfId<G>,
-        F extends Comparable<? extends Serializable>> {
+        MainId extends Comparable<? extends Serializable>,
+        Main extends CasesOfId<MainId>,
+        JoinId extends Comparable<? extends Serializable>,
+        Join extends CasesOfId<JoinId>,
+        Field extends Comparable<? extends Serializable>> {
 
     private final Logger log;
     private final Pool pool;
-    private final BiFunction<D, G, D> tableBuilder;
-    private final Function<F, J> joinFieldBuilder;
+    private final OneToOneHelperFactory<MainId, Main, JoinId, Join, Field> helperFactory;
 
-    private final Map<String, Map<String, Action>> map;
+    public abstract Uni<Optional<MainId>> insert(Main table, Field field);
 
-    public abstract Uni<Optional<I>> insert(D table, F field);
+    public abstract Uni<Optional<MainId>> update(Main table, Field field);
 
-    public abstract Uni<Optional<I>> update(D table, F field);
+    public abstract Uni<Optional<MainId>> delete(Main table);
 
-    protected abstract Function<RowIterator<Row>, Optional<?>> iteratorNextFunctionMapper(String actionName);
+    protected abstract Function<RowIterator<Row>, Optional<?>> iteratorNextMapper(String actionName);
 
-    protected abstract Function<Optional<?>, Optional<G>> oToG();
+    protected abstract Function<Optional<?>, Optional<JoinId>> castOptionalJoinId();
 
-    protected abstract Function<Optional<?>, Optional<I>> oToI();
+    protected abstract Function<Optional<?>, Optional<MainId>> castOptionalMainId();
 
     AbstractOneToOneJob(
             @Nonnull Pool pool,
-            @Nonnull BiFunction<D, G, D> tableBuilder,
-            @Nonnull Function<F, J> joinFieldBuilder,
+            @Nonnull BiFunction<Main, JoinId, Main> tableBuilder,
+            @Nonnull Function<Field, Join> joinFieldBuilder,
             @Nonnull Logger log) {
         this.log = log;
         this.pool = pool;
-        this.tableBuilder = tableBuilder;
-        this.joinFieldBuilder = joinFieldBuilder;
-        this.map = Collections.unmodifiableMap(getActionsOfMethods());
+        var map = Collections.unmodifiableMap(getActionsOfMethods());
+        this.helperFactory = new OneToOneHelperFactory<>(this, map, tableBuilder, joinFieldBuilder);
+    }
+
+    protected Uni<Optional<MainId>> doInsert(Main table, Field field) {
+        log.tracef("doInsert(%s, %s)", table, field);
+        var helper = helperFactory.createInsertHelper(table, field);
+        return pool.withTransaction(helper);
+    }
+
+    protected Uni<Optional<MainId>> doUpdate(Main table, Field field) {
+        log.tracef("doUpdate(%s, %s)", table, field);
+        var helper = helperFactory.createUpdateHelper(table, field);
+        return pool.withTransaction(helper);
+    }
+
+    protected Uni<Optional<MainId>> doDelete(Main table) {
+        log.tracef("doDelete(%s)", table);
+        var helper = helperFactory.createDeleteHelper(table);
+        return pool.withTransaction(helper);
     }
 
     protected Map<String, Map<String, Action>> getActionsOfMethods() {
@@ -73,12 +91,12 @@ abstract class AbstractOneToOneJob<
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
-    @NotNull
+    @Nonnull
     private Map.Entry<String, Map<String, Action>> createActionsEntry(Method method) {
         return new AbstractMap.SimpleEntry<>(method.getName(), createActionEntries(method));
     }
 
-    @NotNull
+    @Nonnull
     private Map<String, Action> createActionEntries(Method method) {
         TransactionActions transactionActions = method.getAnnotation(TransactionActions.class);
         var result = Stream
@@ -88,7 +106,7 @@ abstract class AbstractOneToOneJob<
         return Collections.unmodifiableMap(result);
     }
 
-    @NotNull
+    @Nonnull
     private Map.Entry<String, Action> createActionEntry(TransactionAction transactionAction) {
         return new AbstractMap.SimpleEntry<>(transactionAction.name(), Action.of(transactionAction));
     }
@@ -97,17 +115,5 @@ abstract class AbstractOneToOneJob<
         return method.isAnnotationPresent(TransactionActions.class)
                 && Modifier.isPublic(method.getModifiers())
                 && !method.isBridge();
-    }
-
-    public Uni<Optional<I>> doInsert(D table, F field) {
-        log.tracef("doInsert(%s, %s)", table, field);
-        var helper = new OneToOneHelper<>(this, map, table, field, this.tableBuilder, this.joinFieldBuilder);
-        return pool.withTransaction(helper::findingOrThenInsert);
-    }
-
-    public Uni<Optional<I>> doUpdate(D table, F field) {
-        log.tracef("doUpdate(%s, %s)", table, field);
-        var helper = new OneToOneHelper<>(this, map, table, field, this.tableBuilder, this.joinFieldBuilder);
-        return pool.withTransaction(helper::findingOrThenUpdate);
     }
 }
