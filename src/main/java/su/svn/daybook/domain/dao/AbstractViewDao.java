@@ -22,6 +22,7 @@ import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -109,8 +110,20 @@ abstract class AbstractViewDao<I extends Comparable<? extends Serializable>, D e
         return Uni.createFrom().nullItem();
     }
 
+    protected Uni<D> findByKeySQL(List<?> keys) {
+        var sql = sqlMap.get(FIND_BY_KEY);
+        if (sql != null && !"".equals(sql)) {
+            return executeByKeyReturnEntry(keys, sql);
+        }
+        return Uni.createFrom().nullItem();
+    }
+
     protected <T> Multi<D> findByValueSQL(T value) {
-        var sql = sqlMap.get(FIND_BY_VALUE);
+        return findBy(FIND_BY_VALUE, value);
+    }
+
+    protected <T> Multi<D> findBy(String sqlMapKey, T value) {
+        var sql = sqlMap.get(sqlMapKey);
         if (sql != null && !"".equals(sql)) {
             var order = new StringBuilder(this.id).append(ASC);
             return client
@@ -141,6 +154,15 @@ abstract class AbstractViewDao<I extends Comparable<? extends Serializable>, D e
         return client
                 .preparedQuery(String.format(sql, ASTERISK))
                 .execute(Tuple.of(id))
+                .map(RowSet::iterator)
+                .map(iterator -> iterator.hasNext() ? fromFunction.apply(iterator.next()) : null);
+    }
+
+    @SuppressWarnings("unchecked")
+    <T> Uni<D> executeByKeyReturnEntry(List<T> key, @Nonnull String sql) {
+        return client
+                .preparedQuery(String.format(sql, ASTERISK))
+                .execute(Tuple.tuple((List<Object>) key))
                 .map(RowSet::iterator)
                 .map(iterator -> iterator.hasNext() ? fromFunction.apply(iterator.next()) : null);
     }

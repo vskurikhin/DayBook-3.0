@@ -22,7 +22,6 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record LanguageTable(
@@ -125,6 +124,16 @@ public record LanguageTable(
     @Override
     public Tuple caseInsertTuple() {
         return id != null ? Tuple.tuple(listOf()) : Tuple.of(language, userName, enabled, visible, flags);
+    }
+
+    @Override
+    public String deleteSql() {
+        return DELETE_FROM_DICTIONARY_LANGUAGE_WHERE_ID_$1_RETURNING_S;
+    }
+
+    @Override
+    public String updateSql() {
+        return UPDATE_DICTIONARY_LANGUAGE_WHERE_ID_$1_RETURNING_S;
     }
 
     @Override

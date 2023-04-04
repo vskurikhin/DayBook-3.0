@@ -120,6 +120,16 @@ public record UserNameTable(
     }
 
     @Override
+    public String deleteSql() {
+        return DELETE_FROM_SECURITY_USER_NAME_WHERE_ID_$1;
+    }
+
+    @Override
+    public String updateSql() {
+        return UPDATE_SECURITY_USER_NAME_WHERE_ID_$1;
+    }
+
+    @Override
     public Tuple updateTuple() {
         return Tuple.tuple(listOf());
     }

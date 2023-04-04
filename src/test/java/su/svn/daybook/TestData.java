@@ -127,30 +127,30 @@ public class TestData {
                 """ + JSON_ARRAY_SINGLETON_0 + """
                 }""";
     }
-//
-//    public static class I18N {
-//        public static final I18n MODEL_0 = new I18n(
-//                0L, 0L, null, null, true, 0
-//        );
-//        public static final I18nTable TABLE_0 = new I18nTable(
-//                0L, 0L, null, null, null, null, null, true, true, 0
-//        );
-//        public static final Uni<Page<Answer>> UNI_PAGE_ANSWER_SINGLETON_TEST = Uni.createFrom()
-//                .item(
-//                        Page.<Answer>builder()
-//                                .content(Collections.singletonList(Answer.of(MODEL_0)))
-//                                .build()
-//                );
-//        public static final String JSON_0 = """
-//                {"id":0,"languageId":0,"visible":true,"flags":0}\
-//                """;
-//        public static final String JSON_ARRAY_SINGLETON_0 = "[" + JSON_0 + "]";
-//        public static final String JSON_ID_0 = "{\"id\":0}";
-//        public static final String JSON_PAGE_ARRAY_0 = """
-//                {"page":0,"totalRecords":0,"nextPage":false,"prevPage":false,"content":\
-//                """ + JSON_ARRAY_SINGLETON_0 + """
-//                }""";
-//    }
+
+    public static class I18N {
+        public static final I18n MODEL_0 = new I18n(
+                0L, Language.NONE, I18n.NONE, null, true, 0
+        );
+        public static final I18nTable TABLE_0 = new I18nTable(
+                0L, 0L, null, null, null, null, null, true, true, 0
+        );
+        public static final Uni<Page<Answer>> UNI_PAGE_ANSWER_SINGLETON_TEST = Uni.createFrom()
+                .item(
+                        Page.<Answer>builder()
+                                .content(Collections.singletonList(Answer.of(MODEL_0)))
+                                .build()
+                );
+        public static final String JSON_0 = """
+                {"id":0,"languageId":0,"visible":true,"flags":0}\
+                """;
+        public static final String JSON_ARRAY_SINGLETON_0 = "[" + JSON_0 + "]";
+        public static final String JSON_ID_0 = "{\"id\":0}";
+        public static final String JSON_PAGE_ARRAY_0 = """
+                {"page":0,"totalRecords":0,"nextPage":false,"prevPage":false,"content":\
+                """ + JSON_ARRAY_SINGLETON_0 + """
+                }""";
+    }
 
     public static class KEY_VALUE {
         public static final KeyValue MODEL_0 = new KeyValue(

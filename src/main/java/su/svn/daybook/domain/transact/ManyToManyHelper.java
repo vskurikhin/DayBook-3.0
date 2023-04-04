@@ -2,7 +2,7 @@
  * This file was last modified at 2023.01.06 15:00 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
- * AbstractHasRelationJobHelper.java
+ * ManyToManyHelper.java
  * $Id$
  */
 
@@ -24,21 +24,21 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-class HasRelationJobHelper
-        <K extends Comparable<? extends Serializable>,
-                D extends CasesOfId<K>,
-                E extends Comparable<E>,
-                T extends Comparable<T>> {
+class ManyToManyHelper<
+        K extends Comparable<? extends Serializable>,
+        D extends CasesOfId<K>,
+        E extends Comparable<E>,
+        T extends Comparable<T>> {
 
     public static final String COUNT = "count";
-    private final AbstractHasRelationJob<K, D, E, T> job;
+    private final AbstractManyToMayJob<K, D, E, T> job;
     private final Collection<T> collection;
     private final D table;
     private final E entry;
     private volatile SqlConnection connection;
 
-    HasRelationJobHelper(
-            @Nonnull AbstractHasRelationJob<K, D, E, T> job,
+    ManyToManyHelper(
+            @Nonnull AbstractManyToMayJob<K, D, E, T> job,
             @Nonnull Collection<T> collection,
             @Nonnull D table,
             @Nonnull E entry) {

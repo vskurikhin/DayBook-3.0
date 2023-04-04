@@ -2,7 +2,7 @@
  * This file was last modified at 2023.01.06 11:58 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
- * UserTransactionalJob2.java
+ * UserTransactionalJob.java
  * $Id$
  */
 
@@ -21,7 +21,7 @@ import javax.ws.rs.core.Context;
 import java.util.UUID;
 
 @Singleton
-public class UserTransactionalJob extends AbstractHasRelationJob<UUID, UserNameTable, String, String> {
+public class UserTransactionalJob extends AbstractManyToMayJob<UUID, UserNameTable, String, String> {
 
     private static final Logger LOG = Logger.getLogger(UserTransactionalJob.class);
 
@@ -65,7 +65,7 @@ public class UserTransactionalJob extends AbstractHasRelationJob<UUID, UserNameT
             """;
 
     public UserTransactionalJob(@Context PgPool client) {
-        super(client, LOG);
+        super(client, UserNameTable::userName, LOG);
     }
 
     @Nonnull

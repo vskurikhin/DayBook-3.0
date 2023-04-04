@@ -122,6 +122,16 @@ public record WordTable(
     }
 
     @Override
+    public String deleteSql() {
+        return DELETE_FROM_DICTIONARY_WORD_WHERE_ID_$1;
+    }
+
+    @Override
+    public String updateSql() {
+        return UPDATE_DICTIONARY_WORD_WHERE_ID_$1_RETURNING_S;
+    }
+
+    @Override
     public Tuple updateTuple() {
         return Tuple.tuple(listOf());
     }

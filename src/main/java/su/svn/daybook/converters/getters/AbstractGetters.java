@@ -100,8 +100,8 @@ public abstract class AbstractGetters<P extends Identification<? extends Compara
     }
 
     private boolean isGetter(Method method, Map<String, FieldRecord> fields) {
-        final String methodName = method.getName();
-        Set<String> prefixes = fields
+        var methodName = method.getName();
+        var prefixes = fields
                 .entrySet()
                 .stream()
                 .filter(Objects::nonNull)
@@ -119,7 +119,7 @@ public abstract class AbstractGetters<P extends Identification<? extends Compara
     }
 
     private boolean forFieldSet(String method, Set<String> keySet) {
-        for (String field : keySet) {
+        for (var field : keySet) {
             if (isCorrectFieldAndMethodName(field, method)) {
                 return true;
             }
