@@ -1,19 +1,15 @@
 /*
- * This file was last modified at 2023.01.06 15:00 by Victor N. Skurikhin.
+ * This file was last modified at 2023.04.23 15:36 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
- * OneToOneHelper.java
+ * OneToOneHelperFactory.java
  * $Id$
  */
 
 package su.svn.daybook.domain.transact;
 
 import io.smallrye.mutiny.Uni;
-import io.vertx.mutiny.sqlclient.Row;
-import io.vertx.mutiny.sqlclient.RowIterator;
-import io.vertx.mutiny.sqlclient.RowSet;
-import io.vertx.mutiny.sqlclient.SqlConnection;
-import io.vertx.mutiny.sqlclient.Tuple;
+import io.vertx.mutiny.sqlclient.*;
 import org.jboss.logging.Logger;
 import su.svn.daybook.domain.model.CasesOfId;
 import su.svn.daybook.models.Constants;
@@ -61,54 +57,18 @@ class OneToOneHelperFactory<
         return new DeleteHelper<>(this.job, this.mapJob, this.tableBuilder, this.joinFieldBuilder, table);
     }
 
-    static abstract class Helper<
+    abstract static class AbstractHelper<
             I extends Comparable<? extends Serializable>,
             D extends CasesOfId<I>,
             G extends Comparable<? extends Serializable>,
             J extends CasesOfId<G>,
             F extends Comparable<? extends Serializable>>
-            implements Function<SqlConnection, Uni<Optional<I>>> {
+            implements Helper<I, D, G, J, F> {
 
         protected final AbstractOneToOneJob<I, D, G, J, F> job;
 
-        protected Helper(AbstractOneToOneJob<I, D, G, J, F> job) {
+        AbstractHelper(AbstractOneToOneJob<I, D, G, J, F> job) {
             this.job = job;
-        }
-
-        <X extends CasesOfId<?>> String deleteSql(Action action, X table) {
-            return (action.sqlMapper() != null)
-                    ? action.sqlMapper().apply(table)
-                    : table.deleteSql() ;
-        }
-
-        <X extends CasesOfId<?>> String insertSql(Action action, X table) {
-            return (action.sqlMapper() != null)
-                    ? action.sqlMapper().apply(table)
-                    : table.caseInsertSql() ;
-        }
-
-        <X extends CasesOfId<?>> String updateSql(Action action, X table) {
-            return (action.sqlMapper() != null)
-                    ? action.sqlMapper().apply(table)
-                    : table.updateSql() ;
-        }
-
-        <X extends CasesOfId<?>> Tuple insertTuple(Action action, X table) {
-            return (action.tupleMapper() != null)
-                    ? action.tupleMapper().apply(table)
-                    : table.caseInsertTuple() ;
-        }
-
-        <X extends CasesOfId<?>> Tuple updateTuple(Action action, X table) {
-            return (action.tupleMapper() != null)
-                    ? action.tupleMapper().apply(table)
-                    : table.updateTuple() ;
-        }
-
-        Tuple tuple(Action action, Object o) {
-            return (action.tupleMapper() != null)
-                    ? action.tupleMapper().apply(o)
-                    : Tuple.tuple() ;
         }
 
         protected Function<? super RowIterator<Row>, ? extends Optional<?>> iteratorNextMapper(
@@ -119,7 +79,7 @@ class OneToOneHelperFactory<
         }
 
         protected Uni<Optional<I>> getFailure() {
-            return Uni.createFrom().failure(new RuntimeException());
+            return Uni.createFrom().failure(new RuntimeException()); // TODO Custom Exception
         }
     }
 
@@ -129,7 +89,7 @@ class OneToOneHelperFactory<
             G extends Comparable<? extends Serializable>,
             J extends CasesOfId<G>,
             F extends Comparable<? extends Serializable>>
-            extends Helper<I, D, G, J, F> {
+            extends AbstractHelper<I, D, G, J, F> {
 
         private static final Logger LOG = Logger.getLogger(InsertHelper.class);
 
@@ -173,7 +133,7 @@ class OneToOneHelperFactory<
             var action = map.get(Constants.FIND_FIELD_ID);
             return connection
                     .preparedQuery(action.sql())
-                    .execute(tuple(action, field))
+                    .execute(Helper.tuple(action, field))
                     .map(RowSet::iterator)
                     .map(iteratorNextMapper(action, Constants.FIND_FIELD_ID))
                     .map(job.castOptionalJoinId());
@@ -183,8 +143,8 @@ class OneToOneHelperFactory<
             var action = map.get(Constants.INSERT_JOIN);
             var join = joinFieldBuilder.apply(this.field);
             return connection
-                    .preparedQuery(String.format(insertSql(action, join), Constants.ID))
-                    .execute(insertTuple(action, join))
+                    .preparedQuery(String.format(Helper.insertSql(action, join), Constants.ID))
+                    .execute(Helper.insertTuple(action, join))
                     .map(RowSet::iterator)
                     .map(iteratorNextMapper(action, Constants.INSERT_JOIN))
                     .map(job.castOptionalJoinId());
@@ -194,8 +154,8 @@ class OneToOneHelperFactory<
             var action = map.get(Constants.INSERT_MAIN);
             var main = tableBuilder.apply(this.table, joinId);
             return connection
-                    .preparedQuery(String.format(insertSql(action, main), Constants.ID))
-                    .execute(insertTuple(action, main))
+                    .preparedQuery(String.format(Helper.insertSql(action, main), Constants.ID))
+                    .execute(Helper.insertTuple(action, main))
                     .map(RowSet::iterator)
                     .map(iteratorNextMapper(action, Constants.INSERT_MAIN))
                     .map(job.castOptionalMainId());
@@ -208,7 +168,7 @@ class OneToOneHelperFactory<
             G extends Comparable<? extends Serializable>,
             J extends CasesOfId<G>,
             F extends Comparable<? extends Serializable>>
-            extends Helper<I, D, G, J, F> {
+            extends AbstractHelper<I, D, G, J, F> {
 
         private static final Logger LOG = Logger.getLogger(UpdateHelper.class);
 
@@ -252,7 +212,7 @@ class OneToOneHelperFactory<
             var action = map.get(Constants.FIND_FIELD_ID);
             return connection
                     .preparedQuery(action.sql())
-                    .execute(tuple(action, field))
+                    .execute(Helper.tuple(action, field))
                     .map(RowSet::iterator)
                     .map(iteratorNextMapper(action, Constants.FIND_FIELD_ID))
                     .map(job.castOptionalJoinId());
@@ -262,8 +222,8 @@ class OneToOneHelperFactory<
             var action = map.get(Constants.INSERT_JOIN);
             var join = joinFieldBuilder.apply(this.field);
             return connection
-                    .preparedQuery(String.format(insertSql(action, join), Constants.ID))
-                    .execute(insertTuple(action, join))
+                    .preparedQuery(String.format(Helper.insertSql(action, join), Constants.ID))
+                    .execute(Helper.insertTuple(action, join))
                     .map(RowSet::iterator)
                     .map(iteratorNextMapper(action, Constants.INSERT_JOIN))
                     .map(job.castOptionalJoinId());
@@ -273,8 +233,8 @@ class OneToOneHelperFactory<
             var action = map.get(Constants.UPDATE_MAIN);
             var main = tableBuilder.apply(this.table, joinId);
             return connection
-                    .preparedQuery(String.format(updateSql(action, main), Constants.ID))
-                    .execute(updateTuple(action, main))
+                    .preparedQuery(String.format(Helper.updateSql(action, main), Constants.ID))
+                    .execute(Helper.updateTuple(action, main))
                     .map(RowSet::iterator)
                     .map(iteratorNextMapper(action, Constants.UPDATE_MAIN))
                     .map(job.castOptionalMainId());
@@ -287,7 +247,7 @@ class OneToOneHelperFactory<
             G extends Comparable<? extends Serializable>,
             J extends CasesOfId<G>,
             F extends Comparable<? extends Serializable>>
-            extends Helper<I, D, G, J, F> {
+            extends AbstractHelper<I, D, G, J, F> {
 
         private static final Logger LOG = Logger.getLogger(DeleteHelper.class);
 
@@ -335,7 +295,7 @@ class OneToOneHelperFactory<
         private Uni<Optional<I>> deleteMain(Map<String, Action> map, I id) {
             var action = map.get(Constants.DELETE_MAIN);
             return connection
-                    .preparedQuery(String.format(table.deleteSql(), Constants.ID))
+                    .preparedQuery(String.format(Helper.deleteSql(action, this.table), Constants.ID))
                     .execute(Tuple.of(id))
                     .map(RowSet::iterator)
                     .map(iteratorNextMapper(action, Constants.UPDATE_MAIN))
