@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.01.06 11:58 by Victor N. Skurikhin.
+ * This file was last modified at 2023.04.23 15:36 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * I18nTransactionalJob.java
@@ -24,6 +24,7 @@ import su.svn.daybook.models.Constants;
 import javax.inject.Singleton;
 import javax.ws.rs.core.Context;
 import java.util.Optional;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 @Singleton
@@ -31,11 +32,14 @@ public class I18nTransactionalJob extends AbstractOneToOneJob<Long, I18nTable, L
 
     private static final Logger LOG = Logger.getLogger(I18nTransactionalJob.class);
 
-    private static final Function<String, LanguageTable> BUILDER2
-            = (String s) -> LanguageTable.builder().language(s).build();
+    private static final BiFunction<I18nTable, Long, I18nTable> I18N_TABLE_BUILDER
+            = (t, id) -> t.toBuilder().languageId(id).build();
+
+    private static final Function<String, LanguageTable> LANGUAGE_TABLE_BUILDER
+            = s -> LanguageTable.builder().language(s).build();
 
     public I18nTransactionalJob(@Context PgPool client) {
-        super(client, (t, id) -> t.toBuilder().languageId(id).build(), BUILDER2, LOG);
+        super(client, I18N_TABLE_BUILDER, LANGUAGE_TABLE_BUILDER, LOG);
     }
 
     @Override
@@ -70,6 +74,7 @@ public class I18nTransactionalJob extends AbstractOneToOneJob<Long, I18nTable, L
         return super.doUpdate(table, field);
     }
 
+    @Override
     @TransactionActions({
             @TransactionAction(name = Constants.DELETE_MAIN),
             @TransactionAction(

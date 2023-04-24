@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.01.06 15:00 by Victor N. Skurikhin.
+ * This file was last modified at 2023.04.23 15:36 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * ManyToManyHelper.java
@@ -31,14 +31,14 @@ class ManyToManyHelper<
         T extends Comparable<T>> {
 
     public static final String COUNT = "count";
-    private final AbstractManyToMayJob<K, D, E, T> job;
+    private final AbstractManyToMayOldJob<K, D, E, T> job;
     private final Collection<T> collection;
     private final D table;
     private final E entry;
     private volatile SqlConnection connection;
 
     ManyToManyHelper(
-            @Nonnull AbstractManyToMayJob<K, D, E, T> job,
+            @Nonnull AbstractManyToMayOldJob<K, D, E, T> job,
             @Nonnull Collection<T> collection,
             @Nonnull D table,
             @Nonnull E entry) {

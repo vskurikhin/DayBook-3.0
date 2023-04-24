@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.01.06 11:06 by Victor N. Skurikhin.
+ * This file was last modified at 2023.04.23 15:36 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * AbstractOneToOneJob.java
@@ -13,23 +13,14 @@ import io.vertx.mutiny.sqlclient.Pool;
 import io.vertx.mutiny.sqlclient.Row;
 import io.vertx.mutiny.sqlclient.RowIterator;
 import org.jboss.logging.Logger;
-import su.svn.daybook.annotations.TransactionAction;
-import su.svn.daybook.annotations.TransactionActions;
 import su.svn.daybook.domain.model.CasesOfId;
 
 import javax.annotation.Nonnull;
 import java.io.Serializable;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.AbstractMap;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @SuppressWarnings("CdiInjectionPointsInspection")
 abstract class AbstractOneToOneJob<
@@ -37,11 +28,7 @@ abstract class AbstractOneToOneJob<
         Main extends CasesOfId<MainId>,
         JoinId extends Comparable<? extends Serializable>,
         Join extends CasesOfId<JoinId>,
-        Field extends Comparable<? extends Serializable>> {
-
-    private final Logger log;
-    private final Pool pool;
-    private final OneToOneHelperFactory<MainId, Main, JoinId, Join, Field> helperFactory;
+        Field extends Comparable<? extends Serializable>> extends ActionJob {
 
     public abstract Uni<Optional<MainId>> insert(Main table, Field field);
 
@@ -55,6 +42,10 @@ abstract class AbstractOneToOneJob<
 
     protected abstract Function<Optional<?>, Optional<MainId>> castOptionalMainId();
 
+    private final Logger log;
+    private final Pool pool;
+    private final OneToOneHelperFactory<MainId, Main, JoinId, Join, Field> helperFactory;
+
     AbstractOneToOneJob(
             @Nonnull Pool pool,
             @Nonnull BiFunction<Main, JoinId, Main> tableBuilder,
@@ -62,7 +53,7 @@ abstract class AbstractOneToOneJob<
             @Nonnull Logger log) {
         this.log = log;
         this.pool = pool;
-        var map = Collections.unmodifiableMap(getActionsOfMethods());
+        var map = Collections.unmodifiableMap(super.getActionsOfMethods());
         this.helperFactory = new OneToOneHelperFactory<>(this, map, tableBuilder, joinFieldBuilder);
     }
 
@@ -82,38 +73,5 @@ abstract class AbstractOneToOneJob<
         log.tracef("doDelete(%s)", table);
         var helper = helperFactory.createDeleteHelper(table);
         return pool.withTransaction(helper);
-    }
-
-    protected Map<String, Map<String, Action>> getActionsOfMethods() {
-        return Arrays.stream(this.getClass().getDeclaredMethods())
-                .filter(this::testAnnotationTransactionActions)
-                .map(this::createActionsEntry)
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-    }
-
-    @Nonnull
-    private Map.Entry<String, Map<String, Action>> createActionsEntry(Method method) {
-        return new AbstractMap.SimpleEntry<>(method.getName(), createActionEntries(method));
-    }
-
-    @Nonnull
-    private Map<String, Action> createActionEntries(Method method) {
-        TransactionActions transactionActions = method.getAnnotation(TransactionActions.class);
-        var result = Stream
-                .of(transactionActions.value())
-                .map(this::createActionEntry)
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-        return Collections.unmodifiableMap(result);
-    }
-
-    @Nonnull
-    private Map.Entry<String, Action> createActionEntry(TransactionAction transactionAction) {
-        return new AbstractMap.SimpleEntry<>(transactionAction.name(), Action.of(transactionAction));
-    }
-
-    private boolean testAnnotationTransactionActions(Method method) {
-        return method.isAnnotationPresent(TransactionActions.class)
-                && Modifier.isPublic(method.getModifiers())
-                && !method.isBridge();
     }
 }

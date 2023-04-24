@@ -1,8 +1,8 @@
 /*
- * This file was last modified at 2023.01.06 11:06 by Victor N. Skurikhin.
+ * This file was last modified at 2023.04.23 15:36 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
- * AbstractManyToMayJob.java
+ * AbstractManyToMayOldJob.java
  * $Id$
  */
 
@@ -22,7 +22,7 @@ import java.util.Collections;
 import java.util.Optional;
 import java.util.function.Function;
 
-abstract class AbstractManyToMayJob<
+abstract class AbstractManyToMayOldJob<
         K extends Comparable<? extends Serializable>,
         D extends CasesOfId<K>,
         E extends Comparable<E>,
@@ -33,7 +33,7 @@ abstract class AbstractManyToMayJob<
 
     private final Function<D, E> getEntry;
 
-    AbstractManyToMayJob(@Nonnull Pool pool, @Nonnull Function<D, E> getEntry, @Nonnull Logger log) {
+    AbstractManyToMayOldJob(@Nonnull Pool pool, @Nonnull Function<D, E> getEntry, @Nonnull Logger log) {
         this.log = log;
         this.pool = pool;
         this.getEntry = getEntry;
