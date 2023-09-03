@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.04.23 16:30 by Victor N. Skurikhin.
+ * This file was last modified at 2023.09.03 19:41 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * ManyToManyHelperFactory.java
@@ -55,8 +55,8 @@ class ManyToManyHelperFactory<
         return new UpdateHelper<>(this.job, this.mapJob, table, field, collection);
     }
 
-    public Helper<I, M, J, S, G> createDeleteHelper(@Nonnull M table) {
-        return new DeleteHelper<>(this.job, this.mapJob, table);
+    public Helper<I, M, J, S, G> createDeleteHelper(@Nonnull M table, F field) {
+        return new DeleteHelper<>(this.job, this.mapJob, table, field);
     }
 
     private abstract static class AbstractHelper<
@@ -77,6 +77,14 @@ class ManyToManyHelperFactory<
             this.table = table;
         }
 
+        protected void setConnection(SqlConnection connection) {
+            if (this.connection == null) {
+                synchronized (this) {
+                    this.connection = connection;
+                }
+            }
+        }
+
         protected Function<? super RowIterator<Row>, ? extends Optional<?>> iteratorNextMapper(
                 Action action, String actName) {
             return (action.iteratorNextMapper() == null)
@@ -88,7 +96,7 @@ class ManyToManyHelperFactory<
             if (collection.isEmpty()) {
                 return Uni.createFrom().item(0L);
             }
-            return connection
+            return this.connection
                     .preparedQuery(action.sql())
                     .execute(Tuple.of(collection.toArray()))
                     .onItem()
@@ -104,8 +112,25 @@ class ManyToManyHelperFactory<
                     .failure(new IllegalArgumentException("can't find elements from relation"));
         }
 
+        protected Uni<Long> insertThenOddSizeCollection(Action action, Collection<G> collection, F field) {
+            var substitution = collection
+                    .stream()
+                    .map(relation -> Tuple.of(field, relation))
+                    .toList();
+            return resultRowCount(substitution, action.sql());
+        }
+
+        protected Uni<Long> insertThenEvenSizeOfCollection(Action action, Collection<G> collection, F field) {
+            var substitution = Lists
+                    .partition(new ArrayList<>(collection), 2)
+                    .stream()
+                    .map(pair -> Tuple.of(field, pair.get(0), field, pair.get(1)))
+                    .toList();
+            return resultRowCount(substitution, action.sql());
+        }
+
         protected Uni<Long> resultRowCount(List<Tuple> substitution, String sql) {
-            var preparedQuery = connection.preparedQuery(sql);
+            var preparedQuery = this.connection.preparedQuery(sql);
             return resultRowCount(substitution, preparedQuery);
         }
 
@@ -122,7 +147,7 @@ class ManyToManyHelperFactory<
         }
 
         protected Uni<Long> clearIfHasRelationNotForEntry(Action action, F field, Object[] array) {
-            return connection
+            return this.connection
                     .preparedQuery(action.sql())
                     .execute(Tuple.of(field, array))
                     .onItem()
@@ -130,7 +155,7 @@ class ManyToManyHelperFactory<
         }
 
         private Uni<Long> deleteAllFromHasRelationByEntry(Action action, F field) {
-            return connection
+            return this.connection
                     .preparedQuery(action.sql())
                     .execute(Tuple.of(field))
                     .onItem()
@@ -166,13 +191,13 @@ class ManyToManyHelperFactory<
         }
 
         @Override
-        public Uni<Optional<I>> apply(SqlConnection connection) {
-            return checkCountInJoinTableAndThenInsert(connection);
+        public Uni<Optional<I>> apply(@Nonnull final SqlConnection connection) {
+            super.setConnection(connection);
+            return checkCountInJoinTableAndThenInsert();
         }
 
-        private Uni<Optional<I>> checkCountInJoinTableAndThenInsert(@Nonnull final SqlConnection connection) {
+        private Uni<Optional<I>> checkCountInJoinTableAndThenInsert() {
             LOG.tracef("checkCountInJoinTableAndThenInsert");
-            this.connection = connection;
             return countInJoinTable()
                     .flatMap(this::checkCountInJoin)
                     .flatMap(o -> insert());
@@ -185,36 +210,27 @@ class ManyToManyHelperFactory<
 
         private Uni<Optional<I>> insert() {
             var action = map.get(Constants.INSERT_MAIN);
-            return connection
+            return super.connection
                     .preparedQuery(String.format(Helper.insertSql(action, table), Constants.ID))
                     .execute(table.caseInsertTuple())
                     .map(RowSet::iterator)
                     .map(iteratorNextMapper(action, Constants.INSERT_MAIN))
-                    .flatMap(id -> this.updateHasRelationForTable()
+                    .flatMap(id -> this.insertIntoHasRelation()
                             .flatMap(c1 -> clearIfHasRelationNotForEntry())
                             .map(c2 -> id)
                     ).map(job.castOptionalMainId());
         }
 
-        private Uni<Long> updateHasRelationForTable() {
+        private Uni<Long> insertIntoHasRelation() {
             if (collection.isEmpty()) {
                 return deleteAllFromHasRelationByEntry();
             }
             if ((collection.size() % 2) != 0) {
                 var action = map.get(Constants.INSERT_JOIN2);
-                var substitution = collection
-                        .stream()
-                        .map(relation -> Tuple.of(field, relation))
-                        .toList();
-                return resultRowCount(substitution, action.sql());
+                return super.insertThenOddSizeCollection(action, collection, field);
             }
             var action = map.get(Constants.INSERT_JOIN4);
-            var substitution = Lists
-                    .partition(new ArrayList<>(collection), 2)
-                    .stream()
-                    .map(pair -> Tuple.of(field, pair.get(0), field, pair.get(1)))
-                    .toList();
-            return resultRowCount(substitution, action.sql());
+            return super.insertThenEvenSizeOfCollection(action, collection, field);
         }
 
         private Uni<Long> clearIfHasRelationNotForEntry() {
@@ -243,7 +259,6 @@ class ManyToManyHelperFactory<
         private static final Logger LOG = Logger.getLogger(UpdateHelper.class);
 
         private final Map<String, Action> map;
-        private volatile SqlConnection connection;
         private final F field;
         private final Collection<G> collection;
 
@@ -255,18 +270,18 @@ class ManyToManyHelperFactory<
                 @Nonnull Collection<G> collection) {
             super(job, table);
             this.collection = collection;
-            this.map = map.get(Constants.INSERT);
+            this.map = map.get(Constants.UPDATE);
             this.field = field;
         }
 
         @Override
-        public Uni<Optional<I>> apply(SqlConnection connection) {
-            return checkCountInJoinTableAndThenUpdate(connection);
+        public Uni<Optional<I>> apply(@Nonnull final SqlConnection connection) {
+            super.setConnection(connection);
+            return checkCountInJoinTableAndThenUpdate();
         }
 
-        private Uni<Optional<I>> checkCountInJoinTableAndThenUpdate(@Nonnull final SqlConnection connection) {
+        private Uni<Optional<I>> checkCountInJoinTableAndThenUpdate() {
             LOG.tracef("checkCountInJoinTableAndThenUpdate");
-            this.connection = connection;
             return countInJoinTable()
                     .flatMap(this::checkCountInJoin)
                     .flatMap(o -> update());
@@ -279,36 +294,27 @@ class ManyToManyHelperFactory<
 
         private Uni<Optional<I>> update() {
             var action = map.get(Constants.UPDATE_MAIN);
-            return connection
+            return super.connection
                     .preparedQuery(String.format(Helper.updateSql(action, table), Constants.ID))
-                    .execute(table.caseInsertTuple())
+                    .execute(table.updateTuple())
                     .map(RowSet::iterator)
-                    .map(iteratorNextMapper(action, Constants.INSERT_MAIN))
-                    .flatMap(id -> this.updateHasRelationForTable()
+                    .map(iteratorNextMapper(action, Constants.UPDATE_MAIN))
+                    .flatMap(id -> this.insertIntoHasRelation()
                             .flatMap(c1 -> clearIfHasRelationNotForEntry())
                             .map(c2 -> id)
                     ).map(job.castOptionalMainId());
         }
 
-        private Uni<Long> updateHasRelationForTable() {
+        private Uni<Long> insertIntoHasRelation() {
             if (collection.isEmpty()) {
                 return deleteAllFromHasRelationByEntry();
             }
             if ((collection.size() % 2) != 0) {
                 var action = map.get(Constants.INSERT_JOIN2);
-                var substitution = collection
-                        .stream()
-                        .map(relation -> Tuple.of(field, relation))
-                        .toList();
-                return resultRowCount(substitution, action.sql());
+                return super.insertThenOddSizeCollection(action, collection, field);
             }
             var action = map.get(Constants.INSERT_JOIN4);
-            var substitution = Lists
-                    .partition(new ArrayList<>(collection), 2)
-                    .stream()
-                    .map(pair -> Tuple.of(field, pair.get(0), field, pair.get(1)))
-                    .toList();
-            return resultRowCount(substitution, action.sql());
+            return super.insertThenEvenSizeOfCollection(action, collection, field);
         }
 
         private Uni<Long> clearIfHasRelationNotForEntry() {
@@ -336,16 +342,56 @@ class ManyToManyHelperFactory<
 
         private static final Logger LOG = Logger.getLogger(DeleteHelper.class);
 
+        private final Map<String, Action> map;
+        private final F field;
+
         protected DeleteHelper(
                 @Nonnull AbstractManyToManyJob<I, M, J, S, F, G> job,
                 @Nonnull Map<String, Map<String, Action>> map,
-                @Nonnull M table) {
+                @Nonnull M table,
+                F field) {
             super(job, table);
+            this.map = map.get(Constants.DELETE);
+            this.field = field;
         }
 
         @Override
-        public Uni<Optional<I>> apply(SqlConnection connection) {
-            return null;
+        public Uni<Optional<I>> apply(@Nonnull final SqlConnection connection) {
+            super.setConnection(connection);
+            return delete();
+        }
+
+        private Uni<Optional<I>> delete() {
+            LOG.tracef("checkCountInJoinTableAndThenUpdate");
+            return deleteAllRelation()
+                    .flatMap(this::deleteEntry);
+        }
+
+        private Uni<Optional<I>> deleteEntry(Long aLong) {
+            Action action = map.get(Constants.DELETE_MAIN);
+            return super.connection
+                    .preparedQuery(String.format(Helper.deleteSql(action, table), Constants.ID))
+                    .execute(Tuple.of(table.id()))
+                    .map(RowSet::iterator)
+                    .map(iteratorNextMapper(action, Constants.DELETE_MAIN))
+                    .map(job.castOptionalMainId());
+        }
+
+        private Uni<Long> deleteAllRelation() {
+            Action action = map.get(Constants.CLEAR_ALL_HAS_RELATION_BY_FIELD);
+            return this.deleteAllFromHasRelationByEntry(action);
+        }
+
+        private Uni<Long> deleteAllFromHasRelationByEntry(Action action) {
+            return super.deleteAllFromHasRelationByEntry(action, this.field);
+        }
+
+        protected Uni<Long> countInJoinTable(@Nonnull Action action) {
+            return this.connection
+                    .preparedQuery(action.sql())
+                    .execute()
+                    .onItem()
+                    .transform(pgRowSet -> pgRowSet.iterator().next().getLong(Constants.COUNT));
         }
     }
 }

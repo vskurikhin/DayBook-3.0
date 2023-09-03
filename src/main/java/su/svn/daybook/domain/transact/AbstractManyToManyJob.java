@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.04.23 16:30 by Victor N. Skurikhin.
+ * This file was last modified at 2023.09.03 19:41 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * AbstractManyToManyJob.java
@@ -36,6 +36,8 @@ public abstract class AbstractManyToManyJob<
 
     public abstract Uni<Optional<MainId>> update(Main table, Collection<SubField> collection);
 
+    public abstract Uni<Optional<MainId>> delete(Main table);
+
     protected abstract Function<RowIterator<Row>, Optional<?>> iteratorNextMapper(String actionName);
 
     protected abstract Function<Optional<?>, Optional<MainId>> castOptionalMainId();
@@ -69,7 +71,7 @@ public abstract class AbstractManyToManyJob<
 
     protected Uni<Optional<MainId>> doDelete(Main table) {
         log.tracef("doDelete(%s)", table);
-        var helper = helperFactory.createDeleteHelper(table);
+        var helper = helperFactory.createDeleteHelper(table, getMainField.apply(table));
         return pool.withTransaction(helper);
     }
 }

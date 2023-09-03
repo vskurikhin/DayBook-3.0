@@ -1,8 +1,8 @@
 /*
- * This file was last modified at 2022.12.24 21:17 by Victor N. Skurikhin.
+ * This file was last modified at 2023.09.03 19:41 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
- * DatabaseIT.java
+ * DataBaseIT.java
  * $Id$
  */
 
@@ -11,6 +11,7 @@ package su.svn.daybook;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
 import io.vertx.core.json.JsonObject;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import su.svn.daybook.domain.dao.*;
 import su.svn.daybook.domain.messages.Answer;
@@ -1136,51 +1137,16 @@ public class DataBaseIT {
             Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(id2, uniOptionalHelper(roleDao.delete(id2))));
             Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(id1, uniOptionalHelper(roleDao.delete(id1))));
             Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(0, uniOptionalHelper(roleDao.count())));
+            checkUserNameTableIsEmpty();
         }
 
         @Test
         void test() {
-            var expected = Answer.builder()
-                    .message(Answer.DEFAULT_MESSAGE)
-                    .error(201)
-                    .payload(new ApiResponse<>(TestData.uuid.ZERO, 201))
-                    .build();
-            Assertions.assertDoesNotThrow(() -> {
-                var actual = uniToAnswerHelper(userService.add(new Request<>(user, principal)));
-                Assertions.assertEquals(expected, actual);
-            });
+            var expected1 = userServiceAddUser();
             deleteUserName();
             checkUserNameTableIsEmpty();
-            for (var a : new String[][]{{"role1"}, {"role1", "role2"}}) {
-                var set = Set.of(a);
-                user = User.builder()
-                        .id(id)
-                        .userName("user")
-                        .password("password")
-                        .roles(set)
-                        .build();
-                Assertions.assertDoesNotThrow(() -> {
-                    var actual = uniToAnswerHelper(userService.add(new Request<>(user, principal)));
-                    Assertions.assertEquals(expected, actual);
-                    var userView = uniOptionalHelper(userViewDao.findById(id));
-                    Assertions.assertNotNull(userView);
-                    Assertions.assertEquals(set.size(), userView.roles().size());
-                });
-                Assertions.assertDoesNotThrow(() -> {
-                    var expected200 = Answer.builder()
-                            .message(Answer.DEFAULT_MESSAGE)
-                            .error(200)
-                            .payload(new ApiResponse<>(TestData.uuid.ZERO, 200))
-                            .build();
-                    var actual = uniToAnswerHelper(userService.delete(new Request<>(user.id(), principal)));
-                    Assertions.assertNotNull(actual);
-                    Assertions.assertEquals(expected200, actual);
-                    if (actual.payload() instanceof ApiResponse apiResponse) {
-                        Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(
-                                id, UUID.fromString(apiResponse.id().toString())
-                        ));
-                    }
-                });
+            for (var roles : new String[][]{{"role1"}, {"role1", "role2"}}) {
+                userServiceAddUserWithRoles(expected1, roles);
                 checkUserNameTableIsEmpty();
             }
             var expected2 = Answer.builder()
@@ -1188,37 +1154,8 @@ public class DataBaseIT {
                     .error(202)
                     .payload(new ApiResponse<>(TestData.uuid.ZERO, 202))
                     .build();
-            for (var a : new String[][]{{"role1"}, {"role1", "role2"}}) {
-                Assertions.assertDoesNotThrow(() -> {
-                    var actual = uniToAnswerHelper(userService.add(new Request<>(user, principal)));
-                    Assertions.assertEquals(expected, actual);
-                });
-                var set = Set.of(a);
-                var first = set.stream().findFirst();
-                Assertions.assertFalse(first.isEmpty());
-                user = User.builder()
-                        .id(id)
-                        .userName("user")
-                        .password(first.get())
-                        .roles(set)
-                        .build();
-                Assertions.assertDoesNotThrow(() -> {
-                    var actual = uniToAnswerHelper(userService.put(new Request<>(user, principal)));
-                    Assertions.assertEquals(expected2, actual);
-                    var userView = uniOptionalHelper(userViewDao.findById(id));
-                    Assertions.assertNotNull(userView);
-                    Assertions.assertEquals(set.size(), userView.roles().size());
-                });
-                // Thread.sleep(25_000);
-                Assertions.assertDoesNotThrow(() -> {
-                    var actual = uniToAnswerHelper(userService.delete(new Request<>(user.id(), principal)));
-                    Assertions.assertNotNull(actual);
-                    if (actual.payload() instanceof ApiResponse apiResponse) {
-                        Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(
-                                id, UUID.fromString(apiResponse.id().toString())
-                        ));
-                    }
-                });
+            for (var roles : new String[][]{{"role1"}, {"role1", "role2"}}) {
+                userServicePutUserWithRoles(expected1, expected2, roles);
                 checkUserNameTableIsEmpty();
             }
             var custom = User.builder()
@@ -1232,6 +1169,80 @@ public class DataBaseIT {
                     customId = UUID.fromString(apiResponse.id().toString());
                     Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(
                             customId, uniOptionalHelper(userNameDao.delete(customId))
+                    ));
+                }
+            });
+        }
+
+        @NotNull
+        private Answer userServiceAddUser() {
+            var expected = Answer.builder()
+                    .message(Answer.DEFAULT_MESSAGE)
+                    .error(201)
+                    .payload(new ApiResponse<>(TestData.uuid.ZERO, 201))
+                    .build();
+            Assertions.assertDoesNotThrow(() -> {
+                var actual = uniToAnswerHelper(userService.add(new Request<>(user, principal)));
+                Assertions.assertEquals(expected, actual);
+            });
+            return expected;
+        }
+
+        private void userServiceAddUserWithRoles(Answer expected, String[] roles) {
+            var set = Set.of(roles);
+            user = User.builder()
+                    .id(id)
+                    .userName("user")
+                    .password("password")
+                    .roles(set)
+                    .build();
+            Assertions.assertDoesNotThrow(() -> {
+                var actual = uniToAnswerHelper(userService.add(new Request<>(user, principal)));
+                Assertions.assertEquals(expected, actual);
+                var userView = uniOptionalHelper(userViewDao.findById(id));
+                Assertions.assertNotNull(userView);
+                Assertions.assertEquals(set.size(), userView.roles().size());
+            });
+            userServiceDeleteByUserId();
+        }
+
+        private void userServicePutUserWithRoles(Answer expected, Answer expected2, String[] roles) {
+            Assertions.assertDoesNotThrow(() -> {
+                var actual = uniToAnswerHelper(userService.add(new Request<>(user, principal)));
+                Assertions.assertEquals(expected, actual);
+            });
+            var set = Set.of(roles);
+            var first = set.stream().findFirst();
+            Assertions.assertFalse(first.isEmpty());
+            user = User.builder()
+                    .id(id)
+                    .userName("user")
+                    .password(first.get())
+                    .roles(set)
+                    .build();
+            Assertions.assertDoesNotThrow(() -> {
+                var actual = uniToAnswerHelper(userService.put(new Request<>(user, principal)));
+                Assertions.assertEquals(expected2, actual);
+                var userView = uniOptionalHelper(userViewDao.findById(id));
+                Assertions.assertNotNull(userView);
+                Assertions.assertEquals(set.size(), userView.roles().size());
+            });
+            userServiceDeleteByUserId();
+        }
+
+        private void userServiceDeleteByUserId() {
+            Assertions.assertDoesNotThrow(() -> {
+                var expected200 = Answer.builder()
+                        .message(Answer.DEFAULT_MESSAGE)
+                        .error(200)
+                        .payload(new ApiResponse<>(TestData.uuid.ZERO, 200))
+                        .build();
+                var actual = uniToAnswerHelper(userService.delete(new Request<>(user.id(), principal)));
+                Assertions.assertNotNull(actual);
+                Assertions.assertEquals(expected200, actual);
+                if (actual.payload() instanceof ApiResponse apiResponse) {
+                    Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(
+                            id, UUID.fromString(apiResponse.id().toString())
                     ));
                 }
             });
@@ -1288,48 +1299,21 @@ public class DataBaseIT {
             Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(id2, uniOptionalHelper(roleDao.delete(id2))));
             Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(id1, uniOptionalHelper(roleDao.delete(id1))));
             Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(0, uniOptionalHelper(roleDao.count())));
-            try {
-                Thread.sleep(999_999L);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
         }
 
         @Test
         void test() {
-            Assertions.assertDoesNotThrow(() -> {
-                var test = uniOptionalHelper(userTransactionalJob.insert(userName, Collections.emptySet()));
-                Assertions.assertNotNull(test);
-                Assertions.assertEquals(id, test);
-                var userView = uniOptionalHelper(userViewDao.findById(id));
-                Assertions.assertNotNull(userView);
-                Assertions.assertEquals(0, userView.roles().size());
-            });
+            userNameWithoutRolesInserted();
             deleteUserName();
             checkUserNameTableIsEmpty();
-            Assertions.assertDoesNotThrow(() -> {
-                var test = uniOptionalHelper(userTransactionalJob.insert(userName, Collections.singleton("role1")));
-                Assertions.assertNotNull(test);
-                Assertions.assertEquals(id, test);
-                var userView = uniOptionalHelper(userViewDao.findById(id));
-                System.err.println("userView = " + userView);
-                Assertions.assertNotNull(userView);
-                Assertions.assertEquals(1, userView.roles().size());
-            });
+            userNameWithRoleROLE1Inserted();
             deleteUserName();
             checkUserNameTableIsEmpty();
-            Assertions.assertDoesNotThrow(() -> {
-                var test = uniOptionalHelper(userTransactionalJob.insert(userName, Set.of("role1", "role2")));
-                Assertions.assertNotNull(test);
-                Assertions.assertEquals(id, test);
-                var userView = uniOptionalHelper(userViewDao.findById(id));
-                Assertions.assertNotNull(userView);
-                Assertions.assertEquals(2, userView.roles().size());
-            });
+            userNameWithRolesROLE1AndROLE2Inserted();
+            userNameWithRoleROLE1Updated();
             deleteUserName();
             checkUserNameTableIsEmpty();
-            Assertions.assertThrows(java.util.concurrent.ExecutionException.class,
-                    () -> uniOptionalHelper(userTransactionalJob.insert(userName, Set.of("role1", "role2", "role3"))));
+            userNameWithRolesROLE1AndROLE2AndROLE3TryInsertingGotExeption();
             checkUserNameTableIsEmpty();
             var custom = UserNameTable.builder()
                     .userName("userName")
@@ -1343,102 +1327,54 @@ public class DataBaseIT {
                     () -> Assertions.assertEquals(customId, uniOptionalHelper(userNameDao.delete(customId))));
         }
 
-        private void checkUserNameTableIsEmpty() {
-            Assertions.assertDoesNotThrow(
-                    () -> Assertions.assertEquals(0, uniOptionalHelper(userNameDao.count())));
-        }
-
-        private void deleteUserName() {
-            Assertions.assertDoesNotThrow(
-                    () -> Assertions.assertEquals(id, uniOptionalHelper(userNameDao.delete(id))));
-        }
-    }
-
-
-    @Nested
-    @DisplayName("UserTransactionalJob")
-    class UserTransactionalOldJobTest {
-        UUID id = new UUID(0, 0);
-        UUID id1 = new UUID(0, 1);
-        UUID id2 = new UUID(0, 2);
-        UUID customId = UUID.randomUUID();
-        RoleTable role1;
-        RoleTable role2;
-        UserNameTable userName;
-
-        @BeforeEach
-        void setUp() {
-            role1 = RoleTable.builder()
-                    .id(id1)
-                    .role("role1")
-                    .build();
-            Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(id1, uniOptionalHelper(roleDao.insert(role1))));
-            role2 = RoleTable.builder()
-                    .id(id2)
-                    .role("role2")
-                    .build();
-            Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(id2, uniOptionalHelper(roleDao.insert(role2))));
-            userName = UserNameTable.builder()
-                    .id(id)
-                    .userName("user")
-                    .password("password")
-                    .enabled(true)
-                    .build();
-        }
-
-        @AfterEach
-        void tearDown() {
-            checkUserNameTableIsEmpty();
-            Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(id2, uniOptionalHelper(roleDao.delete(id2))));
-            Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(id1, uniOptionalHelper(roleDao.delete(id1))));
-            Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(0, uniOptionalHelper(roleDao.count())));
-        }
-
-        @Test
-        void test() {
+        private void userNameWithoutRolesInserted() {
             Assertions.assertDoesNotThrow(() -> {
-                var test = uniOptionalHelper(userTransactionalOldJob.insert(userName, Collections.emptySet()));
+                var test = uniOptionalHelper(userTransactionalJob.insert(userName, Collections.emptySet()));
                 Assertions.assertNotNull(test);
                 Assertions.assertEquals(id, test);
                 var userView = uniOptionalHelper(userViewDao.findById(id));
                 Assertions.assertNotNull(userView);
                 Assertions.assertEquals(0, userView.roles().size());
             });
-            deleteUserName();
-            checkUserNameTableIsEmpty();
+
+        }
+
+        private void userNameWithRoleROLE1Inserted() {
             Assertions.assertDoesNotThrow(() -> {
-                var test = uniOptionalHelper(userTransactionalOldJob.insert(userName, Collections.singleton("role1")));
+                var test = uniOptionalHelper(userTransactionalJob.insert(userName, Collections.singleton("role1")));
                 Assertions.assertNotNull(test);
                 Assertions.assertEquals(id, test);
                 var userView = uniOptionalHelper(userViewDao.findById(id));
                 Assertions.assertNotNull(userView);
                 Assertions.assertEquals(1, userView.roles().size());
             });
-            deleteUserName();
-            checkUserNameTableIsEmpty();
+        }
+
+        private void userNameWithRolesROLE1AndROLE2Inserted() {
             Assertions.assertDoesNotThrow(() -> {
-                var test = uniOptionalHelper(userTransactionalOldJob.insert(userName, Set.of("role1", "role2")));
+                var test = uniOptionalHelper(userTransactionalJob.insert(userName, Set.of("role1", "role2")));
                 Assertions.assertNotNull(test);
                 Assertions.assertEquals(id, test);
                 var userView = uniOptionalHelper(userViewDao.findById(id));
                 Assertions.assertNotNull(userView);
                 Assertions.assertEquals(2, userView.roles().size());
             });
-            deleteUserName();
-            checkUserNameTableIsEmpty();
-            Assertions.assertThrows(java.util.concurrent.ExecutionException.class,
-                    () -> uniOptionalHelper(userTransactionalOldJob.insert(userName, Set.of("role1", "role2", "role3"))));
-            checkUserNameTableIsEmpty();
-            var custom = UserNameTable.builder()
-                    .userName("userName")
-                    .password("password")
-                    .enabled(true)
-                    .build();
+        }
+
+        private void userNameWithRoleROLE1Updated() {
             Assertions.assertDoesNotThrow(() -> {
-                customId = uniOptionalHelper(userTransactionalOldJob.insert(custom, Set.of("role1", "role2")));
+                var test = uniOptionalHelper(userTransactionalJob.update(userName, Set.of("role1")));
+                Assertions.assertNotNull(test);
+                Assertions.assertEquals(id, test);
+                var userView = uniOptionalHelper(userViewDao.findById(id));
+                Assertions.assertNotNull(userView);
+                Assertions.assertEquals(1, userView.roles().size());
             });
-            Assertions.assertDoesNotThrow(
-                    () -> Assertions.assertEquals(customId, uniOptionalHelper(userNameDao.delete(customId))));
+        }
+
+        private void userNameWithRolesROLE1AndROLE2AndROLE3TryInsertingGotExeption() {
+            Assertions.assertThrows(java.util.concurrent.ExecutionException.class,
+                    () -> uniOptionalHelper(userTransactionalJob.insert(userName, Set.of("role1", "role2", "role3"))));
         }
 
         private void checkUserNameTableIsEmpty() {
