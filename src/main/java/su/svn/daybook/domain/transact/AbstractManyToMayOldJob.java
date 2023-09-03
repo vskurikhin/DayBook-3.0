@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.04.23 15:36 by Victor N. Skurikhin.
+ * This file was last modified at 2023.09.03 19:41 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * AbstractManyToMayOldJob.java
@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.Optional;
 import java.util.function.Function;
 
+@Deprecated
 abstract class AbstractManyToMayOldJob<
         K extends Comparable<? extends Serializable>,
         D extends CasesOfId<K>,

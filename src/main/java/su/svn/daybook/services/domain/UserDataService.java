@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.04.23 15:36 by Victor N. Skurikhin.
+ * This file was last modified at 2023.09.03 19:41 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * UserDataService.java
@@ -15,7 +15,7 @@ import su.svn.daybook.domain.dao.UserNameDao;
 import su.svn.daybook.domain.dao.UserViewDao;
 import su.svn.daybook.domain.model.UserNameTable;
 import su.svn.daybook.domain.model.UserView;
-import su.svn.daybook.domain.transact.UserTransactionalOldJob;
+import su.svn.daybook.domain.transact.UserTransactionalJob;
 import su.svn.daybook.models.domain.User;
 import su.svn.daybook.services.mappers.UserMapper;
 import su.svn.daybook.services.security.PBKDF2Encoder;
@@ -40,7 +40,7 @@ public class UserDataService implements DataService<UUID, UserView, User> {
     UserMapper userMapper;
 
     @Inject
-    UserTransactionalOldJob userTransactionalJob;
+    UserTransactionalJob userTransactionalJob;
 
     @Inject
     PBKDF2Encoder passwordEncoder;

@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.04.23 15:36 by Victor N. Skurikhin.
+ * This file was last modified at 2023.09.03 19:41 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * UserTransactionalOldJob.java
@@ -21,6 +21,7 @@ import javax.ws.rs.core.Context;
 import java.util.UUID;
 
 @Singleton
+@Deprecated
 public class UserTransactionalOldJob extends AbstractManyToMayOldJob<UUID, UserNameTable, String, String> {
 
     private static final Logger LOG = Logger.getLogger(UserTransactionalOldJob.class);

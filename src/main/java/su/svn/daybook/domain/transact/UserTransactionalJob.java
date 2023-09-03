@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.04.23 16:30 by Victor N. Skurikhin.
+ * This file was last modified at 2023.09.03 19:41 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * UserTransactionalJob.java
@@ -98,7 +98,7 @@ public class UserTransactionalJob extends AbstractManyToManyJob<UUID, UserNameTa
                             """,
                     tupleMapper = TupleMapperEnum.StringTuple,
                     name = Constants.COUNT_NOT_EXISTS),
-            @TransactionAction(name = Constants.INSERT_MAIN),
+            @TransactionAction(name = Constants.UPDATE_MAIN),
             @TransactionAction(
                     value = """
                             INSERT INTO security.user_has_roles
@@ -141,9 +141,23 @@ public class UserTransactionalJob extends AbstractManyToManyJob<UUID, UserNameTa
     }
 
     @Override
+    @TransactionActions({
+            @TransactionAction(
+                    value = """
+                            DELETE FROM security.user_has_roles
+                             WHERE user_name = $1
+                            """,
+                    name = Constants.CLEAR_ALL_HAS_RELATION_BY_FIELD),
+            @TransactionAction(name = Constants.DELETE_MAIN),
+    })
+    public Uni<Optional<UUID>> delete(@Nonnull UserNameTable table) {
+        return super.doDelete(table);
+    }
+
+    @Override
     protected Function<RowIterator<Row>, Optional<?>> iteratorNextMapper(String actionName) {
         return switch (actionName) {
-            case Constants.INSERT_MAIN, Constants.UPDATE_MAIN -> iterator ->
+            case Constants.INSERT_MAIN, Constants.UPDATE_MAIN, Constants.DELETE_MAIN -> iterator ->
                     iterator.hasNext() ? Optional.of(iterator.next().getUUID(UserNameTable.ID)) : Optional.empty();
             default -> throw new IllegalStateException("Unexpected value: " + actionName);
         };

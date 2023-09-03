@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.02.19 17:08 by Victor N. Skurikhin.
+ * This file was last modified at 2023.09.03 19:41 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * UserNameTable.java
@@ -43,6 +43,11 @@ public record UserNameTable(
             DELETE FROM security.user_name
              WHERE id = $1
              RETURNING id
+            """;
+    public static final String DELETE_FROM_SECURITY_USER_NAME_WHERE_ID_$1_RETURNING_S = """
+            DELETE FROM security.user_name
+             WHERE id = $1
+             RETURNING %s
             """;
     @Language("SQL")
     public static final String INSERT_INTO_SECURITY_USER_NAME = """
