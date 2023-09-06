@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.09.06 17:04 by Victor N. Skurikhin.
+ * This file was last modified at 2023.09.06 19:32 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * Action.java
@@ -20,7 +20,7 @@ import java.io.Serializable;
 import java.util.Optional;
 import java.util.function.Function;
 
-record Action(
+public record Action(
         Function<RowIterator<Row>, Optional<? extends Comparable<? extends Serializable>>> iteratorNextMapper,
         Function<CasesOfId<? extends Comparable<? extends Serializable>>, String> sqlMapper,
         Function<Object, Tuple> tupleMapper,

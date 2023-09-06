@@ -48,8 +48,8 @@ def getProjectProperty(key, defaultValue) {
 private String getChangeSetFolderPath(String projectDir) {
     def changeset = "${getProperty("src.main.resources")}/${getProperty("changeset")}".toString()
     return null == projectDir || projectDir.isEmpty()
-            ? "${projectDir}/${changeset}".toString()
-            : changeset
+            ? changeset
+            : "${projectDir}/${changeset}".toString()
 }
 
 task generate() {
