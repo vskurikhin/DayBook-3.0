@@ -1,3 +1,11 @@
+/*
+ * This file was last modified at 2023.09.06 17:04 by Victor N. Skurikhin.
+ * This is free and unencumbered software released into the public domain.
+ * For more information, please refer to <http://unlicense.org>
+ * ExceptionAnswerService.java
+ * $Id$
+ */
+
 package su.svn.daybook.services;
 
 import io.quarkus.security.AuthenticationFailedException;
@@ -5,8 +13,9 @@ import io.smallrye.mutiny.Uni;
 import org.jboss.logging.Logger;
 import su.svn.daybook.domain.messages.Answer;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.ws.rs.core.Response;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.ws.rs.core.Response;
+
 import java.util.Arrays;
 
 @ApplicationScoped

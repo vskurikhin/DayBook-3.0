@@ -1,3 +1,11 @@
+/*
+ * This file was last modified at 2023.09.06 17:04 by Victor N. Skurikhin.
+ * This is free and unencumbered software released into the public domain.
+ * For more information, please refer to <http://unlicense.org>
+ * LoginServiceTest.java
+ * $Id$
+ */
+
 package su.svn.daybook.services.security;
 
 import io.quarkus.cache.CacheManager;
@@ -22,7 +30,8 @@ import su.svn.daybook.domain.model.UserView;
 import su.svn.daybook.models.security.AuthRequest;
 import su.svn.daybook.utils.CacheUtil;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
+
 import java.security.Principal;
 import java.util.Collections;
 import java.util.Optional;
@@ -99,9 +108,10 @@ class LoginServiceTest {
                 .error(401)
                 .payload("Authentication failed: " + SessionTable.NONE + " password incorrect!")
                 .build();
-        Assertions.assertDoesNotThrow(() -> {
-            Assertions.assertEquals(expected, uniToAnswerHelper(loginService.login(new Request<>(stubAuthRequest, principal))));
-        });
+        Assertions.assertDoesNotThrow(
+                () -> Assertions.assertEquals(
+                        expected, uniToAnswerHelper(loginService.login(new Request<>(stubAuthRequest, principal)))
+                ));
     }
 
     @Test
@@ -118,9 +128,10 @@ class LoginServiceTest {
                 .error(401)
                 .payload("Authentication failed: " + SessionTable.NONE + " user name incorrect!")
                 .build();
-        Assertions.assertDoesNotThrow(() -> {
-            Assertions.assertEquals(expected, uniToAnswerHelper(loginService.login(new Request<>(stubAuthRequest, principal))));
-        });
+        Assertions.assertDoesNotThrow(
+                () -> Assertions.assertEquals(
+                        expected, uniToAnswerHelper(loginService.login(new Request<>(stubAuthRequest, principal)))
+                ));
     }
 
     @Test
@@ -140,8 +151,9 @@ class LoginServiceTest {
                 .error(401)
                 .payload("Create session fail!")
                 .build();
-        Assertions.assertDoesNotThrow(() -> {
-            Assertions.assertEquals(expected, uniToAnswerHelper(loginService.login(new Request<>(stubAuthRequest, principal))));
-        });
+        Assertions.assertDoesNotThrow(
+                () -> Assertions.assertEquals(
+                        expected, uniToAnswerHelper(loginService.login(new Request<>(stubAuthRequest, principal)))
+                ));
     }
 }

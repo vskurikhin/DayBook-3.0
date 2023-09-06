@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.01.07 11:52 by Victor N. Skurikhin.
+ * This file was last modified at 2023.09.06 17:04 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * CodifierDataService.java
@@ -16,9 +16,8 @@ import su.svn.daybook.domain.model.CodifierTable;
 import su.svn.daybook.models.domain.Codifier;
 import su.svn.daybook.services.mappers.CodifierMapper;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import java.util.UUID;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
 @ApplicationScoped
 public class CodifierDataService implements DataService<String, CodifierTable, Codifier> {

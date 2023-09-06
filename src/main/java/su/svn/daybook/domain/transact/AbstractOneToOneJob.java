@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.04.23 15:36 by Victor N. Skurikhin.
+ * This file was last modified at 2023.09.06 17:04 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * AbstractOneToOneJob.java
@@ -15,14 +15,14 @@ import io.vertx.mutiny.sqlclient.RowIterator;
 import org.jboss.logging.Logger;
 import su.svn.daybook.domain.model.CasesOfId;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
+
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-@SuppressWarnings("CdiInjectionPointsInspection")
 abstract class AbstractOneToOneJob<
         MainId extends Comparable<? extends Serializable>,
         Main extends CasesOfId<MainId>,

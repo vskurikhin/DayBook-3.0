@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2022.01.12 22:58 by Victor N. Skurikhin.
+ * This file was last modified at 2023.09.06 17:04 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * Word.java
@@ -14,7 +14,8 @@ import su.svn.daybook.annotations.DomainField;
 import su.svn.daybook.domain.model.WordTable;
 import su.svn.daybook.models.StringIdentification;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;

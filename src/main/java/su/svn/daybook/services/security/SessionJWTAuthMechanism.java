@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.01.22 14:59 by Victor N. Skurikhin.
+ * This file was last modified at 2023.09.06 17:04 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * SessionJWTAuthMechanism.java
@@ -9,7 +9,6 @@
 package su.svn.daybook.services.security;
 
 import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
-import io.quarkus.arc.Priority;
 import io.quarkus.security.AuthenticationFailedException;
 import io.quarkus.security.identity.IdentityProviderManager;
 import io.quarkus.security.identity.SecurityIdentity;
@@ -30,6 +29,7 @@ import io.smallrye.jwt.auth.principal.ParseException;
 import io.smallrye.mutiny.Uni;
 import io.vertx.core.http.Cookie;
 import io.vertx.ext.web.RoutingContext;
+import jakarta.annotation.Priority;
 import org.eclipse.microprofile.jwt.Claims;
 import org.jboss.logging.Logger;
 import org.jose4j.jwt.MalformedClaimException;
@@ -38,9 +38,10 @@ import su.svn.daybook.models.domain.Session;
 import su.svn.daybook.models.security.SessionPrincipal;
 import su.svn.daybook.services.cache.SessionCacheProvider;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Alternative;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Alternative;
+import jakarta.inject.Inject;
+
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -181,7 +182,7 @@ public class SessionJWTAuthMechanism implements HttpAuthenticationMechanism {
     }
 
     private static class VertxBearerTokenExtractor extends AbstractBearerTokenExtractor {
-        private RoutingContext httpExchange;
+        private final RoutingContext httpExchange;
 
         VertxBearerTokenExtractor(JWTAuthContextInfo authContextInfo, RoutingContext exchange) {
             super(authContextInfo);

@@ -1,8 +1,8 @@
 /*
- * This file was last modified at 2022.01.12 22:58 by Victor N. Skurikhin.
+ * This file was last modified at 2023.09.06 17:04 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
- * UserNameMapper.java
+ * UserMapper.java
  * $Id$
  */
 
@@ -14,7 +14,8 @@ import su.svn.daybook.domain.model.UserNameTable;
 import su.svn.daybook.domain.model.UserView;
 import su.svn.daybook.models.domain.User;
 
-import javax.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.ApplicationScoped;
+
 import java.util.UUID;
 
 @ApplicationScoped

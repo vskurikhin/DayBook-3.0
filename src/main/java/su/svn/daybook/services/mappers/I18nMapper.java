@@ -1,8 +1,8 @@
 /*
- * This file was last modified at 2022.01.12 22:58 by Victor N. Skurikhin.
+ * This file was last modified at 2023.09.06 17:04 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
- * I18nViewMapper.java
+ * I18nMapper.java
  * $Id$
  */
 
@@ -14,14 +14,14 @@ import su.svn.daybook.domain.model.I18nTable;
 import su.svn.daybook.domain.model.I18nView;
 import su.svn.daybook.models.domain.I18n;
 
-import javax.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
 public class I18nMapper extends AbstractMapper<Long, I18n, I18nView> {
 
     private static final Logger LOG = Logger.getLogger(I18nMapper.class);
 
-    private I18nTableMapper i18nTableMapper;
+    private final I18nTableMapper i18nTableMapper;
 
     protected I18nMapper() throws NoSuchMethodException {
         super(I18n.class, I18n::builder, I18nView.class, I18nView::builder, LOG);

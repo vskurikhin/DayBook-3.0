@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.01.22 14:59 by Victor N. Skurikhin.
+ * This file was last modified at 2023.09.06 17:04 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * TokenService.java
@@ -12,7 +12,8 @@ import io.smallrye.jwt.build.Jwt;
 import io.smallrye.jwt.build.JwtClaimsBuilder;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
-import javax.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.ApplicationScoped;
+
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;

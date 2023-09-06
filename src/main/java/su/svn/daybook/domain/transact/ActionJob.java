@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.04.23 15:36 by Victor N. Skurikhin.
+ * This file was last modified at 2023.09.06 17:04 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * ActionJob.java
@@ -11,7 +11,8 @@ package su.svn.daybook.domain.transact;
 import su.svn.daybook.annotations.TransactionAction;
 import su.svn.daybook.annotations.TransactionActions;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
+
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.AbstractMap;

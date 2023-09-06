@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2022.01.12 17:31 by Victor N. Skurikhin.
+ * This file was last modified at 2023.09.06 17:04 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * WordServiceTest.java
@@ -27,7 +27,8 @@ import su.svn.daybook.models.domain.Word;
 import su.svn.daybook.models.pagination.Page;
 import su.svn.daybook.models.pagination.PageRequest;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
+
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collections;

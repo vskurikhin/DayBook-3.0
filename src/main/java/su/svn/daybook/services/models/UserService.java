@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.01.09 21:44 by Victor N. Skurikhin.
+ * This file was last modified at 2023.09.06 17:04 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * UserService.java
@@ -26,8 +26,9 @@ import su.svn.daybook.services.cache.UserCacheProvider;
 import su.svn.daybook.services.domain.UserDataService;
 import su.svn.daybook.services.security.AuthenticationContext;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+
 import java.util.UUID;
 
 @PrincipalLogging
@@ -65,7 +66,7 @@ public class UserService extends AbstractService<UUID, User> {
     /**
      * This is method a Vertx message consumer and User deleter
      *
-     * @param o - id of the User
+     * @param request - id of the User
      * @return - a LAA with the Answer containing User id as payload or empty payload
      */
     @ExceptionBadRequestAnswer
@@ -82,7 +83,7 @@ public class UserService extends AbstractService<UUID, User> {
     /**
      * This is method a Vertx message consumer and User provider by id
      *
-     * @param o - id of the User
+     * @param request - id of the User
      * @return - a lazy asynchronous action with the Answer containing the User as payload or empty payload
      */
     @ExceptionBadRequestAnswer

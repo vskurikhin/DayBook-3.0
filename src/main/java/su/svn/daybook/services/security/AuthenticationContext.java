@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.01.22 14:59 by Victor N. Skurikhin.
+ * This file was last modified at 2023.09.06 17:04 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * AuthenticationContext.java
@@ -10,7 +10,8 @@ package su.svn.daybook.services.security;
 
 import org.jboss.logging.Logger;
 
-import javax.enterprise.context.RequestScoped;
+import jakarta.enterprise.context.RequestScoped;
+
 import java.io.Closeable;
 import java.security.Principal;
 import java.util.UUID;
@@ -48,9 +49,11 @@ public class AuthenticationContext implements Closeable {
         this.id = null;
     }
 
+    @SuppressWarnings("removal")
     @Override
     protected void finalize() throws Throwable {
         LOG.debugf("finalize(%s).id: %s", this, id);
+        //noinspection removal
         super.finalize();
     }
 }

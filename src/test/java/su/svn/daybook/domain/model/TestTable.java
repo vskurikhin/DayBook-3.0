@@ -1,8 +1,8 @@
 /*
- * This file was last modified at 2022.01.12 22:58 by Victor N. Skurikhin.
+ * This file was last modified at 2023.09.06 17:04 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
- * KeyValue.java
+ * TestTable.java
  * $Id$
  */
 
@@ -12,7 +12,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import su.svn.daybook.annotations.ModelField;
 import su.svn.daybook.models.LongIdentification;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
@@ -29,7 +30,7 @@ public final class TestTable implements LongIdentification, Serializable {
     @ModelField(nullable = false)
     private final String test;
 
-    @ModelField(getterPrefix = "")
+    @ModelField
     private final Boolean flag;
 
     @ModelField(getterPrefix = "prefix")

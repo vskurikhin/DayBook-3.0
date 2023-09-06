@@ -1,3 +1,11 @@
+/*
+ * This file was last modified at 2023.09.06 17:04 by Victor N. Skurikhin.
+ * This is free and unencumbered software released into the public domain.
+ * For more information, please refer to <http://unlicense.org>
+ * KeyValueMapperTest.java
+ * $Id$
+ */
+
 package su.svn.daybook.services.mappers;
 
 import io.quarkus.test.junit.QuarkusTest;
@@ -9,7 +17,8 @@ import su.svn.daybook.TestData;
 import su.svn.daybook.domain.model.KeyValueTable;
 import su.svn.daybook.models.domain.KeyValue;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
+
 import java.math.BigInteger;
 
 @QuarkusTest

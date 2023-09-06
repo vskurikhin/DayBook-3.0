@@ -1,3 +1,11 @@
+/*
+ * This file was last modified at 2023.09.06 17:04 by Victor N. Skurikhin.
+ * This is free and unencumbered software released into the public domain.
+ * For more information, please refer to <http://unlicense.org>
+ * QuarkusCaffeineCacheCollectorTest.java
+ * $Id$
+ */
+
 package su.svn.daybook.services.cache;
 
 import io.quarkus.cache.Cache;
@@ -12,14 +20,16 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+
 import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 @QuarkusTest
 class QuarkusCaffeineCacheCollectorTest {
@@ -53,12 +63,6 @@ class QuarkusCaffeineCacheCollectorTest {
     @Test
     void flowByOther() {
         testClass.get("test");
-        cacheManager.getCacheNames().stream().forEach(new Consumer<String>() {
-            @Override
-            public void accept(String s) {
-                System.out.println("s = '" + s + "'");
-            }
-        });
         Assertions.assertDoesNotThrow(() -> {
             var test = cacheCollector.flowByOther(publicKey1, KeyPair::getPublic)
                     .collect()
@@ -77,12 +81,37 @@ class QuarkusCaffeineCacheCollectorTest {
         var cacheManager = Mockito.mock(CacheManager.class);
         Mockito.when(cacheManager.getCache(ArgumentMatchers.anyString()))
                 .thenReturn(Optional.of(new Cache() {
-                    public String getName() { return null; }
-                    public Object getDefaultKey() { return null; }
-                    public <K, V> Uni<V> get(K key, Function<K, V> valueLoader) { return null; }
-                    public Uni<Void> invalidate(Object key) { return null; }
-                    public Uni<Void> invalidateAll() { return null; }
-                    public <T extends Cache> T as(Class<T> type) { return null; }
+                    public String getName() {
+                        return null;
+                    }
+
+                    public Object getDefaultKey() {
+                        return null;
+                    }
+
+                    public <K, V> Uni<V> get(K key, Function<K, V> valueLoader) {
+                        return null;
+                    }
+
+                    public <K, V> Uni<V> getAsync(K key, Function<K, Uni<V>> valueLoader) {
+                        return null;
+                    }
+
+                    public Uni<Void> invalidate(Object key) {
+                        return null;
+                    }
+
+                    public Uni<Void> invalidateAll() {
+                        return null;
+                    }
+
+                    public Uni<Void> invalidateIf(Predicate<Object> predicate) {
+                        return null;
+                    }
+
+                    public <T extends Cache> T as(Class<T> type) {
+                        return null;
+                    }
                 }));
         var cacheCollector = new QuarkusCaffeineCacheCollector<>(cacheManager, "test", String.class, KeyPair.class);
         Assertions.assertNotNull(cacheCollector);
@@ -103,6 +132,5 @@ class QuarkusCaffeineCacheCollectorTest {
         KeyPair get(@CacheKey String key) {
             return keyPair1;
         }
-
     }
 }

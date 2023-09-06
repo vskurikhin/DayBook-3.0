@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.01.07 19:16 by Victor N. Skurikhin.
+ * This file was last modified at 2023.09.06 17:04 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * Resource.java
@@ -11,10 +11,11 @@ package su.svn.daybook.resources;
 import io.smallrye.mutiny.Uni;
 import su.svn.daybook.models.Identification;
 
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
+import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.UriInfo;
+
 import java.io.Serializable;
 
 public interface Resource<K extends Comparable<? extends Serializable>, V extends Identification<K>> {

@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.04.23 15:36 by Victor N. Skurikhin.
+ * This file was last modified at 2023.09.06 17:04 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * Helper.java
@@ -9,8 +9,6 @@
 package su.svn.daybook.domain.transact;
 
 import io.smallrye.mutiny.Uni;
-import io.vertx.mutiny.sqlclient.Row;
-import io.vertx.mutiny.sqlclient.RowIterator;
 import io.vertx.mutiny.sqlclient.SqlConnection;
 import io.vertx.mutiny.sqlclient.Tuple;
 import su.svn.daybook.domain.model.CasesOfId;

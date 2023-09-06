@@ -1,3 +1,11 @@
+/*
+ * This file was last modified at 2023.09.06 17:04 by Victor N. Skurikhin.
+ * This is free and unencumbered software released into the public domain.
+ * For more information, please refer to <http://unlicense.org>
+ * AbstractMapper.java
+ * $Id$
+ */
+
 package su.svn.daybook.converters.mappers;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -8,9 +16,10 @@ import su.svn.daybook.converters.getters.GettersAnnotatedDomainFiled;
 import su.svn.daybook.converters.getters.GettersAnnotatedModelFiled;
 import su.svn.daybook.models.Identification;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.inject.Inject;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
+import jakarta.inject.Inject;
+
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.function.Supplier;
@@ -52,8 +61,8 @@ public abstract class AbstractMapper
         this.modelBuilder = buildPartsModel.getBuilderFactory().get();
         this.domainBuilderMethodBuild = domainBuilder.getClass().getDeclaredMethod(BUILD_METHOD_NAME);
         this.modelBuilderMethodBuild = modelBuilder.getClass().getDeclaredMethod(BUILD_METHOD_NAME);
-        this.domainInvoker = new InvokerBuildPartMethod<K, M>(this.domainBuilder, gettersModel, log);
-        this.modelInvoker = new InvokerBuildPartMethod<K, D>(this.modelBuilder, gettersDomain, log);
+        this.domainInvoker = new InvokerBuildPartMethod<>(this.domainBuilder, gettersModel, log);
+        this.modelInvoker = new InvokerBuildPartMethod<>(this.modelBuilder, gettersDomain, log);
         this.log = log;
     }
 

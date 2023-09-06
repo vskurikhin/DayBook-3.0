@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.01.09 21:44 by Victor N. Skurikhin.
+ * This file was last modified at 2023.09.06 17:04 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * LanguageService.java
@@ -24,8 +24,9 @@ import su.svn.daybook.models.pagination.PageRequest;
 import su.svn.daybook.services.cache.LanguageCacheProvider;
 import su.svn.daybook.services.domain.LanguageDataService;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+
 import java.util.UUID;
 
 @PrincipalLogging

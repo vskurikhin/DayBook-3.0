@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.01.22 18:04 by Victor N. Skurikhin.
+ * This file was last modified at 2023.09.06 17:04 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * Vocabulary.java
@@ -14,11 +14,11 @@ import su.svn.daybook.annotations.DomainField;
 import su.svn.daybook.domain.model.VocabularyTable;
 import su.svn.daybook.models.LongIdentification;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
-import java.util.UUID;
 
 public final class Vocabulary implements LongIdentification, Serializable {
 

@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2021.12.15 13:12 by Victor N. Skurikhin.
+ * This file was last modified at 2023.09.06 17:04 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * RoleServiceTest.java
@@ -26,8 +26,9 @@ import su.svn.daybook.domain.model.RoleTable;
 import su.svn.daybook.models.pagination.Page;
 import su.svn.daybook.models.pagination.PageRequest;
 
-import javax.enterprise.context.control.ActivateRequestContext;
-import javax.inject.Inject;
+import jakarta.enterprise.context.control.ActivateRequestContext;
+import jakarta.inject.Inject;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2021.12.06 18:10 by Victor N. Skurikhin.
+ * This file was last modified at 2023.09.06 17:04 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * Command.java
@@ -11,8 +11,9 @@ package su.svn.daybook.domain.messages;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;

@@ -1,8 +1,8 @@
 /*
- * This file was last modified at 2023.01.10 19:49 by Victor N. Skurikhin.
+ * This file was last modified at 2023.09.06 17:04 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
- * I18nViewTable.java
+ * I18nView.java
  * $Id$
  */
 
@@ -10,7 +10,6 @@ package su.svn.daybook.domain.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.vertx.mutiny.sqlclient.Row;
-import io.vertx.mutiny.sqlclient.Tuple;
 import org.intellij.lang.annotations.Language;
 import su.svn.daybook.annotations.ModelField;
 import su.svn.daybook.models.LongIdentification;
@@ -18,11 +17,10 @@ import su.svn.daybook.models.Marked;
 import su.svn.daybook.models.Owned;
 import su.svn.daybook.models.TimeUpdated;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
+
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record I18nView(

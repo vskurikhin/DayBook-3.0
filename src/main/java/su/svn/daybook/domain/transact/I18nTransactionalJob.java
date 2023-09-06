@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.04.23 15:36 by Victor N. Skurikhin.
+ * This file was last modified at 2023.09.06 17:04 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * I18nTransactionalJob.java
@@ -21,8 +21,9 @@ import su.svn.daybook.domain.model.I18nTable;
 import su.svn.daybook.domain.model.LanguageTable;
 import su.svn.daybook.models.Constants;
 
-import javax.inject.Singleton;
-import javax.ws.rs.core.Context;
+import jakarta.inject.Singleton;
+import jakarta.ws.rs.core.Context;
+
 import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Function;

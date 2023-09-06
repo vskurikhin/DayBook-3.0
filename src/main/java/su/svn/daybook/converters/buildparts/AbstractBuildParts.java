@@ -1,9 +1,18 @@
+/*
+ * This file was last modified at 2023.09.06 17:04 by Victor N. Skurikhin.
+ * This is free and unencumbered software released into the public domain.
+ * For more information, please refer to <http://unlicense.org>
+ * AbstractBuildParts.java
+ * $Id$
+ */
+
 package su.svn.daybook.converters.buildparts;
 
 import su.svn.daybook.converters.records.MethodRecord;
 import su.svn.daybook.models.Identification;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
+
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;

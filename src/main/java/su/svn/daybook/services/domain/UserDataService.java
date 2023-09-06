@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.09.03 19:41 by Victor N. Skurikhin.
+ * This file was last modified at 2023.09.06 17:04 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * UserDataService.java
@@ -20,8 +20,9 @@ import su.svn.daybook.models.domain.User;
 import su.svn.daybook.services.mappers.UserMapper;
 import su.svn.daybook.services.security.PBKDF2Encoder;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+
 import java.util.Set;
 import java.util.UUID;
 

@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.01.11 21:34 by Victor N. Skurikhin.
+ * This file was last modified at 2023.09.06 17:04 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * LoggingInterceptor.java
@@ -8,18 +8,18 @@
 
 package su.svn.daybook.interceptors;
 
-import io.quarkus.arc.Priority;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
+import jakarta.annotation.Priority;
 import org.jboss.logging.JBossLogManagerProvider;
 import org.jboss.logging.Logger;
 import su.svn.daybook.annotations.Logged;
 import su.svn.daybook.domain.messages.Request;
 import su.svn.daybook.models.security.SessionPrincipal;
 
-import javax.interceptor.AroundInvoke;
-import javax.interceptor.Interceptor;
-import javax.interceptor.InvocationContext;
+import jakarta.interceptor.AroundInvoke;
+import jakarta.interceptor.Interceptor;
+import jakarta.interceptor.InvocationContext;
 
 @Deprecated
 @SuppressWarnings("DuplicatedCode")
