@@ -87,7 +87,7 @@ dependencies {
     testImplementation "nl.jqno.equalsverifier:equalsverifier:$libVers.equalsverifier"
     testImplementation "org.liquibase:liquibase-core:$libVers.liquibase"
     testImplementation "org.mockito:mockito-core:$libVers.mockito_core"
-    testImplementation 'com.google.guava:guava:31.1-jre'
+    testImplementation "com.google.guava:guava:$libVers.guava"
 }
 
 group 'su.svn'

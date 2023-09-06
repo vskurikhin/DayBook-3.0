@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.09.06 17:04 by Victor N. Skurikhin.
+ * This file was last modified at 2023.09.06 19:32 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * UserTransactionalJob.java
@@ -18,6 +18,7 @@ import su.svn.daybook.annotations.TransactionActions;
 import su.svn.daybook.domain.enums.TupleMapperEnum;
 import su.svn.daybook.domain.model.RoleTable;
 import su.svn.daybook.domain.model.UserNameTable;
+import su.svn.daybook.domain.transact.many_to_many.AbstractManyToManyJob;
 import su.svn.daybook.models.Constants;
 
 import jakarta.annotation.Nonnull;
