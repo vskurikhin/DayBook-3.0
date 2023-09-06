@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.09.03 19:41 by Victor N. Skurikhin.
+ * This file was last modified at 2023.09.06 17:04 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * AbstractManyToManyJob.java
@@ -14,14 +14,13 @@ import io.vertx.mutiny.sqlclient.Row;
 import io.vertx.mutiny.sqlclient.RowIterator;
 import org.jboss.logging.Logger;
 import su.svn.daybook.domain.model.CasesOfId;
-import su.svn.daybook.domain.model.UserNameTable;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
+
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.function.Function;
 
 public abstract class AbstractManyToManyJob<

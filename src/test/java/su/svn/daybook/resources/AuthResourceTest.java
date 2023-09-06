@@ -1,3 +1,11 @@
+/*
+ * This file was last modified at 2023.09.06 17:04 by Victor N. Skurikhin.
+ * This is free and unencumbered software released into the public domain.
+ * For more information, please refer to <http://unlicense.org>
+ * AuthResourceTest.java
+ * $Id$
+ */
+
 package su.svn.daybook.resources;
 
 import io.quarkus.test.junit.QuarkusMock;
@@ -15,9 +23,9 @@ import su.svn.daybook.domain.messages.Request;
 import su.svn.daybook.models.security.AuthRequest;
 import su.svn.daybook.services.security.LoginService;
 
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
 import static io.restassured.RestAssured.given;
 

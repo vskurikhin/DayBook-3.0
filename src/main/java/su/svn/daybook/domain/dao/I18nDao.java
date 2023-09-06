@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.04.04 21:29 by Victor N. Skurikhin.
+ * This file was last modified at 2023.09.06 17:04 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * I18nDao.java
@@ -14,7 +14,8 @@ import su.svn.daybook.annotations.PrincipalLogging;
 import su.svn.daybook.annotations.SQL;
 import su.svn.daybook.domain.model.I18nTable;
 
-import javax.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.ApplicationScoped;
+
 import java.util.List;
 import java.util.Optional;
 

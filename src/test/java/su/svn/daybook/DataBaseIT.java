@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.09.03 19:41 by Victor N. Skurikhin.
+ * This file was last modified at 2023.09.06 17:04 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * DataBaseIT.java
@@ -20,12 +20,12 @@ import su.svn.daybook.domain.messages.Request;
 import su.svn.daybook.domain.model.*;
 import su.svn.daybook.domain.transact.I18nTransactionalJob;
 import su.svn.daybook.domain.transact.UserTransactionalJob;
-import su.svn.daybook.domain.transact.UserTransactionalOldJob;
 import su.svn.daybook.models.domain.User;
 import su.svn.daybook.resources.PostgresDatabaseTestResource;
 import su.svn.daybook.services.models.UserService;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
+
 import java.math.BigInteger;
 import java.security.Principal;
 import java.time.LocalDateTime;
@@ -62,8 +62,6 @@ public class DataBaseIT {
     UserService userService;
     @Inject
     UserTransactionalJob userTransactionalJob;
-    @Inject
-    UserTransactionalOldJob userTransactionalOldJob;
     @Inject
     UserViewDao userViewDao;
     //    @Inject

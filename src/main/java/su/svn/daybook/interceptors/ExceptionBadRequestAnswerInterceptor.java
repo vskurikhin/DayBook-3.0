@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.01.13 21:42 by Victor N. Skurikhin.
+ * This file was last modified at 2023.09.06 17:04 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * ExceptionBadRequestAnswerInterceptor.java
@@ -8,15 +8,16 @@
 
 package su.svn.daybook.interceptors;
 
-import io.quarkus.arc.Priority;
 import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.operators.uni.builders.UniCreateFromItemSupplier;
+import jakarta.annotation.Priority;
 import org.jboss.logging.Logger;
 import su.svn.daybook.annotations.ExceptionBadRequestAnswer;
 
-import javax.interceptor.AroundInvoke;
-import javax.interceptor.Interceptor;
-import javax.interceptor.InvocationContext;
+import jakarta.interceptor.AroundInvoke;
+import jakarta.interceptor.Interceptor;
+import jakarta.interceptor.InvocationContext;
+
 import java.util.function.Function;
 
 @SuppressWarnings({"ReactiveStreamsUnusedPublisher", "unchecked", "rawtypes"})
@@ -29,7 +30,7 @@ public class ExceptionBadRequestAnswerInterceptor extends ExceptionInterceptor {
 
     @AroundInvoke
     Object onFailureRecoverWithUniAnswerBadRequest(InvocationContext context) {
-        Object ret = null;
+        Object ret;
         Function<Throwable, Object> f = this::badRequestObject;
         try {
             ret = onFailureRecoverWithUniAnswer(context, f, this::testIllegalArgumentException);

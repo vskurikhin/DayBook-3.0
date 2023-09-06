@@ -1,8 +1,8 @@
 /*
- * This file was last modified at 2023.01.12 13:23 by Victor N. Skurikhin.
+ * This file was last modified at 2023.09.06 17:04 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
- * AbstractDao.java
+ * AbstractViewDao.java
  * $Id$
  */
 
@@ -16,8 +16,9 @@ import io.vertx.mutiny.sqlclient.Tuple;
 import su.svn.daybook.annotations.SQL;
 import su.svn.daybook.models.Identification;
 
-import javax.annotation.Nonnull;
-import javax.inject.Inject;
+import jakarta.annotation.Nonnull;
+import jakarta.inject.Inject;
+
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.Arrays;

@@ -1,3 +1,11 @@
+/*
+ * This file was last modified at 2023.09.06 17:04 by Victor N. Skurikhin.
+ * This is free and unencumbered software released into the public domain.
+ * For more information, please refer to <http://unlicense.org>
+ * Filters.java
+ * $Id$
+ */
+
 package su.svn.daybook.configs;
 
 import org.jboss.logging.Logger;
@@ -5,11 +13,12 @@ import org.jboss.resteasy.reactive.server.ServerRequestFilter;
 import org.jboss.resteasy.reactive.server.ServerResponseFilter;
 import su.svn.daybook.services.security.AuthenticationContext;
 
-import javax.inject.Inject;
-import javax.ws.rs.container.ContainerRequestContext;
-import javax.ws.rs.container.ContainerResponseContext;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.SecurityContext;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.container.ContainerRequestContext;
+import jakarta.ws.rs.container.ContainerResponseContext;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.SecurityContext;
+
 import java.io.IOException;
 
 class Filters {
@@ -34,7 +43,7 @@ class Filters {
 
     @ServerResponseFilter
     public void doResponseFilter(ContainerRequestContext requestContext,
-                                 ContainerResponseContext responseContext) throws IOException {
+                                 ContainerResponseContext responseContext) {
         authContext.close();
         LOG.tracef(
                 "Response: method: %s, URI: %s, headers: %s, entity: %s",

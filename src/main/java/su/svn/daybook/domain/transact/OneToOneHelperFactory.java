@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.04.23 15:36 by Victor N. Skurikhin.
+ * This file was last modified at 2023.09.06 17:04 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * OneToOneHelperFactory.java
@@ -9,19 +9,23 @@
 package su.svn.daybook.domain.transact;
 
 import io.smallrye.mutiny.Uni;
-import io.vertx.mutiny.sqlclient.*;
+import io.vertx.mutiny.sqlclient.Row;
+import io.vertx.mutiny.sqlclient.RowIterator;
+import io.vertx.mutiny.sqlclient.RowSet;
+import io.vertx.mutiny.sqlclient.SqlConnection;
+import io.vertx.mutiny.sqlclient.Tuple;
 import org.jboss.logging.Logger;
 import su.svn.daybook.domain.model.CasesOfId;
 import su.svn.daybook.models.Constants;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
+
 import java.io.Serializable;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-@SuppressWarnings("CdiInjectionPointsInspection")
 class OneToOneHelperFactory<
         I extends Comparable<? extends Serializable>,
         M extends CasesOfId<I>,
@@ -54,7 +58,7 @@ class OneToOneHelperFactory<
     }
 
     public Helper<I, M, K, J, F> createDeleteHelper(M table) {
-        return new DeleteHelper<>(this.job, this.mapJob, this.tableBuilder, this.joinFieldBuilder, table);
+        return new DeleteHelper<>(this.job, this.mapJob, table);
     }
 
     abstract static class AbstractHelper<
@@ -251,21 +255,15 @@ class OneToOneHelperFactory<
 
         private static final Logger LOG = Logger.getLogger(DeleteHelper.class);
 
-        private final BiFunction<D, G, D> tableBuilder;
         private final D table;
-        private final Function<F, J> joinFieldBuilder;
         private final Map<String, Map<String, Action>> mapJob;
         private volatile SqlConnection connection;
 
         DeleteHelper(
                 @Nonnull AbstractOneToOneJob<I, D, G, J, F> job,
                 @Nonnull Map<String, Map<String, Action>> map,
-                @Nonnull BiFunction<D, G, D> tableBuilder,
-                @Nonnull Function<F, J> joinFieldBuilder,
                 @Nonnull D table) {
             super(job);
-            this.tableBuilder = tableBuilder;
-            this.joinFieldBuilder = joinFieldBuilder;
             this.mapJob = map;
             this.table = table;
         }

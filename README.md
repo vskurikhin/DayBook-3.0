@@ -1,7 +1,4 @@
-# DayBook-3.0
-The DayBook project written on Java/Quarkus/Reactive stack with vert.x plus React with PrimeReact.
-
-# daybook3 Project
+# daybook3
 
 This project uses Quarkus, the Supersonic Subatomic Java Framework.
 
@@ -46,18 +43,41 @@ Or, if you don't have GraalVM installed, you can run the native executable build
 ./gradlew build -Dquarkus.package.type=native -Dquarkus.native.container-build=true
 ```
 
-You can then execute your native executable with: `./build/daybook3-3.0-runner`
+You can then execute your native executable with: `./build/daybook3-1.0.0-SNAPSHOT-runner`
 
 If you want to learn more about building native executables, please consult https://quarkus.io/guides/gradle-tooling.
 
 ## Related Guides
 
-- RESTEasy JAX-RS ([guide](https://quarkus.io/guides/rest-json)): REST endpoint framework implementing JAX-RS and more
+- Cache ([guide](https://quarkus.io/guides/cache)): Enable application data caching in CDI beans
+- ArC ([guide](https://quarkus.io/guides/cdi-reference)): Build time CDI dependency injection
+- Hibernate Validator ([guide](https://quarkus.io/guides/validation)): Validate object properties (field, getter) and
+  method parameters for your beans (REST, CDI, Jakarta Persistence)
+- SmallRye JWT Build ([guide](https://quarkus.io/guides/security-jwt-build)): Create JSON Web Token with SmallRye JWT
+  Build API
+- SmallRye JWT ([guide](https://quarkus.io/guides/security-jwt)): Secure your applications with JSON Web Token
+- SmallRye OpenAPI ([guide](https://quarkus.io/guides/openapi-swaggerui)): Document your REST APIs with OpenAPI - comes
+  with Swagger UI
+- RESTEasy Reactive ([guide](https://quarkus.io/guides/resteasy-reactive)): A Jakarta REST implementation utilizing
+  build time processing and Vert.x. This extension is not compatible with the quarkus-resteasy extension, or any of the
+  extensions that depend on it.
+- Eclipse Vert.x ([guide](https://quarkus.io/guides/vertx)): Write reactive applications with the Vert.x API
+- WebSockets ([guide](https://quarkus.io/guides/websockets)): WebSocket communication channel support
+- Micrometer Registry Prometheus ([guide](https://quarkus.io/guides/micrometer)): Enable Prometheus support for
+  Micrometer
+- Reactive PostgreSQL client ([guide](https://quarkus.io/guides/reactive-sql-clients)): Connect to the PostgreSQL
+  database using the reactive pattern
 
 ## Provided Code
 
-### RESTEasy JAX-RS
+### RESTEasy Reactive
 
-Easily start your RESTful Web Services
+Easily start your Reactive RESTful Web Services
 
-[Related guide section...](https://quarkus.io/guides/getting-started#the-jax-rs-resources)
+[Related guide section...](https://quarkus.io/guides/getting-started-reactive#reactive-jax-rs-resources)
+
+### WebSockets
+
+WebSocket communication channel starter code
+
+[Related guide section...](https://quarkus.io/guides/websockets)

@@ -1,3 +1,11 @@
+/*
+ * This file was last modified at 2023.09.06 17:04 by Victor N. Skurikhin.
+ * This is free and unencumbered software released into the public domain.
+ * For more information, please refer to <http://unlicense.org>
+ * AbstractServiceTest.java
+ * $Id$
+ */
+
 package su.svn.daybook.services.models;
 
 import io.smallrye.mutiny.Multi;
@@ -6,7 +14,8 @@ import org.junit.jupiter.api.BeforeEach;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.models.LongIdentification;
 
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
+
 import java.io.Serializable;
 
 class AbstractServiceTest {

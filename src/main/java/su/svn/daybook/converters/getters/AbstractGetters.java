@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.02.19 10:06 by Victor N. Skurikhin.
+ * This file was last modified at 2023.09.06 17:04 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * AbstractGetters.java
@@ -13,7 +13,8 @@ import su.svn.daybook.converters.records.FieldRecord;
 import su.svn.daybook.models.Identification;
 import su.svn.daybook.utils.AccessorsUtil;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
+
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.Arrays;

@@ -1,8 +1,8 @@
 /*
- * This file was last modified at 2023.01.13 21:42 by Victor N. Skurikhin.
+ * This file was last modified at 2023.09.06 17:04 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
- * ExceptionBadRequestAnswerInterceptor.java
+ * ExceptionInterceptor.java
  * $Id$
  */
 
@@ -10,11 +10,11 @@ package su.svn.daybook.interceptors;
 
 import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.operators.uni.builders.UniCreateFromItemSupplier;
+import jakarta.interceptor.InvocationContext;
+import jakarta.ws.rs.core.Response;
 import org.jboss.logging.Logger;
 import su.svn.daybook.domain.messages.Answer;
 
-import javax.interceptor.InvocationContext;
-import javax.ws.rs.core.Response;
 import java.util.Arrays;
 import java.util.function.Function;
 import java.util.function.Predicate;

@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.02.19 10:06 by Victor N. Skurikhin.
+ * This file was last modified at 2023.09.06 17:04 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * AccessorsUtil.java
@@ -11,7 +11,8 @@ package su.svn.daybook.utils;
 import org.jboss.logging.Logger;
 import su.svn.daybook.converters.getters.GettersAnnotatedDomainFiled;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

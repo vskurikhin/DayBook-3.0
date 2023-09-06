@@ -1,8 +1,8 @@
 /*
- * This file was last modified at 2023.01.07 11:58 by Victor N. Skurikhin.
+ * This file was last modified at 2023.09.06 17:04 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
- * AbstractDataService.java
+ * DataService.java
  * $Id$
  */
 
@@ -10,10 +10,10 @@ package su.svn.daybook.services.domain;
 
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
-import org.reactivestreams.Publisher;
 import su.svn.daybook.models.Identification;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
+
 import java.io.Serializable;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -68,7 +68,7 @@ interface DataService
         throw new NoSuchElementException("No value present in method: " + method);
     }
 
-    default Publisher<D> getAllIfNotOverSize(Optional<Long> count, Supplier<Multi<D>> supplier) {
+    default Multi<D> getAllIfNotOverSize(Optional<Long> count, Supplier<Multi<D>> supplier) {
         if (count.isPresent()) {
             if (-1 < count.get() && count.get() < (Short.MAX_VALUE / 2)) {
                 return supplier.get();

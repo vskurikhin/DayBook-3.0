@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.09.03 19:41 by Victor N. Skurikhin.
+ * This file was last modified at 2023.09.06 17:04 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * UserTransactionalJob.java
@@ -20,9 +20,10 @@ import su.svn.daybook.domain.model.RoleTable;
 import su.svn.daybook.domain.model.UserNameTable;
 import su.svn.daybook.models.Constants;
 
-import javax.annotation.Nonnull;
-import javax.inject.Singleton;
-import javax.ws.rs.core.Context;
+import jakarta.annotation.Nonnull;
+import jakarta.inject.Singleton;
+import jakarta.ws.rs.core.Context;
+
 import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;

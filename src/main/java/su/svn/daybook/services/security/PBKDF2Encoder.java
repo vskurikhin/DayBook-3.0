@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.01.22 14:59 by Victor N. Skurikhin.
+ * This file was last modified at 2023.09.06 17:04 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * PBKDF2Encoder.java
@@ -12,7 +12,9 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
-import javax.enterprise.context.RequestScoped;
+
+import jakarta.enterprise.context.RequestScoped;
+
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Base64;

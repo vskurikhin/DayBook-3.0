@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.01.13 21:41 by Victor N. Skurikhin.
+ * This file was last modified at 2023.09.06 17:04 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * ExceptionBadRequestAnswer.java
@@ -8,8 +8,13 @@
 
 package su.svn.daybook.annotations;
 
-import javax.interceptor.InterceptorBinding;
-import java.lang.annotation.*;
+import jakarta.interceptor.InterceptorBinding;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Inherited;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 @InterceptorBinding
 @Retention(RetentionPolicy.RUNTIME)

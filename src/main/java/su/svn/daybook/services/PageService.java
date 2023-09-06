@@ -1,3 +1,11 @@
+/*
+ * This file was last modified at 2023.09.06 17:04 by Victor N. Skurikhin.
+ * This is free and unencumbered software released into the public domain.
+ * For more information, please refer to <http://unlicense.org>
+ * PageService.java
+ * $Id$
+ */
+
 package su.svn.daybook.services;
 
 import io.smallrye.mutiny.Multi;
@@ -7,8 +15,9 @@ import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.models.pagination.Page;
 import su.svn.daybook.models.pagination.PageRequest;
 
-import javax.annotation.Nonnull;
-import javax.enterprise.context.ApplicationScoped;
+import jakarta.annotation.Nonnull;
+import jakarta.enterprise.context.ApplicationScoped;
+
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
