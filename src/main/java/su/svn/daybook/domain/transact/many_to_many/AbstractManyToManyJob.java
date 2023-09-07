@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.09.06 19:32 by Victor N. Skurikhin.
+ * This file was last modified at 2023.09.07 14:07 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * AbstractManyToManyJob.java
@@ -12,6 +12,7 @@ import io.smallrye.mutiny.Uni;
 import io.vertx.mutiny.sqlclient.Pool;
 import io.vertx.mutiny.sqlclient.Row;
 import io.vertx.mutiny.sqlclient.RowIterator;
+import jakarta.inject.Inject;
 import org.jboss.logging.Logger;
 import su.svn.daybook.domain.model.CasesOfId;
 
@@ -35,11 +36,12 @@ public abstract class AbstractManyToManyJob<
     private final Function<MainTable, MainField> getMainField;
     private final ManyToManyHelperFactory<MainId, MainTable, SubId, Subsidiary, MainField, SubField> helperFactory;
     private final Logger log;
-    private final Pool pool;
 
-    public AbstractManyToManyJob(@Nonnull Pool pool, @Nonnull Function<MainTable, MainField> getMainField, @Nonnull Logger log) {
+    @Inject
+    io.vertx.mutiny.pgclient.PgPool pool;
+
+    public AbstractManyToManyJob(@Nonnull Function<MainTable, MainField> getMainField, @Nonnull Logger log) {
         this.log = log;
-        this.pool = pool;
         this.getMainField = getMainField;
         var map = Collections.unmodifiableMap(super.getActionsOfMethods());
         this.helperFactory = new ManyToManyHelperFactory<>(this, map);
