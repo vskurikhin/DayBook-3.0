@@ -1,13 +1,14 @@
 /*
- * This file was last modified at 2022.01.12 22:58 by Victor N. Skurikhin.
+ * This file was last modified at 2023.09.07 14:07 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
- * DataTest.java
+ * TestData.java
  * $Id$
  */
 
 package su.svn.daybook;
 
+import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.messages.ApiResponse;
@@ -42,6 +43,15 @@ public class TestData {
 
     public static Uni<Optional<Long>> UNI_OPTIONAL_ONE_LONG = Uni.createFrom().item(Optional.of(1L));
     public static Uni<Optional<Long>> UNI_OPTIONAL_MINUS_ONE_LONG = Uni.createFrom().item(Optional.of(-1L));
+    public static Uni<Page<Answer>> UNI_PAGE_ANSWER_EMPTY = Uni
+            .createFrom()
+            .item(Page.<Answer>builder()
+                    .page(0)
+                    .rows((short) 0)
+                    .totalPages(0L)
+                    .totalRecords(0L)
+                    .content(Collections.emptyList())
+                    .build());
 
     public static final String JSON_AUTH_LOGIN = """
             {
@@ -133,7 +143,10 @@ public class TestData {
                 0L, Language.NONE, I18n.NONE, null, true, 0
         );
         public static final I18nTable TABLE_0 = new I18nTable(
-                0L, 0L, null, null, null, null, null, true, true, 0
+                0L, 0L, I18n.NONE, null, null, null, null, true, true, 0
+        );
+        public static final I18nView VIEW_0 = new I18nView(
+                0L, Language.NONE, I18n.NONE, null, null, null, null, true, true, 0
         );
         public static final Uni<Page<Answer>> UNI_PAGE_ANSWER_SINGLETON_TEST = Uni.createFrom()
                 .item(

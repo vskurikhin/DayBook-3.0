@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.09.06 19:32 by Victor N. Skurikhin.
+ * This file was last modified at 2023.09.07 14:07 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * AbstractOneToOneJob.java
@@ -9,9 +9,9 @@
 package su.svn.daybook.domain.transact.one_to_one;
 
 import io.smallrye.mutiny.Uni;
-import io.vertx.mutiny.sqlclient.Pool;
 import io.vertx.mutiny.sqlclient.Row;
 import io.vertx.mutiny.sqlclient.RowIterator;
+import jakarta.inject.Inject;
 import org.jboss.logging.Logger;
 import su.svn.daybook.domain.model.CasesOfId;
 
@@ -33,15 +33,15 @@ public abstract class AbstractOneToOneJob<
 
     private final OneToOneHelperFactory<MainId, MainTable, JoinId, JoinTable, Field> helperFactory;
     private final Logger log;
-    private final Pool pool;
+
+    @Inject
+    io.vertx.mutiny.pgclient.PgPool pool;
 
     public AbstractOneToOneJob(
-            @Nonnull Pool pool,
             @Nonnull BiFunction<MainTable, JoinId, MainTable> tableBuilder,
             @Nonnull Function<Field, JoinTable> joinFieldBuilder,
             @Nonnull Logger log) {
         this.log = log;
-        this.pool = pool;
         var map = Collections.unmodifiableMap(super.getActionsOfMethods());
         this.helperFactory = new OneToOneHelperFactory<>(this, map, tableBuilder, joinFieldBuilder);
     }

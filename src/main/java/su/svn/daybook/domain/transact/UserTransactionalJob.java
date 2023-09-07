@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.09.06 19:32 by Victor N. Skurikhin.
+ * This file was last modified at 2023.09.07 14:07 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * UserTransactionalJob.java
@@ -9,9 +9,9 @@
 package su.svn.daybook.domain.transact;
 
 import io.smallrye.mutiny.Uni;
-import io.vertx.mutiny.pgclient.PgPool;
 import io.vertx.mutiny.sqlclient.Row;
 import io.vertx.mutiny.sqlclient.RowIterator;
+import jakarta.enterprise.context.ApplicationScoped;
 import org.jboss.logging.Logger;
 import su.svn.daybook.annotations.TransactionAction;
 import su.svn.daybook.annotations.TransactionActions;
@@ -22,21 +22,19 @@ import su.svn.daybook.domain.transact.many_to_many.AbstractManyToManyJob;
 import su.svn.daybook.models.Constants;
 
 import jakarta.annotation.Nonnull;
-import jakarta.inject.Singleton;
-import jakarta.ws.rs.core.Context;
 
 import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
 
-@Singleton
+@ApplicationScoped
 public class UserTransactionalJob extends AbstractManyToManyJob<UUID, UserNameTable, UUID, RoleTable, String, String> {
 
     private static final Logger LOG = Logger.getLogger(UserTransactionalJob.class);
 
-    public UserTransactionalJob(@Context PgPool client) {
-        super(client, UserNameTable::userName, LOG);
+    public UserTransactionalJob() {
+        super(UserNameTable::userName, LOG);
     }
 
     @Override

@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.09.06 19:32 by Victor N. Skurikhin.
+ * This file was last modified at 2023.09.07 14:07 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * I18nTransactionalJob.java
@@ -9,9 +9,9 @@
 package su.svn.daybook.domain.transact;
 
 import io.smallrye.mutiny.Uni;
-import io.vertx.mutiny.pgclient.PgPool;
 import io.vertx.mutiny.sqlclient.Row;
 import io.vertx.mutiny.sqlclient.RowIterator;
+import jakarta.enterprise.context.ApplicationScoped;
 import org.jboss.logging.Logger;
 import su.svn.daybook.annotations.TransactionAction;
 import su.svn.daybook.annotations.TransactionActions;
@@ -22,14 +22,11 @@ import su.svn.daybook.domain.model.LanguageTable;
 import su.svn.daybook.domain.transact.one_to_one.AbstractOneToOneJob;
 import su.svn.daybook.models.Constants;
 
-import jakarta.inject.Singleton;
-import jakarta.ws.rs.core.Context;
-
 import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-@Singleton
+@ApplicationScoped
 public class I18nTransactionalJob extends AbstractOneToOneJob<Long, I18nTable, Long, LanguageTable, String> {
 
     private static final Logger LOG = Logger.getLogger(I18nTransactionalJob.class);
@@ -40,8 +37,8 @@ public class I18nTransactionalJob extends AbstractOneToOneJob<Long, I18nTable, L
     private static final Function<String, LanguageTable> LANGUAGE_TABLE_BUILDER
             = s -> LanguageTable.builder().language(s).build();
 
-    public I18nTransactionalJob(@Context PgPool client) {
-        super(client, I18N_TABLE_BUILDER, LANGUAGE_TABLE_BUILDER, LOG);
+    public I18nTransactionalJob() {
+        super(I18N_TABLE_BUILDER, LANGUAGE_TABLE_BUILDER, LOG);
     }
 
     @Override
