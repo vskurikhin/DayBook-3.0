@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.09.06 17:04 by Victor N. Skurikhin.
+ * This file was last modified at 2023.09.07 16:35 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * DataBaseIT.java
@@ -64,8 +64,9 @@ public class DataBaseIT {
     UserTransactionalJob userTransactionalJob;
     @Inject
     UserViewDao userViewDao;
-    //    @Inject
-//    ValueTypeDao valueTypeDao;
+
+    @Inject
+    ValueTypeDao valueTypeDao;
     @Inject
     VocabularyDao vocabularyDao;
     @Inject
@@ -1386,78 +1387,90 @@ public class DataBaseIT {
         }
     }
 
-//    @Nested
-//    @DisplayName("ValueTypeDao")
-//    class ValueTypeDaoTest {
-//        Long id;
-//        String str = "str";
-//        ValueTypeTable entry;
-//
-//        @BeforeEach
-//        void setUp() {
-//            entry = ValueTypeTable.builder()
-//                    .id(id)
-//                    .valueType(str)
-//                    .enabled(true)
-//                    .build();
-//            Assertions.assertDoesNotThrow(() -> {
-//                id = uniOptionalHelper(valueTypeDao.insert(entry));
-//            });
-//        }
-//
-//        @AfterEach
-//        void tearDown() {
-//            Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(id, uniOptionalHelper(valueTypeDao.delete(id))));
-//            Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(0, uniOptionalHelper(valueTypeDao.count())));
-//        }
-//
-//        @Test
-//        void test() {
-//            var expected1 = ValueTypeTable.builder()
-//                    .id(id)
-//                    .valueType(str)
-//                    .enabled(true)
-//                    .build();
-//            Assertions.assertDoesNotThrow(() -> {
-//                var test = uniOptionalHelper(valueTypeDao.findById(id));
-//                Assertions.assertNotNull(test);
-//                Assertions.assertEquals(expected1, test);
-//                Assertions.assertNotNull(test.getCreateTime());
-//                Assertions.assertNull(test.getUpdateTime());
-//            });
-//            var expected2 = ValueTypeTable.builder()
-//                    .id(id)
-//                    .valueType("value")
-//                    .enabled(true)
-//                    .build();
-//            Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(id, uniOptionalHelper(valueTypeDao.update(expected2))));
-//            Assertions.assertDoesNotThrow(() -> {
-//                var test = uniOptionalHelper(valueTypeDao.findById(id));
-//                Assertions.assertNotNull(test);
-//                Assertions.assertEquals(expected2, test);
-//                Assertions.assertNotNull(test.getCreateTime());
-//                Assertions.assertNotNull(test.getUpdateTime());
-//            });
-//            Assertions.assertDoesNotThrow(() -> {
-//                var test = multiAsListHelper(valueTypeDao.findAll());
-//                Assertions.assertNotNull(test);
-//                Assertions.assertFalse(test.isEmpty());
-//                Assertions.assertEquals(1, test.size());
-//            });
-//            Assertions.assertDoesNotThrow(() -> {
-//                var test = multiAsListHelper(valueTypeDao.findRange(0, 0));
-//                Assertions.assertNotNull(test);
-//                Assertions.assertTrue(test.isEmpty());
-//            });
-//            Assertions.assertDoesNotThrow(() -> {
-//                var test = multiAsListHelper(valueTypeDao.findRange(0, 1));
-//                Assertions.assertNotNull(test);
-//                Assertions.assertFalse(test.isEmpty());
-//                Assertions.assertEquals(1, test.size());
-//            });
-//        }
-//    }
-//
+    @Nested
+    @DisplayName("ValueTypeDao")
+    class ValueTypeDaoTest extends AbstractDaoTest<Long, ValueTypeTable> {
+
+        static final String TWO = new UUID(0, 2).toString();
+        static final String SEVEN = new UUID(0, 7).toString();
+        static final String NINE = new UUID(0, 9).toString();
+        static final String TEN = new UUID(0, 10).toString();
+
+        @BeforeEach
+        void setUp() {
+            var entry = ValueTypeTable.builder()
+                    .valueType(ValueTypeTable.NONE)
+                    .enabled(true)
+                    .build();
+            Long customId = 2L;
+            super.setUp(valueTypeDao, entry, customId);
+        }
+
+        @AfterEach
+        void tearDown() {
+            super.tearDown();
+        }
+
+        ValueTypeTable.Builder builder(Long id, String valueType, ValueTypeTable test) {
+            return ValueTypeTable.builder()
+                    .id(id)
+                    .valueType(valueType)
+                    .createTime(test.createTime())
+                    .updateTime(test.updateTime())
+                    .enabled(true);
+        }
+
+        ValueTypeTable expected(Long id, String valueType, ValueTypeTable test) {
+            Assertions.assertNotNull(test);
+            return builder(id, valueType, test).build();
+        }
+
+        @Test
+        void test() {
+            super.whenFindByIdThenEntry((id, test) -> expected(id, ValueTypeTable.NONE, test));
+
+            var update = ValueTypeTable.builder().id(super.id).valueType(TWO).build();
+            super.whenUpdateAndFindByIdThenEntry((id, test) -> expected(id, TWO, test), update);
+
+            super.whenFindAllThenMultiWithOneItem();
+            super.whenFindRangeZeroThenEmptiestMulti();
+            super.whenFindRangeFromZeroLimitOneThenMultiWithOneItem();
+
+            var custom = ValueTypeTable.builder()
+                    .id(customId)
+                    .valueType(NINE)
+                    .build();
+            super.whenInsertCustomThenEntry(
+                    (id, test) -> expected(id, NINE, test),
+                    custom
+            );
+            var customUpdate = ValueTypeTable.builder()
+                    .id(customId)
+                    .valueType(TEN)
+                    .build();
+            super.whenUpdateCustomAndFindByIdThenEntry(
+                    (id, test) -> expected(id, TEN, test),
+                    customUpdate
+            );
+
+            super.whenFindRangeFromZeroToOneThenMultiWithOneItemCustom(
+                    (id, test) -> expected(1L, TWO, test)
+            );
+            super.whenFindRangeFromZeroToMaxValueThenMultiWithTwoItems();
+            super.whenFindRangeFromOneLimitOneMultiWithOneItem();
+
+            Assertions.assertDoesNotThrow(() -> {
+                var test = uniOptionalHelper(valueTypeDao.findByKey(TWO));
+                System.out.println("test = " + test);
+                var expected = expected(super.id, TWO, test);
+                Assertions.assertEquals(expected, test);
+                Assertions.assertNotNull(test.createTime());
+                Assertions.assertNotNull(test.updateTime());
+            });
+
+            super.whenDeleteCustomThenOk();
+        }
+    }
 
     @Nested
     @DisplayName("VocabularyDao and WordDao")

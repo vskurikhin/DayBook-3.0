@@ -2,7 +2,7 @@
  * This file was last modified at 2023.09.07 16:35 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
- * @Name@CacheProvider.java
+ * ValueTypeCacheProvider.java
  * $Id$
  */
 
@@ -16,43 +16,42 @@ import org.jboss.logging.Logger;
 import su.svn.daybook.annotations.PrincipalLogging;
 import su.svn.daybook.domain.enums.EventAddress;
 import su.svn.daybook.domain.messages.Answer;
-import su.svn.daybook.models.domain.@Name@;
+import su.svn.daybook.models.domain.ValueType;
 import su.svn.daybook.models.pagination.Page;
 import su.svn.daybook.models.pagination.PageRequest;
 import su.svn.daybook.services.PageService;
-import su.svn.daybook.services.domain.@Name@DataService;
+import su.svn.daybook.services.domain.ValueTypeDataService;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import java.util.UUID;
 
 @ApplicationScoped
-public class @Name@CacheProvider extends AbstractCacheProvider<@IdType@, @Name@> {
+public class ValueTypeCacheProvider extends AbstractCacheProvider<Long, ValueType> {
 
-    private static final Logger LOG = Logger.getLogger(@Name@CacheProvider.class);
+    private static final Logger LOG = Logger.getLogger(ValueTypeCacheProvider.class);
 
     @Inject
     PageService pageService;
 
     @Inject
-    @Name@DataService @name@DataService;
+    ValueTypeDataService valueTypeDataService;
 
-    public @Name@CacheProvider() {
-        super(EventAddress.@TABLE@_GET, EventAddress.@TABLE@_PAGE, LOG);
+    public ValueTypeCacheProvider() {
+        super(EventAddress.VALUE_TYPE_GET, EventAddress.VALUE_TYPE_PAGE, LOG);
     }
 
     @Counted
     @PrincipalLogging
-    @CacheResult(cacheName = EventAddress.@TABLE@_GET)
-    public Uni<@Name@> get(@CacheKey @IdType@ id) {
-        return @name@DataService.get(id);
+    @CacheResult(cacheName = EventAddress.VALUE_TYPE_GET)
+    public Uni<ValueType> get(@CacheKey Long id) {
+        return valueTypeDataService.get(id);
     }
 
     @Counted
     @PrincipalLogging
-    @CacheResult(cacheName = EventAddress.@TABLE@_PAGE)
+    @CacheResult(cacheName = EventAddress.VALUE_TYPE_PAGE)
     public Uni<Page<Answer>> getPage(@CacheKey PageRequest pageRequest) {
-        return pageService.getPage(pageRequest, @name@DataService::count, @name@DataService::findRange, Answer::of);
+        return pageService.getPage(pageRequest, valueTypeDataService::count, valueTypeDataService::findRange, Answer::of);
     }
 
     @Override
@@ -61,7 +60,7 @@ public class @Name@CacheProvider extends AbstractCacheProvider<@IdType@, @Name@>
     }
 
     @Override
-    public Uni<Answer> invalidateByKey(@IdType@ id, Answer answer) {
+    public Uni<Answer> invalidateByKey(Long id, Answer answer) {
         return invalidateCacheByKey(id).map(l -> answer);
     }
 }

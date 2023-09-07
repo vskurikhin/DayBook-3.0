@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2022.01.12 22:58 by Victor N. Skurikhin.
+ * This file was last modified at 2023.09.07 16:35 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * @Name@Dao.java
@@ -14,7 +14,7 @@ import su.svn.daybook.annotations.PrincipalLogging;
 import su.svn.daybook.annotations.SQL;
 import su.svn.daybook.domain.model.@Name@Table;
 
-import javax.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.ApplicationScoped;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -54,7 +54,7 @@ public class @Name@Dao extends AbstractDao<@IdType@, @Name@Table> implements Dao
 
     @PrincipalLogging
     @SQL(@Name@Table.SELECT_FROM_@SCHEMA@_@TABLE@_WHERE_KEY_$1)
-    public Uni<Optional<@Name@Table>> findBy@Key@(@KType@ @key@) {
+    public Uni<Optional<@Name@Table>> findByKey(@KType@ @key@) {
         return super.findByKeySQL(@key@).map(Optional::ofNullable);
     }
 
