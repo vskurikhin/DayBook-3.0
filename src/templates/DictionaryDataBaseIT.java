@@ -1,8 +1,8 @@
 /*
- * This file was last modified at 2022.12.24 21:17 by Victor N. Skurikhin.
+ * This file was last modified at 2023.09.07 16:35 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
- * DatabaseIT.java
+ * @Name@DataBaseIT.java
  * $Id$
  */
 
@@ -15,7 +15,7 @@ import su.svn.daybook.domain.dao.@Name@Dao;
 import su.svn.daybook.domain.model.@Name@Table;
 import su.svn.daybook.resources.PostgresDatabaseTestResource;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import java.util.UUID;
 
 @QuarkusTest

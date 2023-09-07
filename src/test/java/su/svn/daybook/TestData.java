@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.09.07 14:07 by Victor N. Skurikhin.
+ * This file was last modified at 2023.09.07 16:35 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * TestData.java
@@ -377,31 +377,31 @@ public class TestData {
                 }""";
     }
 
-//    public static class VALUE_TYPE {
-//        public static final ValueType MODEL_0 = new ValueType(
-//                0L, ValueTypeTable.NONE, true, 0
-//        );
-//        public static final ValueTypeTable TABLE_0 = new ValueTypeTable(
-//                0L, ValueTypeTable.NONE, null, null, null, true, true, 0
-//        );
-//        public static final Uni<Page<Answer>> UNI_PAGE_ANSWER_SINGLETON_TEST = Uni.createFrom()
-//                .item(
-//                        Page.<Answer>builder()
-//                                .content(Collections.singletonList(Answer.of(MODEL_0)))
-//                                .build()
-//                );
-//        public static final String JSON_0 = """
-//                {"id":0,"valueType":"\
-//                """ + ValueTypeTable.NONE + """
-//                ","visible":true,"flags":0}\
-//                """;
-//        public static final String JSON_ARRAY_SINGLETON_0 = "[" + JSON_0 + "]";
-//        public static final String JSON_ID_0 = "{\"id\":0}";
-//        public static final String JSON_PAGE_ARRAY_0 = """
-//                {"page":0,"totalRecords":0,"nextPage":false,"prevPage":false,"content":\
-//                """ + JSON_ARRAY_SINGLETON_0 + """
-//                }""";
-//    }
+    public static class VALUE_TYPE {
+        public static final ValueType MODEL_0 = new ValueType(
+                0L, ValueTypeTable.NONE, true, 0
+        );
+        public static final ValueTypeTable TABLE_0 = new ValueTypeTable(
+                0L, ValueTypeTable.NONE, null, null, null, true, true, 0
+        );
+        public static final Uni<Page<Answer>> UNI_PAGE_ANSWER_SINGLETON_TEST = Uni.createFrom()
+                .item(
+                        Page.<Answer>builder()
+                                .content(Collections.singletonList(Answer.of(MODEL_0)))
+                                .build()
+                );
+        public static final String JSON_0 = """
+                {"id":0,"valueType":"\
+                """ + ValueTypeTable.NONE + """
+                ","visible":true,"flags":0}\
+                """;
+        public static final String JSON_ARRAY_SINGLETON_0 = "[" + JSON_0 + "]";
+        public static final String JSON_PAGE_ARRAY_0 = """
+                {"page":0,"totalRecords":0,"nextPage":false,"prevPage":false,"content":\
+                """ + JSON_ARRAY_SINGLETON_0 + """
+                }""";
+        public static final String JSON_ID_0 = "{\"id\":0";
+    }
 
     public static class VOCABULARY {
         public static final Vocabulary MODEL_0 = new Vocabulary(

@@ -2,7 +2,7 @@
  * This file was last modified at 2023.09.07 16:35 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
- * @Name@.java
+ * ValueType.java
  * $Id$
  */
 
@@ -11,29 +11,25 @@ package su.svn.daybook.models.domain;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import su.svn.daybook.annotations.DomainField;
-import su.svn.daybook.domain.model.@Name@Table;
-import su.svn.daybook.models.@IdType@Identification;
+import su.svn.daybook.domain.model.ValueTypeTable;
+import su.svn.daybook.models.LongIdentification;
 
-import jakarta.annotation.Nonnull;
+import javax.annotation.Nonnull;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
-import java.util.UUID;
 
-public final class @Name@ implements @IdType@Identification, Serializable {
+public final class ValueType implements LongIdentification, Serializable {
 
-    public static final String NONE = @Name@Table.NONE;
+    public static final String NONE = ValueTypeTable.NONE;
     @Serial
-    private static final long serialVersionUID = @serialVersionUID@L;
+    private static final long serialVersionUID = 7637967203652690721L;
     @JsonProperty
     @DomainField
-    private final @IdType@ id;
+    private final Long id;
     @JsonProperty
     @DomainField(nullable = false)
-    private final @KType@ @key@;
-    @JsonProperty
-    @DomainField
-    private final @VType@ @value@;
+    private final String valueType;
     @JsonProperty
     @DomainField
     private final boolean visible;
@@ -47,46 +43,39 @@ public final class @Name@ implements @IdType@Identification, Serializable {
     @JsonIgnore
     private transient boolean hashIsZero;
 
-    public @Name@() {
-        this(null, @KType@.ZERO, null, true, 0);
+    public ValueType() {
+        this(null, NONE, true, 0);
     }
 
-    public @Name@(
-            @IdType@ id,
-            @Nonnull @KType@ @key@,
-            @VType@ @value@,
+    public ValueType(
+            Long id,
+            @Nonnull String valueType,
             boolean visible,
             int flags) {
         this.id = id;
-        this.@key@ = @key@;
-        this.@value@ = @value@;
+        this.valueType = valueType;
         this.visible = visible;
         this.flags = flags;
     }
 
     public static Builder builder() {
-        return new @Name@.Builder();
+        return new ValueType.Builder();
     }
 
     public Builder toBuilder() {
         return builder()
                 .id(this.id)
-                .@key@(this.@key@)
-                .@value@(this.@value@)
+                .valueType(this.valueType)
                 .visible(this.visible)
                 .flags(this.flags);
     }
 
-    public @IdType@ id() {
+    public Long id() {
         return id;
     }
 
-    public @KType@ @key@() {
-        return @key@;
-    }
-
-    public @VType@ @value@() {
-        return @value@;
+    public String value_type() {
+        return valueType;
     }
 
     public boolean visible() {
@@ -101,12 +90,11 @@ public final class @Name@ implements @IdType@Identification, Serializable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        var that = (@Name@) o;
+        var that = (ValueType) o;
         return visible == that.visible
                 && flags == that.flags
                 && Objects.equals(id, that.id)
-                && Objects.equals(@key@, that.@key@)
-                && Objects.equals(@value@, that.@value@);
+                && Objects.equals(valueType, that.valueType);
     }
 
     @Override
@@ -124,43 +112,36 @@ public final class @Name@ implements @IdType@Identification, Serializable {
     }
 
     private int calculateHashCode() {
-        return Objects.hash(id, @key@, @value@, visible, flags);
+        return Objects.hash(id, valueType, visible, flags);
     }
 
     @Override
     public String toString() {
-        return "@Name@{" +
+        return "ValueType{" +
                 "id=" + id +
-                ", @key@='" + @key@ + '\'' +
-                ", @value@='" + @value@ + '\'' +
+                ", valueType='" + valueType + '\'' +
                 ", visible=" + visible +
                 ", flags=" + flags +
                 '}';
     }
 
     public static final class Builder {
-        private @IdType@ id;
-        private @Nonnull @KType@ @key@;
-        private @VType@ @value@;
+        private Long id;
+        private @Nonnull String valueType;
         private boolean visible;
         private int flags;
 
         private Builder() {
-            this.@key@ = @KType@.ZERO;
+            this.valueType = NONE;
         }
 
-        public Builder id(@IdType@ id) {
+        public Builder id(Long id) {
             this.id = id;
             return this;
         }
 
-        public Builder @key@(@Nonnull @KType@ @key@) {
-            this.@key@ = @key@;
-            return this;
-        }
-
-        public Builder @value@(@VType@ @value@) {
-            this.@value@ = @value@;
+        public Builder valueType(@Nonnull String valueType) {
+            this.valueType = valueType;
             return this;
         }
 
@@ -174,8 +155,8 @@ public final class @Name@ implements @IdType@Identification, Serializable {
             return this;
         }
 
-        public @Name@ build() {
-            return new @Name@(id, @key@, @value@, visible, flags);
+        public ValueType build() {
+            return new ValueType(id, valueType, visible, flags);
         }
     }
 }

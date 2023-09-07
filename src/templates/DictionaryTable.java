@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.01.10 19:49 by Victor N. Skurikhin.
+ * This file was last modified at 2023.09.07 16:35 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * @Name@Table.java
@@ -17,7 +17,7 @@ import su.svn.daybook.models.Marked;
 import su.svn.daybook.models.Owned;
 import su.svn.daybook.models.TimeUpdated;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -135,6 +135,16 @@ public record @Name@Table(
     @Override
     public Tuple caseInsertTuple() {
         return id != null ? Tuple.tuple(listOf()) : Tuple.of(@key@, @value@, userName, enabled, visible, flags);
+    }
+
+    @Override
+    public String deleteSql() {
+        return DELETE_FROM_@SCHEMA@_@TABLE@_WHERE_ID_$1_RETURNING_S;
+    }
+
+    @Override
+    public String updateSql() {
+        return UPDATE_@SCHEMA@_@TABLE@_WHERE_ID_$1_RETURNING_S;
     }
 
     @Override
