@@ -34,7 +34,7 @@ public class @Name@DataBaseIT {
                     .@key@(@KType@.ONE)
                     .enabled(true)
                     .build();
-            @IdType@ customId = TestData.uuid.ONE;
+            @IdType@ customId = TestData.uuid.TWO;
             super.setUp(@name@Dao, entry, customId);
         }
 

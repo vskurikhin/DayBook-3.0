@@ -113,6 +113,19 @@ public record @Name@Table(
         return new Builder();
     }
 
+    public Builder toBuilder() {
+        return builder()
+        .id(this.id)
+        .@key@(this.@key@)
+        .@value@(this.@value@)
+        .userName(this.userName)
+        .createTime(this.createTime)
+        .updateTime(this.updateTime)
+        .enabled(this.enabled)
+        .visible(this.visible)
+        .flags(this.flags);
+    }
+
     public static @Name@Table from(Row row) {
         return new @Name@Table(
                 row.get@IdType@(ID),

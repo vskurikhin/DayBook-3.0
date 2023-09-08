@@ -77,12 +77,12 @@ public class I18nDataService implements DataService<Long, I18nView, I18n> {
 
     public Uni<Long> put(I18n o) {
         LOG.tracef("put(%s)", o);
-        return putEntry(i18nMapper.convertToI18nTable(o));
+        return putEntry(i18nMapper.convertToI18nTable(o), o.language());
     }
 
-    private Uni<Long> putEntry(I18nTable entry) {
-        return i18nDao
-                .update(entry)
+    private Uni<Long> putEntry(I18nTable entry, String language) {
+        return i18nTransactionalJob
+                .update(entry, language)
                 .map(o -> lookup(o, entry));
     }
 
