@@ -105,6 +105,15 @@ class AbstractDaoTest<I extends Comparable<? extends Serializable>, E extends Ca
         Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(customId, uniOptionalHelper(dao.delete(customId))));
     }
 
+    void whenFindRangeFromZeroToOneThenMultiWithOneItem() {
+        Assertions.assertDoesNotThrow(() -> {
+            var test = multiAsListHelper(dao.findRange(0, 1));
+            Assertions.assertNotNull(test);
+            Assertions.assertFalse(test.isEmpty());
+            Assertions.assertEquals(1, test.size());
+        });
+    }
+
     void whenFindRangeFromZeroToOneThenMultiWithOneItemCustom(BiFunction<I, E, E> toExpected) {
         Assertions.assertDoesNotThrow(() -> {
             var test = multiAsListHelper(dao.findRange(0, 1));

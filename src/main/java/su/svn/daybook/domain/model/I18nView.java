@@ -72,19 +72,6 @@ public record I18nView(
               FROM dictionary.i18n_view
              WHERE message = $1 AND enabled
             """;
-    @Language("SQL")
-    public static final String UPDATE_DICTIONARY_I18N_VIEW_WHERE_ID_$1_RETURNING_S = """
-            UPDATE dictionary.i18n_view SET
-              language = $2,
-              message = $3,
-              translation = $4,
-              user_name = $5,
-              enabled = $6,
-              visible = $7,
-              flags = $8
-             WHERE id = $1
-             RETURNING %s
-            """;
 
     public static Builder builder() {
         return new Builder();

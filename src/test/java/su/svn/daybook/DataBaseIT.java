@@ -19,6 +19,7 @@ import su.svn.daybook.domain.messages.ApiResponse;
 import su.svn.daybook.domain.messages.Request;
 import su.svn.daybook.domain.model.*;
 import su.svn.daybook.domain.transact.I18nTransactionalJob;
+import su.svn.daybook.domain.transact.SettingTransactionalJob;
 import su.svn.daybook.domain.transact.UserTransactionalJob;
 import su.svn.daybook.models.domain.User;
 import su.svn.daybook.resources.PostgresDatabaseTestResource;
@@ -52,8 +53,12 @@ public class DataBaseIT {
     RoleDao roleDao;
     @Inject
     SessionDao sessionDao;
-    //    @Inject
-//    SettingDao settingDao;
+    @Inject
+    SettingDao settingDao;
+    @Inject
+    SettingTransactionalJob settingTransactionalJob;
+    @Inject
+    SettingViewDao settingViewDao;
     @Inject
     TagLabelDao tagLabelDao;
     @Inject
@@ -64,7 +69,6 @@ public class DataBaseIT {
     UserTransactionalJob userTransactionalJob;
     @Inject
     UserViewDao userViewDao;
-
     @Inject
     ValueTypeDao valueTypeDao;
     @Inject
@@ -812,112 +816,283 @@ public class DataBaseIT {
         }
     }
 
-//    @Nested
-//    @DisplayName("SettingDao")
-//    class SettingDaoTest {
-//        Long id;
-//        Long customId = Long.MIN_VALUE;
-//        Long valueTypeId = 0L;
-//        SettingTable entry;
-//        String str = "str";
-//
-//        @BeforeEach
-//        void setUp() {
-//            entry = SettingTable.builder()
-//                    .key(str)
-//                    .valueTypeId(valueTypeId)
-//                    .enabled(true)
-//                    .build();
-//            var valueType = ValueTypeTable.builder()
-//                    .id(valueTypeId)
-//                    .valueType(str)
-//                    .enabled(true)
-//                    .build();
-//            Assertions.assertDoesNotThrow(() -> {
-//                id = uniOptionalHelper(valueTypeDao.insert(valueType));
-//            });
-//            Assertions.assertDoesNotThrow(() -> {
-//                id = uniOptionalHelper(settingDao.insert(entry));
-//            });
-//        }
-//
-//        @AfterEach
-//        void tearDown() {
-//            Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(id, uniOptionalHelper(settingDao.delete(id))));
-//            Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(0, uniOptionalHelper(settingDao.count())));
-//            Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(valueTypeId, uniOptionalHelper(valueTypeDao.delete(valueTypeId))));
-//        }
-//
-//        @Test
-//        void test() {
-//            var expected1 = SettingTable.builder()
-//                    .id(id)
-//                    .key(str)
-//                    .valueTypeId(valueTypeId)
-//                    .enabled(true)
-//                    .build();
-//            Assertions.assertDoesNotThrow(() -> {
-//                var test = uniOptionalHelper(settingDao.findById(id));
-//                Assertions.assertNotNull(test);
-//                Assertions.assertEquals(expected1, test);
-//                Assertions.assertNotNull(test.getCreateTime());
-//                Assertions.assertNull(test.getUpdateTime());
-//            });
-//            var expected2 = SettingTable.builder()
-//                    .id(id)
-//                    .key(str)
-//                    .valueTypeId(valueTypeId)
-//                    .value("value")
-//                    .enabled(true)
-//                    .build();
-//            Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(id, uniOptionalHelper(settingDao.update(expected2))));
-//            Assertions.assertDoesNotThrow(() -> {
-//                var test = uniOptionalHelper(settingDao.findById(id));
-//                Assertions.assertNotNull(test);
-//                Assertions.assertEquals(expected2, test);
-//                Assertions.assertNotNull(test.getCreateTime());
-//                Assertions.assertNotNull(test.getUpdateTime());
-//            });
-//            Assertions.assertDoesNotThrow(() -> {
-//                var test = multiAsListHelper(settingDao.findAll());
-//                Assertions.assertNotNull(test);
-//                Assertions.assertFalse(test.isEmpty());
-//                Assertions.assertEquals(1, test.size());
-//            });
-//            Assertions.assertDoesNotThrow(() -> {
-//                var test = multiAsListHelper(settingDao.findRange(0, 0));
-//                Assertions.assertNotNull(test);
-//                Assertions.assertTrue(test.isEmpty());
-//            });
-//            Assertions.assertDoesNotThrow(() -> {
-//                var test = multiAsListHelper(settingDao.findRange(0, 1));
-//                Assertions.assertNotNull(test);
-//                Assertions.assertFalse(test.isEmpty());
-//                Assertions.assertEquals(1, test.size());
-//            });
-//            var custom = SettingTable.builder()
-//                    .id(customId)
-//                    .key("key")
-//                    .valueTypeId(valueTypeId)
-//                    .enabled(true)
-//                    .build();
-//            Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(customId, uniOptionalHelper(settingDao.insert(custom))));
-//            Assertions.assertDoesNotThrow(() -> {
-//                var test = multiAsListHelper(settingDao.findRange(0, 1));
-//                Assertions.assertNotNull(test);
-//                Assertions.assertFalse(test.isEmpty());
-//                Assertions.assertEquals(1, test.size());
-//                Assertions.assertEquals(custom, test.get(0));
-//            });
-//            Assertions.assertDoesNotThrow(() -> {
-//                var test = multiAsListHelper(settingDao.findRange(0, Long.MAX_VALUE));
-//                Assertions.assertNotNull(test);
-//                Assertions.assertFalse(test.isEmpty());
-//                Assertions.assertEquals(2, test.size());
-//            });
-//            Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(customId, uniOptionalHelper(settingDao.delete(customId))));
-//        }
-//    }
+    @Nested
+    @DisplayName("SettingDao")
+    class SettingDaoTest extends AbstractDaoTest<Long, SettingTable> {
+
+        static Long valueTypeId;
+
+        static final String ONE = new UUID(0, 1).toString();
+        static final String TWO = new UUID(0, 2).toString();
+        static final String NINE = new UUID(0, 9).toString();
+        static final String TEN = new UUID(0, 10).toString();
+
+        @BeforeEach
+        void setUp() {
+            var valueType = ValueTypeTable.builder()
+                    .id(0L)
+                    .valueType(ValueTypeTable.NONE)
+                    .enabled(true)
+                    .build();
+            Assertions.assertDoesNotThrow(() -> {
+                valueTypeId = uniOptionalHelper(valueTypeDao.insert(valueType));
+            });
+            System.out.println("valueTypeId = " + valueTypeId);
+            var entry = SettingTable.builder()
+                    .variable(ONE)
+                    .valueTypeId(valueTypeId)
+                    .enabled(true)
+                    .build();
+            Long customId = 2L;
+            super.setUp(settingDao, entry, customId);
+        }
+
+        @AfterEach
+        void tearDown() {
+            super.tearDown();
+        }
+
+        SettingTable.Builder builder(Long id, String variable, SettingTable test) {
+            return SettingTable.builder()
+                    .id(id)
+                    .variable(variable)
+                    .valueTypeId(valueTypeId)
+                    .createTime(test.createTime())
+                    .updateTime(test.updateTime())
+                    .enabled(true);
+        }
+
+        SettingTable expected(Long id, String variable, SettingTable test) {
+            Assertions.assertNotNull(test);
+            return builder(id, variable, test).build();
+        }
+
+        SettingTable expected(Long id, String variable, String value, SettingTable test) {
+            Assertions.assertNotNull(test);
+            return builder(id, variable, test)
+                    .value(value)
+                    .valueTypeId(valueTypeId)
+                    .build();
+        }
+
+        @Test
+        void test() {
+            super.whenFindByIdThenEntry((id, test) -> expected(id, ONE, test));
+
+            var update = SettingTable.builder()
+                    .id(super.id)
+                    .variable(TWO)
+                    .valueTypeId(valueTypeId)
+                    .build();
+            super.whenUpdateAndFindByIdThenEntry((id, test) -> expected(id, TWO, test), update);
+
+            super.whenFindAllThenMultiWithOneItem();
+            super.whenFindRangeZeroThenEmptiestMulti();
+            super.whenFindRangeFromZeroLimitOneThenMultiWithOneItem();
+
+            var custom = SettingTable.builder()
+                    .id(customId)
+                    .variable(String.valueOf(7))
+                    .value(new String("{}"))
+                    .valueTypeId(valueTypeId)
+                    .build();
+            System.out.println("update = " + update);
+            System.out.println("custom = " + custom);
+            super.whenInsertCustomThenEntry(
+                    (id, test) -> expected(id, String.valueOf(7), new String("{}"), test),
+                    custom
+            );
+            var customUpdate = SettingTable.builder()
+                    .id(customId)
+                    .variable(TEN)
+                    .value(new String("{}"))
+                    .valueTypeId(valueTypeId)
+                    .build();
+            super.whenUpdateCustomAndFindByIdThenEntry(
+                    (id, test) -> expected(id, TEN, new String("{}"), test),
+                    customUpdate
+            );
+
+            super.whenFindRangeFromZeroToOneThenMultiWithOneItem();
+            super.whenFindRangeFromZeroToMaxValueThenMultiWithTwoItems();
+            super.whenFindRangeFromOneLimitOneMultiWithOneItem();
+
+            Assertions.assertDoesNotThrow(() -> {
+                var test = uniOptionalHelper(settingDao.findByVariable(TWO));
+                var expected = expected(super.id, TWO, test);
+                Assertions.assertEquals(expected, test);
+                Assertions.assertNotNull(test.createTime());
+                Assertions.assertNotNull(test.updateTime());
+            });
+
+            Assertions.assertDoesNotThrow(() -> {
+                var test = multiAsListHelper(settingDao.findByValue(new String("{}")));
+                Assertions.assertNotNull(test);
+                Assertions.assertFalse(test.isEmpty());
+                Assertions.assertEquals(1, test.size());
+                var expected = expected(customId, TEN, new String("{}"), test.get(0));
+                Assertions.assertEquals(expected, test.get(0));
+            });
+
+            super.whenDeleteCustomThenOk();
+        }
+    }
+
+    @SuppressWarnings("UnusedReturnValue")
+    @Nested
+    @DisplayName("SettingTransactionalJob")
+    class SettingTransactionalJobTest {
+
+        SettingTable insertEntry1 = SettingTable.builder()
+                .variable("variable1")
+                .value(SettingTable.NONE)
+                .valueTypeId(0L)
+                .build();
+
+        SettingTable insertEntry2 = SettingTable.builder()
+                .variable("variable2")
+                .value(SettingTable.NONE)
+                .valueTypeId(0L)
+                .build();
+
+        @AfterEach
+        void tearDown() {
+            Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(0, uniOptionalHelper(valueTypeDao.count())));
+            Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(0, uniOptionalHelper(sessionDao.count())));
+        }
+
+        @Test
+        void test() {
+            var result1 = whenInsertEntry1ForValueTypeObjectThenOk();
+            var result2 = whenInsertEntry2ForValueTypeStringThenOk();
+
+            var updateEntry1 = SettingTable.builder()
+                    .id(result1)
+                    .variable(insertEntry1.variable())
+                    .value(SettingTable.NONE)
+                    .valueTypeId(0L)
+                    .build();
+            var updateEntry2 = SettingTable.builder()
+                    .id(result2)
+                    .variable(insertEntry2.variable())
+                    .value(SettingTable.NONE)
+                    .valueTypeId(0L)
+                    .build();
+
+            whenUpdateEntryForValueTypehenOk(updateEntry1, "Object");
+            whenUpdateEntryForValueTypehenOk(updateEntry2, "String");
+
+            settingTransactionalJob.delete(updateEntry1).await().indefinitely();
+            settingTransactionalJob.delete(updateEntry2).await().indefinitely();
+
+            var count = settingDao.count().await().indefinitely();
+            Assertions.assertTrue(count.isPresent());
+            Assertions.assertEquals(0, count.get());
+        }
+
+        long whenInsertEntry1ForValueTypeObjectThenOk() {
+            var result = settingTransactionalJob
+                    .insert(insertEntry1, "Object")
+                    .await()
+                    .indefinitely();
+            Assertions.assertTrue(result.isPresent());
+            return result.get();
+        }
+
+        long whenInsertEntry2ForValueTypeStringThenOk() {
+            var result = settingTransactionalJob
+                    .insert(insertEntry2, "String")
+                    .await()
+                    .indefinitely();
+            Assertions.assertTrue(result.isPresent());
+            return result.get();
+        }
+
+        long whenUpdateEntryForValueTypehenOk(SettingTable entry, String lang) {
+            var result = settingTransactionalJob
+                    .update(entry, lang)
+                    .await()
+                    .indefinitely();
+            Assertions.assertTrue(result.isPresent());
+            return result.get();
+        }
+    }
+
+    @Nested
+    @DisplayName("SettingViewDao")
+    class SettingViewDaoTest extends AbstractViewDaoTest<Long, SettingTable, SettingView> {
+
+        String messageEntry2;
+
+        AbstractDaoTest<Long, ValueTypeTable> valueTypeDaoTest = new AbstractDaoTest<>();
+
+        @BeforeEach
+        void setUp() {
+            var valueType = ValueTypeTable.builder()
+                    .valueType(ValueTypeTable.NONE)
+                    .enabled(true)
+                    .build();
+            messageEntry2 = UUID.randomUUID().toString();
+            valueTypeDaoTest.setUp(valueTypeDao, valueType, 0L);
+            var entry1 = SettingTable.builder()
+                    .variable("variable1")
+                    .valueTypeId(valueTypeDaoTest.id)
+                    .value(SettingTable.NONE)
+                    .enabled(true)
+                    .build();
+            var entry2 = SettingTable.builder()
+                    .variable("variable2")
+                    .valueTypeId(valueTypeDaoTest.id)
+                    .value(messageEntry2)
+                    .enabled(true)
+                    .build();
+            super.setUp(settingDao, settingViewDao, entry1, entry2);
+        }
+
+        @AfterEach
+        void tearDown() {
+            super.tearDown();
+            valueTypeDaoTest.tearDown();
+        }
+
+        SettingView.Builder builder(Long id, String valueType, SettingView test) {
+            return SettingView.builder()
+                    .id(id)
+                    .variable(test.variable())
+                    .valueType(ValueTypeTable.NONE)
+                    .value(valueType)
+                    .createTime(test.createTime())
+                    .updateTime(test.updateTime())
+                    .enabled(true);
+        }
+
+        SettingView expected(Long id, String valueType, SettingView test) {
+            Assertions.assertNotNull(test);
+            return builder(id, valueType, test).build();
+        }
+
+        SettingView expected(Long id, String valueType, String value, SettingView test) {
+            Assertions.assertNotNull(test);
+            return builder(id, valueType, test).value(value).build();
+        }
+
+        @Test
+        void test() {
+            super.whenFindById1ThenEntry((id, test) -> expected(id, SettingTable.NONE, test));
+            super.whenFindById2ThenEntry((id, test) -> expected(id, messageEntry2, test));
+
+            super.whenFindAllThenMultiWithOneItem();
+            super.whenFindRangeZeroThenEmptiestMulti();
+
+            super.whenFindRangeFromZeroLimitOneThenMultiWithOneItem(
+                    (id, test) -> expected(id, SettingTable.NONE, test)
+            );
+            super.whenFindRangeFromOneLimitOneMultiWithOneItem(
+                    (id, test) -> expected(id, messageEntry2, test)
+            );
+            super.whenFindRangeFromZeroToMaxValueThenMultiWithTwoItems();
+        }
+    }
 
     @Nested
     @DisplayName("TagLabelDao")
@@ -1260,7 +1435,6 @@ public class DataBaseIT {
         }
     }
 
-
     @Nested
     @DisplayName("UserTransactionalJob")
     class UserTransactionalJobTest {
@@ -1392,7 +1566,6 @@ public class DataBaseIT {
     class ValueTypeDaoTest extends AbstractDaoTest<Long, ValueTypeTable> {
 
         static final String TWO = new UUID(0, 2).toString();
-        static final String SEVEN = new UUID(0, 7).toString();
         static final String NINE = new UUID(0, 9).toString();
         static final String TEN = new UUID(0, 10).toString();
 
