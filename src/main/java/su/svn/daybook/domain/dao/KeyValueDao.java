@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.09.06 17:04 by Victor N. Skurikhin.
+ * This file was last modified at 2023.11.19 16:20 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * KeyValueDao.java
@@ -39,7 +39,9 @@ public class KeyValueDao extends AbstractDao<UUID, KeyValueTable> implements Dao
     @PrincipalLogging
     @SQL(KeyValueTable.DELETE_FROM_DICTIONARY_KEY_VALUE_WHERE_ID_$1_RETURNING_S)
     public Uni<Optional<UUID>> delete(UUID id) {
-        return super.deleteSQL(id).map(Optional::ofNullable);
+        return super
+                .deleteSQL(id)
+                .map(Optional::ofNullable);
     }
 
     @Override
@@ -52,13 +54,17 @@ public class KeyValueDao extends AbstractDao<UUID, KeyValueTable> implements Dao
     @PrincipalLogging
     @SQL(KeyValueTable.SELECT_FROM_DICTIONARY_KEY_VALUE_WHERE_ID_$1)
     public Uni<Optional<KeyValueTable>> findById(UUID id) {
-        return super.findByIdSQL(id).map(Optional::ofNullable);
+        return super
+                .findByIdSQL(id)
+                .map(Optional::ofNullable);
     }
 
     @PrincipalLogging
     @SQL(KeyValueTable.SELECT_FROM_DICTIONARY_KEY_VALUE_WHERE_KEY_$1)
     public Uni<Optional<KeyValueTable>> findByKey(BigInteger key) {
-        return super.findByKeySQL(key).map(Optional::ofNullable);
+        return super
+                .findByKeySQL(key)
+                .map(Optional::ofNullable);
     }
 
     @SQL(KeyValueTable.SELECT_FROM_DICTIONARY_KEY_VALUE_WHERE_VALUE_$1)
@@ -76,27 +82,35 @@ public class KeyValueDao extends AbstractDao<UUID, KeyValueTable> implements Dao
     @PrincipalLogging
     @SQL
     public Uni<Optional<UUID>> insert(KeyValueTable entry) {
-        return super.insertSQL(entry).map(Optional::ofNullable);
+        return super
+                .insertSQL(entry)
+                .map(Optional::ofNullable);
     }
 
     @Override
     @PrincipalLogging
     @SQL
     public Uni<Optional<KeyValueTable>> insertEntry(KeyValueTable entry) {
-        return super.insertSQLEntry(entry).map(Optional::ofNullable);
+        return super
+                .insertSQLEntry(entry)
+                .map(Optional::ofNullable);
     }
 
     @Override
     @PrincipalLogging
     @SQL(KeyValueTable.UPDATE_DICTIONARY_KEY_VALUE_WHERE_ID_$1_RETURNING_S)
     public Uni<Optional<UUID>> update(KeyValueTable entry) {
-        return super.updateSQL(entry).map(Optional::ofNullable);
+        return super
+                .updateSQL(entry)
+                .map(Optional::ofNullable);
     }
 
     @Override
     @PrincipalLogging
     @SQL(KeyValueTable.UPDATE_DICTIONARY_KEY_VALUE_WHERE_ID_$1_RETURNING_S)
     public Uni<Optional<KeyValueTable>> updateEntry(KeyValueTable entry) {
-        return super.updateSQLEntry(entry).map(Optional::ofNullable);
+        return super
+                .updateSQLEntry(entry)
+                .map(Optional::ofNullable);
     }
 }

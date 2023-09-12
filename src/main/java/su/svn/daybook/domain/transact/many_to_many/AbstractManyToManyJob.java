@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.09.07 14:07 by Victor N. Skurikhin.
+ * This file was last modified at 2023.11.19 16:20 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * AbstractManyToManyJob.java
@@ -9,7 +9,6 @@
 package su.svn.daybook.domain.transact.many_to_many;
 
 import io.smallrye.mutiny.Uni;
-import io.vertx.mutiny.sqlclient.Pool;
 import io.vertx.mutiny.sqlclient.Row;
 import io.vertx.mutiny.sqlclient.RowIterator;
 import jakarta.inject.Inject;
@@ -28,13 +27,13 @@ import java.util.function.Function;
 public abstract class AbstractManyToManyJob<
         MainId extends Comparable<? extends Serializable>,
         MainTable extends CasesOfId<MainId>,
-        SubId extends Comparable<? extends Serializable>,
-        Subsidiary extends CasesOfId<SubId>,
+        RelId extends Comparable<? extends Serializable>,
+        Relative extends CasesOfId<RelId>,
         MainField extends Comparable<? extends Serializable>,
-        SubField extends Comparable<? extends Serializable>> extends ActionJob {
+        RelField extends Comparable<? extends Serializable>> extends ActionJob {
 
     private final Function<MainTable, MainField> getMainField;
-    private final ManyToManyHelperFactory<MainId, MainTable, SubId, Subsidiary, MainField, SubField> helperFactory;
+    private final ManyToManyHelperFactory<MainId, MainTable, RelId, Relative, MainField, RelField> helperFactory;
     private final Logger log;
 
     @Inject
@@ -51,21 +50,21 @@ public abstract class AbstractManyToManyJob<
 
     protected abstract Function<Optional<?>, Optional<MainId>> castOptionalMainId();
 
-    protected abstract Function<Optional<?>, Optional<SubId>> castOptionalSubId();
+    protected abstract Function<Optional<?>, Optional<RelId>> castOptionalRelativeId();
 
-    public abstract Uni<Optional<MainId>> insert(MainTable table, Collection<SubField> collection);
+    public abstract Uni<Optional<MainId>> insert(MainTable table, Collection<RelField> collection);
 
-    public abstract Uni<Optional<MainId>> update(MainTable table, Collection<SubField> collection);
+    public abstract Uni<Optional<MainId>> update(MainTable table, Collection<RelField> collection);
 
     public abstract Uni<Optional<MainId>> delete(MainTable table);
 
-    protected Uni<Optional<MainId>> doInsert(MainTable table, Collection<SubField> collection) {
+    protected Uni<Optional<MainId>> doInsert(MainTable table, Collection<RelField> collection) {
         log.tracef("doInsert(%s, %s)", table, collection);
         var helper = helperFactory.createInsertHelper(table, getMainField.apply(table), collection);
         return pool.withTransaction(helper);
     }
 
-    protected Uni<Optional<MainId>> doUpdate(MainTable table, Collection<SubField> collection) {
+    protected Uni<Optional<MainId>> doUpdate(MainTable table, Collection<RelField> collection) {
         log.tracef("doUpdate(%s, %s)", table, collection);
         var helper = helperFactory.createUpdateHelper(table, getMainField.apply(table), collection);
         return pool.withTransaction(helper);

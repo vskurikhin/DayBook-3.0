@@ -1,3 +1,11 @@
+/*
+ * This file was last modified at 2023.11.19 16:20 by Victor N. Skurikhin.
+ * This is free and unencumbered software released into the public domain.
+ * For more information, please refer to <http://unlicense.org>
+ * CollectorAnnotatedModelFiled.java
+ * $Id$
+ */
+
 package su.svn.daybook.converters;
 
 import su.svn.daybook.annotations.ModelField;

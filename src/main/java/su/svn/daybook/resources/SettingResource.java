@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.09.07 16:35 by Victor N. Skurikhin.
+ * This file was last modified at 2023.11.19 11:15 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * SettingResource.java
@@ -34,7 +34,6 @@ import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
-import java.util.UUID;
 
 @PrincipalLogging
 @Path(ResourcePath.SETTING)

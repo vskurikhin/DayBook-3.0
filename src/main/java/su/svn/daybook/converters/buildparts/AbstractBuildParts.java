@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.09.06 17:04 by Victor N. Skurikhin.
+ * This file was last modified at 2023.11.19 16:20 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * AbstractBuildParts.java
@@ -25,6 +25,8 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static su.svn.daybook.utils.AccessorsUtil.isFieldAndMethodNameEquals;
 
 abstract class AbstractBuildParts<P extends Identification<? extends Comparable<? extends Serializable>>>
         implements BuildParts {
@@ -75,14 +77,20 @@ abstract class AbstractBuildParts<P extends Identification<? extends Comparable<
 
     private Optional<Map.Entry<String, MethodRecord>> optionalEntryStringMethod(Field field) {
         return searchBuildPart(field)
-                .map(method -> new AbstractMap.SimpleEntry<>(field.getName(), extractMethodRecord(field, method)));
+                .map(method -> createSimpleEntry(field, method));
+    }
+
+    @Nonnull
+    private AbstractMap.SimpleEntry<String, MethodRecord> createSimpleEntry(Field field, Method method) {
+        return new AbstractMap.SimpleEntry<>(field.getName(), extractMethodRecord(field, method));
     }
 
     private Optional<Method> searchBuildPart(Field field) {
         var builder = builderFactory.get();
         return Arrays
                 .stream(builder.getClass().getDeclaredMethods())
-                .filter(method -> method.getName().equals(field.getName()))
+                .filter(method -> isFieldAndMethodNameEquals(field, method))
                 .findFirst();
     }
+
 }

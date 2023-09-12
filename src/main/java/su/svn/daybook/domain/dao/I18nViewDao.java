@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.09.06 17:04 by Victor N. Skurikhin.
+ * This file was last modified at 2023.11.19 16:20 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * I18nViewDao.java
@@ -40,13 +40,17 @@ public class I18nViewDao extends AbstractViewDao<Long, I18nView> implements DaoV
     @PrincipalLogging
     @SQL(I18nView.SELECT_FROM_DICTIONARY_I18N_VIEW_WHERE_ID_$1)
     public Uni<Optional<I18nView>> findById(Long id) {
-        return super.findByIdSQL(id).map(Optional::ofNullable);
+        return super
+                .findByIdSQL(id)
+                .map(Optional::ofNullable);
     }
 
     @PrincipalLogging
     @SQL(I18nView.SELECT_FROM_DICTIONARY_I18N_VIEW_WHERE_LANGUAGE_$1_MESSAGE_$2)
     public Uni<Optional<I18nView>> findByKey(String language, String message) {
-        return super.findByKeySQL(List.of(language, message)).map(Optional::ofNullable);
+        return super
+                .findByKeySQL(List.of(language, message))
+                .map(Optional::ofNullable);
     }
 
     @SQL(I18nView.SELECT_FROM_DICTIONARY_I18N_VIEW_WHERE_VALUE_$1)

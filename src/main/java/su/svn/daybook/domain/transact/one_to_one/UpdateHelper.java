@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.09.06 19:32 by Victor N. Skurikhin.
+ * This file was last modified at 2023.11.19 16:20 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * UpdateHelper.java
@@ -71,19 +71,20 @@ class UpdateHelper<
     }
 
     private Uni<Optional<JoinId>> insertJoin(Map<String, Action> map) {
-        var action = map.get(Constants.INSERT_JOIN);
+        var action = map.get(Constants.INSERT_INTO_RELATION);
         var join = joinFieldBuilder.apply(this.field);
         return super.insertJoin(action, join);
     }
 
     private Uni<Optional<MainId>> updateMain(Map<String, Action> map, JoinId joinId) {
-        var action = map.get(Constants.UPDATE_MAIN);
+        var action = map.get(Constants.UPDATE_MAIN_TABLE);
         var main = tableBuilder.apply(super.table, joinId);
         return super.connection
                 .preparedQuery(String.format(Helper.updateSql(action, main), Constants.ID))
                 .execute(Helper.updateTuple(action, main))
                 .map(RowSet::iterator)
-                .map(iteratorNextMapper(action, Constants.UPDATE_MAIN))
-                .map(job.castOptionalMainId());
+                .map(iteratorNextMapper(action, Constants.UPDATE_MAIN_TABLE))
+                .map(job.castOptionalMainId())
+                .log();
     }
 }

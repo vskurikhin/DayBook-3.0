@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.09.06 19:32 by Victor N. Skurikhin.
+ * This file was last modified at 2023.11.19 16:20 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * DeleteHelper.java
@@ -26,20 +26,23 @@ import java.util.Optional;
 class DeleteHelper<
         MainId extends Comparable<? extends Serializable>,
         MainTable extends CasesOfId<MainId>,
-        SubId extends Comparable<? extends Serializable>,
-        Subsidiary extends CasesOfId<SubId>,
+        RelId extends Comparable<? extends Serializable>,
+        Relative extends CasesOfId<RelId>,
         MainField extends Comparable<? extends Serializable>,
-        SubField extends Comparable<? extends Serializable>>
-        extends AbstractHelper<MainId, MainTable, SubId, Subsidiary, MainField, SubField> {
+        RelField extends Comparable<? extends Serializable>>
+        extends AbstractHelper<MainId, MainTable, RelId, Relative, MainField, RelField> {
 
     private static final Logger LOG = Logger.getLogger(DeleteHelper.class);
 
+    protected final MainTable table;
+
     protected DeleteHelper(
-            @Nonnull AbstractManyToManyJob<MainId, MainTable, SubId, Subsidiary, MainField, SubField> job,
+            @Nonnull AbstractManyToManyJob<MainId, MainTable, RelId, Relative, MainField, RelField> job,
             @Nonnull Map<String, Map<String, Action>> map,
             @Nonnull MainTable table,
             MainField field) {
         super(job, map.get(Constants.DELETE), table, field);
+        this.table = table;
     }
 
     @Override
@@ -49,7 +52,7 @@ class DeleteHelper<
     }
 
     private Uni<Optional<MainId>> delete() {
-        LOG.tracef("checkCountInJoinTableAndThenUpdate");
+        LOG.tracef("delete");
         return deleteAllRelation()
                 .flatMap(this::deleteEntry);
     }
@@ -61,7 +64,8 @@ class DeleteHelper<
                 .execute(Tuple.of(table.id()))
                 .map(RowSet::iterator)
                 .map(iteratorNextMapper(action, Constants.DELETE_MAIN))
-                .map(job.castOptionalMainId());
+                .map(job.castOptionalMainId())
+                .log();
     }
 
     private Uni<Long> deleteAllRelation() {

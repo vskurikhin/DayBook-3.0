@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.09.06 17:04 by Victor N. Skurikhin.
+ * This file was last modified at 2023.11.19 16:20 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * UserNameDao.java
@@ -35,7 +35,9 @@ public class UserNameDao extends AbstractDao<UUID, UserNameTable> {
     @PrincipalLogging
     @SQL(UserNameTable.DELETE_FROM_SECURITY_USER_NAME_WHERE_ID_$1)
     public Uni<Optional<UUID>> delete(UUID id) {
-        return super.deleteSQL(id).map(Optional::ofNullable);
+        return super
+                .deleteSQL(id)
+                .map(Optional::ofNullable);
     }
 
     @SQL(UserNameTable.SELECT_ALL_FROM_SECURITY_USER_NAME_ORDER_BY_ID_ASC)
@@ -46,7 +48,9 @@ public class UserNameDao extends AbstractDao<UUID, UserNameTable> {
     @PrincipalLogging
     @SQL(UserNameTable.SELECT_FROM_SECURITY_USER_NAME_WHERE_ID_$1)
     public Uni<Optional<UserNameTable>> findById(UUID id) {
-        return super.findByIdSQL(id).map(Optional::ofNullable);
+        return super
+                .findByIdSQL(id)
+                .map(Optional::ofNullable);
     }
 
     @SQL(UserNameTable.SELECT_ALL_FROM_SECURITY_USER_NAME_ORDER_BY_ID_ASC_OFFSET_LIMIT)
@@ -57,12 +61,16 @@ public class UserNameDao extends AbstractDao<UUID, UserNameTable> {
     @PrincipalLogging
     @SQL
     public Uni<Optional<UUID>> insert(UserNameTable entry) {
-        return super.insertSQL(entry).map(Optional::ofNullable);
+        return super
+                .insertSQL(entry)
+                .map(Optional::ofNullable);
     }
 
     @PrincipalLogging
     @SQL(UserNameTable.UPDATE_SECURITY_USER_NAME_WHERE_ID_$1)
     public Uni<Optional<UUID>> update(UserNameTable entry) {
-        return super.updateSQL(entry).map(Optional::ofNullable);
+        return super
+                .updateSQL(entry)
+                .map(Optional::ofNullable);
     }
 }

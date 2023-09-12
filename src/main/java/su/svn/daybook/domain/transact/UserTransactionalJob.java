@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.09.07 14:07 by Victor N. Skurikhin.
+ * This file was last modified at 2023.11.19 16:20 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * UserTransactionalJob.java
@@ -45,8 +45,8 @@ public class UserTransactionalJob extends AbstractManyToManyJob<UUID, UserNameTa
                              WHERE role NOT IN (SELECT role FROM security.role);
                             """,
                     tupleMapper = TupleMapperEnum.StringTuple,
-                    name = Constants.COUNT_NOT_EXISTS),
-            @TransactionAction(name = Constants.INSERT_MAIN),
+                    name = Constants.CHECK_NOT_IN_RELATIVE),
+            @TransactionAction(name = Constants.INSERT_INTO_MAIN),
             @TransactionAction(
                     value = """
                             INSERT INTO security.user_has_roles
@@ -56,7 +56,7 @@ public class UserTransactionalJob extends AbstractManyToManyJob<UUID, UserNameTa
                                 WHERE (username, role) NOT IN
                                  (SELECT user_name, role FROM security.user_has_roles));
                             """,
-                    name = Constants.INSERT_JOIN2),
+                    name = Constants.INSERT_INTO_RELATION_BY_2_VALUES),
             @TransactionAction(
                     value = """
                             INSERT INTO security.user_has_roles
@@ -66,7 +66,7 @@ public class UserTransactionalJob extends AbstractManyToManyJob<UUID, UserNameTa
                                 WHERE (user_name, role) NOT IN
                                  (SELECT user_name, role FROM security.user_has_roles));
                             """,
-                    name = Constants.INSERT_JOIN4),
+                    name = Constants.INSERT_INTO_RELATION_BY_4_VALUES),
             @TransactionAction(
                     value = """
                             DELETE FROM security.user_has_roles
@@ -88,7 +88,6 @@ public class UserTransactionalJob extends AbstractManyToManyJob<UUID, UserNameTa
         return super.doInsert(table, collection);
     }
 
-
     @Override
     @TransactionActions({
             @TransactionAction(
@@ -97,8 +96,8 @@ public class UserTransactionalJob extends AbstractManyToManyJob<UUID, UserNameTa
                              WHERE role NOT IN (SELECT role FROM security.role);
                             """,
                     tupleMapper = TupleMapperEnum.StringTuple,
-                    name = Constants.COUNT_NOT_EXISTS),
-            @TransactionAction(name = Constants.UPDATE_MAIN),
+                    name = Constants.CHECK_NOT_IN_RELATIVE),
+            @TransactionAction(name = Constants.UPDATE_MAIN_TABLE),
             @TransactionAction(
                     value = """
                             INSERT INTO security.user_has_roles
@@ -108,7 +107,7 @@ public class UserTransactionalJob extends AbstractManyToManyJob<UUID, UserNameTa
                                 WHERE (username, role) NOT IN
                                  (SELECT user_name, role FROM security.user_has_roles));
                             """,
-                    name = Constants.INSERT_JOIN2),
+                    name = Constants.INSERT_INTO_RELATION_BY_2_VALUES),
             @TransactionAction(
                     value = """
                             INSERT INTO security.user_has_roles
@@ -118,7 +117,7 @@ public class UserTransactionalJob extends AbstractManyToManyJob<UUID, UserNameTa
                                 WHERE (user_name, role) NOT IN
                                  (SELECT user_name, role FROM security.user_has_roles));
                             """,
-                    name = Constants.INSERT_JOIN4),
+                    name = Constants.INSERT_INTO_RELATION_BY_4_VALUES),
             @TransactionAction(
                     value = """
                             DELETE FROM security.user_has_roles
@@ -157,7 +156,7 @@ public class UserTransactionalJob extends AbstractManyToManyJob<UUID, UserNameTa
     @Override
     protected Function<RowIterator<Row>, Optional<?>> iteratorNextMapper(String actionName) {
         return switch (actionName) {
-            case Constants.INSERT_MAIN, Constants.UPDATE_MAIN, Constants.DELETE_MAIN -> iterator ->
+            case Constants.INSERT_INTO_MAIN, Constants.UPDATE_MAIN_TABLE, Constants.DELETE_MAIN -> iterator ->
                     iterator.hasNext() ? Optional.of(iterator.next().getUUID(UserNameTable.ID)) : Optional.empty();
             default -> throw new IllegalStateException("Unexpected value: " + actionName);
         };
@@ -169,7 +168,7 @@ public class UserTransactionalJob extends AbstractManyToManyJob<UUID, UserNameTa
     }
 
     @Override
-    protected Function<Optional<?>, Optional<UUID>> castOptionalSubId() {
+    protected Function<Optional<?>, Optional<UUID>> castOptionalRelativeId() {
         return o -> o.flatMap(l -> (l instanceof UUID result) ? Optional.of(result) : Optional.empty());
     }
 }

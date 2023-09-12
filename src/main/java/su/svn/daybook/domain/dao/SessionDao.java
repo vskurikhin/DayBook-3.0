@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.09.06 17:04 by Victor N. Skurikhin.
+ * This file was last modified at 2023.11.19 16:20 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * SessionDao.java
@@ -35,7 +35,9 @@ public class SessionDao extends AbstractDao<UUID, SessionTable> {
     @PrincipalLogging
     @SQL(SessionTable.DELETE_FROM_SECURITY_SESSION_WHERE_ID_$1)
     public Uni<Optional<UUID>> delete(UUID id) {
-        return super.deleteSQL(id).map(Optional::ofNullable);
+        return super
+                .deleteSQL(id)
+                .map(Optional::ofNullable);
     }
 
     @SQL(SessionTable.SELECT_ALL_FROM_SECURITY_SESSION_ORDER_BY_ID_ASC)
@@ -46,7 +48,9 @@ public class SessionDao extends AbstractDao<UUID, SessionTable> {
     @PrincipalLogging
     @SQL(SessionTable.SELECT_FROM_SECURITY_SESSION_WHERE_ID_$1)
     public Uni<Optional<SessionTable>> findById(UUID id) {
-        return super.findByIdSQL(id).map(Optional::ofNullable);
+        return super
+                .findByIdSQL(id)
+                .map(Optional::ofNullable);
     }
 
     @SQL(SessionTable.SELECT_FROM_SECURITY_SESSION_WHERE_USER_NAME_$1)
@@ -67,12 +71,16 @@ public class SessionDao extends AbstractDao<UUID, SessionTable> {
     @PrincipalLogging
     @SQL
     public Uni<Optional<UUID>> insert(SessionTable entry) {
-        return super.insertSQL(entry).map(Optional::ofNullable);
+        return super
+                .insertSQL(entry)
+                .map(Optional::ofNullable);
     }
 
     @PrincipalLogging
     @SQL(SessionTable.UPDATE_SECURITY_SESSION_WHERE_ID_$1)
     public Uni<Optional<UUID>> update(SessionTable entry) {
-        return super.updateSQL(entry).map(Optional::ofNullable);
+        return super
+                .updateSQL(entry)
+                .map(Optional::ofNullable);
     }
 }

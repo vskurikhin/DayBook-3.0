@@ -1,8 +1,8 @@
 /*
- * This file was last modified at 2023.09.07 14:07 by Victor N. Skurikhin.
+ * This file was last modified at 2023.11.19 16:20 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
- * I18nTransactionalJob.java
+ * SettingTransactionalJob.java
  * $Id$
  */
 
@@ -50,8 +50,8 @@ public class SettingTransactionalJob extends AbstractOneToOneJob<Long, SettingTa
                             """,
                     tupleMapper = TupleMapperEnum.StringTuple,
                     name = Constants.FIND_FIELD_ID),
-            @TransactionAction(name = Constants.INSERT_MAIN),
-            @TransactionAction(name = Constants.INSERT_JOIN),
+            @TransactionAction(name = Constants.INSERT_INTO_MAIN),
+            @TransactionAction(name = Constants.INSERT_INTO_RELATION),
     })
     public Uni<Optional<Long>> insert(SettingTable table, String field) {
         return super.doInsert(table, field);
@@ -66,8 +66,8 @@ public class SettingTransactionalJob extends AbstractOneToOneJob<Long, SettingTa
                             """,
                     tupleMapper = TupleMapperEnum.StringTuple,
                     name = Constants.FIND_FIELD_ID),
-            @TransactionAction(name = Constants.UPDATE_MAIN),
-            @TransactionAction(name = Constants.INSERT_JOIN),
+            @TransactionAction(name = Constants.UPDATE_MAIN_TABLE),
+            @TransactionAction(name = Constants.INSERT_INTO_RELATION),
     })
     public Uni<Optional<Long>> update(SettingTable table, String field) {
         return super.doUpdate(table, field);
@@ -91,9 +91,9 @@ public class SettingTransactionalJob extends AbstractOneToOneJob<Long, SettingTa
     @Override
     protected Function<RowIterator<Row>, Optional<?>> iteratorNextMapper(String actionName) {
         return switch (actionName) {
-            case Constants.FIND_FIELD_ID, Constants.INSERT_JOIN -> iterator ->
+            case Constants.FIND_FIELD_ID, Constants.INSERT_INTO_RELATION -> iterator ->
                     iterator.hasNext() ? Optional.of(iterator.next().getLong(ValueTypeTable.ID)) : Optional.empty();
-            case Constants.INSERT_MAIN, Constants.UPDATE_MAIN -> iterator ->
+            case Constants.INSERT_INTO_MAIN, Constants.UPDATE_MAIN_TABLE -> iterator ->
                     iterator.hasNext() ? Optional.of(iterator.next().getLong(SettingTable.ID)) : Optional.empty();
             default -> throw new IllegalStateException("Unexpected value: " + actionName);
         };

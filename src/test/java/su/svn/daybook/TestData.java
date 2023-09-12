@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.09.07 16:35 by Victor N. Skurikhin.
+ * This file was last modified at 2023.09.12 22:02 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * TestData.java
@@ -273,13 +273,13 @@ public class TestData {
 
     public static class SETTING {
         public static final Setting MODEL_0 = new Setting(
-                0L, SettingTable.NONE, null, Setting.DEFAULT_TYPE, true, 0
+                0L, SettingTable.NONE, null, Setting.DEFAULT_TYPE, 0L, true, 0
         );
         public static final SettingTable TABLE_0 = new SettingTable(
-                0L, SettingTable.NONE, null, null, null, null, null, true, true, 0
+                0L, SettingTable.NONE, null, 0L, 0L, null, null, null, true, true, 0
         );
         public static final SettingView VIEW_0 = new SettingView(
-                0L, SettingTable.NONE, null, Setting.DEFAULT_TYPE, null, null, null, true, true, 0
+                0L, SettingTable.NONE, null, Setting.DEFAULT_TYPE, 0L, null, null, null, true, true, 0
         );
         public static final Uni<Page<Answer>> UNI_PAGE_ANSWER_SINGLETON_TEST = Uni.createFrom()
                 .item(
@@ -290,6 +290,35 @@ public class TestData {
         public static final String JSON_0 = """
                 {"id":0,"key":"\
                 """ + SettingTable.NONE + """
+                ","valueTypeId":0,"visible":true,"flags":0}\
+                """;
+        public static final String JSON_ARRAY_SINGLETON_0 = "[" + JSON_0 + "]";
+        public static final String JSON_ID_0 = "{\"id\":0}";
+        public static final String JSON_PAGE_ARRAY_0 = """
+                {"page":0,"totalRecords":0,"nextPage":false,"prevPage":false,"content":\
+                """ + JSON_ARRAY_SINGLETON_0 + """
+                }""";
+    }
+
+    public static class STANZA {
+        public static final Stanza MODEL_0 = new Stanza(
+                0L, StanzaTable.NONE, null, Stanza.ROOT, Collections.emptySet(), true, 0
+        );
+        public static final StanzaTable TABLE_0 = new StanzaTable(
+                0L, StanzaTable.NONE, null, 0L, null, null, null, true, true, 0
+        );
+        public static final StanzaView VIEW_0 = new StanzaView(
+                0L, StanzaTable.NONE, null, StanzaTable.ROOT, Collections.emptySet(),null, null, null, true, true, 0
+        );
+        public static final Uni<Page<Answer>> UNI_PAGE_ANSWER_SINGLETON_TEST = Uni.createFrom()
+                .item(
+                        Page.<Answer>builder()
+                                .content(Collections.singletonList(Answer.of(MODEL_0)))
+                                .build()
+                );
+        public static final String JSON_0 = """
+                {"id":0,"key":"\
+                """ + StanzaTable.NONE + """
                 ","valueTypeId":0,"visible":true,"flags":0}\
                 """;
         public static final String JSON_ARRAY_SINGLETON_0 = "[" + JSON_0 + "]";

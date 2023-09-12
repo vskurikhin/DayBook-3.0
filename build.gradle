@@ -68,8 +68,11 @@ dependencies {
     implementation "io.netty:netty-transport-native-epoll:$libVers.netty:linux-x86_64"
     implementation "io.netty:netty-transport-native-kqueue:$libVers.netty:osx-x86_64"
 
+    implementation "org.jboss.slf4j:slf4j-jboss-logmanager"
+
     implementation "com.google.code.findbugs:jsr305:$libVers.jsr305"
     implementation "com.google.guava:guava:$libVers.guava"
+    implementation "org.apache.commons:commons-lang3:3.13.0"
     implementation "org.jetbrains:annotations"
 
     liquibaseRuntime 'info.picocli:picocli:4.6.3'

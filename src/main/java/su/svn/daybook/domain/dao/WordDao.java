@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.09.06 17:04 by Victor N. Skurikhin.
+ * This file was last modified at 2023.11.19 16:20 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * WordDao.java
@@ -34,7 +34,9 @@ public class WordDao extends AbstractDao<String, WordTable> implements DaoIface<
     @PrincipalLogging
     @SQL(WordTable.DELETE_FROM_DICTIONARY_WORD_WHERE_ID_$1)
     public Uni<Optional<String>> delete(String id) {
-        return super.deleteSQL(id).map(Optional::ofNullable);
+        return super
+                .deleteSQL(id)
+                .map(Optional::ofNullable);
     }
 
     @SQL(WordTable.SELECT_ALL_FROM_DICTIONARY_WORD_ORDER_BY_ID_ASC)
@@ -45,7 +47,9 @@ public class WordDao extends AbstractDao<String, WordTable> implements DaoIface<
     @PrincipalLogging
     @SQL(WordTable.SELECT_FROM_DICTIONARY_WORD_WHERE_ID_$1)
     public Uni<Optional<WordTable>> findById(String id) {
-        return super.findByIdSQL(id).map(Optional::ofNullable);
+        return super
+                .findByIdSQL(id)
+                .map(Optional::ofNullable);
     }
 
     public Uni<Optional<WordTable>> findByWord(String word) {
@@ -60,24 +64,32 @@ public class WordDao extends AbstractDao<String, WordTable> implements DaoIface<
     @PrincipalLogging
     @SQL(WordTable.INSERT_INTO_DICTIONARY_WORD_RETURNING_S)
     public Uni<Optional<String>> insert(WordTable entry) {
-        return super.insertSQL(entry).map(Optional::ofNullable);
+        return super
+                .insertSQL(entry)
+                .map(Optional::ofNullable);
     }
 
     @Override
     @SQL(WordTable.INSERT_INTO_DICTIONARY_WORD_RETURNING_S)
     public Uni<Optional<WordTable>> insertEntry(WordTable entry) {
-        return super.insertSQLEntry(entry).map(Optional::ofNullable);
+        return super
+                .insertSQLEntry(entry)
+                .map(Optional::ofNullable);
     }
 
     @PrincipalLogging
     @SQL(WordTable.UPDATE_DICTIONARY_WORD_WHERE_ID_$1_RETURNING_S)
     public Uni<Optional<String>> update(WordTable entry) {
-        return super.updateSQL(entry).map(Optional::ofNullable);
+        return super
+                .updateSQL(entry)
+                .map(Optional::ofNullable);
     }
 
     @Override
     @SQL(WordTable.UPDATE_DICTIONARY_WORD_WHERE_ID_$1_RETURNING_S)
     public Uni<Optional<WordTable>> updateEntry(WordTable entry) {
-        return super.updateSQLEntry(entry).map(Optional::ofNullable);
+        return super
+                .updateSQLEntry(entry)
+                .map(Optional::ofNullable);
     }
 }

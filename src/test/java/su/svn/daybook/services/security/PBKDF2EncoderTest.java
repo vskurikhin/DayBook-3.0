@@ -9,6 +9,7 @@
 package su.svn.daybook.services.security;
 
 import io.quarkus.test.junit.QuarkusTest;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import jakarta.inject.Inject;
@@ -22,6 +23,7 @@ class PBKDF2EncoderTest {
     @Test
     void test() {
         var encoded = pbkdf2Encoder.encode("user");
-        System.out.println("encoded = " + encoded);
+        Assertions.assertNotNull(encoded);
+        Assertions.assertTrue(encoded.length() > 0);
     }
 }

@@ -8,9 +8,9 @@
 
 package su.svn.daybook;
 
-import io.quarkus.test.junit.NativeImageTest;
+// import io.quarkus.test.junit.NativeImageTest;
 
-@NativeImageTest
+// @NativeImageTest
 public class NativeDayBook3IT /*extends HelloIT*/ {
 
     // Execute the same tests but in native mode.
