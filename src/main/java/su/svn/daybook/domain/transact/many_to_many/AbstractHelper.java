@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.09.06 19:32 by Victor N. Skurikhin.
+ * This file was last modified at 2023.11.19 16:20 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * AbstractHelper.java
@@ -19,7 +19,7 @@ import io.vertx.mutiny.sqlclient.Tuple;
 import jakarta.annotation.Nonnull;
 import su.svn.daybook.domain.model.CasesOfId;
 import su.svn.daybook.domain.transact.Action;
-import su.svn.daybook.domain.transact.Helper;
+import su.svn.daybook.domain.transact.OptionalHelper;
 import su.svn.daybook.models.Constants;
 
 import java.io.Serializable;
@@ -33,20 +33,20 @@ import java.util.function.Function;
 abstract class AbstractHelper<
         MainId extends Comparable<? extends Serializable>,
         MainTable extends CasesOfId<MainId>,
-        SubId extends Comparable<? extends Serializable>,
-        Subsidiary extends CasesOfId<SubId>,
+        RelId extends Comparable<? extends Serializable>,
+        Relative extends CasesOfId<RelId>,
         MainField extends Comparable<? extends Serializable>,
-        SubField extends Comparable<? extends Serializable>>
-        implements Helper<MainId, MainTable, SubId, Subsidiary, SubField> {
+        RelField extends Comparable<? extends Serializable>>
+        implements OptionalHelper<MainId> {
 
-    protected final AbstractManyToManyJob<MainId, MainTable, SubId, Subsidiary, MainField, SubField> job;
+    protected final AbstractManyToManyJob<MainId, MainTable, RelId, Relative, MainField, RelField> job;
     protected final Map<String, Action> map;
     protected final MainTable table;
     protected final MainField field;
     protected volatile SqlConnection connection;
 
     AbstractHelper(
-            AbstractManyToManyJob<MainId, MainTable, SubId, Subsidiary, MainField, SubField> job,
+            @Nonnull AbstractManyToManyJob<MainId, MainTable, RelId, Relative, MainField, RelField> job,
             @Nonnull Map<String, Action> map,
             @Nonnull MainTable table,
             MainField field) {
@@ -56,7 +56,7 @@ abstract class AbstractHelper<
         this.field = field;
     }
 
-    protected void setConnection(SqlConnection connection) {
+    protected void setConnection(@Nonnull final SqlConnection connection) {
         if (this.connection == null) {
             synchronized (this) {
                 this.connection = connection;
@@ -64,14 +64,13 @@ abstract class AbstractHelper<
         }
     }
 
-    protected Function<? super RowIterator<Row>, ? extends Optional<?>> iteratorNextMapper(
-            Action action, String actName) {
-        return (action.iteratorNextMapper() == null)
-                ? job.iteratorNextMapper(actName)
+    protected Function<? super RowIterator<Row>, ? extends Optional<?>> iteratorNextMapper(Action action, String aName) {
+        return isNullIteratorNextMapper(action)
+                ? job.iteratorNextMapper(aName)
                 : action.iteratorNextMapper();
     }
 
-    protected Uni<Long> countInJoinTable(@Nonnull Action action, @Nonnull Collection<SubField> collection) {
+    protected Uni<Long> executeIfNotInRelationTable(@Nonnull Action action, @Nonnull Collection<RelField> collection) {
         if (collection.isEmpty()) {
             return Uni.createFrom().item(0L);
         }
@@ -79,7 +78,8 @@ abstract class AbstractHelper<
                 .preparedQuery(action.sql())
                 .execute(Tuple.of(collection.toArray()))
                 .onItem()
-                .transform(pgRowSet -> pgRowSet.iterator().next().getLong(Constants.COUNT));
+                .transform(pgRowSet -> pgRowSet.iterator().next().getLong(Constants.COUNT))
+                .log();
     }
 
     protected Uni<Object> checkCountInJoin(long count) {
@@ -91,19 +91,19 @@ abstract class AbstractHelper<
                 .failure(new IllegalArgumentException("can't find elements from relation"));
     }
 
-    protected Uni<Long> insertIntoHasRelation(Collection<SubField> collection) {
+    protected Uni<Long> insertIntoHasRelation(Collection<RelField> collection) {
         if (collection.isEmpty()) {
             return deleteAllFromHasRelationByEntry();
         }
         if ((collection.size() % 2) != 0) {
-            var action = this.map.get(Constants.INSERT_JOIN2);
+            var action = this.map.get(Constants.INSERT_INTO_RELATION_BY_2_VALUES);
             return this.insertThenOddSizeCollection(action, collection, this.field);
         }
-        var action = this.map.get(Constants.INSERT_JOIN4);
+        var action = this.map.get(Constants.INSERT_INTO_RELATION_BY_4_VALUES);
         return this.insertThenEvenSizeOfCollection(action, collection, this.field);
     }
 
-    protected Uni<Long> clearIfHasRelationNotForEntry(Collection<SubField> collection) {
+    protected Uni<Long> clearIfHasRelationNotForEntry(Collection<RelField> collection) {
         if (collection.isEmpty()) {
             return this.deleteAllFromHasRelationByEntry();
         }
@@ -116,7 +116,7 @@ abstract class AbstractHelper<
         return this.deleteAllFromHasRelationByEntry(action, this.field);
     }
 
-    private Uni<Long> insertThenOddSizeCollection(Action action, Collection<SubField> collection, MainField field) {
+    private Uni<Long> insertThenOddSizeCollection(Action action, Collection<RelField> collection, MainField field) {
         var substitution = collection
                 .stream()
                 .map(relation -> Tuple.of(field, relation))
@@ -124,7 +124,7 @@ abstract class AbstractHelper<
         return resultRowCount(substitution, action.sql());
     }
 
-    private Uni<Long> insertThenEvenSizeOfCollection(Action action, Collection<SubField> collection, MainField field) {
+    private Uni<Long> insertThenEvenSizeOfCollection(Action action, Collection<RelField> collection, MainField field) {
         var substitution = Lists
                 .partition(new ArrayList<>(collection), 2)
                 .stream()
@@ -155,7 +155,8 @@ abstract class AbstractHelper<
                 .preparedQuery(action.sql())
                 .execute(Tuple.of(field, array))
                 .onItem()
-                .transform(pgRowSet -> (long) pgRowSet.rowCount());
+                .transform(pgRowSet -> (long) pgRowSet.rowCount())
+                .log();
     }
 
     protected Uni<Long> deleteAllFromHasRelationByEntry(Action action, MainField field) {
@@ -163,6 +164,7 @@ abstract class AbstractHelper<
                 .preparedQuery(action.sql())
                 .execute(Tuple.of(field))
                 .onItem()
-                .transform(pgRowSet -> (long) pgRowSet.rowCount());
+                .transform(pgRowSet -> (long) pgRowSet.rowCount())
+                .log();
     }
 }

@@ -11,7 +11,7 @@ class SettingTest {
     void testConstructors() {
         Assertions.assertDoesNotThrow(() -> new Setting());
         Assertions.assertDoesNotThrow(() -> new Setting(
-                null, Setting.NONE, Setting.NONE, Setting.DEFAULT_TYPE, true, 0
+                null, Setting.NONE, Setting.NONE, Setting.DEFAULT_TYPE, 0L, true, 0
         ));
     }
 
@@ -22,6 +22,7 @@ class SettingTest {
         Assertions.assertDoesNotThrow(entry::variable);
         Assertions.assertDoesNotThrow(entry::value);
         Assertions.assertDoesNotThrow(entry::valueType);
+        Assertions.assertDoesNotThrow(entry::stanzaId);
         Assertions.assertDoesNotThrow(entry::visible);
         Assertions.assertDoesNotThrow(entry::flags);
     }
@@ -37,7 +38,7 @@ class SettingTest {
 
     @Test
     void testHashCode() {
-        var test1 = new Setting(null, Setting.NONE, Setting.NONE, Setting.DEFAULT_TYPE, true, 0);
+        var test1 = new Setting(null, Setting.NONE, Setting.NONE, Setting.DEFAULT_TYPE, 0L, true, 0);
         Assertions.assertDoesNotThrow(() -> Assertions.assertNotEquals(0, test1.hashCode()));
     }
 
@@ -54,6 +55,7 @@ class SettingTest {
                 .variable(Setting.NONE)
                 .value(Setting.NONE)
                 .valueType(Setting.DEFAULT_TYPE)
+                .stanzaId(0)
                 .visible(true)
                 .flags(0)
                 .build()));

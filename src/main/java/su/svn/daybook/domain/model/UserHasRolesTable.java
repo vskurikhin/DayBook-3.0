@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.09.06 17:04 by Victor N. Skurikhin.
+ * This file was last modified at 2023.11.19 16:20 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * UserHasRolesTable.java
@@ -120,11 +120,15 @@ public record UserHasRolesTable(
     }
 
     private String caseInsertSql() {
-        return id != null ? INSERT_INTO_SECURITY_USER_HAS_ROLES : INSERT_INTO_SECURITY_USER_HAS_ROLES_DEFAULT_ID;
+        return id != null
+                ? INSERT_INTO_SECURITY_USER_HAS_ROLES
+                : INSERT_INTO_SECURITY_USER_HAS_ROLES_DEFAULT_ID;
     }
 
     private Tuple caseInsertTuple() {
-        return id != null ? Tuple.tuple(listOf()) : Tuple.of(userName, role, enabled, visible, flags);
+        return id != null
+                ? Tuple.tuple(listOf())
+                : Tuple.of(userName, role, enabled, visible, flags);
     }
 
     private List<Object> listOf() {

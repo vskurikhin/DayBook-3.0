@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.09.06 19:32 by Victor N. Skurikhin.
+ * This file was last modified at 2023.11.19 16:20 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * InsertHelper.java
@@ -22,26 +22,27 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 
 class InsertHelper<
         MainId extends Comparable<? extends Serializable>,
         MainTable extends CasesOfId<MainId>,
-        SubId extends Comparable<? extends Serializable>,
-        Subsidiary extends CasesOfId<SubId>,
+        RelId extends Comparable<? extends Serializable>,
+        Relative extends CasesOfId<RelId>,
         MainField extends Comparable<? extends Serializable>,
-        SubField extends Comparable<? extends Serializable>>
-        extends AbstractHelper<MainId, MainTable, SubId, Subsidiary, MainField, SubField> {
+        RelField extends Comparable<? extends Serializable>>
+        extends AbstractHelper<MainId, MainTable, RelId, Relative, MainField, RelField> {
 
     private static final Logger LOG = Logger.getLogger(InsertHelper.class);
 
-    private final Collection<SubField> collection;
+    private final Collection<RelField> collection;
 
     protected InsertHelper(
-            @Nonnull AbstractManyToManyJob<MainId, MainTable, SubId, Subsidiary, MainField, SubField> job,
+            @Nonnull AbstractManyToManyJob<MainId, MainTable, RelId, Relative, MainField, RelField> job,
             @Nonnull Map<String, Map<String, Action>> map,
             @Nonnull MainTable table,
             MainField field,
-            @Nonnull Collection<SubField> collection) {
+            @Nonnull Collection<RelField> collection) {
         super(job, map.get(Constants.INSERT), table, field);
         this.collection = collection;
     }
@@ -54,27 +55,40 @@ class InsertHelper<
 
     private Uni<Optional<MainId>> checkCountInJoinTableAndThenInsert() {
         LOG.tracef("checkCountInJoinTableAndThenInsert");
-        return countInJoinTable()
+        return checkNotInRelationTable()
                 .flatMap(this::checkCountInJoin)
                 .flatMap(o -> insert());
     }
 
-    private Uni<Long> countInJoinTable() {
-        Action action = super.map.get(Constants.COUNT_NOT_EXISTS);
-        return super.countInJoinTable(action, collection);
+    private Uni<Long> checkNotInRelationTable() {
+        Action action = super.map.get(Constants.CHECK_NOT_IN_RELATIVE);
+        return super.executeIfNotInRelationTable(action, collection);
     }
 
     private Uni<Optional<MainId>> insert() {
-        var action = super.map.get(Constants.INSERT_MAIN);
+        var action = super.map.get(Constants.INSERT_INTO_MAIN);
         return super.connection
                 .preparedQuery(String.format(Helper.insertSql(action, table), Constants.ID))
                 .execute(table.caseInsertTuple())
                 .map(RowSet::iterator)
-                .map(iteratorNextMapper(action, Constants.INSERT_MAIN))
-                .flatMap(id -> this.insertIntoHasRelation()
-                        .flatMap(c1 -> clearIfHasRelationNotForEntry())
-                        .map(c2 -> id)
-                ).map(job.castOptionalMainId());
+                .map(iteratorNextMapper(action, Constants.INSERT_INTO_MAIN))
+                .flatMap( // TODO refactoring!
+                        id -> this.insertIntoHasRelation()
+                                .flatMap(c1 -> clearIfHasRelationNotForEntry())
+                                .map(c2 -> id)
+                )
+                .map(job.castOptionalMainId())
+                .log();
+    }
+
+    // TODO refactoring!
+    @Nonnull
+    private Function<? extends Optional<?>, Uni<? extends Optional<?>>> getUniFunction() {
+        return id -> {
+            return this.insertIntoHasRelation()
+                    .flatMap(c1 -> clearIfHasRelationNotForEntry())
+                    .map(c2 -> id);
+        };
     }
 
     private Uni<Long> insertIntoHasRelation() {

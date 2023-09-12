@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.09.06 19:32 by Victor N. Skurikhin.
+ * This file was last modified at 2023.11.19 16:20 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * AbstractHelper.java
@@ -17,6 +17,7 @@ import jakarta.annotation.Nonnull;
 import su.svn.daybook.domain.model.CasesOfId;
 import su.svn.daybook.domain.transact.Action;
 import su.svn.daybook.domain.transact.Helper;
+import su.svn.daybook.domain.transact.OptionalHelper;
 import su.svn.daybook.models.Constants;
 
 import java.io.Serializable;
@@ -30,7 +31,7 @@ abstract class AbstractHelper<
         JoinId extends Comparable<? extends Serializable>,
         JoinTable extends CasesOfId<JoinId>,
         Field extends Comparable<? extends Serializable>>
-        implements Helper<MainId, MainTable, JoinId, JoinTable, Field> {
+        implements OptionalHelper<MainId> {
 
     protected final AbstractOneToOneJob<MainId, MainTable, JoinId, JoinTable, Field> job;
     protected final Map<String, Map<String, Action>> mapJob;
@@ -38,7 +39,7 @@ abstract class AbstractHelper<
     protected volatile SqlConnection connection;
 
     AbstractHelper(
-            AbstractOneToOneJob<MainId, MainTable, JoinId, JoinTable, Field> job,
+            @Nonnull AbstractOneToOneJob<MainId, MainTable, JoinId, JoinTable, Field> job,
             @Nonnull Map<String, Map<String, Action>> map,
             @Nonnull MainTable table) {
         this.job = job;
@@ -46,7 +47,7 @@ abstract class AbstractHelper<
         this.table = table;
     }
 
-    protected void setConnection(SqlConnection connection) {
+    protected void setConnection(@Nonnull final SqlConnection connection) {
         if (this.connection == null) {
             synchronized (this) {
                 this.connection = connection;
@@ -60,7 +61,8 @@ abstract class AbstractHelper<
                 .execute(Helper.tuple(action, field))
                 .map(RowSet::iterator)
                 .map(iteratorNextMapper(action, Constants.FIND_FIELD_ID))
-                .map(job.castOptionalJoinId());
+                .map(job.castOptionalJoinId())
+                .log();
     }
 
     protected Uni<Optional<JoinId>> insertJoin(Action action, JoinTable join) {
@@ -68,13 +70,14 @@ abstract class AbstractHelper<
                 .preparedQuery(String.format(Helper.insertSql(action, join), Constants.ID))
                 .execute(Helper.insertTuple(action, join))
                 .map(RowSet::iterator)
-                .map(iteratorNextMapper(action, Constants.INSERT_JOIN))
-                .map(job.castOptionalJoinId());
+                .map(iteratorNextMapper(action, Constants.INSERT_INTO_RELATION))
+                .map(job.castOptionalJoinId())
+                .log();
     }
 
     protected Function<? super RowIterator<Row>, ? extends Optional<?>> iteratorNextMapper(
             Action action, String actName) {
-        return (action.iteratorNextMapper() == null)
+        return (isNullIteratorNextMapper(action))
                 ? job.iteratorNextMapper(actName)
                 : action.iteratorNextMapper();
     }

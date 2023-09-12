@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.09.07 16:35 by Victor N. Skurikhin.
+ * This file was last modified at 2023.09.12 22:06 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * Setting.java
@@ -39,6 +39,9 @@ public final class Setting implements LongIdentification, Serializable {
     private final String valueType;
     @JsonProperty
     @DomainField
+    private final Long stanzaId;
+    @JsonProperty
+    @DomainField
     private final boolean visible;
     @JsonProperty
     @DomainField
@@ -51,7 +54,7 @@ public final class Setting implements LongIdentification, Serializable {
     private transient boolean hashIsZero;
 
     public Setting() {
-        this(null, NONE, null, "Object", true, 0);
+        this(null, NONE, null, "Object", 0L, true, 0);
     }
 
     public Setting(
@@ -59,12 +62,14 @@ public final class Setting implements LongIdentification, Serializable {
             @Nonnull String variable,
             String value,
             @Nonnull String valueType,
+            @Nonnull Long stanzaId,
             boolean visible,
             int flags) {
         this.id = id;
         this.variable = variable;
         this.value = value;
         this.valueType = valueType;
+        this.stanzaId = stanzaId;
         this.visible = visible;
         this.flags = flags;
     }
@@ -79,6 +84,7 @@ public final class Setting implements LongIdentification, Serializable {
                 .variable(this.variable)
                 .value(this.value)
                 .valueType(this.valueType)
+                .stanzaId(this.stanzaId)
                 .visible(this.visible)
                 .flags(this.flags);
     }
@@ -99,6 +105,10 @@ public final class Setting implements LongIdentification, Serializable {
         return valueType;
     }
 
+    public Long stanzaId() {
+        return stanzaId;
+    }
+
     public boolean visible() {
         return visible;
     }
@@ -117,7 +127,8 @@ public final class Setting implements LongIdentification, Serializable {
                 && Objects.equals(id, that.id)
                 && Objects.equals(variable, that.variable)
                 && Objects.equals(value, that.value)
-                && Objects.equals(valueType, that.valueType);
+                && Objects.equals(valueType, that.valueType)
+                && Objects.equals(stanzaId, that.stanzaId);
     }
 
     @Override
@@ -135,7 +146,7 @@ public final class Setting implements LongIdentification, Serializable {
     }
 
     private int calculateHashCode() {
-        return Objects.hash(id, variable, value, valueType, visible, flags);
+        return Objects.hash(id, variable, value, valueType, stanzaId, visible, flags);
     }
 
     @Override
@@ -145,6 +156,7 @@ public final class Setting implements LongIdentification, Serializable {
                 ", variable='" + variable + '\'' +
                 ", value='" + value + '\'' +
                 ", valueType='" + valueType + '\'' +
+                ", stanzaId='" + stanzaId + '\'' +
                 ", visible=" + visible +
                 ", flags=" + flags +
                 '}';
@@ -154,7 +166,8 @@ public final class Setting implements LongIdentification, Serializable {
         private Long id;
         private @Nonnull String variable;
         private String value;
-        private String valueType;
+        private @Nonnull String valueType;
+        private @Nonnull Long stanzaId;
         private boolean visible;
         private int flags;
 
@@ -177,8 +190,13 @@ public final class Setting implements LongIdentification, Serializable {
             return this;
         }
 
-        public Builder valueType(String valueType) {
+        public Builder valueType(@Nonnull String valueType) {
             this.valueType = valueType;
+            return this;
+        }
+
+        public Builder stanzaId(long stanzaId) {
+            this.stanzaId = stanzaId;
             return this;
         }
 
@@ -193,7 +211,7 @@ public final class Setting implements LongIdentification, Serializable {
         }
 
         public Setting build() {
-            return new Setting(id, variable, value, valueType, visible, flags);
+            return new Setting(id, variable, value, valueType, stanzaId, visible, flags);
         }
     }
 }

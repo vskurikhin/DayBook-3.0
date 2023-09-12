@@ -12,8 +12,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.time.LocalDateTime;
-
 class StringUtilTest {
 
     @BeforeEach
@@ -24,6 +22,7 @@ class StringUtilTest {
     void test() {
         Assertions.assertDoesNotThrow(StringUtil::generateStringId);
         var test = StringUtil.generateStringId();
-        System.out.println("test = " + test);
+        Assertions.assertNotNull(test);
+        Assertions.assertTrue(test.length() > 0);
     }
 }

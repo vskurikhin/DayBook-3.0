@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.09.06 17:04 by Victor N. Skurikhin.
+ * This file was last modified at 2023.11.19 16:20 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * TagLabelDao.java
@@ -36,7 +36,9 @@ public class TagLabelDao extends AbstractDao<String, TagLabelTable> implements D
     @PrincipalLogging
     @SQL(TagLabelTable.DELETE_FROM_DICTIONARY_TAG_LABEL_WHERE_ID_$1_RETURNING_S)
     public Uni<Optional<String>> delete(String id) {
-        return super.deleteSQL(id).map(Optional::ofNullable);
+        return super
+                .deleteSQL(id)
+                .map(Optional::ofNullable);
     }
 
     @Override
@@ -49,13 +51,17 @@ public class TagLabelDao extends AbstractDao<String, TagLabelTable> implements D
     @PrincipalLogging
     @SQL(TagLabelTable.SELECT_FROM_DICTIONARY_TAG_LABEL_WHERE_ID_$1)
     public Uni<Optional<TagLabelTable>> findById(String id) {
-        return super.findByIdSQL(id).map(Optional::ofNullable);
+        return super
+                .findByIdSQL(id)
+                .map(Optional::ofNullable);
     }
 
     @PrincipalLogging
     @SQL(TagLabelTable.SELECT_FROM_DICTIONARY_TAG_LABEL_WHERE_KEY_$1)
     public Uni<Optional<TagLabelTable>> findByKey(String label) {
-        return super.findByKeySQL(label).map(Optional::ofNullable);
+        return super
+                .findByKeySQL(label)
+                .map(Optional::ofNullable);
     }
 
     public Uni<Optional<TagLabelTable>> findByLabel(String label) {
@@ -72,27 +78,35 @@ public class TagLabelDao extends AbstractDao<String, TagLabelTable> implements D
     @PrincipalLogging
     @SQL
     public Uni<Optional<String>> insert(TagLabelTable entry) {
-        return super.insertSQL(entry).map(Optional::ofNullable);
+        return super
+                .insertSQL(entry)
+                .map(Optional::ofNullable);
     }
 
     @Override
     @PrincipalLogging
     @SQL
     public Uni<Optional<TagLabelTable>> insertEntry(TagLabelTable entry) {
-        return super.insertSQLEntry(entry).map(Optional::ofNullable);
+        return super
+                .insertSQLEntry(entry)
+                .map(Optional::ofNullable);
     }
 
     @Override
     @PrincipalLogging
     @SQL(TagLabelTable.UPDATE_DICTIONARY_TAG_LABEL_WHERE_ID_$1_RETURNING_S)
     public Uni<Optional<String>> update(TagLabelTable entry) {
-        return super.updateSQL(entry).map(Optional::ofNullable);
+        return super
+                .updateSQL(entry)
+                .map(Optional::ofNullable);
     }
 
     @Override
     @PrincipalLogging
     @SQL(TagLabelTable.UPDATE_DICTIONARY_TAG_LABEL_WHERE_ID_$1_RETURNING_S)
     public Uni<Optional<TagLabelTable>> updateEntry(TagLabelTable entry) {
-        return super.updateSQLEntry(entry).map(Optional::ofNullable);
+        return super
+                .updateSQLEntry(entry)
+                .map(Optional::ofNullable);
     }
 }

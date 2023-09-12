@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.09.07 16:35 by Victor N. Skurikhin.
+ * This file was last modified at 2023.11.19 18:33 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * ValueType.java
@@ -74,7 +74,7 @@ public final class ValueType implements LongIdentification, Serializable {
         return id;
     }
 
-    public String value_type() {
+    public String valueType() {
         return valueType;
     }
 

@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.09.06 17:04 by Victor N. Skurikhin.
+ * This file was last modified at 2023.11.19 16:20 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * VocabularyDao.java
@@ -37,7 +37,9 @@ public class VocabularyDao extends AbstractDao<Long, VocabularyTable> implements
     @PrincipalLogging
     @SQL(VocabularyTable.DELETE_FROM_DICTIONARY_VOCABULARY_WHERE_ID_$1_RETURNING_S)
     public Uni<Optional<Long>> delete(Long id) {
-        return super.deleteSQL(id).map(Optional::ofNullable);
+        return super
+                .deleteSQL(id)
+                .map(Optional::ofNullable);
     }
 
     @Override
@@ -50,7 +52,9 @@ public class VocabularyDao extends AbstractDao<Long, VocabularyTable> implements
     @PrincipalLogging
     @SQL(VocabularyTable.SELECT_FROM_DICTIONARY_VOCABULARY_WHERE_ID_$1)
     public Uni<Optional<VocabularyTable>> findById(Long id) {
-        return super.findByIdSQL(id).map(Optional::ofNullable);
+        return super
+                .findByIdSQL(id)
+                .map(Optional::ofNullable);
     }
 
     @PrincipalLogging
@@ -80,27 +84,35 @@ public class VocabularyDao extends AbstractDao<Long, VocabularyTable> implements
     @PrincipalLogging
     @SQL
     public Uni<Optional<Long>> insert(VocabularyTable entry) {
-        return super.insertSQL(entry).map(Optional::ofNullable);
+        return super
+                .insertSQL(entry)
+                .map(Optional::ofNullable);
     }
 
     @Override
     @PrincipalLogging
     @SQL
     public Uni<Optional<VocabularyTable>> insertEntry(VocabularyTable entry) {
-        return super.insertSQLEntry(entry).map(Optional::ofNullable);
+        return super
+                .insertSQLEntry(entry)
+                .map(Optional::ofNullable);
     }
 
     @Override
     @PrincipalLogging
     @SQL(VocabularyTable.UPDATE_DICTIONARY_VOCABULARY_WHERE_ID_$1_RETURNING_S)
     public Uni<Optional<Long>> update(VocabularyTable entry) {
-        return super.updateSQL(entry).map(Optional::ofNullable);
+        return super
+                .updateSQL(entry)
+                .map(Optional::ofNullable);
     }
 
     @Override
     @PrincipalLogging
     @SQL(VocabularyTable.UPDATE_DICTIONARY_VOCABULARY_WHERE_ID_$1_RETURNING_S)
     public Uni<Optional<VocabularyTable>> updateEntry(VocabularyTable entry) {
-        return super.updateSQLEntry(entry).map(Optional::ofNullable);
+        return super
+                .updateSQLEntry(entry)
+                .map(Optional::ofNullable);
     }
 }

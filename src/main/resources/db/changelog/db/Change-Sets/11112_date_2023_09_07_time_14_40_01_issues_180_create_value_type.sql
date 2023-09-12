@@ -1,11 +1,3 @@
-/*
- * This file was last modified at 2023.09.07 16:35 by Victor N. Skurikhin.
- * This is free and unencumbered software released into the public domain.
- * For more information, please refer to <http://unlicense.org>
- * 11112_date_2023_09_07_time_14_40_01_issues_180_create_value_type.sql
- * $Id$
- */
-
 --liquibase formatted sql
 --
 

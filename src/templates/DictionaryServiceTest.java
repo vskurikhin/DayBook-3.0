@@ -160,12 +160,12 @@ class @Name@ServiceTest {
     void testWhenGetPageThenZeroPage() {
 
         Mockito.when(mock.findRange(0L, 0)).thenReturn(MULTI_EMPTIES);
-        Mockito.when(mock.count()).thenReturn(TestData.UNI_OPTIONAL_ONE_LONG);
+        Mockito.when(mock.count()).thenReturn(TestData.UNI_OPTIONAL_ZERO_LONG);
 
         PageRequest pageRequest = new PageRequest(0, (short) 0);
         var expected = Page.<Answer>builder()
                 .totalPages(0L)
-                .totalRecords(1)
+                .totalRecords(0)
                 .rows((short) 0)
                 .prevPage(false)
                 .nextPage(false)
@@ -209,7 +209,7 @@ class @Name@ServiceTest {
         var expected = Answer.builder()
                 .message("bad request")
                 .error(400)
-                .payload("No @value@ present for entry: " + TestData.@TABLE@.TABLE_0)
+                .payload("No value present for entry: " + TestData.@TABLE@.TABLE_0)
                 .build();
         Mockito.when(mock.insert(TestData.@TABLE@.TABLE_0)).thenReturn(TestData.uuid.UNI_OPTIONAL_EMPTY);
         Assertions.assertDoesNotThrow(() -> service.add(new Request<>(TestData.@TABLE@.MODEL_0, null))

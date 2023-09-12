@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.09.07 16:35 by Victor N. Skurikhin.
+ * This file was last modified at 2023.11.19 16:20 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * ValueTypeDao.java
@@ -36,7 +36,9 @@ public class ValueTypeDao extends AbstractDao<Long, ValueTypeTable> implements D
     @PrincipalLogging
     @SQL(ValueTypeTable.DELETE_FROM_DICTIONARY_VALUE_TYPE_WHERE_ID_$1_RETURNING_S)
     public Uni<Optional<Long>> delete(Long id) {
-        return super.deleteSQL(id).map(Optional::ofNullable);
+        return super
+                .deleteSQL(id)
+                .map(Optional::ofNullable);
     }
 
     @Override
@@ -49,13 +51,17 @@ public class ValueTypeDao extends AbstractDao<Long, ValueTypeTable> implements D
     @PrincipalLogging
     @SQL(ValueTypeTable.SELECT_FROM_DICTIONARY_VALUE_TYPE_WHERE_ID_$1)
     public Uni<Optional<ValueTypeTable>> findById(Long id) {
-        return super.findByIdSQL(id).map(Optional::ofNullable);
+        return super
+                .findByIdSQL(id)
+                .map(Optional::ofNullable);
     }
 
     @PrincipalLogging
     @SQL(ValueTypeTable.SELECT_FROM_DICTIONARY_VALUE_TYPE_WHERE_KEY_$1)
     public Uni<Optional<ValueTypeTable>> findByKey(String valueType) {
-        return super.findByKeySQL(valueType).map(Optional::ofNullable);
+        return super
+                .findByKeySQL(valueType)
+                .map(Optional::ofNullable);
     }
 
     @Override
@@ -68,27 +74,35 @@ public class ValueTypeDao extends AbstractDao<Long, ValueTypeTable> implements D
     @PrincipalLogging
     @SQL
     public Uni<Optional<Long>> insert(ValueTypeTable entry) {
-        return super.insertSQL(entry).map(Optional::ofNullable);
+        return super
+                .insertSQL(entry)
+                .map(Optional::ofNullable);
     }
 
     @Override
     @PrincipalLogging
     @SQL
     public Uni<Optional<ValueTypeTable>> insertEntry(ValueTypeTable entry) {
-        return super.insertSQLEntry(entry).map(Optional::ofNullable);
+        return super
+                .insertSQLEntry(entry)
+                .map(Optional::ofNullable);
     }
 
     @Override
     @PrincipalLogging
     @SQL(ValueTypeTable.UPDATE_DICTIONARY_VALUE_TYPE_WHERE_ID_$1_RETURNING_S)
     public Uni<Optional<Long>> update(ValueTypeTable entry) {
-        return super.updateSQL(entry).map(Optional::ofNullable);
+        return super
+                .updateSQL(entry)
+                .map(Optional::ofNullable);
     }
 
     @Override
     @PrincipalLogging
     @SQL(ValueTypeTable.UPDATE_DICTIONARY_VALUE_TYPE_WHERE_ID_$1_RETURNING_S)
     public Uni<Optional<ValueTypeTable>> updateEntry(ValueTypeTable entry) {
-        return super.updateSQLEntry(entry).map(Optional::ofNullable);
+        return super
+                .updateSQLEntry(entry)
+                .map(Optional::ofNullable);
     }
 }

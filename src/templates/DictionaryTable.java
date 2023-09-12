@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.09.07 16:35 by Victor N. Skurikhin.
+ * This file was last modified at 2023.11.19 15:18 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * @Name@Table.java
@@ -142,12 +142,16 @@ public record @Name@Table(
 
     @Override
     public String caseInsertSql() {
-        return id != null ? INSERT_INTO_@SCHEMA@_@TABLE@_RETURNING_S : INSERT_INTO_@SCHEMA@_@TABLE@_DEFAULT_ID_RETURNING_S;
+        return id != null
+                ? INSERT_INTO_@SCHEMA@_@TABLE@_RETURNING_S
+                : INSERT_INTO_@SCHEMA@_@TABLE@_DEFAULT_ID_RETURNING_S;
     }
 
     @Override
     public Tuple caseInsertTuple() {
-        return id != null ? Tuple.tuple(listOf()) : Tuple.of(@key@, @value@, userName, enabled, visible, flags);
+        return id != null
+                ? Tuple.tuple(listOf())
+                : Tuple.of(listOfWithOutId());
     }
 
     @Override
@@ -167,6 +171,10 @@ public record @Name@Table(
 
     private List<Object> listOf() {
         return Arrays.asList(id, @key@, @value@, userName, enabled, visible, flags);
+    }
+
+    private List<Object> listOfWithOutId() {
+        return Arrays.asList(@key@, @value@, userName, enabled, visible, flags);
     }
 
     public static final class Builder {
@@ -232,7 +240,9 @@ public record @Name@Table(
         }
 
         public @Name@Table build() {
-            return new @Name@Table(id, @key@, @value@, userName, createTime, updateTime, enabled, visible, flags);
+            return new @Name@Table(
+                    id, @key@, @value@, userName, createTime, updateTime, enabled, visible, flags
+            );
         }
     }
 }

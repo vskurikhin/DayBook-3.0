@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.09.06 17:04 by Victor N. Skurikhin.
+ * This file was last modified at 2023.11.19 16:20 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * LanguageDao.java
@@ -36,7 +36,9 @@ public class LanguageDao extends AbstractDao<Long, LanguageTable> implements Dao
     @PrincipalLogging
     @SQL(LanguageTable.DELETE_FROM_DICTIONARY_LANGUAGE_WHERE_ID_$1_RETURNING_S)
     public Uni<Optional<Long>> delete(Long id) {
-        return super.deleteSQL(id).map(Optional::ofNullable);
+        return super
+                .deleteSQL(id)
+                .map(Optional::ofNullable);
     }
 
     @Override
@@ -49,13 +51,17 @@ public class LanguageDao extends AbstractDao<Long, LanguageTable> implements Dao
     @PrincipalLogging
     @SQL(LanguageTable.SELECT_FROM_DICTIONARY_LANGUAGE_WHERE_ID_$1)
     public Uni<Optional<LanguageTable>> findById(Long id) {
-        return super.findByIdSQL(id).map(Optional::ofNullable);
+        return super
+                .findByIdSQL(id)
+                .map(Optional::ofNullable);
     }
 
     @PrincipalLogging
     @SQL(LanguageTable.SELECT_FROM_DICTIONARY_LANGUAGE_WHERE_KEY_$1)
     public Uni<Optional<LanguageTable>> findByKey(String language) {
-        return super.findByKeySQL(language).map(Optional::ofNullable);
+        return super
+                .findByKeySQL(language)
+                .map(Optional::ofNullable);
     }
 
     public Uni<Optional<LanguageTable>> findByLanguage(String language) {
@@ -72,27 +78,35 @@ public class LanguageDao extends AbstractDao<Long, LanguageTable> implements Dao
     @PrincipalLogging
     @SQL
     public Uni<Optional<Long>> insert(LanguageTable entry) {
-        return super.insertSQL(entry).map(Optional::ofNullable);
+        return super
+                .insertSQL(entry)
+                .map(Optional::ofNullable);
     }
 
     @Override
     @PrincipalLogging
     @SQL
     public Uni<Optional<LanguageTable>> insertEntry(LanguageTable entry) {
-        return super.insertSQLEntry(entry).map(Optional::ofNullable);
+        return super
+                .insertSQLEntry(entry)
+                .map(Optional::ofNullable);
     }
 
     @Override
     @PrincipalLogging
     @SQL(LanguageTable.UPDATE_DICTIONARY_LANGUAGE_WHERE_ID_$1_RETURNING_S)
     public Uni<Optional<Long>> update(LanguageTable entry) {
-        return super.updateSQL(entry).map(Optional::ofNullable);
+        return super
+                .updateSQL(entry)
+                .map(Optional::ofNullable);
     }
 
     @Override
     @PrincipalLogging
     @SQL(LanguageTable.UPDATE_DICTIONARY_LANGUAGE_WHERE_ID_$1_RETURNING_S)
     public Uni<Optional<LanguageTable>> updateEntry(LanguageTable entry) {
-        return super.updateSQLEntry(entry).map(Optional::ofNullable);
+        return super
+                .updateSQLEntry(entry)
+                .map(Optional::ofNullable);
     }
 }

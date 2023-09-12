@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.09.06 19:32 by Victor N. Skurikhin.
+ * This file was last modified at 2023.11.19 16:20 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * DeleteHelper.java
@@ -60,16 +60,18 @@ class DeleteHelper<
                 .execute()
                 .map(RowSet::iterator)
                 .map(action.iteratorNextMapper())
-                .map(x -> Optional.of(id));
+                .map(x -> Optional.of(id))
+                .log();
     }
 
     private Uni<Optional<MainId>> deleteMain(Map<String, Action> map, MainId id) {
         var action = map.get(Constants.DELETE_MAIN);
         return super.connection
-                .preparedQuery(String.format(Helper.deleteSql(action, this.table), Constants.ID))
+                .preparedQuery(String.format(Helper.deleteSql(action, super.table), Constants.ID))
                 .execute(Tuple.of(id))
                 .map(RowSet::iterator)
-                .map(iteratorNextMapper(action, Constants.UPDATE_MAIN))
-                .map(job.castOptionalMainId());
+                .map(iteratorNextMapper(action, Constants.UPDATE_MAIN_TABLE))
+                .map(job.castOptionalMainId())
+                .log();
     }
 }

@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.09.06 19:32 by Victor N. Skurikhin.
+ * This file was last modified at 2023.11.19 18:33 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * InsertHelper.java
@@ -62,6 +62,7 @@ class InsertHelper<
         var map = super.mapJob.get(Constants.INSERT);
         return findFieldId(map)
                 .flatMap(o -> o.isEmpty() ? insertJoin(map) : Uni.createFrom().item(o))
+                .log()
                 .flatMap(o -> o.isPresent() ? insertMain(map, o.get()) : getFailure());
     }
 
@@ -71,19 +72,20 @@ class InsertHelper<
     }
 
     private Uni<Optional<JoinId>> insertJoin(Map<String, Action> map) {
-        var action = map.get(Constants.INSERT_JOIN);
+        var action = map.get(Constants.INSERT_INTO_RELATION);
         var join = joinFieldBuilder.apply(this.field);
         return super.insertJoin(action, join);
     }
 
     private Uni<Optional<MainId>> insertMain(Map<String, Action> map, JoinId joinId) {
-        var action = map.get(Constants.INSERT_MAIN);
+        var action = map.get(Constants.INSERT_INTO_MAIN);
         var main = tableBuilder.apply(super.table, joinId);
         return super.connection
                 .preparedQuery(String.format(Helper.insertSql(action, main), Constants.ID))
                 .execute(Helper.insertTuple(action, main))
                 .map(RowSet::iterator)
-                .map(iteratorNextMapper(action, Constants.INSERT_MAIN))
-                .map(job.castOptionalMainId());
+                .map(iteratorNextMapper(action, Constants.INSERT_INTO_MAIN))
+                .map(job.castOptionalMainId())
+                .log();
     }
 }

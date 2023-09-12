@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.09.06 17:04 by Victor N. Skurikhin.
+ * This file was last modified at 2023.11.19 16:20 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * I18nDao.java
@@ -37,7 +37,9 @@ public class I18nDao extends AbstractDao<Long, I18nTable> implements DaoIface<Lo
     @PrincipalLogging
     @SQL(I18nTable.DELETE_FROM_DICTIONARY_I18N_WHERE_ID_$1_RETURNING_S)
     public Uni<Optional<Long>> delete(Long id) {
-        return super.deleteSQL(id).map(Optional::ofNullable);
+        return super
+                .deleteSQL(id)
+                .map(Optional::ofNullable);
     }
 
     @Override
@@ -50,14 +52,17 @@ public class I18nDao extends AbstractDao<Long, I18nTable> implements DaoIface<Lo
     @PrincipalLogging
     @SQL(I18nTable.SELECT_FROM_DICTIONARY_I18N_WHERE_ID_$1)
     public Uni<Optional<I18nTable>> findById(Long id) {
-        return super.findByIdSQL(id).map(Optional::ofNullable);
+        return super
+                .findByIdSQL(id)
+                .map(Optional::ofNullable);
     }
 
     @PrincipalLogging
     @SQL(I18nTable.SELECT_FROM_DICTIONARY_I18N_WHERE_KEY_$1_$2)
     public Uni<Optional<I18nTable>> findByKey(Long languageId, String message) {
-        var keys = List.of(languageId, message);
-        return super.findByKeySQL(keys).map(Optional::ofNullable);
+        return super
+                .findByKeySQL(List.of(languageId, message))
+                .map(Optional::ofNullable);
     }
 
     @PrincipalLogging
@@ -81,27 +86,35 @@ public class I18nDao extends AbstractDao<Long, I18nTable> implements DaoIface<Lo
     @PrincipalLogging
     @SQL
     public Uni<Optional<Long>> insert(I18nTable entry) {
-        return super.insertSQL(entry).map(Optional::ofNullable);
+        return super
+                .insertSQL(entry)
+                .map(Optional::ofNullable);
     }
 
     @Override
     @PrincipalLogging
     @SQL
     public Uni<Optional<I18nTable>> insertEntry(I18nTable entry) {
-        return super.insertSQLEntry(entry).map(Optional::ofNullable);
+        return super
+                .insertSQLEntry(entry)
+                .map(Optional::ofNullable);
     }
 
     @Override
     @PrincipalLogging
     @SQL(I18nTable.UPDATE_DICTIONARY_I18N_WHERE_ID_$1_RETURNING_S)
     public Uni<Optional<Long>> update(I18nTable entry) {
-        return super.updateSQL(entry).map(Optional::ofNullable);
+        return super
+                .updateSQL(entry)
+                .map(Optional::ofNullable);
     }
 
     @Override
     @PrincipalLogging
     @SQL(I18nTable.UPDATE_DICTIONARY_I18N_WHERE_ID_$1_RETURNING_S)
     public Uni<Optional<I18nTable>> updateEntry(I18nTable entry) {
-        return super.updateSQLEntry(entry).map(Optional::ofNullable);
+        return super
+                .updateSQLEntry(entry)
+                .map(Optional::ofNullable);
     }
 }

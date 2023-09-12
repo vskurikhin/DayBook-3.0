@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.09.07 16:35 by Victor N. Skurikhin.
+ * This file was last modified at 2023.11.19 18:33 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * SettingTable.java
@@ -28,7 +28,8 @@ public record SettingTable(
         @ModelField Long id,
         @ModelField(nullable = false) @Nonnull String variable,
         @ModelField String value,
-        @ModelField(nullable = false) Long valueTypeId,
+        @ModelField(nullable = false) @Nonnull Long valueTypeId,
+        @ModelField(nullable = false) @Nonnull Long stanzaId,
         String userName,
         LocalDateTime createTime,
         LocalDateTime updateTime,
@@ -46,17 +47,17 @@ public record SettingTable(
     @Language("SQL")
     public static final String INSERT_INTO_DICTIONARY_SETTING_RETURNING_S = """
             INSERT INTO dictionary.setting
-             (id, variable, value, value_type_id, user_name, enabled, visible, flags)
+             (id, variable, value, value_type_id, stanza_id, user_name, enabled, visible, flags)
              VALUES
-             ($1, $2, $3, $4, $5, $6, $7, $8)
+             ($1, $2, $3, $4, $5, $6, $7, $8, $9)
              RETURNING %s
             """;
     @Language("SQL")
     public static final String INSERT_INTO_DICTIONARY_SETTING_DEFAULT_ID_RETURNING_S = """
             INSERT INTO dictionary.setting
-             (id, variable, value, value_type_id, user_name, enabled, visible, flags)
+             (id, variable, value, value_type_id, stanza_id, user_name, enabled, visible, flags)
              VALUES
-             (DEFAULT, $1, $2, $3, $4, $5, $6, $7)
+             (DEFAULT, $1, $2, $3, $4, $5, $6, $7, $8)
              RETURNING %s
             """;
     @Language("SQL")
@@ -67,33 +68,38 @@ public record SettingTable(
             """;
     @Language("SQL")
     public static final String SELECT_ALL_FROM_DICTIONARY_SETTING_ORDER_BY_S = """
-            SELECT id, variable, value, value_type_id, user_name, create_time, update_time, enabled, visible, flags
+            SELECT
+              id, variable, value, value_type_id, stanza_id, user_name, create_time, update_time, enabled, visible, flags
               FROM dictionary.setting
              WHERE enabled
              ORDER BY %s
             """;
     @Language("SQL")
     public static final String SELECT_ALL_FROM_DICTIONARY_SETTING_ORDER_BY_S_OFFSET_$1_LIMIT_$2 = """
-            SELECT id, variable, value, value_type_id, user_name, create_time, update_time, enabled, visible, flags
+            SELECT
+              id, variable, value, value_type_id, stanza_id, user_name, create_time, update_time, enabled, visible, flags
               FROM dictionary.setting
              WHERE enabled
              ORDER BY %s OFFSET $1 LIMIT $2
             """;
     @Language("SQL")
     public static final String SELECT_FROM_DICTIONARY_SETTING_WHERE_ID_$1 = """
-            SELECT id, variable, value, value_type_id, user_name, create_time, update_time, enabled, visible, flags
+            SELECT
+              id, variable, value, value_type_id, stanza_id, user_name, create_time, update_time, enabled, visible, flags
               FROM dictionary.setting
              WHERE id = $1 AND enabled
             """;
     @Language("SQL")
     public static final String SELECT_FROM_DICTIONARY_SETTING_WHERE_KEY_$1 = """
-            SELECT id, variable, value, value_type_id, user_name, create_time, update_time, enabled, visible, flags
+            SELECT 
+              id, variable, value, value_type_id, stanza_id, user_name, create_time, update_time, enabled, visible, flags
               FROM dictionary.setting
              WHERE variable = $1 AND enabled
             """;
     @Language("SQL")
     public static final String SELECT_FROM_DICTIONARY_SETTING_WHERE_VALUE_$1 = """
-            SELECT id, variable, value, value_type_id, user_name, create_time, update_time, enabled, visible, flags
+            SELECT
+              id, variable, value, value_type_id, stanza_id, user_name, create_time, update_time, enabled, visible, flags
               FROM dictionary.setting
              WHERE value = $1 AND enabled
             """;
@@ -103,10 +109,11 @@ public record SettingTable(
               variable = $2,
               value = $3,
               value_type_id = $4,
-              user_name = $5,
-              enabled = $6,
-              visible = $7,
-              flags = $8
+              stanza_id = $5,
+              user_name = $6,
+              enabled = $7,
+              visible = $8,
+              flags = $9
              WHERE id = $1
              RETURNING %s
             """;
@@ -121,6 +128,7 @@ public record SettingTable(
                 .variable(this.variable)
                 .value(this.value)
                 .valueTypeId(this.valueTypeId)
+                .stanzaId(this.stanzaId)
                 .userName(this.userName)
                 .createTime(this.createTime)
                 .updateTime(this.updateTime)
@@ -135,6 +143,7 @@ public record SettingTable(
                 row.getString("variable"),
                 row.getString("value"),
                 row.getLong("value_type_id"),
+                row.getLong("stanza_id"),
                 row.getString("user_name"),
                 row.getLocalDateTime("create_time"),
                 row.getLocalDateTime("update_time"),
@@ -146,14 +155,16 @@ public record SettingTable(
 
     @Override
     public String caseInsertSql() {
-        return id != null ? INSERT_INTO_DICTIONARY_SETTING_RETURNING_S : INSERT_INTO_DICTIONARY_SETTING_DEFAULT_ID_RETURNING_S;
+        return id != null
+                ? INSERT_INTO_DICTIONARY_SETTING_RETURNING_S
+                : INSERT_INTO_DICTIONARY_SETTING_DEFAULT_ID_RETURNING_S;
     }
 
     @Override
     public Tuple caseInsertTuple() {
         return id != null
                 ? Tuple.tuple(listOf())
-                : Tuple.tuple(Arrays.asList(variable, value, valueTypeId, userName, enabled, visible, flags));
+                : Tuple.tuple(listOfWithOutId());
     }
 
     @Override
@@ -172,15 +183,19 @@ public record SettingTable(
     }
 
     private List<Object> listOf() {
-        return Arrays.asList(id, variable, value, valueTypeId, userName, enabled, visible, flags);
+        return Arrays.asList(id, variable, value, valueTypeId, stanzaId, userName, enabled, visible, flags);
+    }
+
+    private List<Object> listOfWithOutId() {
+        return Arrays.asList(variable, value, valueTypeId, stanzaId, userName, enabled, visible, flags);
     }
 
     public static final class Builder {
-        private @ModelField Long id;
-        private @ModelField
-        @Nonnull String variable;
-        private @ModelField String value;
-        private @ModelField Long valueTypeId;
+        private Long id;
+        private @Nonnull String variable;
+        private String value;
+        private @Nonnull Long valueTypeId;
+        private @Nonnull Long stanzaId;
         private String userName;
         private LocalDateTime createTime;
         private LocalDateTime updateTime;
@@ -210,6 +225,11 @@ public record SettingTable(
 
         public Builder valueTypeId(Long valueTypeId) {
             this.valueTypeId = valueTypeId;
+            return this;
+        }
+
+        public Builder stanzaId(long stanzaId) {
+            this.stanzaId = stanzaId;
             return this;
         }
 
@@ -245,7 +265,7 @@ public record SettingTable(
 
         public SettingTable build() {
             return new SettingTable(
-                    id, variable, value, valueTypeId, userName, createTime, updateTime, enabled, visible, flags
+                    id, variable, value, valueTypeId, stanzaId, userName, createTime, updateTime, enabled, visible, flags
             );
         }
     }

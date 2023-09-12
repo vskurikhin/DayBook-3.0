@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.09.06 17:04 by Victor N. Skurikhin.
+ * This file was last modified at 2023.11.19 16:20 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * I18nTable.java
@@ -151,12 +151,16 @@ public record I18nTable(
 
     @Override
     public String caseInsertSql() {
-        return id != null ? INSERT_INTO_DICTIONARY_I18N_RETURNING_S : INSERT_INTO_DICTIONARY_I18N_DEFAULT_ID_RETURNING_S;
+        return id != null
+                ? INSERT_INTO_DICTIONARY_I18N_RETURNING_S
+                : INSERT_INTO_DICTIONARY_I18N_DEFAULT_ID_RETURNING_S;
     }
 
     @Override
     public Tuple caseInsertTuple() {
-        return id != null ? Tuple.tuple(listOf()) : Tuple.tuple(listOfWithOutId());
+        return id != null
+                ? Tuple.tuple(listOf())
+                : Tuple.tuple(listOfWithOutId());
     }
 
     @Override

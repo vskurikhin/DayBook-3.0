@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.09.06 17:04 by Victor N. Skurikhin.
+ * This file was last modified at 2023.11.19 16:20 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * UserNameTable.java
@@ -117,12 +117,16 @@ public record UserNameTable(
 
     @Override
     public String caseInsertSql() {
-        return id != null ? INSERT_INTO_SECURITY_USER_NAME : INSERT_INTO_SECURITY_USER_NAME_DEFAULT_ID;
+        return id != null
+                ? INSERT_INTO_SECURITY_USER_NAME
+                : INSERT_INTO_SECURITY_USER_NAME_DEFAULT_ID;
     }
 
     @Override
     public Tuple caseInsertTuple() {
-        return id != null ? Tuple.tuple(listOf()) : Tuple.of(userName, password, enabled, visible, flags);
+        return id != null
+                ? Tuple.tuple(listOf())
+                : Tuple.of(userName, password, enabled, visible, flags);
     }
 
     @Override

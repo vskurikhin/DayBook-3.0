@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.09.07 16:35 by Victor N. Skurikhin.
+ * This file was last modified at 2023.11.19 18:33 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * ValueTypeTable.java
@@ -119,12 +119,16 @@ public record ValueTypeTable(
 
     @Override
     public String caseInsertSql() {
-        return id != null ? INSERT_INTO_DICTIONARY_VALUE_TYPE_RETURNING_S : INSERT_INTO_DICTIONARY_VALUE_TYPE_DEFAULT_ID_RETURNING_S;
+        return id != null
+                ? INSERT_INTO_DICTIONARY_VALUE_TYPE_RETURNING_S
+                : INSERT_INTO_DICTIONARY_VALUE_TYPE_DEFAULT_ID_RETURNING_S;
     }
 
     @Override
     public Tuple caseInsertTuple() {
-        return id != null ? Tuple.tuple(listOf()) : Tuple.of(valueType, userName, enabled, visible, flags);
+        return id != null
+                ? Tuple.tuple(listOf())
+                : Tuple.of(valueType, userName, enabled, visible, flags);
     }
 
     @Override
@@ -158,7 +162,6 @@ public record ValueTypeTable(
         private @ModelField int flags;
 
         private Builder() {
-            this.valueType = NONE;
             this.enabled = true;
         }
 
