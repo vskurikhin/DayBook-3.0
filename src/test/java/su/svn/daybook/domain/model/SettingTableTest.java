@@ -46,7 +46,7 @@ class SettingTableTest {
                 .id(null)
                 .variable(SettingTable.NONE)
                 .value(null)
-                .valueTypeId(0)
+                .valueTypeId(0L)
                 .stanzaId(0)
                 .userName(null)
                 .createTime(null)

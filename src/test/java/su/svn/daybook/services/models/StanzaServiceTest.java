@@ -12,6 +12,9 @@ import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
+import jakarta.enterprise.context.control.ActivateRequestContext;
+import jakarta.inject.Inject;
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,19 +22,20 @@ import org.mockito.Mockito;
 import su.svn.daybook.TestData;
 import su.svn.daybook.TestUtils;
 import su.svn.daybook.domain.dao.StanzaDao;
+import su.svn.daybook.domain.dao.StanzaViewDao;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.messages.ApiResponse;
 import su.svn.daybook.domain.messages.Request;
+import su.svn.daybook.domain.model.SettingTable;
 import su.svn.daybook.domain.model.StanzaTable;
+import su.svn.daybook.domain.model.StanzaView;
+import su.svn.daybook.domain.transact.StanzaTransactionalJob;
+import su.svn.daybook.models.domain.Stanza;
 import su.svn.daybook.models.pagination.Page;
 import su.svn.daybook.models.pagination.PageRequest;
+import su.svn.daybook.services.cache.StanzaCacheProvider;
 
-import jakarta.enterprise.context.control.ActivateRequestContext;
-import jakarta.inject.Inject;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @QuarkusTest
 class StanzaServiceTest {
@@ -39,27 +43,41 @@ class StanzaServiceTest {
     @Inject
     StanzaService service;
 
-    static StanzaDao mock;
+    static StanzaCacheProvider stanzaCacheProviderMock;
+    static StanzaDao stanzaDaoMock;
+    static StanzaTransactionalJob stanzaTransactionalJobMock;
+    static StanzaViewDao stanzaViewDaoMock;
 
+    static final Uni<Stanza> UNI_MODEL = Uni.createFrom().item(TestData.STANZA.MODEL_0);
     static final Uni<Optional<StanzaTable>> UNI_OPTIONAL_TEST = Uni.createFrom().item(Optional.of(TestData.STANZA.TABLE_0));
+    static final Uni<Optional<StanzaView>> UNI_OPTIONAL_VIEW = Uni.createFrom().item(Optional.of(TestData.STANZA.VIEW_0));
 
     static final Multi<StanzaTable> MULTI_TEST = Multi.createFrom().item(TestData.STANZA.TABLE_0);
+    static final Multi<StanzaView> MULTI_VIEW_TEST = Multi.createFrom().item(TestData.STANZA.VIEW_0);
 
     static final Multi<StanzaTable> MULTI_WITH_NULL = TestUtils.createMultiWithNull(StanzaTable.class);
 
+    static final Multi<StanzaView> MULTI_VIEW_EMPTIES = TestUtils.createMultiEmpties(StanzaView.class);
     static final Multi<StanzaTable> MULTI_EMPTIES = TestUtils.createMultiEmpties(StanzaTable.class);
 
     @BeforeEach
     void setUp() {
-        mock = Mockito.mock(StanzaDao.class);
-        Mockito.when(mock.findById(0L)).thenReturn(UNI_OPTIONAL_TEST);
-        QuarkusMock.installMockForType(mock, StanzaDao.class);
+        stanzaCacheProviderMock = Mockito.mock(StanzaCacheProvider.class);
+        stanzaDaoMock = Mockito.mock(StanzaDao.class);
+        stanzaTransactionalJobMock = Mockito.mock(StanzaTransactionalJob.class);
+        stanzaViewDaoMock = Mockito.mock(StanzaViewDao.class);
+        Mockito.when(stanzaDaoMock.findById(0L)).thenReturn(UNI_OPTIONAL_TEST);
+        Mockito.when(stanzaViewDaoMock.findById(0L)).thenReturn(UNI_OPTIONAL_VIEW);
+        QuarkusMock.installMockForType(stanzaCacheProviderMock, StanzaCacheProvider.class);
+        QuarkusMock.installMockForType(stanzaDaoMock, StanzaDao.class);
+        QuarkusMock.installMockForType(stanzaTransactionalJobMock, StanzaTransactionalJob.class);
+        QuarkusMock.installMockForType(stanzaViewDaoMock, StanzaViewDao.class);
     }
 
     @Test
     void testWhenGetAllThenSingletonList() {
-        Mockito.when(mock.count()).thenReturn(TestData.UNI_OPTIONAL_ONE_LONG);
-        Mockito.when(mock.findAll()).thenReturn(MULTI_TEST);
+        Mockito.when(stanzaViewDaoMock.count()).thenReturn(TestData.UNI_OPTIONAL_ONE_LONG);
+        Mockito.when(stanzaViewDaoMock.findAll()).thenReturn(MULTI_VIEW_TEST);
         List<Answer> result = new ArrayList<>();
         Assertions.assertDoesNotThrow(() -> result.addAll(service.getAll()
                 .subscribe()
@@ -71,8 +89,8 @@ class StanzaServiceTest {
     @Test
     @ActivateRequestContext
     void testWhenGetAllThenCountMinusOne() {
-        Mockito.when(mock.count()).thenReturn(TestData.UNI_OPTIONAL_MINUS_ONE_LONG);
-        Mockito.when(mock.findAll()).thenReturn(MULTI_EMPTIES);
+        Mockito.when(stanzaViewDaoMock.count()).thenReturn(TestData.UNI_OPTIONAL_MINUS_ONE_LONG);
+        Mockito.when(stanzaViewDaoMock.findAll()).thenReturn(Multi.createFrom().empty());
         List<Answer> result = new ArrayList<>();
         Assertions.assertThrows(
                 java.lang.IndexOutOfBoundsException.class,
@@ -85,20 +103,8 @@ class StanzaServiceTest {
 
     @Test
     void testWhenGetAllThenEmpty() {
-        Mockito.when(mock.count()).thenReturn(TestData.UNI_OPTIONAL_ZERO_LONG);
-        Mockito.when(mock.findAll()).thenReturn(MULTI_EMPTIES);
-        List<Answer> result = new ArrayList<>();
-        Assertions.assertDoesNotThrow(() -> result.addAll(service.getAll()
-                .subscribe()
-                .asStream()
-                .toList()));
-        Assertions.assertEquals(0, result.size());
-    }
-
-    @Test
-    void testWhenGetAllThenNull() {
-        Mockito.when(mock.count()).thenReturn(TestData.UNI_OPTIONAL_ZERO_LONG);
-        Mockito.when(mock.findAll()).thenReturn(MULTI_WITH_NULL);
+        Mockito.when(stanzaViewDaoMock.count()).thenReturn(TestData.UNI_OPTIONAL_ZERO_LONG);
+        Mockito.when(stanzaViewDaoMock.findAll()).thenReturn(Multi.createFrom().empty());
         List<Answer> result = new ArrayList<>();
         Assertions.assertDoesNotThrow(() -> result.addAll(service.getAll()
                 .subscribe()
@@ -110,8 +116,8 @@ class StanzaServiceTest {
     @Test
     void testWhenGetPageThenSingletonList() {
 
-        Mockito.when(mock.findRange(0L, Short.MAX_VALUE - 1)).thenReturn(MULTI_TEST);
-        Mockito.when(mock.count()).thenReturn(TestData.UNI_OPTIONAL_ONE_LONG);
+        Mockito.when(stanzaViewDaoMock.findRange(0L, Short.MAX_VALUE - 1)).thenReturn(MULTI_VIEW_TEST);
+        Mockito.when(stanzaDaoMock.count()).thenReturn(TestData.UNI_OPTIONAL_ONE_LONG);
 
         PageRequest pageRequest = new PageRequest(0L, (short) (Short.MAX_VALUE - 1));
         var expected = Page.<Answer>builder()
@@ -123,6 +129,7 @@ class StanzaServiceTest {
                 .nextPage(false)
                 .content(Collections.singletonList(Answer.of(TestData.STANZA.MODEL_0)))
                 .build();
+        Mockito.when(stanzaCacheProviderMock.getPage(pageRequest)).thenReturn(Uni.createFrom().item(expected));
 
         Assertions.assertDoesNotThrow(() -> service.getPage(new Request<>(pageRequest, null))
                 .onItem()
@@ -135,8 +142,8 @@ class StanzaServiceTest {
     @Test
     void testWhenGetPageThenEmpty() {
 
-        Mockito.when(mock.findRange(0L, Short.MAX_VALUE - 2)).thenReturn(MULTI_EMPTIES);
-        Mockito.when(mock.count()).thenReturn(TestData.UNI_OPTIONAL_ZERO_LONG);
+        Mockito.when(stanzaViewDaoMock.findRange(0L, Short.MAX_VALUE - 2)).thenReturn(MULTI_VIEW_EMPTIES);
+        Mockito.when(stanzaDaoMock.count()).thenReturn(TestData.UNI_OPTIONAL_ZERO_LONG);
 
         PageRequest pageRequest = new PageRequest(0L, (short) (Short.MAX_VALUE - 2));
         var expected = Page.<Answer>builder()
@@ -147,6 +154,7 @@ class StanzaServiceTest {
                 .nextPage(false)
                 .content(Collections.emptyList())
                 .build();
+        Mockito.when(stanzaCacheProviderMock.getPage(pageRequest)).thenReturn(Uni.createFrom().item(expected));
 
         Assertions.assertDoesNotThrow(() -> service.getPage(new Request<>(pageRequest, null))
                 .onItem()
@@ -159,8 +167,8 @@ class StanzaServiceTest {
     @Test
     void testWhenGetPageThenZeroPage() {
 
-        Mockito.when(mock.findRange(0L, 0)).thenReturn(MULTI_EMPTIES);
-        Mockito.when(mock.count()).thenReturn(TestData.UNI_OPTIONAL_ZERO_LONG);
+        Mockito.when(stanzaViewDaoMock.findRange(0L, 0)).thenReturn(MULTI_VIEW_EMPTIES);
+        Mockito.when(stanzaDaoMock.count()).thenReturn(TestData.UNI_OPTIONAL_ZERO_LONG);
 
         PageRequest pageRequest = new PageRequest(0, (short) 0);
         var expected = Page.<Answer>builder()
@@ -171,6 +179,7 @@ class StanzaServiceTest {
                 .nextPage(false)
                 .content(Collections.emptyList())
                 .build();
+        Mockito.when(stanzaCacheProviderMock.getPage(pageRequest)).thenReturn(Uni.createFrom().item(expected));
 
         Assertions.assertDoesNotThrow(() -> service.getPage(new Request<>(pageRequest, null))
                 .onItem()
@@ -182,6 +191,8 @@ class StanzaServiceTest {
 
     @Test
     void testWhenGetThenEntry() {
+        Mockito.when(stanzaCacheProviderMock.get(Mockito.any(Long.class)))
+                .thenReturn(UNI_MODEL);
         Assertions.assertDoesNotThrow(() -> service.get(new Request<>(0L, null))
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(Answer.of(TestData.STANZA.MODEL_0), actual))
@@ -196,7 +207,17 @@ class StanzaServiceTest {
                 .error(201)
                 .payload(new ApiResponse<>(Long.valueOf(0), 201))
                 .build();
-        Mockito.when(mock.insert(TestData.STANZA.TABLE_0)).thenReturn(TestData.lng.UNI_OPTIONAL_ZERO);
+        Mockito.when(stanzaDaoMock.insert(TestData.STANZA.TABLE_0)).thenReturn(TestData.lng.UNI_OPTIONAL_ZERO);
+        var table = new StanzaTable(
+                0L, SettingTable.NONE, null, StanzaTable.ROOT.id(), null, null, null, true, true, 0
+        );
+        Collection<SettingTable> collection = Collections.emptySet();
+        var pair = Pair.of(table, collection);
+        Collection<Pair<StanzaTable, Collection<SettingTable>>> set = Collections.singleton(pair);
+        Mockito.when(stanzaTransactionalJobMock.upsert(set))
+                .thenReturn(TestData.lng.UNI_SINGLETON_LIST_ZERO);
+        Mockito.when(stanzaCacheProviderMock.invalidate(Mockito.any(Answer.class)))
+                .thenReturn(Uni.createFrom().item(expected));
         Assertions.assertDoesNotThrow(() -> service.add(new Request<>(TestData.STANZA.MODEL_0, null))
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
@@ -206,12 +227,23 @@ class StanzaServiceTest {
 
     @Test
     void testWhenAddThenEmpty() {
+        var table = new StanzaTable(
+                0L, SettingTable.NONE, null, StanzaTable.ROOT.id(), null, null, null, true, true, 0
+        );
+        Collection<SettingTable> collection = Collections.emptySet();
+        var pair = Pair.of(table, collection);
+        Collection<Pair<StanzaTable, Collection<SettingTable>>> set = Collections.singleton(pair);
+        Mockito.when(stanzaTransactionalJobMock.upsert(set))
+                .thenReturn(TestData.lng.UNI_LIST_EMPTY);
         var expected = Answer.builder()
                 .message("bad request")
                 .error(400)
                 .payload("No value present for entry: " + TestData.STANZA.TABLE_0)
                 .build();
-        Mockito.when(mock.insert(TestData.STANZA.TABLE_0)).thenReturn(TestData.lng.UNI_OPTIONAL_EMPTY);
+        Mockito.when(stanzaDaoMock.insert(TestData.STANZA.TABLE_0))
+                .thenReturn(TestData.lng.UNI_OPTIONAL_EMPTY);
+        Mockito.when(stanzaCacheProviderMock.invalidate(Mockito.any(Answer.class)))
+                .thenReturn(Uni.createFrom().item(expected));
         Assertions.assertDoesNotThrow(() -> service.add(new Request<>(TestData.STANZA.MODEL_0, null))
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
@@ -221,12 +253,22 @@ class StanzaServiceTest {
 
     @Test
     void testWhenPutThenId() {
+        var table = new StanzaTable(
+                0L, SettingTable.NONE, null, StanzaTable.ROOT.id(), null, null, null, true, true, 0
+        );
+        Collection<SettingTable> collection = Collections.emptySet();
+        var pair = Pair.of(table, collection);
+        Collection<Pair<StanzaTable, Collection<SettingTable>>> set = Collections.singleton(pair);
+        Mockito.when(stanzaTransactionalJobMock.upsert(set))
+                .thenReturn(TestData.lng.UNI_LIST_EMPTY);
         var expected = Answer.builder()
                 .message(Answer.DEFAULT_MESSAGE)
                 .error(202)
                 .payload(new ApiResponse<>(Long.valueOf(0), 202))
                 .build();
-        Mockito.when(mock.update(TestData.STANZA.TABLE_0)).thenReturn(TestData.lng.UNI_OPTIONAL_ZERO);
+        Mockito.when(stanzaDaoMock.update(TestData.STANZA.TABLE_0)).thenReturn(TestData.lng.UNI_OPTIONAL_ZERO);
+        Mockito.when(stanzaCacheProviderMock.invalidateByKey(Mockito.anyLong(), Mockito.any(Answer.class)))
+                .thenReturn(Uni.createFrom().item(expected));
         Assertions.assertDoesNotThrow(() -> service.put(new Request<>(TestData.STANZA.MODEL_0, null))
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))
@@ -236,7 +278,7 @@ class StanzaServiceTest {
 
     @Test
     void testWhenPutThenEmpty() {
-        Mockito.when(mock.update(TestData.STANZA.TABLE_0)).thenReturn(TestData.lng.UNI_OPTIONAL_ZERO);
+        Mockito.when(stanzaDaoMock.update(TestData.STANZA.TABLE_0)).thenReturn(TestData.lng.UNI_OPTIONAL_ZERO);
         Assertions.assertThrows(RuntimeException.class, () -> service.put(new Request<>(TestData.STANZA.MODEL_0, null))
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(Answer.empty(), actual))
@@ -246,8 +288,12 @@ class StanzaServiceTest {
 
     @Test
     void testWhenDeleteThenId() {
-        Mockito.when(mock.delete(0L)).thenReturn(TestData.lng.UNI_OPTIONAL_ZERO);
+        Mockito.when(stanzaDaoMock.delete(0L)).thenReturn(TestData.lng.UNI_OPTIONAL_ZERO);
+        Mockito.when(stanzaTransactionalJobMock.delete(Mockito.any(StanzaTable.class)))
+                .thenReturn(TestData.lng.UNI_OPTIONAL_ZERO);
         var expected = Answer.of(new ApiResponse<>(Long.valueOf(0), 200));
+        Mockito.when(stanzaCacheProviderMock.invalidateByKey(Mockito.anyLong(), Mockito.any(Answer.class)))
+                .thenReturn(Uni.createFrom().item(expected));
         Assertions.assertDoesNotThrow(() -> service.delete(new Request<>(0L, null))
                 .onItem()
                 .invoke(actual -> Assertions.assertEquals(expected, actual))

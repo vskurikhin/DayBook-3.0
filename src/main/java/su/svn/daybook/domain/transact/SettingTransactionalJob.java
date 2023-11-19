@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.11.19 16:20 by Victor N. Skurikhin.
+ * This file was last modified at 2023.11.19 18:33 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * SettingTransactionalJob.java
@@ -31,14 +31,14 @@ public class SettingTransactionalJob extends AbstractOneToOneJob<Long, SettingTa
 
     private static final Logger LOG = Logger.getLogger(SettingTransactionalJob.class);
 
-    private static final BiFunction<SettingTable, Long, SettingTable> I18N_TABLE_BUILDER
+    private static final BiFunction<SettingTable, Long, SettingTable> SETTING_TABLE_BUILDER
             = (t, id) -> t.toBuilder().valueTypeId(id).build();
 
-    private static final Function<String, ValueTypeTable> LANGUAGE_TABLE_BUILDER
+    private static final Function<String, ValueTypeTable> VALUE_TYPE_TABLE_BUILDER
             = s -> ValueTypeTable.builder().valueType(s).build();
 
     public SettingTransactionalJob() {
-        super(I18N_TABLE_BUILDER, LANGUAGE_TABLE_BUILDER, LOG);
+        super(SETTING_TABLE_BUILDER, VALUE_TYPE_TABLE_BUILDER, LOG);
     }
 
     @Override

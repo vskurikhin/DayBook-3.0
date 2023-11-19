@@ -27,7 +27,7 @@ class ValueTypeTest {
     void testGetters() {
         var entry = new ValueType();
         Assertions.assertDoesNotThrow(entry::id);
-        Assertions.assertDoesNotThrow(entry::value_type);
+        Assertions.assertDoesNotThrow(entry::valueType);
         Assertions.assertDoesNotThrow(entry::visible);
         Assertions.assertDoesNotThrow(entry::flags);
     }

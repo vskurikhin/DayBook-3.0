@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.09.06 17:04 by Victor N. Skurikhin.
+ * This file was last modified at 2023.11.20 00:10 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * AbstractCacheProvider.java
@@ -11,10 +11,9 @@ package su.svn.daybook.services.cache;
 import io.quarkus.cache.Cache;
 import io.quarkus.cache.CacheManager;
 import io.smallrye.mutiny.Uni;
+import jakarta.inject.Inject;
 import org.jboss.logging.Logger;
 import su.svn.daybook.domain.messages.Answer;
-
-import jakarta.inject.Inject;
 
 import java.io.Serializable;
 import java.util.List;

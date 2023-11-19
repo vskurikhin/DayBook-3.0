@@ -1,3 +1,11 @@
+/*
+ * This file was last modified at 2023.11.19 18:38 by Victor N. Skurikhin.
+ * This is free and unencumbered software released into the public domain.
+ * For more information, please refer to <http://unlicense.org>
+ * 11140_date_2023_09_10_time_20_48_09_create_stanza_view_issues_183.sql
+ * $Id$
+ */
+
 --liquibase formatted sql
 --
 
@@ -18,7 +26,7 @@ SELECT Stanza.*,
        Parent.enabled AS parent_enabled,
        Parent.visible AS parent_visible,
        Parent.flags AS parent_flags,
-       json_agg(Setting.*) AS settings_json
+       coalesce(json_agg(Setting.*) FILTER (WHERE Setting.id IS NOT NULL), '[]') AS settings_json
 FROM dictionary.stanza Stanza
          LEFT JOIN dictionary.setting_view Setting
                    ON Stanza.id = Setting.stanza_id
