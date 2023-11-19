@@ -8,7 +8,6 @@
 
 package su.svn.daybook;
 
-import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import su.svn.daybook.domain.messages.Answer;
 import su.svn.daybook.domain.messages.ApiResponse;
@@ -21,10 +20,7 @@ import su.svn.daybook.models.pagination.PageRequest;
 import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.Collections;
-import java.util.Optional;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 
 import static su.svn.daybook.TestUtils.localDateTime;
 
@@ -66,6 +62,8 @@ public class TestData {
                 .item(Answer.of(new ApiResponse<>(Long.valueOf(0), 200)));
         public static Uni<Optional<Long>> UNI_OPTIONAL_EMPTY = Uni.createFrom().item(Optional.empty());
         public static Uni<Optional<Long>> UNI_OPTIONAL_ZERO = Uni.createFrom().item(Optional.of(0L));
+        public static Uni<List<Long>> UNI_LIST_EMPTY = Uni.createFrom().item(Collections.emptyList());
+        public static Uni<List<Long>> UNI_SINGLETON_LIST_ZERO = Uni.createFrom().item(Collections.singletonList(0L));
     }
 
     public static class request {

@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.11.19 16:20 by Victor N. Skurikhin.
+ * This file was last modified at 2023.11.20 00:10 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * StanzaTable.java
@@ -11,13 +11,13 @@ package su.svn.daybook.domain.model;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.vertx.mutiny.sqlclient.Row;
 import io.vertx.mutiny.sqlclient.Tuple;
+import jakarta.annotation.Nonnull;
 import org.intellij.lang.annotations.Language;
 import su.svn.daybook.annotations.ModelField;
 import su.svn.daybook.models.Marked;
 import su.svn.daybook.models.Owned;
 import su.svn.daybook.models.TimeUpdated;
 
-import jakarta.annotation.Nonnull;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -117,16 +117,16 @@ public record StanzaTable(
 
     public Builder toBuilder() {
         return builder()
-        .id(this.id)
-        .name(this.name)
-        .description(this.description)
-        .parentId(this.parentId)
-        .userName(this.userName)
-        .createTime(this.createTime)
-        .updateTime(this.updateTime)
-        .enabled(this.enabled)
-        .visible(this.visible)
-        .flags(this.flags);
+                .id(this.id)
+                .name(this.name)
+                .description(this.description)
+                .parentId(this.parentId)
+                .userName(this.userName)
+                .createTime(this.createTime)
+                .updateTime(this.updateTime)
+                .enabled(this.enabled)
+                .visible(this.visible)
+                .flags(this.flags);
     }
 
     public static StanzaTable from(Row row) {

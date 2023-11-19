@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.11.19 18:33 by Victor N. Skurikhin.
+ * This file was last modified at 2023.11.20 00:10 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * SettingDataService.java
@@ -42,8 +42,9 @@ public class SettingDataService implements DataService<Long, SettingView, Settin
     public Uni<Long> add(Setting o) {
         LOG.tracef("add(%s)", o);
         var table = settingMapper.convertToSettingTable(o);
-        System.out.println("table = " + table);
-        return settingTransactionalJob.insert(table, o.valueType()).map(op -> lookup(op, table));
+        return settingTransactionalJob
+                .insert(table, o.valueType())
+                .map(op -> lookup(op, table));
     }
 
     public Uni<Long> count() {

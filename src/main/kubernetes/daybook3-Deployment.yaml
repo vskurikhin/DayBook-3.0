@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: daybook3
-        image: vskurikhin/daybook3
+        image: vskurikhin/daybook3:latest
         ports:
         - containerPort: 8080
         env:

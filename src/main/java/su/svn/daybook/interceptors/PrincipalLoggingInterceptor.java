@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.09.12 22:06 by Victor N. Skurikhin.
+ * This file was last modified at 2023.11.20 00:10 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * PrincipalLoggingInterceptor.java
@@ -10,19 +10,18 @@ package su.svn.daybook.interceptors;
 
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
+import jakarta.annotation.Nonnull;
 import jakarta.annotation.Priority;
+import jakarta.inject.Inject;
+import jakarta.interceptor.AroundInvoke;
+import jakarta.interceptor.Interceptor;
+import jakarta.interceptor.InvocationContext;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.JBossLogManagerProvider;
 import org.jboss.logging.Logger;
 import su.svn.daybook.annotations.PrincipalLogging;
 import su.svn.daybook.domain.messages.Request;
 import su.svn.daybook.services.security.AuthenticationContext;
-
-import jakarta.annotation.Nonnull;
-import jakarta.inject.Inject;
-import jakarta.interceptor.AroundInvoke;
-import jakarta.interceptor.Interceptor;
-import jakarta.interceptor.InvocationContext;
 
 import java.util.concurrent.CopyOnWriteArrayList;
 

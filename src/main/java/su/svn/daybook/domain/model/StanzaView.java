@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.09.12 22:05 by Victor N. Skurikhin.
+ * This file was last modified at 2023.11.20 00:10 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * StanzaView.java
@@ -31,7 +31,7 @@ public record StanzaView(
         @ModelField Long id,
         @ModelField(nullable = false) @Nonnull String name,
         @ModelField String description,
-        @ModelField(nullable = false) @Nonnull StanzaTable parent,
+        /*@ModelField(nullable = false)*/ @Nonnull StanzaTable parent,
         @ModelField(nullable = false) @Nonnull Collection<SettingView> settings,
         String userName,
         LocalDateTime createTime,
