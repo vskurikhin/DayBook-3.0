@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2022.01.11 17:59 by Victor N. Skurikhin.
+ * This file was last modified at 2023.09.12 22:04 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * ResourcePath.java
@@ -57,6 +57,8 @@ public enum ResourcePath {
     public static final String SESSIONS = API_PATH + "/sessions";
     public static final String SETTING = API_PATH + "/setting";
     public static final String SETTINGS = API_PATH + "/settings";
+    public static final String STANZA = API_PATH + "/stanza";
+    public static final String STANZAS = API_PATH + "/stanzas";
     public static final String TAG_LABEL = API_PATH + "/tag";
     public static final String TAG_LABELS = API_PATH + "/tags";
     public static final String USER = API_PATH + "/user";

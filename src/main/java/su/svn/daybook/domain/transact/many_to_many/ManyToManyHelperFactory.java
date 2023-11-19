@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.09.06 19:32 by Victor N. Skurikhin.
+ * This file was last modified at 2023.11.19 16:20 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * ManyToManyHelperFactory.java
@@ -10,7 +10,7 @@ package su.svn.daybook.domain.transact.many_to_many;
 
 import su.svn.daybook.domain.model.CasesOfId;
 import su.svn.daybook.domain.transact.Action;
-import su.svn.daybook.domain.transact.Helper;
+import su.svn.daybook.domain.transact.OptionalHelper;
 
 import jakarta.annotation.Nonnull;
 
@@ -21,38 +21,35 @@ import java.util.Map;
 record ManyToManyHelperFactory<
         MainId extends Comparable<? extends Serializable>,
         MainTable extends CasesOfId<MainId>,
-        SubId extends Comparable<? extends Serializable>,
-        Subsidiary extends CasesOfId<SubId>,
+        RelId extends Comparable<? extends Serializable>,
+        Relative extends CasesOfId<RelId>,
         MainField extends Comparable<? extends Serializable>,
-        SubField extends Comparable<? extends Serializable>>(
-        @Nonnull AbstractManyToManyJob<MainId, MainTable, SubId, Subsidiary, MainField, SubField> job,
+        RelField extends Comparable<? extends Serializable>>(
+        @Nonnull AbstractManyToManyJob<MainId, MainTable, RelId, Relative, MainField, RelField> job,
         @Nonnull Map<String, Map<String, Action>> mapJob) {
 
     ManyToManyHelperFactory(
-            @Nonnull AbstractManyToManyJob<MainId, MainTable, SubId, Subsidiary, MainField, SubField> job,
+            @Nonnull AbstractManyToManyJob<MainId, MainTable, RelId, Relative, MainField, RelField> job,
             @Nonnull Map<String, Map<String, Action>> mapJob) {
         this.job = job;
         this.mapJob = mapJob;
     }
 
-    public Helper<MainId, MainTable, SubId, Subsidiary, SubField> createInsertHelper(
+    public OptionalHelper<MainId> createInsertHelper(
             @Nonnull MainTable table,
             MainField field,
-            @Nonnull Collection<SubField> collection) {
+            @Nonnull Collection<RelField> collection) {
         return new InsertHelper<>(this.job, this.mapJob, table, field, collection);
     }
 
-    public Helper<MainId, MainTable, SubId, Subsidiary, SubField> createUpdateHelper(
+    public OptionalHelper<MainId> createUpdateHelper(
             @Nonnull MainTable table,
             MainField field,
-            @Nonnull Collection<SubField> collection) {
+            @Nonnull Collection<RelField> collection) {
         return new UpdateHelper<>(this.job, this.mapJob, table, field, collection);
     }
 
-    public Helper<MainId, MainTable, SubId, Subsidiary, SubField> createDeleteHelper(
-            @Nonnull MainTable table,
-            MainField field) {
+    public OptionalHelper<MainId> createDeleteHelper(@Nonnull MainTable table, MainField field) {
         return new DeleteHelper<>(this.job, this.mapJob, table, field);
     }
-
 }

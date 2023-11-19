@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.09.06 17:04 by Victor N. Skurikhin.
+ * This file was last modified at 2023.11.19 16:20 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * SettingViewDao.java
@@ -39,13 +39,17 @@ public class SettingViewDao extends AbstractViewDao<Long, SettingView> implement
     @PrincipalLogging
     @SQL(SettingView.SELECT_FROM_DICTIONARY_SETTING_VIEW_WHERE_ID_$1)
     public Uni<Optional<SettingView>> findById(Long id) {
-        return super.findByIdSQL(id).map(Optional::ofNullable);
+        return super
+                .findByIdSQL(id)
+                .map(Optional::ofNullable);
     }
 
     @PrincipalLogging
     @SQL(SettingView.SELECT_FROM_DICTIONARY_SETTING_VIEW_WHERE_VARIABLE_$1)
     public Uni<Optional<SettingView>> findByKey(String language, String message) {
-        return super.findByKeySQL(List.of(language, message)).map(Optional::ofNullable);
+        return super
+                .findByKeySQL(List.of(language, message))
+                .map(Optional::ofNullable);
     }
 
     @SQL(SettingView.SELECT_FROM_DICTIONARY_SETTING_VIEW_WHERE_VALUE_$1)

@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.09.06 19:32 by Victor N. Skurikhin.
+ * This file was last modified at 2023.11.19 16:20 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * Action.java
@@ -26,7 +26,7 @@ public record Action(
         Function<Object, Tuple> tupleMapper,
         String sql) {
     @SuppressWarnings("unchecked")
-    static Action of(@Nonnull TransactionAction ta) {
+    public static Action of(@Nonnull TransactionAction ta) {
         return new Action(
                 ta.iteratorNextMapper().getMapper(),
                 ta.sqlMapper().getMapper(),

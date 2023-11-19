@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.09.06 17:04 by Victor N. Skurikhin.
+ * This file was last modified at 2023.11.19 16:20 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * AbstractViewDao.java
@@ -12,6 +12,7 @@ import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import io.vertx.mutiny.sqlclient.Row;
 import io.vertx.mutiny.sqlclient.RowSet;
+import io.vertx.mutiny.sqlclient.SqlConnection;
 import io.vertx.mutiny.sqlclient.Tuple;
 import su.svn.daybook.annotations.SQL;
 import su.svn.daybook.models.Identification;
@@ -59,14 +60,14 @@ abstract class AbstractViewDao<I extends Comparable<? extends Serializable>, D e
 
     private Map<String, String> getSQLMethod() {
         return Arrays.stream(this.getClass().getSuperclass().getDeclaredMethods())
-                .filter(this::testAnnotationSQL)
+                .filter(this::isAnnotationSQL)
                 .collect(Collectors.toMap(Method::getName, method -> {
                     SQL sql = method.getAnnotation(SQL.class);
                     return sql.value();
                 }));
     }
 
-    private boolean testAnnotationSQL(Method method) {
+    private boolean isAnnotationSQL(Method method) {
         return method.isAnnotationPresent(SQL.class) && !method.isBridge();
     }
 
@@ -76,7 +77,8 @@ abstract class AbstractViewDao<I extends Comparable<? extends Serializable>, D e
             return client
                     .preparedQuery(sql)
                     .execute()
-                    .map(pgRowSet -> pgRowSet.iterator().next().getLong(COUNT));
+                    .map(pgRowSet -> pgRowSet.iterator().next().getLong(COUNT))
+                    .log();
         }
         return Uni.createFrom().nullItem();
     }
@@ -90,7 +92,8 @@ abstract class AbstractViewDao<I extends Comparable<? extends Serializable>, D e
                     .execute()
                     .onItem()
                     .transformToMulti(set -> Multi.createFrom().iterable(set))
-                    .map(fromFunction);
+                    .map(fromFunction)
+                    .log();
         }
         return Multi.createFrom().empty();
     }
@@ -132,7 +135,8 @@ abstract class AbstractViewDao<I extends Comparable<? extends Serializable>, D e
                     .execute(Tuple.of(value))
                     .onItem()
                     .transformToMulti(set -> Multi.createFrom().iterable(set))
-                    .map(fromFunction);
+                    .map(fromFunction)
+                    .log();
         }
         return Multi.createFrom().empty();
     }
@@ -146,35 +150,24 @@ abstract class AbstractViewDao<I extends Comparable<? extends Serializable>, D e
                     .execute(Tuple.of(offset, limit))
                     .onItem()
                     .transformToMulti(set -> Multi.createFrom().iterable(set))
-                    .map(fromFunction);
+                    .map(fromFunction)
+                    .log();
         }
         return Multi.createFrom().empty();
     }
 
     Uni<D> executeByIdReturnEntry(I id, @Nonnull String sql) {
-        return client
-                .preparedQuery(String.format(sql, ASTERISK))
-                .execute(Tuple.of(id))
-                .map(RowSet::iterator)
-                .map(iterator -> iterator.hasNext() ? fromFunction.apply(iterator.next()) : null);
+        return clientExecute(sql, Tuple.of(id), fromFunction).log();
     }
 
     @SuppressWarnings("unchecked")
     <T> Uni<D> executeByKeyReturnEntry(List<T> key, @Nonnull String sql) {
-        return client
-                .preparedQuery(String.format(sql, ASTERISK))
-                .execute(Tuple.tuple((List<Object>) key))
-                .map(RowSet::iterator)
-                .map(iterator -> iterator.hasNext() ? fromFunction.apply(iterator.next()) : null);
+        return clientExecute(sql, Tuple.tuple((List<Object>) key), fromFunction).log();
     }
 
     <T extends Comparable<? extends Serializable>>
     Uni<D> executeByKeyReturnEntry(T key, @Nonnull String sql) {
-        return client
-                .preparedQuery(String.format(sql, ASTERISK))
-                .execute(Tuple.of(key))
-                .map(RowSet::iterator)
-                .map(iterator -> iterator.hasNext() ? fromFunction.apply(iterator.next()) : null);
+        return clientExecute(sql, Tuple.of(key), fromFunction).log();
     }
 
     Uni<I> executeByIdReturnId(I id, @Nonnull String sql) {
@@ -182,22 +175,34 @@ abstract class AbstractViewDao<I extends Comparable<? extends Serializable>, D e
                 .preparedQuery(String.format(sql, this.id))
                 .execute(Tuple.of(id))
                 .map(RowSet::iterator)
-                .map(iterator -> iterator.hasNext() ? idFunction.apply(iterator.next()) : null);
+                .map(iterator -> iterator.hasNext() ? idFunction.apply(iterator.next()) : null)
+                .log();
     }
 
     Uni<I> executeByTupleReturnId(Tuple tuple, @Nonnull String sql) {
-        return client.withTransaction(
-                connection -> connection.preparedQuery(String.format(sql, this.id))
-                        .execute(tuple)
-                        .map(RowSet::iterator)
-                        .map(iterator -> iterator.hasNext() ? idFunction.apply(iterator.next()) : null));
+        return client
+                .withTransaction(connection -> execute(connection, String.format(sql, this.id), tuple, idFunction))
+                .log();
     }
 
     Uni<D> executeByTupleReturnEntry(Tuple tuple, @Nonnull String sql) {
-        return client.withTransaction(
-                connection -> connection.preparedQuery(String.format(sql, ASTERISK))
-                        .execute(tuple)
-                        .map(RowSet::iterator)
-                        .map(iterator -> iterator.hasNext() ? fromFunction.apply(iterator.next()) : null));
+        return client
+                .withTransaction(connection -> execute(connection, sql, tuple, fromFunction))
+                .log();
+    }
+
+    private Uni<D> clientExecute(String sql, Tuple key, Function<Row, D> func) {
+        return client
+                .preparedQuery(String.format(sql, ASTERISK))
+                .execute(key)
+                .map(RowSet::iterator)
+                .map(iterator -> iterator.hasNext() ? func.apply(iterator.next()) : null);
+    }
+
+    private <X> Uni<X> execute(SqlConnection connection, String sql, Tuple tuple, Function<Row, X> func) {
+        return connection.preparedQuery(String.format(sql, ASTERISK))
+                .execute(tuple)
+                .map(RowSet::iterator)
+                .map(iterator -> iterator.hasNext() ? func.apply(iterator.next()) : null);
     }
 }

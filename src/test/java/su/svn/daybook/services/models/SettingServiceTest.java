@@ -213,8 +213,10 @@ class SettingServiceTest {
                 .error(201)
                 .payload(new ApiResponse<>(Long.valueOf(0), 201))
                 .build();
-        Mockito.when(settingTransactionalJobMock.insert(
-                        TestData.SETTING.TABLE_0, SettingTable.DEFAULT_TYPE))
+        var table = new SettingTable(
+                0L, SettingTable.NONE, null, null, 0L, null, null, null, true, true, 0
+        );
+        Mockito.when(settingTransactionalJobMock.insert(table, SettingTable.DEFAULT_TYPE))
                 .thenReturn(TestData.lng.UNI_OPTIONAL_ZERO);
         Assertions.assertDoesNotThrow(() -> service.add(new Request<>(TestData.SETTING.MODEL_0, null))
                 .onItem()
@@ -225,13 +227,15 @@ class SettingServiceTest {
 
     @Test
     void testWhenAddThenEmpty() {
+        var table = new SettingTable(
+                0L, SettingTable.NONE, null, null, 0L, null, null, null, true, true, 0
+        );
         var expected = Answer.builder()
                 .message("bad request")
                 .error(400)
-                .payload("No value present for entry: " + TestData.SETTING.TABLE_0)
+                .payload("No value present for entry: " + table)
                 .build();
-        Mockito.when(settingTransactionalJobMock.insert(
-                        TestData.SETTING.TABLE_0, SettingTable.DEFAULT_TYPE))
+        Mockito.when(settingTransactionalJobMock.insert(table, SettingTable.DEFAULT_TYPE))
                 .thenReturn(TestData.lng.UNI_OPTIONAL_EMPTY);
         Assertions.assertDoesNotThrow(() -> service.add(new Request<>(TestData.SETTING.MODEL_0, null))
                 .onItem()
@@ -247,8 +251,10 @@ class SettingServiceTest {
                 .error(202)
                 .payload(new ApiResponse<>(Long.valueOf(0), 202))
                 .build();
-        Mockito.when(settingTransactionalJobMock.update(
-                        TestData.SETTING.TABLE_0, SettingTable.DEFAULT_TYPE))
+        var table = new SettingTable(
+                0L, SettingTable.NONE, null, null, 0L, null, null, null, true, true, 0
+        );
+        Mockito.when(settingTransactionalJobMock.update(table, SettingTable.DEFAULT_TYPE))
                 .thenReturn(TestData.lng.UNI_OPTIONAL_ZERO);
         Assertions.assertDoesNotThrow(() -> service.put(new Request<>(TestData.SETTING.MODEL_0, null))
                 .onItem()

@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.09.07 16:35 by Victor N. Skurikhin.
+ * This file was last modified at 2023.11.19 16:20 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * SettingDao.java
@@ -35,7 +35,9 @@ public class SettingDao extends AbstractDao<Long, SettingTable> implements DaoIf
     @PrincipalLogging
     @SQL(SettingTable.DELETE_FROM_DICTIONARY_SETTING_WHERE_ID_$1_RETURNING_S)
     public Uni<Optional<Long>> delete(Long id) {
-        return super.deleteSQL(id).map(Optional::ofNullable);
+        return super
+                .deleteSQL(id)
+                .map(Optional::ofNullable);
     }
 
     @Override
@@ -48,13 +50,17 @@ public class SettingDao extends AbstractDao<Long, SettingTable> implements DaoIf
     @PrincipalLogging
     @SQL(SettingTable.SELECT_FROM_DICTIONARY_SETTING_WHERE_ID_$1)
     public Uni<Optional<SettingTable>> findById(Long id) {
-        return super.findByIdSQL(id).map(Optional::ofNullable);
+        return super
+                .findByIdSQL(id)
+                .map(Optional::ofNullable);
     }
 
     @PrincipalLogging
     @SQL(SettingTable.SELECT_FROM_DICTIONARY_SETTING_WHERE_KEY_$1)
     public Uni<Optional<SettingTable>> findByKey(String variable) {
-        return super.findByKeySQL(variable).map(Optional::ofNullable);
+        return super
+                .findByKeySQL(variable)
+                .map(Optional::ofNullable);
     }
 
     public Uni<Optional<SettingTable>> findByVariable(String value) {
@@ -76,27 +82,35 @@ public class SettingDao extends AbstractDao<Long, SettingTable> implements DaoIf
     @PrincipalLogging
     @SQL
     public Uni<Optional<Long>> insert(SettingTable entry) {
-        return super.insertSQL(entry).map(Optional::ofNullable);
+        return super
+                .insertSQL(entry)
+                .map(Optional::ofNullable);
     }
 
     @Override
     @PrincipalLogging
     @SQL
     public Uni<Optional<SettingTable>> insertEntry(SettingTable entry) {
-        return super.insertSQLEntry(entry).map(Optional::ofNullable);
+        return super
+                .insertSQLEntry(entry)
+                .map(Optional::ofNullable);
     }
 
     @Override
     @PrincipalLogging
     @SQL(SettingTable.UPDATE_DICTIONARY_SETTING_WHERE_ID_$1_RETURNING_S)
     public Uni<Optional<Long>> update(SettingTable entry) {
-        return super.updateSQL(entry).map(Optional::ofNullable);
+        return super
+                .updateSQL(entry)
+                .map(Optional::ofNullable);
     }
 
     @Override
     @PrincipalLogging
     @SQL(SettingTable.UPDATE_DICTIONARY_SETTING_WHERE_ID_$1_RETURNING_S)
     public Uni<Optional<SettingTable>> updateEntry(SettingTable entry) {
-        return super.updateSQLEntry(entry).map(Optional::ofNullable);
+        return super
+                .updateSQLEntry(entry)
+                .map(Optional::ofNullable);
     }
 }

@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.09.06 19:32 by Victor N. Skurikhin.
+ * This file was last modified at 2023.11.19 11:15 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * OneToOneHelperFactory.java
@@ -10,7 +10,7 @@ package su.svn.daybook.domain.transact.one_to_one;
 
 import su.svn.daybook.domain.model.CasesOfId;
 import su.svn.daybook.domain.transact.Action;
-import su.svn.daybook.domain.transact.Helper;
+import su.svn.daybook.domain.transact.OptionalHelper;
 
 import jakarta.annotation.Nonnull;
 
@@ -41,15 +41,15 @@ record OneToOneHelperFactory<
         this.job = job;
     }
 
-    public Helper<MainId, MainTable, JoinId, JoinTable, Field> createInsertHelper(MainTable table, Field field) {
+    public OptionalHelper<MainId> createInsertHelper(MainTable table, Field field) {
         return new InsertHelper<>(this.job, this.mapJob, this.tableBuilder, this.joinFieldBuilder, table, field);
     }
 
-    public Helper<MainId, MainTable, JoinId, JoinTable, Field> createUpdateHelper(MainTable table, Field field) {
+    public OptionalHelper<MainId> createUpdateHelper(MainTable table, Field field) {
         return new UpdateHelper<>(this.job, this.mapJob, this.tableBuilder, this.joinFieldBuilder, table, field);
     }
 
-    public Helper<MainId, MainTable, JoinId, JoinTable, Field> createDeleteHelper(MainTable table) {
+    public OptionalHelper<MainId> createDeleteHelper(MainTable table) {
         return new DeleteHelper<>(this.job, this.mapJob, table);
     }
 

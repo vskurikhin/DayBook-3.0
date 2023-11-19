@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.09.07 16:35 by Victor N. Skurikhin.
+ * This file was last modified at 2023.09.12 22:02 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * DataBaseIT.java
@@ -59,6 +59,10 @@ public class DataBaseIT {
     SettingTransactionalJob settingTransactionalJob;
     @Inject
     SettingViewDao settingViewDao;
+    @Inject
+    StanzaDao stanzaDao;
+    @Inject
+    StanzaViewDao stanzaViewDao;
     @Inject
     TagLabelDao tagLabelDao;
     @Inject
@@ -837,10 +841,10 @@ public class DataBaseIT {
             Assertions.assertDoesNotThrow(() -> {
                 valueTypeId = uniOptionalHelper(valueTypeDao.insert(valueType));
             });
-            System.out.println("valueTypeId = " + valueTypeId);
             var entry = SettingTable.builder()
                     .variable(ONE)
                     .valueTypeId(valueTypeId)
+                    .stanzaId(0L)
                     .enabled(true)
                     .build();
             Long customId = 2L;
@@ -857,6 +861,7 @@ public class DataBaseIT {
                     .id(id)
                     .variable(variable)
                     .valueTypeId(valueTypeId)
+                    .stanzaId(0)
                     .createTime(test.createTime())
                     .updateTime(test.updateTime())
                     .enabled(true);
@@ -883,6 +888,7 @@ public class DataBaseIT {
                     .id(super.id)
                     .variable(TWO)
                     .valueTypeId(valueTypeId)
+                    .stanzaId(0L)
                     .build();
             super.whenUpdateAndFindByIdThenEntry((id, test) -> expected(id, TWO, test), update);
 
@@ -895,9 +901,8 @@ public class DataBaseIT {
                     .variable(String.valueOf(7))
                     .value(new String("{}"))
                     .valueTypeId(valueTypeId)
+                    .stanzaId(0)
                     .build();
-            System.out.println("update = " + update);
-            System.out.println("custom = " + custom);
             super.whenInsertCustomThenEntry(
                     (id, test) -> expected(id, String.valueOf(7), new String("{}"), test),
                     custom
@@ -907,6 +912,7 @@ public class DataBaseIT {
                     .variable(TEN)
                     .value(new String("{}"))
                     .valueTypeId(valueTypeId)
+                    .stanzaId(0)
                     .build();
             super.whenUpdateCustomAndFindByIdThenEntry(
                     (id, test) -> expected(id, TEN, new String("{}"), test),
@@ -947,12 +953,14 @@ public class DataBaseIT {
                 .variable("variable1")
                 .value(SettingTable.NONE)
                 .valueTypeId(0L)
+                .stanzaId(0L)
                 .build();
 
         SettingTable insertEntry2 = SettingTable.builder()
                 .variable("variable2")
                 .value(SettingTable.NONE)
                 .valueTypeId(0L)
+                .stanzaId(0L)
                 .build();
 
         @AfterEach
@@ -971,12 +979,14 @@ public class DataBaseIT {
                     .variable(insertEntry1.variable())
                     .value(SettingTable.NONE)
                     .valueTypeId(0L)
+                    .stanzaId(0L)
                     .build();
             var updateEntry2 = SettingTable.builder()
                     .id(result2)
                     .variable(insertEntry2.variable())
                     .value(SettingTable.NONE)
                     .valueTypeId(0L)
+                    .stanzaId(0L)
                     .build();
 
             whenUpdateEntryForValueTypehenOk(updateEntry1, "Object");
@@ -1038,12 +1048,14 @@ public class DataBaseIT {
                     .variable("variable1")
                     .valueTypeId(valueTypeDaoTest.id)
                     .value(SettingTable.NONE)
+                    .stanzaId(0L)
                     .enabled(true)
                     .build();
             var entry2 = SettingTable.builder()
                     .variable("variable2")
                     .valueTypeId(valueTypeDaoTest.id)
                     .value(messageEntry2)
+                    .stanzaId(0L)
                     .enabled(true)
                     .build();
             super.setUp(settingDao, settingViewDao, entry1, entry2);
@@ -1061,6 +1073,7 @@ public class DataBaseIT {
                     .variable(test.variable())
                     .valueType(ValueTypeTable.NONE)
                     .value(valueType)
+                    .stanzaId(0L)
                     .createTime(test.createTime())
                     .updateTime(test.updateTime())
                     .enabled(true);
@@ -1091,6 +1104,210 @@ public class DataBaseIT {
                     (id, test) -> expected(id, messageEntry2, test)
             );
             super.whenFindRangeFromZeroToMaxValueThenMultiWithTwoItems();
+        }
+    }
+
+    @Nested
+    @DisplayName("StanzaDao")
+    class StanzaDaoTest extends AbstractDaoTest<Long, StanzaTable> {
+
+        public static final String ONE = "00000000-0000-0000-0000-000000000001";
+        public static final String TWO = "00000000-0000-0000-0000-000000000002";
+        public static final String NINE = "00000000-0000-0000-0000-000000000009";
+        public static final String TEN = "00000000-0000-0000-0000-00000000000a";
+
+        @BeforeEach
+        void setUp() {
+            var entry = StanzaTable.builder()
+                    .id(1L)
+                    .name(ONE)
+                    .parentId(0L)
+                    .enabled(true)
+                    .visible(true)
+                    .build();
+            Long customId = 2L;
+            super.setUp(stanzaDao, entry, customId);
+        }
+
+        @AfterEach
+        void tearDown() {
+            Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(id, uniOptionalHelper(super.dao.delete(super.id))));
+            Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(1, uniOptionalHelper(super.dao.count())));
+        }
+
+        StanzaTable.Builder builder(Long id, String name, StanzaTable test) {
+            return StanzaTable.builder()
+                    .id(id)
+                    .name(name)
+                    .parentId(0L)
+                    .createTime(test.createTime())
+                    .updateTime(test.updateTime())
+                    .enabled(true)
+                    .visible(true);
+        }
+
+        StanzaTable expected(Long id, String name, StanzaTable test) {
+            Assertions.assertNotNull(test);
+            return builder(id, name, test).build();
+        }
+
+        StanzaTable expected(Long id, String name, Long parentId, StanzaTable test) {
+            Assertions.assertNotNull(test);
+            return builder(id, name, test).parentId(parentId).build();
+        }
+
+        @Test
+        void test() {
+            super.whenFindByIdThenEntry((id, test) -> expected(id, ONE, test));
+
+            var update = StanzaTable.builder()
+                    .id(super.id)
+                    .name(TWO)
+                    .visible(true)
+                    .build();
+            super.whenUpdateAndFindByIdThenEntry((id, test) -> expected(id, TWO, test), update);
+
+            Assertions.assertDoesNotThrow(() -> {
+                var test = multiAsListHelper((super.dao.findAll()));
+                Assertions.assertNotNull(test);
+                Assertions.assertFalse(test.isEmpty());
+                Assertions.assertEquals(2, test.size());
+            });
+            super.whenFindRangeZeroThenEmptiestMulti();
+            super.whenFindRangeFromZeroLimitOneThenMultiWithOneItem();
+
+            var custom = StanzaTable.builder()
+                    .id(customId)
+                    .name(NINE)
+                    .parentId(0L)
+                    .visible(true)
+                    .build();
+            super.whenInsertCustomThenEntry(
+                    (id, test) -> expected(id, NINE, 0L, test),
+                    custom
+            );
+            var customUpdate = StanzaTable.builder()
+                    .id(customId)
+                    .name(TEN)
+                    .parentId(0L)
+                    .visible(true)
+                    .build();
+            super.whenUpdateCustomAndFindByIdThenEntry(
+                    (id, test) -> expected(id, TEN, 0L, test),
+                    customUpdate
+            );
+
+            super.whenFindRangeFromZeroToOneThenMultiWithOneItemCustom(
+                    (id, test) -> expected(0L, StanzaTable.NONE, 0L, test)
+            );
+            super.whenFindRangeFromOneLimitOneMultiWithOneItem();
+
+            Assertions.assertDoesNotThrow(() -> {
+                var list = multiAsListHelper(stanzaDao.findByName(TWO));
+                Assertions.assertFalse(list.isEmpty());
+                var test = list.get(0);
+                var expected = expected(super.id, TWO, test);
+                Assertions.assertEquals(expected, test);
+                Assertions.assertNotNull(test.createTime());
+                Assertions.assertNotNull(test.updateTime());
+            });
+
+            Assertions.assertDoesNotThrow(() -> {
+                var test = multiAsListHelper(stanzaDao.findByParentId(0L));
+                Assertions.assertNotNull(test);
+                Assertions.assertFalse(test.isEmpty());
+                Assertions.assertEquals(3, test.size());
+            });
+
+            super.whenDeleteCustomThenOk();
+        }
+    }
+
+    @Nested
+    @DisplayName("StanzaViewDao")
+    class StanzaViewDaoTest extends AbstractViewDaoTest<Long, StanzaTable, StanzaView> {
+
+        @BeforeEach
+        void setUp() {
+            var entry1 = StanzaTable.builder()
+                    .parentId(0L)
+                    .enabled(true)
+                    .build();
+            var entry2 = StanzaTable.builder()
+                    .name("name2")
+                    .parentId(0L)
+                    .enabled(true)
+                    .build();
+            super.setUp(stanzaDao, stanzaViewDao, entry1, entry2);
+        }
+
+        @AfterEach
+        void tearDown() {
+            Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(super.id2, uniOptionalHelper(super.dao.delete(id2))));
+            Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(super.id1, uniOptionalHelper(super.dao.delete(id1))));
+            Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(1, uniOptionalHelper(super.dao.count())));
+        }
+
+        StanzaView.Builder builder(Long id, StanzaView test) {
+            return StanzaView.builder()
+                    .id(id)
+                    .name(test.name())
+                    .parent(test.parent())
+                    .settings(Collections.emptySet())
+                    .createTime(test.createTime())
+                    .updateTime(test.updateTime())
+                    .enabled(true);
+        }
+
+        StanzaView expected(Long id, StanzaView test) {
+            Assertions.assertNotNull(test);
+            return builder(id, test).build();
+        }
+
+        @Test
+        void test() {
+            super.whenFindById1ThenEntry(this::expected);
+            super.whenFindById2ThenEntry(this::expected);
+            Assertions.assertDoesNotThrow(() -> {
+                var test = multiAsListHelper((viewDao.findAll()));
+                Assertions.assertNotNull(test);
+                Assertions.assertFalse(test.isEmpty());
+                Assertions.assertEquals(3, test.size());
+            });
+            super.whenFindRangeZeroThenEmptiestMulti();
+            Assertions.assertDoesNotThrow(() -> {
+                var test = multiAsListHelper(viewDao.findRange(1, 2));
+                Assertions.assertNotNull(test);
+                Assertions.assertFalse(test.isEmpty());
+                Assertions.assertEquals(2, test.size());
+                Assertions.assertEquals(expected(super.id1, test.get(0)), test.get(0));
+            });
+            Assertions.assertDoesNotThrow(() -> {
+                var test = multiAsListHelper(viewDao.findRange(0, Long.MAX_VALUE));
+                Assertions.assertNotNull(test);
+                Assertions.assertFalse(test.isEmpty());
+                Assertions.assertEquals(3, test.size());
+            });
+
+            Assertions.assertDoesNotThrow(() -> {
+                var valueTypeTable = ValueTypeTable.builder()
+                        .id(0L)
+                        .valueType(ValueTypeTable.NONE)
+                        .enabled(true)
+                        .build();
+                var settingTable = SettingTable.builder()
+                        .id(0L)
+                        .variable(SettingTable.NONE)
+                        .value(SettingTable.NONE)
+                        .valueTypeId(0L)
+                        .stanzaId(0L)
+                        .build();
+                var id1 = uniOptionalHelper(valueTypeDao.insert(valueTypeTable));
+                var id2 = uniOptionalHelper(settingDao.insert(settingTable));
+                var test = multiAsListHelper(stanzaViewDao.findRange(0, Long.MAX_VALUE));
+                uniOptionalHelper(settingDao.delete(id2));
+                uniOptionalHelper(valueTypeDao.delete(id1));
+            });
         }
     }
 
@@ -1634,7 +1851,6 @@ public class DataBaseIT {
 
             Assertions.assertDoesNotThrow(() -> {
                 var test = uniOptionalHelper(valueTypeDao.findByKey(TWO));
-                System.out.println("test = " + test);
                 var expected = expected(super.id, TWO, test);
                 Assertions.assertEquals(expected, test);
                 Assertions.assertNotNull(test.createTime());

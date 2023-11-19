@@ -20,6 +20,5 @@ class GettersAnnotatedDomainFiledFieldTest {
         for (var getter : getters.getGetters().values()) {
             System.out.println("getter = " + getter);
         }
-        System.out.println("result = " + result);
     }
 }

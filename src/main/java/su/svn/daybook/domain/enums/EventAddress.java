@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2022.01.15 20:59 by Victor N. Skurikhin.
+ * This file was last modified at 2023.09.12 22:04 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * EventAddress.java
@@ -105,6 +105,11 @@ public enum EventAddress {
     public static final String SETTING_GET = "setting_get";
     public static final String SETTING_PAGE = "setting_page";
     public static final String SETTING_PUT = "setting_put";
+    public static final String STANZA_ADD = "stanza_add";
+    public static final String STANZA_DEL = "stanza_del";
+    public static final String STANZA_GET = "stanza_get";
+    public static final String STANZA_PAGE = "stanza_page";
+    public static final String STANZA_PUT = "stanza_put";
     public static final String TAG_LABEL_ADD = "tag_add";
     public static final String TAG_LABEL_GET = "tag_get";
     public static final String TAG_LABEL_PAGE = "tag_page";

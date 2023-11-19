@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.09.06 17:04 by Victor N. Skurikhin.
+ * This file was last modified at 2023.11.19 16:20 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * UserViewDao.java
@@ -40,13 +40,17 @@ public class UserViewDao extends AbstractViewDao<UUID, UserView> {
     @PrincipalLogging
     @SQL(UserView.SELECT_FROM_SECURITY_USER_VIEW_WHERE_ID_$1)
     public Uni<Optional<UserView>> findById(UUID id) {
-        return super.findByIdSQL(id).map(Optional::ofNullable);
+        return super
+                .findByIdSQL(id)
+                .map(Optional::ofNullable);
     }
 
     @PrincipalLogging
     @SQL(UserView.SELECT_FROM_SECURITY_USER_VIEW_WHERE_USER_NAME_$1)
     public Uni<Optional<UserView>> findByKey(String username) {
-        return super.findByKeySQL(username).map(Optional::ofNullable);
+        return super
+                .findByKeySQL(username)
+                .map(Optional::ofNullable);
     }
 
     public Uni<Optional<UserView>> findByUserName(String username) {
