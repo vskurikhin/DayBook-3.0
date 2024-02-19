@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024.02.19 17:47 by Victor N. Skurikhin.
+ * This file was last modified at 2024.02.19 22:27 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * AbstractViewDaoTest.java
@@ -88,7 +88,6 @@ class AbstractViewDaoTest
             }
         });
     }
-
 
     void whenSupplierThenList(Supplier<Multi<V>> supplier, Function<List<V>, List<V>> toExpected) {
         Assertions.assertDoesNotThrow(() -> {
