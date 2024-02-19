@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024.02.19 17:47 by Victor N. Skurikhin.
+ * This file was last modified at 2024.02.19 19:18 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * DataBaseIT.java
@@ -11,6 +11,7 @@ package su.svn.daybook;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
 import io.vertx.core.json.JsonObject;
+import jakarta.inject.Inject;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import su.svn.daybook.domain.dao.*;
@@ -25,12 +26,13 @@ import su.svn.daybook.models.domain.User;
 import su.svn.daybook.resources.PostgresDatabaseTestResource;
 import su.svn.daybook.services.models.UserService;
 
-import jakarta.inject.Inject;
-
 import java.math.BigInteger;
 import java.security.Principal;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 
 import static su.svn.daybook.TestUtils.*;
 
@@ -444,7 +446,6 @@ public class DataBaseIT {
             Assertions.assertNotNull(test);
             return builder(id, message, test).language(language).build();
         }
-
 
         List<I18nView> expectedSingletonList(Long id, String language, String message, List<I18nView> test) {
             Assertions.assertNotNull(test);
@@ -1088,26 +1089,31 @@ public class DataBaseIT {
             valueTypeDaoTest.tearDown();
         }
 
-        SettingView.Builder builder(Long id, String valueType, SettingView test) {
+        SettingView.Builder builder(Long id, String value, SettingView test) {
             return SettingView.builder()
                     .id(id)
                     .variable(test.variable())
                     .valueType(ValueTypeTable.NONE)
-                    .value(valueType)
+                    .value(value)
                     .stanzaId(0L)
                     .createTime(test.createTime())
                     .updateTime(test.updateTime())
                     .enabled(true);
         }
 
-        SettingView expected(Long id, String valueType, SettingView test) {
+        SettingView expected(Long id, String value, SettingView test) {
             Assertions.assertNotNull(test);
-            return builder(id, valueType, test).build();
+            return builder(id, value, test).build();
         }
 
-        SettingView expected(Long id, String valueType, String value, SettingView test) {
+        List<SettingView> expectedSingletonList(Long id, String value, List<SettingView> test) {
             Assertions.assertNotNull(test);
-            return builder(id, valueType, test).value(value).build();
+            var entry1 = test
+                    .stream()
+                    .findFirst()
+                    .orElse(null);
+            var entry2 = expected(id, value, entry1);
+            return Collections.singletonList(entry2);
         }
 
         @Test
@@ -1116,6 +1122,14 @@ public class DataBaseIT {
 
             super.whenFindById1ThenEntry((id, test) -> expected(id, SettingTable.NONE, test));
             super.whenFindById2ThenEntry((id, test) -> expected(id, messageEntry2, test));
+
+            super.whenSupplierThenEntry(
+                    () -> settingViewDao.findByKey("variable1"),
+                    test -> expected(super.id1, SettingTable.NONE, test));
+
+            super.whenSupplierThenList(
+                    () -> settingViewDao.findByValue(SettingTable.NONE),
+                    test -> expectedSingletonList(super.id1, SettingTable.NONE, test));
 
             super.whenFindAllThenMultiWithOneItem();
             super.whenFindRangeZeroThenEmptiestMulti();
