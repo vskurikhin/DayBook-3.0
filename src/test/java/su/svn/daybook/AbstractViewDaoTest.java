@@ -1,3 +1,11 @@
+/*
+ * This file was last modified at 2024.02.19 17:47 by Victor N. Skurikhin.
+ * This is free and unencumbered software released into the public domain.
+ * For more information, please refer to <http://unlicense.org>
+ * AbstractViewDaoTest.java
+ * $Id$
+ */
+
 package su.svn.daybook;
 
 import io.smallrye.mutiny.Multi;
@@ -13,6 +21,8 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BiFunction;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 class AbstractViewDaoTest
         <I extends Comparable<? extends Serializable>, E extends CasesOfId<I>, V extends Identification<I>> {
@@ -37,6 +47,18 @@ class AbstractViewDaoTest
         Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(0, uniOptionalHelper(dao.count())));
     }
 
+    void checkCount2() {
+        Assertions.assertDoesNotThrow(() -> {
+            Assertions.assertEquals(2, uniOptionalHelper(viewDao.count()));
+        });
+    }
+
+    void checkCount3() {
+        Assertions.assertDoesNotThrow(() -> {
+            Assertions.assertEquals(3, uniOptionalHelper(viewDao.count()));
+        });
+    }
+
     void whenFindById1ThenEntry(BiFunction<I, V, V> toExpected) {
         whenFindByIdThenEntry(id1, toExpected);
     }
@@ -56,9 +78,32 @@ class AbstractViewDaoTest
         });
     }
 
+    void whenSupplierThenEntry(Supplier<Uni<Optional<V>>> supplier, Function<V, V> toExpected) {
+        Assertions.assertDoesNotThrow(() -> {
+            var test = uniOptionalHelper(supplier.get());
+            Assertions.assertEquals(toExpected.apply(test), test);
+            if (test instanceof TimeUpdated timeUpdated) {
+                Assertions.assertNotNull(timeUpdated.createTime());
+                Assertions.assertNull(timeUpdated.updateTime());
+            }
+        });
+    }
+
+
+    void whenSupplierThenList(Supplier<Multi<V>> supplier, Function<List<V>, List<V>> toExpected) {
+        Assertions.assertDoesNotThrow(() -> {
+            var test = multiAsListHelper(supplier.get());
+            Assertions.assertEquals(toExpected.apply(test), test);
+            if (test instanceof TimeUpdated timeUpdated) {
+                Assertions.assertNotNull(timeUpdated.createTime());
+                Assertions.assertNull(timeUpdated.updateTime());
+            }
+        });
+    }
+
     void whenFindAllThenMultiWithOneItem() {
         Assertions.assertDoesNotThrow(() -> {
-            var test = multiAsListHelper((viewDao.findAll()));
+            var test = multiAsListHelper(viewDao.findAll());
             Assertions.assertNotNull(test);
             Assertions.assertFalse(test.isEmpty());
             Assertions.assertEquals(2, test.size());

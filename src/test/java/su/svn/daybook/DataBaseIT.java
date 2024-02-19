@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.09.12 22:02 by Victor N. Skurikhin.
+ * This file was last modified at 2024.02.19 17:47 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * DataBaseIT.java
@@ -425,30 +425,51 @@ public class DataBaseIT {
             languageDaoTest.tearDown();
         }
 
-        I18nView.Builder builder(Long id, String language, I18nView test) {
+        I18nView.Builder builder(Long id, String message, I18nView test) {
             return I18nView.builder()
                     .id(id)
                     .language(LanguageTable.NONE)
-                    .message(language)
+                    .message(message)
                     .createTime(test.createTime())
                     .updateTime(test.updateTime())
                     .enabled(true);
         }
 
-        I18nView expected(Long id, String language, I18nView test) {
+        I18nView expected(Long id, String message, I18nView test) {
             Assertions.assertNotNull(test);
-            return builder(id, language, test).build();
+            return builder(id, message, test).build();
         }
 
         I18nView expected(Long id, String language, String message, I18nView test) {
             Assertions.assertNotNull(test);
-            return builder(id, language, test).message(message).build();
+            return builder(id, message, test).language(language).build();
+        }
+
+
+        List<I18nView> expectedSingletonList(Long id, String language, String message, List<I18nView> test) {
+            Assertions.assertNotNull(test);
+            var entry1 = test
+                    .stream()
+                    .findFirst()
+                    .orElse(null);
+            var entry2 = expected(id, language, message, entry1);
+            return Collections.singletonList(entry2);
         }
 
         @Test
         void test() {
+            super.checkCount2();
+
             super.whenFindById1ThenEntry((id, test) -> expected(id, I18nTable.NONE, test));
             super.whenFindById2ThenEntry((id, test) -> expected(id, messageEntry2, test));
+
+            super.whenSupplierThenEntry(
+                    () -> i18nViewDao.findByKey(LanguageTable.NONE, I18nTable.NONE),
+                    test -> expected(super.id1, LanguageTable.NONE, I18nTable.NONE, test));
+
+            super.whenSupplierThenList(
+                    () -> i18nViewDao.findByValue(I18nTable.NONE),
+                    test -> expectedSingletonList(super.id1, LanguageTable.NONE, I18nTable.NONE, test));
 
             super.whenFindAllThenMultiWithOneItem();
             super.whenFindRangeZeroThenEmptiestMulti();
@@ -1091,6 +1112,8 @@ public class DataBaseIT {
 
         @Test
         void test() {
+            super.checkCount2();
+
             super.whenFindById1ThenEntry((id, test) -> expected(id, SettingTable.NONE, test));
             super.whenFindById2ThenEntry((id, test) -> expected(id, messageEntry2, test));
 
@@ -1266,6 +1289,8 @@ public class DataBaseIT {
 
         @Test
         void test() {
+            super.checkCount3();
+
             super.whenFindById1ThenEntry(this::expected);
             super.whenFindById2ThenEntry(this::expected);
             Assertions.assertDoesNotThrow(() -> {
