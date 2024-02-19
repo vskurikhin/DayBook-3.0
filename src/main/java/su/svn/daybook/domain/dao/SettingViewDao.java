@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.11.19 16:20 by Victor N. Skurikhin.
+ * This file was last modified at 2024.02.19 19:18 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * SettingViewDao.java
@@ -15,7 +15,7 @@ import su.svn.daybook.annotations.PrincipalLogging;
 import su.svn.daybook.annotations.SQL;
 import su.svn.daybook.domain.model.SettingView;
 
-import java.util.List;
+import java.util.Collections;
 import java.util.Optional;
 
 @ApplicationScoped
@@ -46,15 +46,15 @@ public class SettingViewDao extends AbstractViewDao<Long, SettingView> implement
 
     @PrincipalLogging
     @SQL(SettingView.SELECT_FROM_DICTIONARY_SETTING_VIEW_WHERE_VARIABLE_$1)
-    public Uni<Optional<SettingView>> findByKey(String language, String message) {
+    public Uni<Optional<SettingView>> findByKey(String variable) {
         return super
-                .findByKeySQL(List.of(language, message))
+                .findByKeySQL(Collections.singletonList(variable))
                 .map(Optional::ofNullable);
     }
 
     @SQL(SettingView.SELECT_FROM_DICTIONARY_SETTING_VIEW_WHERE_VALUE_$1)
-    public Multi<SettingView> findByValue(String message) {
-        return super.findByValueSQL(message);
+    public Multi<SettingView> findByValue(String value) {
+        return super.findByValueSQL(value);
     }
 
     @SQL(SettingView.SELECT_ALL_FROM_DICTIONARY_SETTING_VIEW_ORDER_BY_S_OFFSET_$1_LIMIT_$2)
