@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024.02.19 19:18 by Victor N. Skurikhin.
+ * This file was last modified at 2024.02.19 22:27 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * DataBaseIT.java
@@ -10,6 +10,7 @@ package su.svn.daybook;
 
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
+import io.smallrye.mutiny.Multi;
 import io.vertx.core.json.JsonObject;
 import jakarta.inject.Inject;
 import org.jetbrains.annotations.NotNull;
@@ -22,6 +23,7 @@ import su.svn.daybook.domain.model.*;
 import su.svn.daybook.domain.transact.I18nTransactionalJob;
 import su.svn.daybook.domain.transact.SettingTransactionalJob;
 import su.svn.daybook.domain.transact.UserTransactionalJob;
+import su.svn.daybook.models.TimeUpdated;
 import su.svn.daybook.models.domain.User;
 import su.svn.daybook.resources.PostgresDatabaseTestResource;
 import su.svn.daybook.services.models.UserService;
@@ -33,9 +35,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 import static su.svn.daybook.TestUtils.*;
 
+@SuppressWarnings({"rawtypes", "SameParameterValue"})
 @QuarkusTest
 @QuarkusTestResource(value = PostgresDatabaseTestResource.class, restrictToAnnotatedClass = true)
 public class DataBaseIT {
@@ -810,6 +815,42 @@ public class DataBaseIT {
                     .build();
         }
 
+
+        SessionTable expected(UUID id, String userName, SessionTable test) {
+            Assertions.assertNotNull(test);
+            return SessionTable.builder()
+                    .id(id)
+                    .userName(userName)
+                    .validTime(test.validTime())
+                    .roles(Collections.emptySet())
+                    .createTime(test.createTime())
+                    .updateTime(test.updateTime())
+                    .enabled(true)
+                    .build();
+        }
+
+
+        void whenSupplierThenList(Supplier<Multi<SessionTable>> supplier, Function<List<SessionTable>, List<SessionTable>> toExpected) {
+            Assertions.assertDoesNotThrow(() -> {
+                var test = multiAsListHelper(supplier.get());
+                Assertions.assertEquals(toExpected.apply(test), test);
+                if (test instanceof TimeUpdated timeUpdated) {
+                    Assertions.assertNotNull(timeUpdated.createTime());
+                    Assertions.assertNull(timeUpdated.updateTime());
+                }
+            });
+        }
+
+        List<SessionTable> expectedSingletonList(UUID id, List<SessionTable> test) {
+            Assertions.assertNotNull(test);
+            var entry1 = test
+                    .stream()
+                    .findFirst()
+                    .orElse(null);
+            var entry2 = expected(id, SessionTable.NONE, entry1);
+            return Collections.singletonList(entry2);
+        }
+
         @Test
         void test() {
             Assertions.assertDoesNotThrow(() -> {
@@ -819,13 +860,18 @@ public class DataBaseIT {
                 Assertions.assertNotNull(test.createTime());
                 Assertions.assertNull(test.updateTime());
             });
+
             var update = SessionTable.builder()
                     .id(id)
                     .userName(SessionTable.NONE)
                     .roles(Collections.emptySet())
                     .validTime(TestData.time.NOW)
                     .build();
-            Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(id, uniOptionalHelper(sessionDao.update(update))));
+
+            Assertions.assertDoesNotThrow(
+                    () -> Assertions.assertEquals(id, uniOptionalHelper(sessionDao.update(update)))
+            );
+
             Assertions.assertDoesNotThrow(() -> {
                 var test = uniOptionalHelper(sessionDao.findById(id));
                 var expected = expected(id, TestData.time.NOW, test);
@@ -833,12 +879,29 @@ public class DataBaseIT {
                 Assertions.assertNotNull(test.createTime());
                 Assertions.assertNotNull(test.updateTime());
             });
+
+            whenSupplierThenList(
+                    () -> sessionDao.findByValue(SessionTable.NONE),
+                    test -> expectedSingletonList(id, test));
+
+            whenSupplierThenList(
+                    () -> sessionDao.findByName(SessionTable.NONE),
+                    test -> expectedSingletonList(id, test));
+
             Assertions.assertDoesNotThrow(() -> {
                 var test = multiAsListHelper(sessionDao.findAll());
                 Assertions.assertNotNull(test);
                 Assertions.assertFalse(test.isEmpty());
                 Assertions.assertEquals(1, test.size());
             });
+
+
+            Assertions.assertDoesNotThrow(() -> {
+                var test = multiAsListHelper(sessionDao.findRange(0, 0));
+                Assertions.assertNotNull(test);
+                Assertions.assertTrue(test.isEmpty());
+            });
+
         }
     }
 
@@ -921,23 +984,23 @@ public class DataBaseIT {
             var custom = SettingTable.builder()
                     .id(customId)
                     .variable(String.valueOf(7))
-                    .value(new String("{}"))
+                    .value("{}")
                     .valueTypeId(valueTypeId)
                     .stanzaId(0)
                     .build();
             super.whenInsertCustomThenEntry(
-                    (id, test) -> expected(id, String.valueOf(7), new String("{}"), test),
+                    (id, test) -> expected(id, String.valueOf(7), "{}", test),
                     custom
             );
             var customUpdate = SettingTable.builder()
                     .id(customId)
                     .variable(TEN)
-                    .value(new String("{}"))
+                    .value("{}")
                     .valueTypeId(valueTypeId)
                     .stanzaId(0)
                     .build();
             super.whenUpdateCustomAndFindByIdThenEntry(
-                    (id, test) -> expected(id, TEN, new String("{}"), test),
+                    (id, test) -> expected(id, TEN, "{}", test),
                     customUpdate
             );
 
@@ -954,11 +1017,11 @@ public class DataBaseIT {
             });
 
             Assertions.assertDoesNotThrow(() -> {
-                var test = multiAsListHelper(settingDao.findByValue(new String("{}")));
+                var test = multiAsListHelper(settingDao.findByValue("{}"));
                 Assertions.assertNotNull(test);
                 Assertions.assertFalse(test.isEmpty());
                 Assertions.assertEquals(1, test.size());
-                var expected = expected(customId, TEN, new String("{}"), test.get(0));
+                var expected = expected(customId, TEN, "{}", test.get(0));
                 Assertions.assertEquals(expected, test.get(0));
             });
 
