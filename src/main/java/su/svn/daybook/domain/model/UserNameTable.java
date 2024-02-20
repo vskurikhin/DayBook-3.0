@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024.02.20 16:19 by Victor N. Skurikhin.
+ * This file was last modified at 2024.02.20 16:39 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * UserNameTable.java
@@ -39,26 +39,31 @@ public record UserNameTable(
     @Language("SQL")
     public static final String COUNT_SECURITY_USER_NAME = "SELECT count(*) FROM security.user_name WHERE enabled";
     @Language("SQL")
+    public static final String DELETE_FROM_SECURITY_USER_NAME_WHERE_ID_$1 = """
+            DELETE FROM security.user_name
+             WHERE id = $1
+             RETURNING id
+            """;
     public static final String DELETE_FROM_SECURITY_USER_NAME_WHERE_ID_$1_RETURNING_S = """
             DELETE FROM security.user_name
              WHERE id = $1
              RETURNING %s
             """;
     @Language("SQL")
-    public static final String INSERT_INTO_SECURITY_USER_NAME_RETURNING_S = """
+    public static final String INSERT_INTO_SECURITY_USER_NAME = """
             INSERT INTO security.user_name
              (id, user_name, password, enabled, visible, flags)
              VALUES
              ($1, $2, $3, $4, $5, $6)
-             RETURNING %s
+             RETURNING id
             """;
     @Language("SQL")
-    public static final String INSERT_INTO_SECURITY_USER_NAME_DEFAULT_ID_RETURNING_S = """
+    public static final String INSERT_INTO_SECURITY_USER_NAME_DEFAULT_ID = """
             INSERT INTO security.user_name
              (id, user_name, password, enabled, visible, flags)
              VALUES
              (DEFAULT, $1, $2, $3, $4, $5)
-             RETURNING %s
+             RETURNING id
             """;
     @Language("SQL")
     public static final String SELECT_FROM_SECURITY_USER_NAME_WHERE_ID_$1 = """
@@ -91,17 +96,6 @@ public record UserNameTable(
              WHERE id = $1
              RETURNING id
             """;
-    @Language("SQL")
-    public static final String UPDATE_SECURITY_USER_NAME_WHERE_ID_$1_RETURNING_S = """
-            UPDATE security.user_name SET
-              user_name = $2,
-              password = $3,
-              enabled = $4,
-              visible = $5,
-              flags = $6
-             WHERE id = $1
-             RETURNING %s
-            """;
 
     public static UserNameTable from(Row row) {
         return new UserNameTable(
@@ -123,8 +117,8 @@ public record UserNameTable(
     @Override
     public String caseInsertSql() {
         return id != null
-                ? INSERT_INTO_SECURITY_USER_NAME_RETURNING_S
-                : INSERT_INTO_SECURITY_USER_NAME_DEFAULT_ID_RETURNING_S;
+                ? INSERT_INTO_SECURITY_USER_NAME
+                : INSERT_INTO_SECURITY_USER_NAME_DEFAULT_ID;
     }
 
     @Override
@@ -136,12 +130,12 @@ public record UserNameTable(
 
     @Override
     public String deleteSql() {
-        return DELETE_FROM_SECURITY_USER_NAME_WHERE_ID_$1_RETURNING_S;
+        return DELETE_FROM_SECURITY_USER_NAME_WHERE_ID_$1;
     }
 
     @Override
     public String updateSql() {
-        return UPDATE_SECURITY_USER_NAME_WHERE_ID_$1_RETURNING_S;
+        return UPDATE_SECURITY_USER_NAME_WHERE_ID_$1;
     }
 
     @Override

@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024.02.20 16:19 by Victor N. Skurikhin.
+ * This file was last modified at 2024.02.20 16:39 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * UserViewDao.java
@@ -19,7 +19,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @ApplicationScoped
-public class UserViewDao extends AbstractViewDao<UUID, UserView> implements DaoViewIface<UUID, UserView> {
+public class UserViewDao extends AbstractViewDao<UUID, UserView> {
 
     UserViewDao() {
         super(UserView.ID, r -> r.getUUID(UserView.ID), UserView::from);

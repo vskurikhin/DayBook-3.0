@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024.02.20 16:19 by Victor N. Skurikhin.
+ * This file was last modified at 2024.02.20 16:39 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * UserNameDao.java
@@ -19,7 +19,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @ApplicationScoped
-public class UserNameDao extends AbstractDao<UUID, UserNameTable> implements DaoIface<UUID, UserNameTable> {
+public class UserNameDao extends AbstractDao<UUID, UserNameTable> {
 
     UserNameDao() {
         super(UserNameTable.ID, r -> r.getUUID(UserNameTable.ID), UserNameTable::from);
@@ -32,7 +32,7 @@ public class UserNameDao extends AbstractDao<UUID, UserNameTable> implements Dao
     }
 
     @PrincipalLogging
-    @SQL(UserNameTable.DELETE_FROM_SECURITY_USER_NAME_WHERE_ID_$1_RETURNING_S)
+    @SQL(UserNameTable.DELETE_FROM_SECURITY_USER_NAME_WHERE_ID_$1)
     public Uni<Optional<UUID>> delete(UUID id) {
         return super
                 .deleteSQL(id)
@@ -65,27 +65,11 @@ public class UserNameDao extends AbstractDao<UUID, UserNameTable> implements Dao
                 .map(Optional::ofNullable);
     }
 
-    @Override
-    @SQL(UserNameTable.INSERT_INTO_SECURITY_USER_NAME_RETURNING_S)
-    public Uni<Optional<UserNameTable>> insertEntry(UserNameTable entry) {
-        return super
-                .insertSQLEntry(entry)
-                .map(Optional::ofNullable);
-    }
-
     @PrincipalLogging
-    @SQL(UserNameTable.UPDATE_SECURITY_USER_NAME_WHERE_ID_$1_RETURNING_S)
+    @SQL(UserNameTable.UPDATE_SECURITY_USER_NAME_WHERE_ID_$1)
     public Uni<Optional<UUID>> update(UserNameTable entry) {
         return super
                 .updateSQL(entry)
-                .map(Optional::ofNullable);
-    }
-
-    @Override
-    @SQL(UserNameTable.UPDATE_SECURITY_USER_NAME_WHERE_ID_$1_RETURNING_S)
-    public Uni<Optional<UserNameTable>> updateEntry(UserNameTable entry) {
-        return super
-                .updateSQLEntry(entry)
                 .map(Optional::ofNullable);
     }
 }
