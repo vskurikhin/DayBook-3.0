@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024.02.20 08:23 by Victor N. Skurikhin.
+ * This file was last modified at 2024.02.20 16:07 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * DataBaseIT.java
@@ -40,7 +40,7 @@ import java.util.function.Supplier;
 
 import static su.svn.daybook.TestUtils.*;
 
-@SuppressWarnings({"rawtypes", "SameParameterValue"})
+@SuppressWarnings({"SameParameterValue"})
 @QuarkusTest
 @QuarkusTestResource(value = PostgresDatabaseTestResource.class, restrictToAnnotatedClass = true)
 public class DataBaseIT {
@@ -2006,11 +2006,6 @@ public class DataBaseIT {
     @DisplayName("VocabularyDao and WordDao")
     class VocabularyDaoAndWordDaoTest extends AbstractDaoTest<Long, VocabularyTable> {
 
-        String ZERO = String.valueOf(0);
-        String ONE = String.valueOf(1);
-        String TWO = String.valueOf(2);
-        String TEN = String.valueOf(10);
-
         String word1 = "word1";
         String wordCustom = "custom";
 
@@ -2127,6 +2122,98 @@ public class DataBaseIT {
 
             super.whenDeleteCustomThenOk();
             wordDaoTest.whenDeleteCustomThenOk();
+        }
+    }
+
+    @Nested
+    @DisplayName("WordDao")
+    class WordDaoTest extends AbstractDaoTest<String, WordTable> {
+
+        @BeforeEach
+        void setUp() {
+            var entry = WordTable.builder()
+                    .word("word1")
+                    .enabled(true)
+                    .build();
+            var customId = UUID.randomUUID().toString();
+            super.setUp(wordDao, entry, customId);
+        }
+
+        @AfterEach
+        void tearDown() {
+            super.tearDown();
+        }
+
+        WordTable.Builder builder(String id, WordTable test) {
+            return WordTable.builder()
+                    .id(id)
+                    .word(id)
+                    .createTime(test.createTime())
+                    .updateTime(test.updateTime())
+                    .enabled(true);
+        }
+
+        WordTable expected(String id, WordTable test) {
+            Assertions.assertNotNull(test);
+            return builder(id, test).build();
+        }
+
+        @Test
+        void test() {
+            super.whenFindByIdThenEntry(this::expected);
+
+            var update = WordTable
+                    .builder()
+                    .id(super.id)
+                    .visible(true)
+                    .build();
+            super.whenUpdateAndFindByIdThenEntry(
+                    (id1, test1) -> builder(id1, test1)
+                            .visible(true)
+                            .build(),
+                    update
+            );
+
+            super.whenFindAllThenMultiWithOneItem();
+            super.whenFindRangeZeroThenEmptiestMulti();
+            super.whenFindRangeFromZeroLimitOneThenMultiWithOneItem();
+
+            var custom = WordTable
+                    .builder()
+                    .id(customId)
+                    .build();
+            super.whenInsertCustomThenEntry(this::expected, custom);
+            var customUpdate = WordTable
+                    .builder()
+                    .id(customId)
+                    .visible(true)
+                    .build();
+            super.whenUpdateCustomAndFindByIdThenEntry(
+                    (id1, test1) -> builder(id1, test1)
+                            .visible(true)
+                            .build(),
+                    customUpdate
+            );
+
+            super.whenFindRangeFromZeroToOneThenMultiWithOneItemCustom(
+                    (id1, test1) -> builder(id1, test1)
+                            .visible(true)
+                            .build()
+            );
+            super.whenFindRangeFromZeroToMaxValueThenMultiWithTwoItems();
+            super.whenFindRangeFromOneLimitOneMultiWithOneItem();
+
+            Assertions.assertDoesNotThrow(() -> {
+                var test = uniOptionalHelper(wordDao.findByWord("word1"));
+                var expected = builder(super.id, test)
+                        .visible(true)
+                        .build();
+                Assertions.assertEquals(expected, test);
+                Assertions.assertNotNull(test.createTime());
+                Assertions.assertNotNull(test.updateTime());
+            });
+
+            super.whenDeleteCustomThenOk();
         }
     }
 }
