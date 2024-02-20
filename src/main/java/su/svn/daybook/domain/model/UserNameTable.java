@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.11.19 16:20 by Victor N. Skurikhin.
+ * This file was last modified at 2024.02.20 16:19 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * UserNameTable.java
@@ -10,13 +10,12 @@ package su.svn.daybook.domain.model;
 
 import io.vertx.mutiny.sqlclient.Row;
 import io.vertx.mutiny.sqlclient.Tuple;
+import jakarta.annotation.Nonnull;
 import org.intellij.lang.annotations.Language;
 import su.svn.daybook.annotations.ModelField;
 import su.svn.daybook.models.Marked;
 import su.svn.daybook.models.Owned;
 import su.svn.daybook.models.TimeUpdated;
-
-import jakarta.annotation.Nonnull;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -40,31 +39,26 @@ public record UserNameTable(
     @Language("SQL")
     public static final String COUNT_SECURITY_USER_NAME = "SELECT count(*) FROM security.user_name WHERE enabled";
     @Language("SQL")
-    public static final String DELETE_FROM_SECURITY_USER_NAME_WHERE_ID_$1 = """
-            DELETE FROM security.user_name
-             WHERE id = $1
-             RETURNING id
-            """;
     public static final String DELETE_FROM_SECURITY_USER_NAME_WHERE_ID_$1_RETURNING_S = """
             DELETE FROM security.user_name
              WHERE id = $1
              RETURNING %s
             """;
     @Language("SQL")
-    public static final String INSERT_INTO_SECURITY_USER_NAME = """
+    public static final String INSERT_INTO_SECURITY_USER_NAME_RETURNING_S = """
             INSERT INTO security.user_name
              (id, user_name, password, enabled, visible, flags)
              VALUES
              ($1, $2, $3, $4, $5, $6)
-             RETURNING id
+             RETURNING %s
             """;
     @Language("SQL")
-    public static final String INSERT_INTO_SECURITY_USER_NAME_DEFAULT_ID = """
+    public static final String INSERT_INTO_SECURITY_USER_NAME_DEFAULT_ID_RETURNING_S = """
             INSERT INTO security.user_name
              (id, user_name, password, enabled, visible, flags)
              VALUES
              (DEFAULT, $1, $2, $3, $4, $5)
-             RETURNING id
+             RETURNING %s
             """;
     @Language("SQL")
     public static final String SELECT_FROM_SECURITY_USER_NAME_WHERE_ID_$1 = """
@@ -97,6 +91,17 @@ public record UserNameTable(
              WHERE id = $1
              RETURNING id
             """;
+    @Language("SQL")
+    public static final String UPDATE_SECURITY_USER_NAME_WHERE_ID_$1_RETURNING_S = """
+            UPDATE security.user_name SET
+              user_name = $2,
+              password = $3,
+              enabled = $4,
+              visible = $5,
+              flags = $6
+             WHERE id = $1
+             RETURNING %s
+            """;
 
     public static UserNameTable from(Row row) {
         return new UserNameTable(
@@ -118,8 +123,8 @@ public record UserNameTable(
     @Override
     public String caseInsertSql() {
         return id != null
-                ? INSERT_INTO_SECURITY_USER_NAME
-                : INSERT_INTO_SECURITY_USER_NAME_DEFAULT_ID;
+                ? INSERT_INTO_SECURITY_USER_NAME_RETURNING_S
+                : INSERT_INTO_SECURITY_USER_NAME_DEFAULT_ID_RETURNING_S;
     }
 
     @Override
@@ -131,12 +136,12 @@ public record UserNameTable(
 
     @Override
     public String deleteSql() {
-        return DELETE_FROM_SECURITY_USER_NAME_WHERE_ID_$1;
+        return DELETE_FROM_SECURITY_USER_NAME_WHERE_ID_$1_RETURNING_S;
     }
 
     @Override
     public String updateSql() {
-        return UPDATE_SECURITY_USER_NAME_WHERE_ID_$1;
+        return UPDATE_SECURITY_USER_NAME_WHERE_ID_$1_RETURNING_S;
     }
 
     @Override

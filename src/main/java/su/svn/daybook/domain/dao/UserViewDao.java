@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2023.11.19 16:20 by Victor N. Skurikhin.
+ * This file was last modified at 2024.02.20 16:19 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * UserViewDao.java
@@ -10,17 +10,16 @@ package su.svn.daybook.domain.dao;
 
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
+import jakarta.enterprise.context.ApplicationScoped;
 import su.svn.daybook.annotations.PrincipalLogging;
 import su.svn.daybook.annotations.SQL;
 import su.svn.daybook.domain.model.UserView;
-
-import jakarta.enterprise.context.ApplicationScoped;
 
 import java.util.Optional;
 import java.util.UUID;
 
 @ApplicationScoped
-public class UserViewDao extends AbstractViewDao<UUID, UserView> {
+public class UserViewDao extends AbstractViewDao<UUID, UserView> implements DaoViewIface<UUID, UserView> {
 
     UserViewDao() {
         super(UserView.ID, r -> r.getUUID(UserView.ID), UserView::from);

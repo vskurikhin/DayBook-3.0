@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024.02.20 16:07 by Victor N. Skurikhin.
+ * This file was last modified at 2024.02.20 16:23 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * DataBaseIT.java
@@ -1538,7 +1538,7 @@ public class DataBaseIT {
 
     @Nested
     @DisplayName("UserNameDao")
-    class UserNameDaoTest {
+    class UserNameDaoTest extends AbstractDaoTest<UUID, UserNameTable> {
 
         UUID id = new UUID(0, 1);
         UUID customId = UUID.randomUUID();
@@ -1552,7 +1552,7 @@ public class DataBaseIT {
                     .password("password")
                     .enabled(true)
                     .build();
-            Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(id, uniOptionalHelper(userNameDao.insert(entry))));
+            super.setUp(userNameDao, entry, customId);
         }
 
         @AfterEach
@@ -1574,64 +1574,42 @@ public class DataBaseIT {
 
         @Test
         void test() {
-            Assertions.assertDoesNotThrow(() -> {
-                var test = uniOptionalHelper(userNameDao.findById(id));
-                var expected = expected(id, "user", test);
-                Assertions.assertEquals(expected, test);
-                Assertions.assertNotNull(test.createTime());
-                Assertions.assertNull(test.updateTime());
-            });
-            var update = expected(id, "none", UserNameTable.builder().build());
-            Assertions.assertDoesNotThrow(
-                    () -> Assertions.assertEquals(id, uniOptionalHelper(userNameDao.update(update))));
-            Assertions.assertDoesNotThrow(() -> {
-                var test = uniOptionalHelper(userNameDao.findById(id));
-                var expected = expected(id, "none", test);
-                Assertions.assertEquals(expected, test);
-                Assertions.assertNotNull(test.createTime());
-                Assertions.assertNotNull(test.updateTime());
-            });
-            Assertions.assertDoesNotThrow(() -> {
-                var test = multiAsListHelper(userNameDao.findAll());
-                Assertions.assertNotNull(test);
-                Assertions.assertFalse(test.isEmpty());
-                Assertions.assertEquals(1, test.size());
-            });
-            Assertions.assertDoesNotThrow(() -> {
-                var test = multiAsListHelper(userNameDao.findRange(0, 0));
-                Assertions.assertNotNull(test);
-                Assertions.assertTrue(test.isEmpty());
-            });
-            Assertions.assertDoesNotThrow(() -> {
-                var test = multiAsListHelper(userNameDao.findRange(0, 1));
-                Assertions.assertNotNull(test);
-                Assertions.assertFalse(test.isEmpty());
-                Assertions.assertEquals(1, test.size());
-            });
-            var custom = expected(customId, "userName", UserNameTable.builder().build());
-            Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(customId, uniOptionalHelper(userNameDao.insert(custom))));
-            Assertions.assertDoesNotThrow(() -> {
-                var test = multiAsListHelper(userNameDao.findRange(1, 1));
-                Assertions.assertNotNull(test);
-                Assertions.assertFalse(test.isEmpty());
-                Assertions.assertEquals(1, test.size());
-                var expected = expected(customId, "userName", test.get(0));
-                Assertions.assertEquals(expected, test.get(0));
-            });
-            Assertions.assertDoesNotThrow(() -> {
-                var test = multiAsListHelper(userNameDao.findRange(0, Long.MAX_VALUE));
-                Assertions.assertNotNull(test);
-                Assertions.assertFalse(test.isEmpty());
-                Assertions.assertEquals(2, test.size());
-            });
+            super.whenFindByIdThenEntry((id, test) -> expected(id, "user", test));
 
-            Assertions.assertDoesNotThrow(() -> {
-                var test = multiAsListHelper(userNameDao.findRange(1, 1));
-                Assertions.assertNotNull(test);
-                Assertions.assertFalse(test.isEmpty());
-                Assertions.assertEquals(1, test.size());
-            });
-            Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(customId, uniOptionalHelper(userNameDao.delete(customId))));
+            var update = UserNameTable
+                    .builder()
+                    .id(super.id)
+                    .userName("userName1")
+                    .build();
+            super.whenUpdateAndFindByIdThenEntry((id, test) -> expected(id, "userName1", test), update);
+
+            super.whenFindAllThenMultiWithOneItem();
+            super.whenFindRangeZeroThenEmptiestMulti();
+            super.whenFindRangeFromZeroLimitOneThenMultiWithOneItem();
+
+            var custom = UserNameTable
+                    .builder()
+                    .id(customId)
+                    .userName("user2")
+                    .build();
+            super.whenInsertCustomThenEntry(
+                    (id, test) -> expected(id, "user2", test),
+                    custom
+            );
+            var customUpdate = UserNameTable
+                    .builder()
+                    .id(customId)
+                    .userName("userName2")
+                    .build();
+            super.whenUpdateCustomAndFindByIdThenEntry(
+                    (id, test) -> expected(id, "userName2", test),
+                    customUpdate
+            );
+
+            super.whenFindRangeFromZeroToMaxValueThenMultiWithTwoItems();
+            super.whenFindRangeFromOneLimitOneMultiWithOneItem();
+
+            super.whenDeleteCustomThenOk();
         }
     }
 
@@ -1790,6 +1768,67 @@ public class DataBaseIT {
             Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(
                     id, uniOptionalHelper(userNameDao.delete(id))
             ));
+        }
+    }
+
+    @Nested
+    @DisplayName("UserViewDao")
+    class UserViewDaoTest extends AbstractViewDaoTest<UUID, UserNameTable, UserView> {
+
+        @BeforeEach
+        void setUp() {
+            var entry1 = UserNameTable.builder()
+                    .id(UUID.randomUUID())
+                    .userName("userName1")
+                    .enabled(true)
+                    .build();
+            var entry2 = UserNameTable.builder()
+                    .id(UUID.randomUUID())
+                    .userName("userName2")
+                    .enabled(true)
+                    .build();
+            super.setUp(userNameDao, userViewDao, entry1, entry2);
+        }
+
+        @AfterEach
+        void tearDown() {
+            super.tearDown();
+        }
+
+        UserView.Builder builder(UUID id, String userName, UserView test) {
+            return UserView.builder()
+                    .id(id)
+                    .userName(userName)
+                    .password("password")
+                    .roles(Collections.emptySet())
+                    .createTime(test.createTime())
+                    .updateTime(test.updateTime())
+                    .enabled(true);
+        }
+
+        UserView expected(UUID id, String userName, UserView test) {
+            Assertions.assertNotNull(test);
+            return builder(id, userName, test).build();
+        }
+
+        @Test
+        void test() {
+            super.checkCount2();
+
+            super.whenFindById1ThenEntry((id, test) -> expected(id, "userName1", test));
+            super.whenFindById2ThenEntry((id, test) -> expected(id, "userName2", test));
+
+            super.whenSupplierThenEntry(
+                    () -> userViewDao.findByKey("userName1"),
+                    test -> expected(super.id1, "userName1", test));
+
+            super.whenSupplierThenEntry(
+                    () -> userViewDao.findByUserName("userName1"),
+                    test -> expected(super.id1, "userName1", test));
+
+            super.whenFindAllThenMultiWithOneItem();
+            super.whenFindRangeZeroThenEmptiestMulti();
+            super.whenFindRangeFromZeroToMaxValueThenMultiWithTwoItems();
         }
     }
 
