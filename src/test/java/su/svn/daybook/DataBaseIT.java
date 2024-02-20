@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024.02.19 22:27 by Victor N. Skurikhin.
+ * This file was last modified at 2024.02.20 08:23 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * DataBaseIT.java
@@ -1364,28 +1364,67 @@ public class DataBaseIT {
             return builder(id, test).build();
         }
 
+
+        StanzaView expected(Long id, String name, StanzaView test) {
+            Assertions.assertNotNull(test);
+            return builder(id, test).name(name).build();
+        }
+
+        List<StanzaView> expectedSingletonList(Long id, String name, List<StanzaView> test) {
+            Assertions.assertNotNull(test);
+            var entry1 = test
+                    .stream()
+                    .findFirst()
+                    .orElse(null);
+            var entry2 = expected(id, name, entry1);
+            return Collections.singletonList(entry2);
+        }
+
         @Test
         void test() {
             super.checkCount3();
 
             super.whenFindById1ThenEntry(this::expected);
             super.whenFindById2ThenEntry(this::expected);
+
+            super.whenSupplierThenList(
+                    () -> stanzaViewDao.findByName("name2"),
+                    test -> expectedSingletonList(super.id2, "name2", test));
+
+
             Assertions.assertDoesNotThrow(() -> {
-                var test = multiAsListHelper((viewDao.findAll()));
+                var test = multiAsListHelper(stanzaViewDao.findByParentId(0L));
                 Assertions.assertNotNull(test);
                 Assertions.assertFalse(test.isEmpty());
                 Assertions.assertEquals(3, test.size());
             });
-            super.whenFindRangeZeroThenEmptiestMulti();
+
             Assertions.assertDoesNotThrow(() -> {
-                var test = multiAsListHelper(viewDao.findRange(1, 2));
+                var test = multiAsListHelper(stanzaViewDao.findAll());
+                Assertions.assertNotNull(test);
+                Assertions.assertFalse(test.isEmpty());
+                Assertions.assertEquals(3, test.size());
+            });
+
+            Assertions.assertDoesNotThrow(() -> {
+                var test = multiAsListHelper(stanzaViewDao.findRange(0, Long.MAX_VALUE));
+                Assertions.assertNotNull(test);
+                Assertions.assertFalse(test.isEmpty());
+                Assertions.assertEquals(3, test.size());
+            });
+
+            super.whenFindRangeZeroThenEmptiestMulti();
+
+            Assertions.assertDoesNotThrow(() -> {
+                var test = multiAsListHelper(stanzaViewDao.findRange(1, 2));
                 Assertions.assertNotNull(test);
                 Assertions.assertFalse(test.isEmpty());
                 Assertions.assertEquals(2, test.size());
                 Assertions.assertEquals(expected(super.id1, test.get(0)), test.get(0));
             });
+
             Assertions.assertDoesNotThrow(() -> {
-                var test = multiAsListHelper(viewDao.findRange(0, Long.MAX_VALUE));
+                var test = multiAsListHelper(stanzaViewDao.findRange(0, Long.MAX_VALUE));
                 Assertions.assertNotNull(test);
                 Assertions.assertFalse(test.isEmpty());
                 Assertions.assertEquals(3, test.size());
