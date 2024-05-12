@@ -1,125 +1,32 @@
-/*
- * This file was last modified at 2022.03.23 22:47 by Victor N. Skurikhin.
- * This is free and unencumbered software released into the public domain.
- * For more information, please refer to <http://unlicense.org>
- * build.gradle
- * $Id$
- */
-
-//file:noinspection GradlePackageUpdate
-
 plugins {
-    id "com.moowork.node" version "1.3.1"
-    id 'application'
-    id 'io.quarkus'
     id 'java'
-    id 'org.liquibase.gradle' version '2.2.0'
+    id "com.google.protobuf" version "0.9.4"
 }
 
 static def getEnv(key, defaultValue) {
     return System.getenv(key) ?: defaultValue
 }
 
-repositories {
-    mavenCentral()
-    mavenLocal()
-    google()
+subprojects {
+    repositories {
+        mavenCentral()
+    }
+
+    ext {
+        mapstructVersion = "1.5.5.Final"
+        libVers = [
+                org_postgresql          : getEnv('VERSION_ORG_POSTGRESQL', VERSION_ORG_POSTGRESQL),
+                liquibase               : getEnv('VERSION_ORG_LIQUIBASE', VERSION_ORG_LIQUIBASE),
+                liquibase_gradle_plugin : getEnv('VERSION_LIQUIBASE_GRADLE_PLUGIN', VERSION_LIQUIBASE_GRADLE_PLUGIN),
+                lombok                  : getEnv('VERSION_LOMBOK', VERSION_LOMBOK),
+                mapstruct               : getEnv('VERSION_MAPSTRUCT', VERSION_MAPSTRUCT),
+                netty                   : getEnv('VERSION_NETTY', VERSION_NETTY),
+                slf4j                   : getEnv('VERSION_ORG_SLF4J', VERSION_ORG_SLF4J),
+                embedded_postgres       : '2.0.2',
+                equalsverifier          : '3.12.3',
+                guava                   : '32.1.1-jre',
+                jsr305                  : '3.0.2',
+                mockito_core            : '5.2.0',
+        ]
+    }
 }
-
-application {
-    mainClassName = project.hasProperty("mainClass") ? project.getProperty("mainClass") : "NULL"
-}
-
-ext.libVers = [
-        org_postgresql         : getEnv('VERSION_ORG_POSTGRESQL', VERSION_ORG_POSTGRESQL),
-        liquibase              : getEnv('VERSION_ORG_LIQUIBASE', VERSION_ORG_LIQUIBASE),
-        liquibase_gradle_plugin: getEnv('VERSION_LIQUIBASE_GRADLE_PLUGIN', VERSION_LIQUIBASE_GRADLE_PLUGIN),
-        netty                  : getEnv('VERSION_NETTY', VERSION_NETTY),
-        slf4j                  : getEnv('VERSION_ORG_SLF4J', VERSION_ORG_SLF4J),
-        embedded_postgres      : '2.0.2',
-        equalsverifier         : '3.12.3',
-        guava                  : '32.1.1-jre',
-        jsr305                 : '3.0.2',
-        mockito_core           : '5.2.0',
-]
-
-dependencies {
-    implementation enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}")
-    implementation "io.quarkus:quarkus-arc"
-    implementation "io.quarkus:quarkus-cache"
-    implementation "io.quarkus:quarkus-hibernate-validator"
-    implementation "io.quarkus:quarkus-micrometer-registry-prometheus"
-    implementation "io.quarkus:quarkus-reactive-pg-client"
-    implementation "io.quarkus:quarkus-resteasy-reactive"
-    implementation "io.quarkus:quarkus-resteasy-reactive-jackson"
-    implementation "io.quarkus:quarkus-smallrye-jwt"
-    implementation "io.quarkus:quarkus-smallrye-jwt-build"
-    implementation "io.quarkus:quarkus-smallrye-openapi"
-    implementation "io.quarkus:quarkus-vertx"
-    implementation "io.quarkus:quarkus-websockets"
-
-    implementation "io.netty:netty-buffer:$libVers.netty"
-    implementation "io.netty:netty-codec:$libVers.netty"
-    implementation "io.netty:netty-common:$libVers.netty"
-    implementation "io.netty:netty-handler:$libVers.netty"
-    implementation "io.netty:netty-resolver:$libVers.netty"
-    implementation "io.netty:netty-transport:$libVers.netty"
-    implementation "io.netty:netty-transport-native-unix-common:$libVers.netty"
-    implementation "io.netty:netty-transport-native-epoll:$libVers.netty:linux-x86_64"
-    implementation "io.netty:netty-transport-native-kqueue:$libVers.netty:osx-x86_64"
-
-    implementation "org.jboss.slf4j:slf4j-jboss-logmanager"
-
-    implementation "com.google.code.findbugs:jsr305:$libVers.jsr305"
-    implementation "com.google.guava:guava:$libVers.guava"
-    implementation "org.apache.commons:commons-lang3:3.13.0"
-    implementation "org.jetbrains:annotations"
-
-    liquibaseRuntime 'info.picocli:picocli:4.6.3'
-    liquibaseRuntime group: 'org.slf4j', name: 'slf4j-api', version: libVers.slf4j
-    liquibaseRuntime group: 'org.slf4j', name: 'slf4j-simple', version: libVers.slf4j
-    liquibaseRuntime group: 'org.liquibase', name: 'liquibase-core', version: libVers.liquibase
-    liquibaseRuntime group: 'org.liquibase', name: 'liquibase-gradle-plugin', version: libVers.liquibase_gradle_plugin
-    liquibaseRuntime group: 'org.postgresql', name: 'postgresql', version: libVers.org_postgresql
-
-    testImplementation "io.quarkus:quarkus-junit5"
-    testImplementation "io.quarkus:quarkus-junit5-mockito"
-    testImplementation "io.quarkus:quarkus-test-security"
-    testImplementation "io.rest-assured:rest-assured"
-    testImplementation "io.zonky.test:embedded-postgres:$libVers.embedded_postgres"
-    testImplementation "nl.jqno.equalsverifier:equalsverifier:$libVers.equalsverifier"
-    testImplementation "org.liquibase:liquibase-core:$libVers.liquibase"
-    testImplementation "org.mockito:mockito-core:$libVers.mockito_core"
-    testImplementation "com.google.guava:guava:$libVers.guava"
-}
-
-group 'su.svn'
-version '3.3.1'
-
-java {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
-}
-
-compileJava {
-    options.encoding = 'UTF-8'
-    options.compilerArgs << '-parameters'
-}
-
-compileTestJava {
-    options.encoding = 'UTF-8'
-}
-
-test {
-    useJUnitPlatform()
-    environment "LC_CTYPE", "en_US.UTF-8"
-    environment "LC_ALL", "en_US.UTF-8"
-    systemProperty "java.util.logging.manager", "org.jboss.logmanager.LogManager"
-    testLogging.showStandardStreams = false
-}
-
-apply from: "${rootDir}/gradle/helpers/generators.gradle"
-apply from: "${rootDir}/gradle/helpers/liquibase.gradle"
-apply from: "${rootDir}/gradle/helpers/ssl.gradle"
-
-tasks.processResources.dependsOn("startOpenSSLGenRsa", "startOpenSSLPubKey", "startOpenSSLPrivKey")

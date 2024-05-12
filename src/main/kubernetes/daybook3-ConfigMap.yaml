@@ -1,8 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: daybook3
-data:
-  datasource_username: "dbuser"
-  datasource_password: "password"
-  datasource_reactive_url: "postgresql://127.0.0.7:5432/db"

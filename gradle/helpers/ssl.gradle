@@ -2,7 +2,7 @@ task startOpenSSLGenRsa(type: Exec) {
     def file = new File("${getProperty("src.main.resources")}/rsaPrivateKey.pem")
     if (!file.exists()) {
         workingDir = getProperty("src.main.resources")
-        executable "openssl"
+        executable "/usr/bin/openssl"
         args "genrsa", "-out", "rsaPrivateKey.pem", "2048"
     } else {
         executable "echo"
@@ -12,12 +12,12 @@ task startOpenSSLGenRsa(type: Exec) {
 
 task startOpenSSLPubKey(type: Exec) {
     workingDir = getProperty("src.main.resources")
-    executable "openssl"
+    executable "/usr/bin/openssl"
     args "rsa", "-pubout", "-in", "rsaPrivateKey.pem", "-out", "publicKey.pem"
 }
 
 task startOpenSSLPrivKey(type: Exec) {
     workingDir = getProperty("src.main.resources")
-    executable "openssl"
+    executable "/usr/bin/openssl"
     args "pkcs8", "-topk8", "-nocrypt", "-inform", "pem", "-in", "rsaPrivateKey.pem", "-outform", "pem", "-out", "privateKey.pem"
 }

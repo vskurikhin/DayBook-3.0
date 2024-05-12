@@ -1,0 +1,7 @@
+<factorypath>
+    <factorypathentry kind="EXTJAR" id="/home/vnsk/.gradle/caches/modules-2/files-2.1/org.mapstruct/mapstruct-processor/1.5.5.Final/897f6f115930b936287bef552bf5fe28cc64717d/mapstruct-processor-1.5.5.Final.jar" enabled="true" runInBatchMode="false"/>
+    <factorypathentry kind="EXTJAR" id="/home/vnsk/.gradle/caches/modules-2/files-2.1/org.projectlombok/lombok/1.18.32/17d46b3e205515e1e8efd3ee4d57ce8018914163/lombok-1.18.32.jar" enabled="true" runInBatchMode="false"/>
+    <factorypathentry kind="EXTJAR" id="/home/vnsk/.gradle/caches/modules-2/files-2.1/org.mapstruct/mapstruct/1.5.5.Final/2ca3cbe39b6e9ea8d5ea521965a89bef2a1e8eeb/mapstruct-1.5.5.Final.jar" enabled="true" runInBatchMode="false"/>
+    <factorypathentry kind="EXTJAR" id="/home/vnsk/IdeaProjects/github.com/vskurikhin/DayBook-3.10/spi-mapstruct-impl/build/libs/spi-mapstruct-impl.jar" enabled="true" runInBatchMode="false"/>
+    <factorypathentry kind="EXTJAR" id="/home/vnsk/.gradle/caches/modules-2/files-2.1/org.projectlombok/lombok-mapstruct-binding/0.2.0/2f1cf9ced7b720ba4996c942b816669e63f0fa4f/lombok-mapstruct-binding-0.2.0.jar" enabled="true" runInBatchMode="false"/>
+</factorypath>
