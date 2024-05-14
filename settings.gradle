@@ -8,4 +8,7 @@ pluginManagement {
         id "${quarkusPluginId}" version "${quarkusPluginVersion}"
     }
 }
-rootProject.name='daybook3'
+rootProject.name = 'DayBook-3'
+rootProject.buildFileName = 'build.gradle'
+include 'api-gateway'
+include 'spi-mapstruct-impl'

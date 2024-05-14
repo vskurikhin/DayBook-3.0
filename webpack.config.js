@@ -13,11 +13,11 @@ const smp = new SpeedMeasurePlugin();
 //формируем настройки
 module.exports = smp.wrap({
     entry: {
-        index: path.join(__dirname, 'src/main/js/index.js'),
+        index: path.join(__dirname, 'api-gateway/src/main/js/index.js'),
         // posts: path.join(__dirname, 'src/main/js/posts/index.js')
     },
     output: {
-        path: path.join(__dirname, 'src/main/resources/META-INF/resources'),
+        path: path.join(__dirname, 'api-gateway/src/main/resources/META-INF/resources'),
         filename: 'app-bundle-[name].js'
     },
     resolve: {extensions: ['.js', '.jsx', '.scss']},
@@ -89,7 +89,7 @@ module.exports = smp.wrap({
         new CleanWebpackPlugin(),
         new CopyPlugin({
             patterns: [
-                {from: 'src/main/js/img', to: 'img'},
+                {from: 'api-gateway/src/main/js/img', to: 'img'},
             ]
         }),
         new MiniCssExtractPlugin({
@@ -99,7 +99,7 @@ module.exports = smp.wrap({
         new HtmlWebpackPlugin({
             inject: false,
             hash: true,
-            template: './src/main/js/public/index.html',
+            template: './api-gateway/src/main/js/public/index.html',
             filename: 'index.html'
         }),
     ]
