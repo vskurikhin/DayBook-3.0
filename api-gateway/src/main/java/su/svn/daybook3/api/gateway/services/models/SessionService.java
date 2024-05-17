@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-05-14 23:10 by Victor N. Skurikhin.
+ * This file was last modified at 2024-05-22 13:57 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * SessionService.java
@@ -31,7 +31,9 @@ import java.util.UUID;
 
 @PrincipalLogging
 @ApplicationScoped
-public class SessionService extends AbstractService<UUID, Session> {
+public class SessionService
+        extends AbstractService<UUID, Session>
+        implements MultiAnswerAllService {
 
     @Inject
     SessionCacheProvider sessionCacheProvider;
@@ -94,6 +96,7 @@ public class SessionService extends AbstractService<UUID, Session> {
      *
      * @return - the Answer's Multi-flow with all entries of Session
      */
+    @Override
     public Multi<Answer> getAll() {
         //noinspection DuplicatedCode
         return sessionDataService

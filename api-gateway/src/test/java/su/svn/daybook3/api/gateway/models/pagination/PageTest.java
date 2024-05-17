@@ -28,6 +28,7 @@ class PageTest {
     @Test
     void testGetters() {
         var entry = new Page<>();
+        Assertions.assertDoesNotThrow(entry::getFirst);
         Assertions.assertDoesNotThrow(entry::getContent);
         Assertions.assertDoesNotThrow(entry::getPage);
         Assertions.assertDoesNotThrow(entry::getRows);

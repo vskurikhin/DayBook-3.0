@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-05-14 21:36 by Victor N. Skurikhin.
+ * This file was last modified at 2024-05-22 13:35 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * KeyValueResource.java
@@ -10,6 +10,7 @@ package su.svn.daybook3.api.gateway.resources;
 
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
@@ -19,11 +20,10 @@ import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
-import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.core.UriInfo;
 import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.security.SecurityRequirement;
 import org.jboss.resteasy.reactive.RestResponse;
 import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
 import su.svn.daybook3.api.gateway.annotations.PrincipalLogging;
@@ -31,55 +31,61 @@ import su.svn.daybook3.api.gateway.domain.enums.EventAddress;
 import su.svn.daybook3.api.gateway.domain.enums.ResourcePath;
 import su.svn.daybook3.api.gateway.models.domain.KeyValue;
 import su.svn.daybook3.api.gateway.models.pagination.PageRequest;
-import su.svn.daybook3.api.gateway.services.models.AbstractService;
 import su.svn.daybook3.api.gateway.services.models.KeyValueService;
+import su.svn.daybook3.api.gateway.services.models.MultiAnswerAllService;
 
 import java.util.UUID;
 
 @PrincipalLogging
 @Path(ResourcePath.KEY_VALUE)
-public class KeyValueResource extends AbstractResource implements Resource<UUID, KeyValue> {
+public class KeyValueResource extends AbstractResource {
 
-    // @Operation(hidden = true)
+    @Operation(hidden = true)
     @GET
     @Path(ResourcePath.ID)
     @Produces(MediaType.APPLICATION_JSON)
-    public Uni<Response> get(UUID id, @Context UriInfo uriInfo) {
-        return request(EventAddress.KEY_VALUE_GET, id, uriInfo);
+    public Uni<Response> get(UUID id) {
+        return request(EventAddress.KEY_VALUE_GET, id);
     }
 
-    // @Operation(hidden = true)
+    @Operation(hidden = true)
     @GET
     @Path(ResourcePath.PAGE)
     @Produces(MediaType.APPLICATION_JSON)
-    public Uni<Response> page(@QueryParam("page") Long page, @QueryParam("limit") Short limit) {
+    public Uni<Response> page(@QueryParam("page") int page, @QueryParam("limit") short limit) {
         return requestPage(EventAddress.KEY_VALUE_PAGE, new PageRequest(page, limit));
     }
 
-    // @Operation(hidden = true)
+    @Operation(hidden = true)
     @POST
     @Path(ResourcePath.NONE)
+    @RolesAllowed("ADMIN")
+    @SecurityRequirement(name = "day-book")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Uni<Response> post(KeyValue entry, @Context UriInfo uriInfo) {
-        return request(EventAddress.KEY_VALUE_ADD, entry, uriInfo);
+    public Uni<Response> post(KeyValue entry) {
+        return request(EventAddress.KEY_VALUE_ADD, entry);
     }
 
-    // @Operation(hidden = true)
+    @Operation(hidden = true)
     @PUT
     @Path(ResourcePath.NONE)
+    @RolesAllowed("ADMIN")
+    @SecurityRequirement(name = "day-book")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Uni<Response> put(KeyValue entry, @Context UriInfo uriInfo) {
-        return request(EventAddress.KEY_VALUE_PUT, entry, uriInfo);
+    public Uni<Response> put(KeyValue entry) {
+        return request(EventAddress.KEY_VALUE_PUT, entry);
     }
 
-    // @Operation(hidden = true)
+    @Operation(hidden = true)
     @DELETE
     @Path(ResourcePath.ID)
+    @RolesAllowed("ADMIN")
+    @SecurityRequirement(name = "day-book")
     @Produces(MediaType.APPLICATION_JSON)
-    public Uni<Response> delete(UUID id, @Context UriInfo uriInfo) {
-        return request(EventAddress.KEY_VALUE_DEL, id, uriInfo);
+    public Uni<Response> delete(UUID id) {
+        return request(EventAddress.KEY_VALUE_DEL, id);
     }
 
     @ServerExceptionMapper
@@ -102,7 +108,7 @@ public class KeyValueResource extends AbstractResource implements Resource<UUID,
         }
 
         @Override
-        public AbstractService<UUID, KeyValue> getService() {
+        public MultiAnswerAllService getService() {
             return service;
         }
     }

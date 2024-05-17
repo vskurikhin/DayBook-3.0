@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-05-14 23:10 by Victor N. Skurikhin.
+ * This file was last modified at 2024-05-22 13:57 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * UserService.java
@@ -11,6 +11,8 @@ package su.svn.daybook3.api.gateway.services.models;
 import io.quarkus.vertx.ConsumeEvent;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import su.svn.daybook3.api.gateway.annotations.ExceptionBadRequestAnswer;
 import su.svn.daybook3.api.gateway.annotations.ExceptionDuplicateAnswer;
 import su.svn.daybook3.api.gateway.annotations.ExceptionNoSuchElementAnswer;
@@ -21,19 +23,17 @@ import su.svn.daybook3.api.gateway.domain.messages.Request;
 import su.svn.daybook3.api.gateway.models.domain.User;
 import su.svn.daybook3.api.gateway.models.pagination.Page;
 import su.svn.daybook3.api.gateway.models.pagination.PageRequest;
-import su.svn.daybook3.api.gateway.services.security.AuthenticationContext;
 import su.svn.daybook3.api.gateway.services.cache.LoginCacheProvider;
 import su.svn.daybook3.api.gateway.services.cache.UserCacheProvider;
 import su.svn.daybook3.api.gateway.services.domain.UserDataService;
-
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 
 import java.util.UUID;
 
 @PrincipalLogging
 @ApplicationScoped
-public class UserService extends AbstractService<UUID, User> {
+public class UserService
+        extends AbstractService<UUID, User>
+        implements MultiAnswerAllService {
 
     @Inject
     LoginCacheProvider loginCacheProvider;
@@ -43,9 +43,6 @@ public class UserService extends AbstractService<UUID, User> {
 
     @Inject
     UserDataService userDataService;
-
-    @Inject
-    AuthenticationContext authContext;
 
     /**
      * This is method a Vertx message consumer and User creater
@@ -100,6 +97,7 @@ public class UserService extends AbstractService<UUID, User> {
      *
      * @return - the Answer's Multi-flow with all entries of User
      */
+    @Override
     public Multi<Answer> getAll() {
         return userDataService
                 .getAll()

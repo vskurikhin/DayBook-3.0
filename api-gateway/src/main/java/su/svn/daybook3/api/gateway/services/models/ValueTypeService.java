@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-05-14 23:10 by Victor N. Skurikhin.
+ * This file was last modified at 2024-05-22 13:57 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * ValueTypeService.java
@@ -29,7 +29,9 @@ import jakarta.inject.Inject;
 
 @PrincipalLogging
 @ApplicationScoped
-public class ValueTypeService extends AbstractService<Long, ValueType> {
+public class ValueTypeService
+        extends AbstractService<Long, ValueType>
+        implements MultiAnswerAllService {
 
     @Inject
     ValueTypeCacheProvider valueTypeCacheProvider;
@@ -92,6 +94,7 @@ public class ValueTypeService extends AbstractService<Long, ValueType> {
      *
      * @return - the Answer's Multi-flow with all entries of ValueType
      */
+    @Override
     public Multi<Answer> getAll() {
         //noinspection DuplicatedCode
         return valueTypeDataService

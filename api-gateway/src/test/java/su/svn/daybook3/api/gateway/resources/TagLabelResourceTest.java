@@ -10,6 +10,7 @@ package su.svn.daybook3.api.gateway.resources;
 
 import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.security.TestSecurity;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import org.hamcrest.CoreMatchers;
@@ -111,6 +112,7 @@ class TagLabelResourceTest {
     }
 
     @Test
+    @TestSecurity(user = "testUser", roles = {"ADMIN"})
     void testEndpointAdd() {
         given()
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
@@ -123,6 +125,18 @@ class TagLabelResourceTest {
     }
 
     @Test
+    void testEndpointAddForbidden() {
+        given()
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+                .body(TestData.TAG_LABEL.JSON_0)
+                .when()
+                .post(ResourcePath.API_PATH + "/tag")
+                .then()
+                .statusCode(403);
+    }
+
+    @Test
+    @TestSecurity(user = "testUser", roles = {"ADMIN"})
     void testEndpointPut() {
         given()
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
@@ -135,6 +149,18 @@ class TagLabelResourceTest {
     }
 
     @Test
+    void testEndpointPutForbidden() {
+        given()
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+                .body(TestData.TAG_LABEL.JSON_0)
+                .when()
+                .put(ResourcePath.API_PATH + "/tag")
+                .then()
+                .statusCode(403);
+    }
+
+    @Test
+    @TestSecurity(user = "testUser", roles = {"ADMIN"})
     void testEndpointDelete() {
         given()
                 .when()
@@ -142,5 +168,14 @@ class TagLabelResourceTest {
                 .then()
                 .statusCode(200)
                 .body(CoreMatchers.startsWith(TestData.TAG_LABEL.JSON_ID_0));
+    }
+
+    @Test
+    void testEndpointDeleteForbidden() {
+        given()
+                .when()
+                .delete(ResourcePath.API_PATH + "/tag/" + 0)
+                .then()
+                .statusCode(403);
     }
 }

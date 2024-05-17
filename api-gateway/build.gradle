@@ -23,14 +23,11 @@ dependencies {
     implementation "io.quarkus:quarkus-hibernate-reactive"
     implementation "io.quarkus:quarkus-hibernate-reactive-panache"
     implementation "io.quarkus:quarkus-hibernate-validator"
-    implementation "io.quarkus:quarkus-logging-json"
     implementation "io.quarkus:quarkus-micrometer"
     implementation "io.quarkus:quarkus-micrometer-registry-prometheus"
-    implementation "io.quarkus:quarkus-quartz"
     implementation "io.quarkus:quarkus-reactive-pg-client"
     implementation "io.quarkus:quarkus-resteasy-reactive"
     implementation "io.quarkus:quarkus-resteasy-reactive-jackson"
-    implementation "io.quarkus:quarkus-smallrye-context-propagation"
     implementation "io.quarkus:quarkus-smallrye-jwt"
     implementation "io.quarkus:quarkus-smallrye-jwt-build"
     implementation "io.quarkus:quarkus-smallrye-openapi"
@@ -56,7 +53,10 @@ dependencies {
     testImplementation "com.google.guava:guava:$libVers.guava"
     testImplementation "io.quarkus:quarkus-junit5"
     testImplementation "io.quarkus:quarkus-junit5-mockito"
+    testImplementation "io.quarkus:quarkus-panache-mock"
+    testImplementation "io.quarkus:quarkus-reactive-pg-client-deployment"
     testImplementation "io.quarkus:quarkus-test-security"
+    testImplementation "io.quarkus:quarkus-test-vertx"
     testImplementation "io.rest-assured:rest-assured"
     testImplementation "io.rest-assured:rest-assured"
     testImplementation "io.zonky.test:embedded-postgres:$libVers.embedded_postgres"
@@ -92,6 +92,7 @@ compileTestJava {
     options.encoding = 'UTF-8'
 }
 
+apply from: "${rootDir}/gradle/helpers/generators.gradle"
 apply from: "${rootDir}/gradle/helpers/liquibase.gradle"
 apply from: "${rootDir}/gradle/helpers/ssl.gradle"
 

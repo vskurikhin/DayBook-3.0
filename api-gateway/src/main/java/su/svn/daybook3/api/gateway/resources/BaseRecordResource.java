@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-05-14 21:36 by Victor N. Skurikhin.
+ * This file was last modified at 2024-05-22 13:35 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * BaseRecordResource.java
@@ -9,88 +9,128 @@
 package su.svn.daybook3.api.gateway.resources;
 
 import io.smallrye.mutiny.Uni;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.*;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.DELETE;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.PUT;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.security.SecurityRequirement;
+import org.jboss.resteasy.reactive.RestResponse;
+import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
 import su.svn.daybook3.api.gateway.annotations.PrincipalLogging;
-import su.svn.daybook3.api.gateway.converters.mappers.BaseRecordMapper;
-import su.svn.daybook3.api.gateway.domain.entities.BaseRecord;
 import su.svn.daybook3.api.gateway.domain.enums.ResourcePath;
+import su.svn.daybook3.api.gateway.domain.messages.Request;
+import su.svn.daybook3.api.gateway.models.dto.NewBaseRecord;
+import su.svn.daybook3.api.gateway.models.dto.UpdateBaseRecord;
+import su.svn.daybook3.api.gateway.models.pagination.PageRequest;
+import su.svn.daybook3.api.gateway.services.mappers.BaseRecordMapper;
+import su.svn.daybook3.api.gateway.services.models.BaseRecordService;
 
-import java.net.URI;
 import java.util.UUID;
-
-import static jakarta.ws.rs.core.Response.Status.NOT_FOUND;
-import static jakarta.ws.rs.core.Response.Status.OK;
 
 @PrincipalLogging
 @Path(ResourcePath.BASE_RECORD)
-public class BaseRecordResource {
+public class BaseRecordResource
+        extends AbstractResource {
 
     @Inject
-    BaseRecordMapper baseRecordMapper;
+    BaseRecordMapper mapper;
 
+    @Inject
+    BaseRecordService service;
+
+    @Operation(summary = "Get base record")
     @GET
+    @Path(ResourcePath.ID)
     @Produces(MediaType.APPLICATION_JSON)
-    public Uni<Response> getResponseBaseRecords() {
-        return BaseRecord.getAllBaseRecord()
-                .map(records -> records.stream().map(baseRecordMapper::toResource).toList())
-                .onItem()
-                .transform(Response::ok)
-                .onItem()
-                .transform(Response.ResponseBuilder::build);
+    public Uni<Response> get(UUID id) {
+
+        var request = new Request<>(id, authContext.getPrincipal());
+
+        return service.get(request)
+                .map(this::createResponseBuilder)
+                .map(Response.ResponseBuilder::build);
     }
 
+    @Operation(summary = "Get page with list of base record")
     @GET
-    @Path("{id}")
-    public Uni<Response> getSingleBaseRecord(@PathParam("id") UUID id) {
-        return BaseRecord.findByBaseRecordId(id)
-                .map(baseRecord -> baseRecordMapper.toResource(baseRecord))
-                .onItem()
-                .ifNotNull()
-                .transform(product -> Response.ok(product).build())
-                .onItem()
-                .ifNull()
-                .continueWith(Response.ok().status(NOT_FOUND)::build);
+    @Path(ResourcePath.PAGE)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Uni<Response> page(@QueryParam("page") int page, @QueryParam("limit") short limit) {
+
+        var pageRequest = new PageRequest(page, limit);
+        var request = new Request<>(pageRequest, authContext.getPrincipal());
+
+        return service.getPage(request)
+                .map(this::createPageResponseBuilder)
+                .map(Response.ResponseBuilder::build);
     }
 
+    @Operation(summary = "Create base record")
     @POST
-    @Produces(MediaType.APPLICATION_JSON)
+    @Path(ResourcePath.NONE)
+    @RolesAllowed("ADMIN")
+    @SecurityRequirement(name = "day-book")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Uni<Response> add(BaseRecord baseRecord) {
-        return BaseRecord.addBaseRecord(baseRecord)
-                .onItem()
-                .transform(record -> URI.create(ResourcePath.BASE_RECORD + record.id()))
-                .onItem()
-                .transform(Response::created)
-                .onItem()
-                .transform(Response.ResponseBuilder::build);
+    @Produces(MediaType.APPLICATION_JSON)
+    public Uni<Response> post(NewBaseRecord entry) {
+
+        var record = mapper.toResource(entry)
+                .toBuilder()
+                .userName("root")
+                .build();
+        var request = new Request<>(record, authContext.getPrincipal());
+
+        return service.add(request)
+                .map(this::createResponseBuilder)
+                .map(Response.ResponseBuilder::build);
     }
 
+    @Operation(summary = "Update base record")
     @PUT
-    @Path("{id}")
-    public Uni<Response> update(@PathParam("id") UUID id, BaseRecord baseRecord) {
-        if (baseRecord == null || baseRecord.description() == null) {
-            throw new WebApplicationException("Product description was not set on request.", 422);
-        }
-        return BaseRecord.updateBaseRecord(id, baseRecord)
-                .onItem()
-                .ifNotNull()
-                .transform(entity -> Response.ok(entity).build())
-                .onItem()
-                .ifNull()
-                .continueWith(Response.ok().status(NOT_FOUND)::build);
+    @Path(ResourcePath.NONE)
+    @RolesAllowed("ADMIN")
+    @SecurityRequirement(name = "day-book")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Uni<Response> put(UpdateBaseRecord entry) {
+
+        var record = mapper.toResource(entry)
+                .toBuilder()
+                .userName("root")
+                .build();
+        var request = new Request<>(record, authContext.getPrincipal());
+
+        return service.put(request)
+                .map(this::createResponseBuilder)
+                .map(Response.ResponseBuilder::build);
     }
 
+    @Operation(summary = "Delete base record")
     @DELETE
-    @Path("{id}")
-    public Uni<Response> delete(@PathParam("id") UUID id) {
-        return BaseRecord.deleteBaseRecord(id)
-                .onItem()
-                .transform(entity -> !entity
-                        ? Response.serverError().status(NOT_FOUND).build()
-                        : Response.ok().status(OK).build()
-                );
+    @Path(ResourcePath.ID)
+    @RolesAllowed("ADMIN")
+    @SecurityRequirement(name = "day-book")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Uni<Response> delete(UUID id) {
+
+        var request = new Request<>(id, authContext.getPrincipal());
+
+        return service.delete(request)
+                .map(this::createResponseBuilder)
+                .map(Response.ResponseBuilder::build);
+    }
+
+    @ServerExceptionMapper
+    public RestResponse<String> exception(Throwable x) {
+        return exceptionMapper(x);
     }
 }

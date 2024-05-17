@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-05-14 21:36 by Victor N. Skurikhin.
+ * This file was last modified at 2024-05-22 12:44 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * BaseRecord.java
@@ -10,14 +10,16 @@ package su.svn.daybook3.api.gateway.domain.entities;
 
 import io.quarkus.hibernate.reactive.panache.Panache;
 import io.quarkus.hibernate.reactive.panache.PanacheEntityBase;
+import io.quarkus.panache.common.Parameters;
 import io.smallrye.mutiny.Uni;
 import jakarta.annotation.Nonnull;
-import jakarta.persistence.Cacheable;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.NamedQueries;
+import jakarta.persistence.NamedQuery;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -29,107 +31,114 @@ import lombok.ToString;
 import lombok.experimental.Accessors;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import su.svn.daybook3.api.gateway.models.Marked;
+import su.svn.daybook3.api.gateway.models.Owned;
+import su.svn.daybook3.api.gateway.models.TimeUpdated;
+import su.svn.daybook3.api.gateway.models.UUIDIdentification;
 
+import java.io.Serializable;
 import java.time.Duration;
-import java.time.ZonedDateTime;
-import java.util.Collections;
-import java.util.List;
+import java.time.LocalDateTime;
 import java.util.UUID;
-import java.util.function.Function;
 
 @Entity
 @Getter
 @Setter
 @Builder
 @ToString
-@Cacheable
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper = false)
+@EqualsAndHashCode(callSuper = false, exclude = {"id"})
 @Accessors(fluent = true, chain = false)
-@Table(schema = "db", name = "base_record")
-@SuppressWarnings("LombokGetterMayBeUsed")
-public class BaseRecord extends PanacheEntityBase {
+@Table(schema = "db", name = "base_records")
+@NamedQueries({
+        @NamedQuery(
+                name = BaseRecord.LIST_ENABLED_WITH_TYPE,
+                query = "From BaseRecord WHERE enabled = :enabled AND type=:type"
+        )
+})
+public class BaseRecord
+        extends PanacheEntityBase
+        implements UUIDIdentification, Marked, Owned, TimeUpdated, Serializable {
+
+    public static final Duration TIMEOUT_DURATION = Duration.ofMillis(10000);
+    public static final String LIST_ENABLED_WITH_TYPE = "BaseRecord.ListEnabledWithType";
+    public static final Parameters ENABLED_BASE_TYPE = Parameters
+            .with("enabled", Boolean.TRUE)
+            .and("type", RecordType.Base);
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "id", updatable = false, nullable = false)
     private UUID id;
 
-    @Column(name = "title")
-    private String title;
+    @Builder.Default
+    @Column(name = "type")
+    private RecordType type = RecordType.Base;
 
-    @Column(name = "description")
-    private String description;
+    @Column(name = "user_name")
+    private String userName;
 
     @CreationTimestamp
-    @Column(name = "create_time")
-    public ZonedDateTime createTime;
+    @Column(name = "create_time", updatable = false, nullable = false)
+    private LocalDateTime createTime;
 
     @UpdateTimestamp
-    @Column(name = "update_time")
-    public ZonedDateTime updateTime;
+    @Column(name = "update_time", updatable = false)
+    private LocalDateTime updateTime;
 
-    public Uni<Void> delete() {
-        return Panache.withTransaction(() -> deleteById(this.id))
-                .replaceWith(Uni.createFrom().voidItem());
-    }
+    @Builder.Default
+    @Column(name = "enabled")
+    private boolean enabled = true;
 
-    public Uni<Object> update() {
-        return Panache
-                .withTransaction(() -> findByBaseRecordId(this.id)
-                        .onItem()
-                        .ifNotNull()
-                        .transform(entity -> {
-                            entity.description = this.description;
-                            entity.title = this.title;
-                            return entity;
-                        })
-                        .map((Function<BaseRecord, Object>) baseRecord -> baseRecord)
-                        .onFailure()
-                        .recoverWithNull());
-    }
+    @Column(name = "visible")
+    private boolean visible;
 
-    public static Uni<BaseRecord> findByBaseRecordId(UUID id) {
-        return findById(id);
-    }
+    @Column(name = "flags")
+    private int flags;
 
-    public static Uni<BaseRecord> updateBaseRecord(UUID id, BaseRecord baseRecord) {
-        return Panache
-                .withTransaction(() -> findByBaseRecordId(id)
-                        .onItem()
-                        .ifNotNull()
-                        .transform(entity -> {
-                            entity.description = baseRecord.description;
-                            entity.title = baseRecord.title;
-                            return entity;
-                        })
-                        .onFailure()
-                        .recoverWithNull());
+    public Uni<BaseRecord> update() {
+        return updateBaseRecord(this);
     }
 
     public static Uni<BaseRecord> addBaseRecord(@Nonnull BaseRecord baseRecord) {
         return Panache
-                .withTransaction(baseRecord::persist)
+                .withTransaction(baseRecord::persistAndFlush)
                 .replaceWith(baseRecord)
                 .ifNoItem()
-                .after(Duration.ofMillis(10000))
+                .after(TIMEOUT_DURATION)
                 .fail()
                 .onFailure()
                 .transform(IllegalStateException::new);
     }
 
-    public static Uni<List<BaseRecord>> getAllBaseRecord() {
-        //noinspection unchecked
-        return BaseRecord
-                .listAll()
-                .ifNoItem()
-                .after(Duration.ofMillis(10000))
-                .fail()
-                .onFailure()
-                .recoverWithUni(Uni.createFrom().<List<BaseRecord>>item(Collections.EMPTY_LIST));
+    public static Uni<Boolean> deleteBaseRecordById(@Nonnull UUID id) {
+        return Panache.withTransaction(() -> deleteById(id));
     }
 
-    public static Uni<Boolean> deleteBaseRecord(UUID id) {
-        return Panache.withTransaction(() -> deleteById(id));
+    public static Uni<BaseRecord> findByBaseRecordById(@Nonnull UUID id) {
+        return findById(id);
+    }
+
+    public static Uni<BaseRecord> updateBaseRecord(@Nonnull BaseRecord baseRecord) {
+        return Panache
+                .withTransaction(() -> findByBaseRecordById(baseRecord.id)
+                        .onItem()
+                        .ifNotNull()
+                        .transform(entity -> {
+                            entity.userName = baseRecord.userName;
+                            entity.enabled = baseRecord.enabled;
+                            entity.visible = baseRecord.visible;
+                            entity.flags = baseRecord.flags;
+                            return entity;
+                        })
+                        .onFailure()
+                        .recoverWithNull()
+                ).replaceWith(baseRecord)
+                .ifNoItem()
+                .after(TIMEOUT_DURATION)
+                .fail()
+                .onFailure()
+                .transform(IllegalStateException::new);
     }
 }

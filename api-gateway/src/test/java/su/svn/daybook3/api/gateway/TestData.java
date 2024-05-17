@@ -9,15 +9,21 @@
 package su.svn.daybook3.api.gateway;
 
 import io.smallrye.mutiny.Uni;
+import org.jose4j.jwt.JwtClaims;
+import su.svn.daybook3.api.gateway.domain.entities.BaseRecord;
 import su.svn.daybook3.api.gateway.domain.messages.Answer;
 import su.svn.daybook3.api.gateway.domain.messages.ApiResponse;
 import su.svn.daybook3.api.gateway.domain.messages.Request;
 import su.svn.daybook3.api.gateway.domain.model.*;
 import su.svn.daybook3.api.gateway.models.domain.*;
+import su.svn.daybook3.api.gateway.models.dto.ResourceBaseRecord;
 import su.svn.daybook3.api.gateway.models.pagination.Page;
 import su.svn.daybook3.api.gateway.models.pagination.PageRequest;
+import su.svn.daybook3.api.gateway.models.security.SessionPrincipal;
 
 import java.math.BigInteger;
+import java.security.Principal;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.*;
@@ -106,8 +112,39 @@ public class TestData {
         public static final UUID RANDOM1 = UUID.randomUUID();
         public static final UUID RANDOM2 = UUID.randomUUID();
         public static Uni<Answer> UNI_ANSWER_API_RESPONSE_ZERO = Uni.createFrom().item(Answer.of(new ApiResponse<>(uuid.ZERO, 200)));
+        public static Uni<Answer> UNI_ANSWER_API_RESPONSE_ZERO_201 = Uni.createFrom().item(Answer.from(new ApiResponse<>(uuid.ZERO, 201), 201));
         public static Uni<Optional<UUID>> UNI_OPTIONAL_EMPTY = Uni.createFrom().item(Optional.empty());
         public static Uni<Optional<UUID>> UNI_OPTIONAL_ZERO = Uni.createFrom().item(Optional.of(ZERO));
+        public static Uni<UUID> UNI_ZERO = Uni.createFrom().item(ZERO);
+    }
+
+    public static class BASE_RECORD {
+        public static final ResourceBaseRecord MODEL_0 = ResourceBaseRecord.builder().id(uuid.ZERO).visible(true).build();
+        public static final BaseRecord TABLE_0 = new BaseRecord();
+        public static final Uni<Page<Answer>> UNI_PAGE_ANSWER_SINGLETON_TEST = Uni.createFrom()
+                .item(
+                        Page.<Answer>builder()
+                                .content(Collections.singletonList(Answer.of(MODEL_0)))
+                                .build()
+                );
+        public static final String JSON_0 = """
+                {"id":"\
+                """ + uuid.ZERO + """
+                ","visible":true,"flags":0}\
+                """;
+        public static final String JSON_NEW = """
+                {"visible":true,"flags":0}\
+                """;
+        public static final String JSON_ID_0_200 = "{\"id\":\"00000000-0000-0000-0000-000000000000\",\"code\":200}";
+        public static final String JSON_ID_0_201 = "{\"id\":\"00000000-0000-0000-0000-000000000000\",\"code\":201}";
+        public static final String JSON_ARRAY_SINGLETON_0 = "[" + JSON_0 + "]";
+        public static final String JSON_PAGE_ARRAY_0 = """
+                {"page":0,"totalRecords":0,"nextPage":false,"prevPage":false,"content":\
+                """ + JSON_ARRAY_SINGLETON_0 + """
+                }""";
+        static {
+            TABLE_0.id(uuid.ZERO);
+        }
     }
 
     public static class CODIFIER {
@@ -134,6 +171,10 @@ public class TestData {
                 {"page":0,"totalRecords":0,"nextPage":false,"prevPage":false,"content":\
                 """ + JSON_ARRAY_SINGLETON_0 + """
                 }""";
+    }
+
+    public static class DURATION {
+        public static final Duration TIMEOUT_DURATION = Duration.ofMillis(750);
     }
 
     public static class I18N {
@@ -216,6 +257,11 @@ public class TestData {
                 }""";
     }
 
+    public static class PRINCIPAL {
+        public static final Principal EMPTY_SET = new SessionPrincipal(
+                null, new JwtClaims(), null, Collections.emptySet(), null
+        );
+    }
     public static class ROLE {
         public static final Role MODEL_0 = new Role(
                 uuid.ZERO, Role.NONE, null, true, 0

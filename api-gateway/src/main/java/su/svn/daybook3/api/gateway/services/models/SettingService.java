@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-05-14 23:10 by Victor N. Skurikhin.
+ * This file was last modified at 2024-05-22 13:57 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * SettingService.java
@@ -29,7 +29,9 @@ import jakarta.inject.Inject;
 
 @PrincipalLogging
 @ApplicationScoped
-public class SettingService extends AbstractService<Long, Setting> {
+public class SettingService
+        extends AbstractService<Long, Setting>
+        implements MultiAnswerAllService {
 
     @Inject
     SettingCacheProvider settingCacheProvider;
@@ -92,6 +94,7 @@ public class SettingService extends AbstractService<Long, Setting> {
      *
      * @return - the Answer's Multi-flow with all entries of Setting
      */
+    @Override
     public Multi<Answer> getAll() {
         //noinspection DuplicatedCode
         return settingDataService

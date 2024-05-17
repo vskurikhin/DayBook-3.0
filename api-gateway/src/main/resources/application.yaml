@@ -41,6 +41,7 @@ quarkus:
         metrics-enabled: true
   datasource:
     db-kind: postgresql
+    jdbc: false
     password: ${DAY_BOOK_DATASOURCE_PASSWORD:password}
     username: ${DATASOURCE_USERNAME:dbuser}
     reactive:
@@ -48,6 +49,13 @@ quarkus:
       max-size: 20
       reconnect-interval: PT1S
       url: ${DAY_BOOK_DATASOURCE_REACTIVE_URL:postgresql://localhost:5432/db}
+  hibernate-orm:
+    database:
+      generation: none
+    log:
+      sql: true
+      format-sql: true
+      bind-parameters: true
   http:
     enable-compression: true
     compress-media-types: text/html,text/plain,text/xml,text/css,text/javascript,application/javascript,application/json
@@ -79,7 +87,6 @@ quarkus:
       new-token:
         issuer: "https://svn.su/issuer"
         lifespan: ${DAY_BOOK_SMALLRYE_JWT_NEW_TOKEN_LIFESPAN:36000}
-        signature-algorithm: HS512
   swagger-ui:
     always-include: true
   vertx:

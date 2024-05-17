@@ -45,7 +45,7 @@ class AbstractServiceTest {
         }
     }
 
-    static class TestAbstractService extends AbstractService<Long, TestEntry> {
+    static class TestAbstractService extends AbstractService<Long, TestEntry> implements MultiAnswerAllService {
 
         @Override
         public Multi<Answer> getAll() {
