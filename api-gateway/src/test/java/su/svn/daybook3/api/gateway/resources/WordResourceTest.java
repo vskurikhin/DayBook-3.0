@@ -11,6 +11,7 @@ package su.svn.daybook3.api.gateway.resources;
 import io.quarkus.security.runtime.QuarkusPrincipal;
 import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.security.TestSecurity;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import org.hamcrest.CoreMatchers;
@@ -121,6 +122,7 @@ class WordResourceTest {
     }
 
     @Test
+    @TestSecurity(user = "testUser", roles = {"ADMIN"})
     void testEndpointAdd() {
         given()
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
@@ -133,6 +135,18 @@ class WordResourceTest {
     }
 
     @Test
+    void testEndpointAddForbidden() {
+        given()
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+                .body(TestData.WORD.JSON_0)
+                .when()
+                .post(ResourcePath.API_PATH + "/word")
+                .then()
+                .statusCode(403);
+    }
+
+    @Test
+    @TestSecurity(user = "testUser", roles = {"ADMIN"})
     void testEndpointPut() {
         given()
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
@@ -145,6 +159,18 @@ class WordResourceTest {
     }
 
     @Test
+    void testEndpointPutForbidden() {
+        given()
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+                .body(TestData.WORD.JSON_0)
+                .when()
+                .put(ResourcePath.API_PATH + "/word")
+                .then()
+                .statusCode(403);
+    }
+
+    @Test
+    @TestSecurity(user = "testUser", roles = {"ADMIN"})
     void testEndpointDelete() {
         given()
                 .when()
@@ -154,4 +180,12 @@ class WordResourceTest {
                 .body(CoreMatchers.startsWith(TestData.WORD.JSON_ID_0));
     }
 
+    @Test
+    void testEndpointDeleteForbidden() {
+        given()
+                .when()
+                .delete(ResourcePath.API_PATH + "/word/" + WordTable.NONE)
+                .then()
+                .statusCode(403);
+    }
 }

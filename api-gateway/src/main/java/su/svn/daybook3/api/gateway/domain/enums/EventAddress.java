@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-05-14 21:36 by Victor N. Skurikhin.
+ * This file was last modified at 2024-05-15 20:12 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * EventAddress.java
@@ -66,6 +66,11 @@ public enum EventAddress {
     WordPut(EventAddress.WORD_PUT),
     WordDel(EventAddress.WORD_DEL);
 
+    public static final String BASE_RECORD_ADD = "base_record_add";
+    public static final String BASE_RECORD_GET = "base_record_get";
+    public static final String BASE_RECORD_PUT = "base_record_put";
+    public static final String BASE_RECORD_PAGE ="base_record_page_page";
+    public static final String BASE_RECORD_DEL = "base_record_del";
     public static final String CODIFIER_ADD = "code_add";
     public static final String CODIFIER_GET = "code_get";
     public static final String CODIFIER_PUT = "code_put";

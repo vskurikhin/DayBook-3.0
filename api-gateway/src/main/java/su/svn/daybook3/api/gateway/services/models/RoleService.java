@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-05-14 23:10 by Victor N. Skurikhin.
+ * This file was last modified at 2024-05-22 13:57 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * RoleService.java
@@ -11,6 +11,8 @@ package su.svn.daybook3.api.gateway.services.models;
 import io.quarkus.vertx.ConsumeEvent;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import su.svn.daybook3.api.gateway.annotations.ExceptionBadRequestAnswer;
 import su.svn.daybook3.api.gateway.annotations.ExceptionDuplicateAnswer;
 import su.svn.daybook3.api.gateway.annotations.ExceptionNoSuchElementAnswer;
@@ -21,27 +23,22 @@ import su.svn.daybook3.api.gateway.domain.messages.Request;
 import su.svn.daybook3.api.gateway.models.domain.Role;
 import su.svn.daybook3.api.gateway.models.pagination.Page;
 import su.svn.daybook3.api.gateway.models.pagination.PageRequest;
-import su.svn.daybook3.api.gateway.services.security.AuthenticationContext;
 import su.svn.daybook3.api.gateway.services.cache.RoleCacheProvider;
 import su.svn.daybook3.api.gateway.services.domain.RoleDataService;
-
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 
 import java.util.UUID;
 
 @PrincipalLogging
 @ApplicationScoped
-public class RoleService extends AbstractService<UUID, Role> {
+public class RoleService
+        extends AbstractService<UUID, Role>
+        implements MultiAnswerAllService {
 
     @Inject
     RoleCacheProvider roleCacheProvider;
 
     @Inject
     RoleDataService roleDataService;
-
-    @Inject
-    AuthenticationContext authContext;
 
     /**
      * This is method a Vertx message consumer and Role creater
@@ -98,6 +95,7 @@ public class RoleService extends AbstractService<UUID, Role> {
      *
      * @return - the Answer's Multi-flow with all entries of Role
      */
+    @Override
     public Multi<Answer> getAll() {
         //noinspection DuplicatedCode
         return roleDataService

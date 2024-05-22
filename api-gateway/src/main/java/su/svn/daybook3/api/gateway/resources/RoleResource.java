@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-05-14 21:36 by Victor N. Skurikhin.
+ * This file was last modified at 2024-05-22 13:36 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * RoleResource.java
@@ -20,10 +20,8 @@ import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
-import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.core.UriInfo;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
 import org.eclipse.microprofile.openapi.annotations.media.ExampleObject;
@@ -38,7 +36,7 @@ import su.svn.daybook3.api.gateway.domain.enums.ResourcePath;
 import su.svn.daybook3.api.gateway.models.domain.Role;
 import su.svn.daybook3.api.gateway.models.pagination.PageRequest;
 import su.svn.daybook3.api.gateway.models.security.AuthRequest;
-import su.svn.daybook3.api.gateway.services.models.AbstractService;
+import su.svn.daybook3.api.gateway.services.models.MultiAnswerAllService;
 import su.svn.daybook3.api.gateway.services.models.RoleService;
 
 import java.util.UUID;
@@ -47,13 +45,15 @@ import java.util.UUID;
 @Path(ResourcePath.ROLE)
 public class RoleResource extends AbstractResource {
 
+    @Operation(summary = "Get role")
     @GET
     @Path(ResourcePath.ID)
     @Produces(MediaType.APPLICATION_JSON)
-    public Uni<Response> get(UUID id, @Context UriInfo uriInfo) {
-        return request(EventAddress.ROLE_GET, id, uriInfo);
+    public Uni<Response> get(UUID id) {
+        return request(EventAddress.ROLE_GET, id);
     }
 
+    @Operation(summary = "Get page with roles of user")
     @GET
     @Path(ResourcePath.PAGE)
     @Produces(MediaType.APPLICATION_JSON)
@@ -62,45 +62,41 @@ public class RoleResource extends AbstractResource {
     }
 
     @Operation(summary = "Create role")
-    @RequestBody(required = true, content = {
-            @Content(
-                    schema = @Schema(implementation = AuthRequest.class),
-                    examples = @ExampleObject(
-                            name = "default", value = """
-                            {
-                               "role": "GUEST",
-                               "description": "string",
-                               "visible": true,
-                               "flags": 0
-                             }
-                            """
-                    ))
-    })
+    @RequestBody(required = true, content = {@Content(schema = @Schema(implementation = AuthRequest.class), examples = @ExampleObject(name = "default", value = """
+            {
+               "role": "GUEST",
+               "description": "string",
+               "visible": true,
+               "flags": 0
+             }
+            """))})
     @RolesAllowed("ADMIN")
     @POST
     @Path(ResourcePath.NONE)
     @SecurityRequirement(name = "day-book")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Uni<Response> post(Role entry, @Context UriInfo uriInfo) {
-        return request(EventAddress.ROLE_ADD, entry, uriInfo);
+    public Uni<Response> post(Role entry) {
+        return request(EventAddress.ROLE_ADD, entry);
     }
 
+    @Operation(summary = "Update role")
     @RolesAllowed("ADMIN")
     @PUT
     @Path(ResourcePath.NONE)
     @SecurityRequirement(name = "day-book")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Uni<Response> put(Role entry, @Context UriInfo uriInfo) {
-        return request(EventAddress.ROLE_PUT, entry, uriInfo);
+    public Uni<Response> put(Role entry) {
+        return request(EventAddress.ROLE_PUT, entry);
     }
 
+    @Operation(summary = "Delete role")
     @DELETE
     @Path(ResourcePath.ID)
     @Produces(MediaType.APPLICATION_JSON)
-    public Uni<Response> delete(UUID id, @Context UriInfo uriInfo) {
-        return request(EventAddress.ROLE_DEL, id, uriInfo);
+    public Uni<Response> delete(UUID id) {
+        return request(EventAddress.ROLE_DEL, id);
     }
 
     @ServerExceptionMapper
@@ -123,7 +119,7 @@ public class RoleResource extends AbstractResource {
         }
 
         @Override
-        public AbstractService<UUID, Role> getService() {
+        public MultiAnswerAllService getService() {
             return service;
         }
     }

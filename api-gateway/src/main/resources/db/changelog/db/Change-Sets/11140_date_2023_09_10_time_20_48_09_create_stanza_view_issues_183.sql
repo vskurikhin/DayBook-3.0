@@ -1,11 +1,3 @@
-/*
- * This file was last modified at 2023.11.19 18:38 by Victor N. Skurikhin.
- * This is free and unencumbered software released into the public domain.
- * For more information, please refer to <http://unlicense.org>
- * 11140_date_2023_09_10_time_20_48_09_create_stanza_view_issues_183.sql
- * $Id$
- */
-
 --liquibase formatted sql
 --
 

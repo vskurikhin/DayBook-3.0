@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-05-14 21:36 by Victor N. Skurikhin.
+ * This file was last modified at 2024-05-21 17:12 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * UserResource.java
@@ -20,10 +20,8 @@ import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
-import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.core.UriInfo;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
 import org.eclipse.microprofile.openapi.annotations.media.ExampleObject;
@@ -39,7 +37,7 @@ import su.svn.daybook3.api.gateway.domain.enums.ResourcePath;
 import su.svn.daybook3.api.gateway.models.domain.User;
 import su.svn.daybook3.api.gateway.models.pagination.PageRequest;
 import su.svn.daybook3.api.gateway.models.security.AuthRequest;
-import su.svn.daybook3.api.gateway.services.models.AbstractService;
+import su.svn.daybook3.api.gateway.services.models.MultiAnswerAllService;
 import su.svn.daybook3.api.gateway.services.models.UserService;
 
 import java.util.UUID;
@@ -52,8 +50,8 @@ public class UserResource extends AbstractResource {
     @GET
     @Path(ResourcePath.ID)
     @Produces(MediaType.APPLICATION_JSON)
-    public Uni<Response> get(UUID id, @Context UriInfo uriInfo) {
-        return request(EventAddress.USER_GET, id, uriInfo);
+    public Uni<Response> get(UUID id) {
+        return request(EventAddress.USER_GET, id);
     }
 
     @Operation(summary = "Get page with list of users")
@@ -61,8 +59,8 @@ public class UserResource extends AbstractResource {
     @Path(ResourcePath.PAGE)
     @Produces(MediaType.APPLICATION_JSON)
     public Uni<Response> page(
-            @Parameter(required = true) @QueryParam("page") Long page,
-            @Parameter(required = true) @QueryParam("limit") Short limit) {
+            @Parameter(required = true) @QueryParam("page") int page,
+            @Parameter(required = true) @QueryParam("limit") short limit) {
         return requestPage(EventAddress.USER_PAGE, new PageRequest(page, limit));
     }
 
@@ -90,8 +88,8 @@ public class UserResource extends AbstractResource {
     @SecurityRequirement(name = "day-book")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Uni<Response> post(User entry, @Context UriInfo uriInfo) {
-        return request(EventAddress.USER_ADD, entry, uriInfo);
+    public Uni<Response> post(User entry) {
+        return request(EventAddress.USER_ADD, entry);
     }
 
     @Operation(summary = "Update user")
@@ -101,16 +99,18 @@ public class UserResource extends AbstractResource {
     @SecurityRequirement(name = "day-book")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Uni<Response> put(User entry, @Context UriInfo uriInfo) {
-        return request(EventAddress.USER_PUT, entry, uriInfo);
+    public Uni<Response> put(User entry) {
+        return request(EventAddress.USER_PUT, entry);
     }
 
     @Operation(summary = "Delete user")
     @DELETE
+    @RolesAllowed({"ADMIN"})
+    @SecurityRequirement(name = "day-book")
     @Path(ResourcePath.ID)
     @Produces(MediaType.APPLICATION_JSON)
-    public Uni<Response> delete(UUID id, @Context UriInfo uriInfo) {
-        return request(EventAddress.USER_DEL, id, uriInfo);
+    public Uni<Response> delete(UUID id) {
+        return request(EventAddress.USER_DEL, id);
     }
 
     @ServerExceptionMapper
@@ -132,7 +132,7 @@ public class UserResource extends AbstractResource {
             return getAll();
         }
 
-        public AbstractService<UUID, User> getService() {
+        public MultiAnswerAllService getService() {
             return service;
         }
     }

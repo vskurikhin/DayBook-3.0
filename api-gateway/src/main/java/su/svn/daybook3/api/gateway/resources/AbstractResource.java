@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-05-14 21:36 by Victor N. Skurikhin.
+ * This file was last modified at 2024-05-22 13:08 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * AbstractResource.java
@@ -11,6 +11,11 @@ package su.svn.daybook3.api.gateway.resources;
 import io.smallrye.mutiny.Uni;
 import io.vertx.mutiny.core.eventbus.EventBus;
 import io.vertx.mutiny.core.eventbus.Message;
+import jakarta.annotation.Nonnull;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.UriInfo;
 import org.jboss.logging.Logger;
 import org.jboss.resteasy.reactive.RestResponse;
 import su.svn.daybook3.api.gateway.domain.messages.Answer;
@@ -20,11 +25,6 @@ import su.svn.daybook3.api.gateway.models.Identification;
 import su.svn.daybook3.api.gateway.models.pagination.Page;
 import su.svn.daybook3.api.gateway.models.pagination.PageRequest;
 import su.svn.daybook3.api.gateway.services.security.AuthenticationContext;
-
-import jakarta.annotation.Nonnull;
-import jakarta.inject.Inject;
-import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.core.UriInfo;
 
 import java.io.Serializable;
 import java.net.URI;
@@ -37,15 +37,18 @@ abstract class AbstractResource {
 
     private static final Pattern PATH_PATTERN = Pattern.compile("^(/?.*[-a-zA-Z\\d]+)/*$");
 
+    @Context
+    UriInfo uriInfo;
+
     @Inject
     AuthenticationContext authContext;
 
     @Inject
     protected EventBus bus;
 
-    protected <T> Uni<Response> request(String address, T o, UriInfo uriInfo) {
+    protected <T> Uni<Response> request(String address, T o) {
         return bus.<Answer>request(address, new Request<>(o, authContext.getPrincipal()))
-                .map(msg -> createResponseBuilder(uriInfo, msg))
+                .map(this::createResponseBuilder)
                 .map(Response.ResponseBuilder::build);
     }
 
@@ -55,20 +58,37 @@ abstract class AbstractResource {
                 .map(Response.ResponseBuilder::build);
     }
 
-    protected Response.ResponseBuilder createResponseBuilder(UriInfo uriInfo, Message<Answer> message) {
-        if (message.body() == null) {
-            return Response.status(406, "body is null");
+    @Nonnull
+    protected Response.ResponseBuilder createResponseBuilder(Message<Answer> message) {
+        if (message == null) {
+            return Response.status(406, "message is null");
         }
-        return message.body().payload() != null
-                ? constructResponseBuilder(uriInfo, message.body())
-                : Response.status(message.body().error(), message.body().message());
+        return createResponseBuilder(message.body());
     }
 
-    protected Response.ResponseBuilder createPageResponseBuilder(Message<Page<Answer>> message) {
-        if (message.body() == null) {
+    @Nonnull
+    protected Response.ResponseBuilder createResponseBuilder(Answer body) {
+        if (body == null) {
             return Response.status(406, "body is null");
         }
-        var page = message.body();
+        return body.payload() != null
+                ? constructResponseBuilder(body)
+                : Response.status(body.error(), body.message());
+    }
+
+    @Nonnull
+    protected Response.ResponseBuilder createPageResponseBuilder(Message<Page<Answer>> message) {
+        if (message == null) {
+            return Response.status(406, "message is null");
+        }
+        return createPageResponseBuilder(message.body());
+    }
+
+    @Nonnull
+    protected Response.ResponseBuilder createPageResponseBuilder(Page<Answer> page) {
+        if (page == null) {
+            return Response.status(406, "body is null");
+        }
         var content = page.getContent()
                 .stream()
                 .map(this::getAnswerPayload)
@@ -90,7 +110,7 @@ abstract class AbstractResource {
 
     private boolean nonEmpty(Object o) {
         if (o instanceof Answer answer) {
-            return ! Answer.empty().equals(answer);
+            return !Answer.empty().equals(answer);
         }
         return true;
     }
@@ -98,8 +118,8 @@ abstract class AbstractResource {
     protected RestResponse<String> exceptionMapper(Throwable x) {
         return switch (x.getClass().getSimpleName()) {
             case "AuthenticationFailedException", "ForbiddenException",
-                    "ParseException", "UnauthorizedException"
-                    -> RestResponse.status(Response.Status.FORBIDDEN, forbidden(x));
+                 "ParseException", "UnauthorizedException" ->
+                    RestResponse.status(Response.Status.FORBIDDEN, forbidden(x));
             default -> RestResponse.status(Response.Status.BAD_REQUEST, badRequest(x));
         };
     }
@@ -116,11 +136,11 @@ abstract class AbstractResource {
                 """, String.valueOf(x.getMessage()).replaceAll("\"", "'"));
     }
 
-    private Response.ResponseBuilder constructResponseBuilder(UriInfo uriInfo, Answer answer) {
+    Response.ResponseBuilder constructResponseBuilder(Answer answer) {
         return switch (answer.error()) {
-            case 200 -> Response.ok(answer.payload()).location(createUri(uriInfo, answer.payload()));
-            case 201 -> Response.created(createUri(uriInfo, answer.payload())).entity(answer.payload());
-            case 202 -> Response.accepted(answer.payload()).location(createUri(uriInfo, answer.payload()));
+            case 200 -> Response.ok(answer.payload()).location(createUri(answer.payload()));
+            case 201 -> Response.created(createUri(answer.payload())).entity(answer.payload());
+            case 202 -> Response.accepted(answer.payload()).location(createUri(answer.payload()));
             case 401 -> Response.status(Response.Status.UNAUTHORIZED).entity(answer);
             case 404 -> Response.status(Response.Status.NOT_FOUND).entity(answer);
             case 406 -> Response.status(Response.Status.NOT_ACCEPTABLE).entity(answer);
@@ -128,13 +148,13 @@ abstract class AbstractResource {
         };
     }
 
-    private URI createUri(UriInfo uriInfo, Object payload) {
+    private URI createUri(Object payload) {
         var matcher = PATH_PATTERN.matcher(uriInfo.getPath());
         var path = matcher.matches() ? matcher.group(1) : uriInfo.getPath();
         LOG.tracef("path: %s, count: %d, m.group(1): %s", path, matcher.groupCount(), matcher.group(1));
         if (payload instanceof ApiResponse<?> api) {
             var builder = uriInfo.getRequestUriBuilder();
-            return builder.replacePath(path+ "/" + String.valueOf(api.id()))
+            return builder.replacePath(path + "/" + String.valueOf(api.id()))
                     .buildFromMap(Collections.emptyMap());
         }
         if (payload instanceof Identification<?> entry) {

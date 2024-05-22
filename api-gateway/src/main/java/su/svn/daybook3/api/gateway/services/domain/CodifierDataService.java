@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-05-14 23:10 by Victor N. Skurikhin.
+ * This file was last modified at 2024-05-20 22:13 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * CodifierDataService.java
@@ -30,23 +30,26 @@ public class CodifierDataService implements DataService<String, CodifierTable, C
     @Inject
     CodifierMapper codifierMapper;
 
+    @Override
     public Uni<String> add(Codifier o) {
         LOG.tracef("add(%s)", o);
         return addEntry(codifierMapper.convertToDomain(o));
     }
 
-    private Uni<String> addEntry(CodifierTable entry) {
-        return codifierDao
-                .insert(entry)
-                .map(o -> lookup(o, entry));
-    }
-
+    @Override
     public Uni<Long> count() {
         return codifierDao
                 .count()
                 .map(o -> lookupLong(o, "count for CodifierTable"));
     }
 
+    @Override
+    public Uni<String> delete(String id) {
+        LOG.tracef("delete(%s)", id);
+        return deleteEntry(id);
+    }
+
+    @Override
     public Multi<Codifier> findRange(long offset, long limit) {
         LOG.tracef("findRange(%d, %d)", offset, limit);
         return codifierDao
@@ -54,6 +57,7 @@ public class CodifierDataService implements DataService<String, CodifierTable, C
                 .map(codifierMapper::convertToModel);
     }
 
+    @Override
     public Uni<Codifier> get(String id) {
         LOG.tracef("get(%s)", id);
         return codifierDao
@@ -62,6 +66,7 @@ public class CodifierDataService implements DataService<String, CodifierTable, C
                 .map(codifierMapper::convertToModel);
     }
 
+    @Override
     public Multi<Codifier> getAll() {
         LOG.tracef("getAll()");
         return codifierDao
@@ -71,25 +76,27 @@ public class CodifierDataService implements DataService<String, CodifierTable, C
                 .map(codifierMapper::convertToModel);
     }
 
+    @Override
     public Uni<String> put(Codifier o) {
         LOG.tracef("put(%s)", o);
         return putEntry(codifierMapper.convertToDomain(o));
     }
 
-    private Uni<String> putEntry(CodifierTable entry) {
+    private Uni<String> addEntry(CodifierTable entry) {
         return codifierDao
-                .update(entry)
+                .insert(entry)
                 .map(o -> lookup(o, entry));
-    }
-
-    public Uni<String> delete(String id) {
-        LOG.tracef("delete(%s)", id);
-        return deleteEntry(id);
     }
 
     private Uni<String> deleteEntry(String id) {
         return codifierDao
                 .delete(id)
                 .map(o -> lookupId(o, id));
+    }
+
+    private Uni<String> putEntry(CodifierTable entry) {
+        return codifierDao
+                .update(entry)
+                .map(o -> lookup(o, entry));
     }
 }

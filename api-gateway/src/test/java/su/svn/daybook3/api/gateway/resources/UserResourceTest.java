@@ -55,7 +55,6 @@ public class UserResourceTest {
         QuarkusMock.installMockForType(mock, UserService.class);
     }
 
-
     @Test
     void testEndpointGet() {
         given()
@@ -113,6 +112,17 @@ public class UserResourceTest {
     }
 
     @Test
+    void testEndpointAddForbidden() {
+        given()
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+                .body(TestData.USER.JSON_0_1)
+                .when()
+                .post(ResourcePath.API_PATH + "/user")
+                .then()
+                .statusCode(403);
+    }
+
+    @Test
     @TestSecurity(user = "testUser", roles = {"USER"})
     void testEndpointPut() {
         given()
@@ -126,6 +136,18 @@ public class UserResourceTest {
     }
 
     @Test
+    void testEndpointPutForbidden() {
+        given()
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+                .body(TestData.USER.JSON_0_1)
+                .when()
+                .put(ResourcePath.API_PATH + "/user")
+                .then()
+                .statusCode(403);
+    }
+
+    @Test
+    @TestSecurity(user = "testUser", roles = {"ADMIN"})
     void testEndpointDelete() {
         given()
                 .when()
@@ -133,5 +155,14 @@ public class UserResourceTest {
                 .then()
                 .statusCode(200)
                 .body(CoreMatchers.startsWith(TestData.USER.JSON_ID_0));
+    }
+
+    @Test
+    void testEndpointDeleteForbidden() {
+        given()
+                .when()
+                .delete(ResourcePath.API_PATH + "/user/" + TestData.uuid.STRING_ZERO)
+                .then()
+                .statusCode(403);
     }
 }

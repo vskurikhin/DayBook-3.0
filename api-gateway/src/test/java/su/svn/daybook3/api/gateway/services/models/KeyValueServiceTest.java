@@ -258,11 +258,6 @@ class KeyValueServiceTest {
 
     @Test
     void testWhenDeleteThenNullParameter() {
-        var expected = Answer.builder()
-                .message(Answer.NO_SUCH_ELEMENT)
-                .error(404)
-                .payload("No value present for id: null")
-                .build();
         Assertions.assertThrows(NullPointerException.class, () -> service.delete(null)
                 .await()
                 .indefinitely());

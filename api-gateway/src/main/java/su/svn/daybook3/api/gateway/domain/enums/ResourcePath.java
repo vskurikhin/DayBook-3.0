@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-05-14 21:36 by Victor N. Skurikhin.
+ * This file was last modified at 2024-05-22 12:46 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * ResourcePath.java
@@ -12,6 +12,7 @@ public enum ResourcePath {
     Null(null),
     All(ResourcePath.ALL),
     Auth(ResourcePath.AUTH),
+    BaseRecord(ResourcePath.BASE_RECORD),
     Codifier(ResourcePath.CODIFIER),
     I18n(ResourcePath.I18N),
     Id(ResourcePath.ID),

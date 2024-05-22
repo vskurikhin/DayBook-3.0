@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-05-14 23:10 by Victor N. Skurikhin.
+ * This file was last modified at 2024-05-22 13:57 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * WordService.java
@@ -29,7 +29,9 @@ import jakarta.inject.Inject;
 
 @PrincipalLogging
 @ApplicationScoped
-public class WordService extends AbstractService<String, Word> {
+public class WordService
+        extends AbstractService<String, Word>
+        implements MultiAnswerAllService {
 
     @Inject
     WordCacheProvider wordCacheProvider;
@@ -90,6 +92,7 @@ public class WordService extends AbstractService<String, Word> {
      *
      * @return - the Answer's Multi-flow with all entries of Word
      */
+    @Override
     public Multi<Answer> getAll() {
         return wordDataService
                 .getAll()

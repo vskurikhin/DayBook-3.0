@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-05-14 23:10 by Victor N. Skurikhin.
+ * This file was last modified at 2024-05-17 10:59 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * PageService.java
@@ -42,14 +42,7 @@ public class PageService {
                         .collect()
                         .asList();
         return countSupplier.get()
-                .flatMap(o -> getPageUni(pageRequest, toUniListAnswer, o));
-    }
-
-    private Uni<Page<Answer>> getPageUni(
-            PageRequest pageRequest,
-            BiFunction<Long, Short, Uni<List<Answer>>> toUniListAnswer,
-            Long count) {
-        return  fetchPageAnswer(count, pageRequest, toUniListAnswer);
+                .flatMap(o -> fetchPageAnswer(o, pageRequest, toUniListAnswer));
     }
 
     private Uni<Page<Answer>> fetchPageAnswer(
