@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-05-14 21:36 by Victor N. Skurikhin.
+ * This file was last modified at 2024-05-22 23:15 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * AbstractListHelper.java
@@ -48,7 +48,7 @@ abstract class AbstractListHelper<
     }
 
     protected Function<? super RowIterator<Row>, ? extends Optional<?>> iteratorNextMapper(Action action, String aName) {
-        return (action.iteratorNextMapper() == null)
+        return action.iteratorNextMapper() == null
                 ? job.iteratorNextMapper(aName)
                 : action.iteratorNextMapper();
     }

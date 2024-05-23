@@ -17,6 +17,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 public class TestUtils {
 
@@ -41,6 +42,12 @@ public class TestUtils {
 
     public static <T> List<T> multiAsListHelper(Multi<T> multi) throws Exception {
         return multi.collect().asList().subscribeAsCompletionStage().get();
+    }
+
+    public static <T> List<T> uniListHelper(Uni<List<T>> uni) throws Exception {
+        var result = uni.subscribeAsCompletionStage();
+        Assertions.assertNotNull(result);
+        return result.get();
     }
 
     public static <T> T uniOptionalHelper(Uni<Optional<T>> uni) throws Exception {
