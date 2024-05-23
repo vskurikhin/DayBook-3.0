@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-05-14 21:36 by Victor N. Skurikhin.
+ * This file was last modified at 2024-05-23 18:35 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * StanzaTransactionalJob.java
@@ -41,15 +41,14 @@ public class StanzaTransactionalJob extends AbstractOneToManyJob<Long, StanzaTab
             @TransactionAction(
                     value = """
                             INSERT INTO dictionary.stanza
-                             (id, name, description, parent_id, user_name, visible, flags)
-                                VALUES(%s, $2, $3, $4, $5, $7, $8)
-                                ON CONFLICT (name) DO
+                             (id, name, description, parent_id, user_name, enabled, visible, flags)
+                                VALUES($1, $2, $3, $4, $5, $6, $7, $8)
+                                ON CONFLICT (id) DO
                                    UPDATE SET
                                     name = $2,
                                     description = $3,
                                     parent_id = $4,
-                                    user_name = $5,
-                                    enabled = true,
+                                    enabled = $6,
                                     visible = $7,
                                     flags = $8
                               RETURNING id;
@@ -80,9 +79,9 @@ public class StanzaTransactionalJob extends AbstractOneToManyJob<Long, StanzaTab
                     value = """
                             UPDATE dictionary.setting
                                SET stanza_id = DEFAULT
-                             WHERE stanza_id = ANY ($1)
+                             WHERE stanza_id = $1
                             """,
-                    name = Constants.CLEAR_RELATION),
+                    name = Constants.CLEAR_ALL_HAS_RELATION_BY_ID),
             @TransactionAction(name = Constants.DELETE_MAIN),
     })
     public Uni<Optional<Long>> delete(@Nonnull StanzaTable table) {
@@ -97,7 +96,7 @@ public class StanzaTransactionalJob extends AbstractOneToManyJob<Long, StanzaTab
                  Constants.UPSERT_MAIN_TABLE,
                  Constants.DELETE_MAIN -> iterator ->
                     iterator.hasNext()
-                            ? Optional.of(iterator.next().getUUID(StanzaTable.ID))
+                            ? Optional.of(iterator.next().getLong(StanzaTable.ID))
                             : Optional.empty();
             default -> throw new IllegalStateException("Unexpected value: " + actionName);
         };

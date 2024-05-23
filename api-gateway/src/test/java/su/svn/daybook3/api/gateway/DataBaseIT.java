@@ -13,15 +13,54 @@ import io.quarkus.test.junit.QuarkusTest;
 import io.smallrye.mutiny.Multi;
 import io.vertx.core.json.JsonObject;
 import jakarta.inject.Inject;
+import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
-import org.junit.jupiter.api.*;
-import su.svn.daybook3.api.gateway.domain.dao.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import su.svn.daybook3.api.gateway.domain.dao.CodifierDao;
+import su.svn.daybook3.api.gateway.domain.dao.I18nDao;
+import su.svn.daybook3.api.gateway.domain.dao.I18nViewDao;
+import su.svn.daybook3.api.gateway.domain.dao.KeyValueDao;
+import su.svn.daybook3.api.gateway.domain.dao.LanguageDao;
+import su.svn.daybook3.api.gateway.domain.dao.RoleDao;
+import su.svn.daybook3.api.gateway.domain.dao.SessionDao;
+import su.svn.daybook3.api.gateway.domain.dao.SettingDao;
+import su.svn.daybook3.api.gateway.domain.dao.SettingViewDao;
+import su.svn.daybook3.api.gateway.domain.dao.StanzaDao;
+import su.svn.daybook3.api.gateway.domain.dao.StanzaViewDao;
+import su.svn.daybook3.api.gateway.domain.dao.TagLabelDao;
+import su.svn.daybook3.api.gateway.domain.dao.UserNameDao;
+import su.svn.daybook3.api.gateway.domain.dao.UserViewDao;
+import su.svn.daybook3.api.gateway.domain.dao.ValueTypeDao;
+import su.svn.daybook3.api.gateway.domain.dao.VocabularyDao;
+import su.svn.daybook3.api.gateway.domain.dao.WordDao;
 import su.svn.daybook3.api.gateway.domain.messages.Answer;
 import su.svn.daybook3.api.gateway.domain.messages.ApiResponse;
 import su.svn.daybook3.api.gateway.domain.messages.Request;
-import su.svn.daybook3.api.gateway.domain.model.*;
+import su.svn.daybook3.api.gateway.domain.model.CodifierTable;
+import su.svn.daybook3.api.gateway.domain.model.I18nTable;
+import su.svn.daybook3.api.gateway.domain.model.I18nView;
+import su.svn.daybook3.api.gateway.domain.model.KeyValueTable;
+import su.svn.daybook3.api.gateway.domain.model.LanguageTable;
+import su.svn.daybook3.api.gateway.domain.model.RoleTable;
+import su.svn.daybook3.api.gateway.domain.model.SessionTable;
+import su.svn.daybook3.api.gateway.domain.model.SettingTable;
+import su.svn.daybook3.api.gateway.domain.model.SettingView;
+import su.svn.daybook3.api.gateway.domain.model.StanzaTable;
+import su.svn.daybook3.api.gateway.domain.model.StanzaView;
+import su.svn.daybook3.api.gateway.domain.model.TagLabelTable;
+import su.svn.daybook3.api.gateway.domain.model.UserNameTable;
+import su.svn.daybook3.api.gateway.domain.model.UserView;
+import su.svn.daybook3.api.gateway.domain.model.ValueTypeTable;
+import su.svn.daybook3.api.gateway.domain.model.VocabularyTable;
+import su.svn.daybook3.api.gateway.domain.model.WordTable;
 import su.svn.daybook3.api.gateway.domain.transact.I18nTransactionalJob;
 import su.svn.daybook3.api.gateway.domain.transact.SettingTransactionalJob;
+import su.svn.daybook3.api.gateway.domain.transact.StanzaTransactionalJob;
 import su.svn.daybook3.api.gateway.domain.transact.UserTransactionalJob;
 import su.svn.daybook3.api.gateway.models.TimeUpdated;
 import su.svn.daybook3.api.gateway.models.domain.User;
@@ -31,6 +70,7 @@ import su.svn.daybook3.api.gateway.services.models.UserService;
 import java.math.BigInteger;
 import java.security.Principal;
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -38,7 +78,10 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import static su.svn.daybook3.api.gateway.TestUtils.*;
+import static su.svn.daybook3.api.gateway.TestUtils.multiAsListHelper;
+import static su.svn.daybook3.api.gateway.TestUtils.uniListHelper;
+import static su.svn.daybook3.api.gateway.TestUtils.uniOptionalHelper;
+import static su.svn.daybook3.api.gateway.TestUtils.uniToAnswerHelper;
 
 @SuppressWarnings({"SameParameterValue"})
 @QuarkusTest
@@ -70,6 +113,8 @@ public class DataBaseIT {
     StanzaDao stanzaDao;
     @Inject
     StanzaViewDao stanzaViewDao;
+    @Inject
+    StanzaTransactionalJob stanzaTransactionalJob;
     @Inject
     TagLabelDao tagLabelDao;
     @Inject
@@ -1448,6 +1493,85 @@ public class DataBaseIT {
                 var test = multiAsListHelper(stanzaViewDao.findRange(0, Long.MAX_VALUE));
                 uniOptionalHelper(settingDao.delete(id2));
                 uniOptionalHelper(valueTypeDao.delete(id1));
+            });
+        }
+    }
+
+    @SuppressWarnings("UnusedReturnValue")
+    @Nested
+    @DisplayName("StanzaTransactionalJob")
+    class StanzaTransactionalJobTest {
+
+        long valueTypeId;
+        UUID userNameId;
+        SettingTable setting;
+
+        @BeforeEach
+        void setUp() {
+            userNameId = UUID.randomUUID();
+            var userName = UserNameTable.builder()
+                    .id(userNameId)
+                    .userName("user")
+                    .password("password")
+                    .enabled(true)
+                    .build();
+            Assertions.assertDoesNotThrow(() -> {
+                uniOptionalHelper(userNameDao.insert(userName));
+            });
+            var valueType = ValueTypeTable.builder()
+                    .valueType(ValueTypeTable.NONE)
+                    .enabled(true)
+                    .build();
+            Assertions.assertDoesNotThrow(() -> {
+                valueTypeId = uniOptionalHelper(valueTypeDao.insert(valueType));
+            });
+            setting = SettingTable.builder()
+                    .id(13L)
+                    .variable("variable1")
+                    .value(SettingTable.NONE)
+                    .valueTypeId(valueTypeId)
+                    .stanzaId(0L)
+                    .build();
+            Assertions.assertDoesNotThrow(() -> {
+                uniOptionalHelper(settingDao.insert(setting));
+            });
+        }
+
+        @AfterEach
+        void tearDown() {
+            Assertions.assertDoesNotThrow(() -> {
+                uniOptionalHelper(settingDao.delete(13L));
+            });
+            Assertions.assertDoesNotThrow(() -> {
+                uniOptionalHelper(valueTypeDao.delete(valueTypeId));
+            });
+            Assertions.assertDoesNotThrow(() -> {
+                uniOptionalHelper(userNameDao.delete(userNameId));
+            });
+        }
+
+        @Test
+        void test() {
+            var stanza1 = StanzaTable.builder()
+                    .id(13L)
+                    .name("name1")
+                    .description("description1")
+                    .parentId(0L)
+                    .userName("user")
+                    .createTime(LocalDateTime.now())
+                    .updateTime(LocalDateTime.now())
+                    .build();
+            var setting1 = setting.toBuilder().stanzaId(13L).build();
+
+            Collection<SettingTable> settings = Collections.singleton(setting1);
+            Pair<StanzaTable, Collection<SettingTable>> pair = Pair.of(stanza1, settings);
+            Collection<Pair<StanzaTable, Collection<SettingTable>>> stanzas = Collections.singleton(pair);
+
+            Assertions.assertDoesNotThrow(() -> {
+                uniListHelper(stanzaTransactionalJob.upsert(stanzas));
+            });
+            Assertions.assertDoesNotThrow(() -> {
+                uniOptionalHelper(stanzaTransactionalJob.delete(stanza1));
             });
         }
     }

@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-05-14 21:36 by Victor N. Skurikhin.
+ * This file was last modified at 2024-05-23 18:39 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * UpsertHelper.java
@@ -9,6 +9,7 @@
 package su.svn.daybook3.api.gateway.domain.transact.one_to_many;
 
 import io.smallrye.mutiny.Uni;
+import io.vertx.mutiny.sqlclient.Row;
 import io.vertx.mutiny.sqlclient.RowSet;
 import io.vertx.mutiny.sqlclient.SqlConnection;
 import io.vertx.mutiny.sqlclient.Tuple;
@@ -55,11 +56,21 @@ class UpsertHelper<
 
     private Uni<List<MainId>> checkCountInJoinTableAndThenInsert() {
         LOG.tracef("checkCountInJoinTableAndThenInsert");
-        return Uni
-                .join()
-                .all(this.doEachMainTable())
-                .andCollectFailures()
-                .map(this::listOfOptionalToList);
+        return Uni.combine()
+                .all()
+                .unis(this.doEachMainTable())
+                .with(objects -> {
+                    System.out.println("objects = " + objects);
+                    return objects.stream().map(o -> {
+                                if (o instanceof Optional<?> opt) {
+                                    return job.castOptionalMainId().apply(opt);
+                                } else {
+                                    return Optional.<MainId>empty();
+                                }
+                            }).filter(Optional::isPresent)
+                            .map(Optional::get)
+                            .toList();
+                });
     }
 
     @Nonnull
@@ -70,58 +81,8 @@ class UpsertHelper<
                 .toList();
     }
 
-    @Nonnull
-    private List<MainId> listOfOptionalToList(List<Optional<MainId>> list) {
-        return list
-                .stream()
-                .map(o -> o.orElse(null))
-                .filter(Objects::nonNull)
-                .toList();
-    }
-
-    private Uni<Optional<MainId>> upsertMain(Pair<MainTable, Collection<Subsidiary>> pair) {
-        var table = pair.getKey();
-        var subsidiaries = pair.getValue();
-        var helper = new UpsertMainHelper<>(super.job, super.map, table, subsidiaries);
-        helper.setConnection(super.connection);
-        return null;
-    }
-
-    static class UpsertMainHelper<
-            MainId extends Comparable<? extends Serializable>,
-            MainTable extends CasesOfId<MainId>,
-            SubId extends Comparable<? extends Serializable>,
-            Subsidiary extends CasesOfId<SubId>>
-            extends AbstractHelper<MainId, MainTable, SubId, Subsidiary> {
-
-        private final Action action;
-        private final MainTable table;
-        private final Collection<Subsidiary> subsidiaries;
-
-        UpsertMainHelper(
-                AbstractOneToManyJob<MainId, MainTable, SubId, Subsidiary> job,
-                Map<String, Action> map,
-                MainTable table,
-                Collection<Subsidiary> subsidiaries) {
-            super(job, map);
-            this.action = super.map.get(Constants.UPSERT_MAIN_TABLE);
-            this.table = table;
-            this.subsidiaries = subsidiaries;
-        }
-
-        @Override
-        public Uni<Optional<MainId>> apply(@Nonnull final SqlConnection sqlConnection) {
-            return connection
-                    .preparedQuery(this.action.sql())
-                    .execute(Helper.updateTuple(action, table))
-                    .map(RowSet::iterator)
-                    .map(iteratorNextMapper(action, Constants.UPSERT_MAIN_TABLE))
-                    .map(job.castOptionalMainId());
-        }
-    }
-
     private Uni<Optional<MainId>> updateRelation(Pair<MainTable, Collection<Subsidiary>> pair) {
-        var action = super.map.get(Constants.UPDATE_RELATION);
+        var action = super.map.get(Constants.UPSERT_MAIN_TABLE);
         var table = pair.getKey();
         var subsidiaries = pair.getValue();
         var array = subsidiaries
@@ -130,27 +91,35 @@ class UpsertHelper<
                 .<SubId>toArray();
         return connection
                 .preparedQuery(action.sql())
-                .execute(Tuple.of(table.id(), array))
+                .execute(Helper.updateTuple(action, table))
                 .map(RowSet::iterator)
-                .flatMap(r -> rowIteratorUniFunction1(table, array));
+                .map(iteratorNextMapper(action, Constants.UPSERT_MAIN_TABLE))
+                .map(job.castOptionalMainId())
+                .flatMap(
+                        mainId -> rowIteratorUniFunction1(table, array)
+                                .replaceWith(Uni.createFrom().item(mainId))
+                )
+                .flatMap(
+                        mainId -> rowIteratorUniFunction2(table, array)
+                                .replaceWith(Uni.createFrom().item(mainId))
+                );
     }
 
-    private Uni<Optional<MainId>> rowIteratorUniFunction1(MainTable table, Object[] array) {
+    private Uni<Optional<Row>> rowIteratorUniFunction1(MainTable table, Object[] array) {
         var action = super.map.get(Constants.CLEAR_RELATION);
         return connection
                 .preparedQuery(action.sql())
                 .execute(Tuple.of(table.id(), array))
                 .map(RowSet::iterator)
-                .flatMap(r -> rowIteratorUniFunction2(table));
+                .map(r -> r.hasNext() ? Optional.of(r.next()) : Optional.empty());
     }
 
-    private Uni<Optional<MainId>> rowIteratorUniFunction2(MainTable table) {
-        var action = super.map.get(Constants.UPDATE_MAIN_TABLE);
+    private Uni<Optional<Row>> rowIteratorUniFunction2(MainTable table, Object[] array) {
+        var action = super.map.get(Constants.UPDATE_RELATION);
         return connection
                 .preparedQuery(action.sql())
-                .execute(Helper.updateTuple(action, table))
+                .execute(Tuple.of(table.id(), array))
                 .map(RowSet::iterator)
-                .map(iteratorNextMapper(action, Constants.UPDATE_MAIN_TABLE))
-                .map(job.castOptionalMainId());
+                .map(r -> r.hasNext() ? Optional.of(r.next()) : Optional.empty());
     }
 }
