@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-05-22 12:46 by Victor N. Skurikhin.
+ * This file was last modified at 2024-05-24 12:02 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * ResourcePath.java
@@ -45,6 +45,7 @@ public enum ResourcePath {
     public static final String I18N = API_PATH + "/i18n";
     public static final String I18NS = API_PATH + "/i18ns";
     public static final String ID = "/{id}";
+    public static final String JSON_RECORD = API_PATH + "/json-record";
     public static final String KEY_VALUE = API_PATH + "/key-value";
     public static final String KEY_VALUES = API_PATH + "/key-values";
     public static final String LANGUAGE = API_PATH + "/lang";

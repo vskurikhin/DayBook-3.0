@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-05-23 23:59 by Victor N. Skurikhin.
+ * This file was last modified at 2024-05-24 11:50 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * JsonRecordDataService.java
@@ -13,6 +13,7 @@ import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.jboss.logging.Logger;
+import su.svn.daybook3.api.gateway.domain.entities.BaseRecord;
 import su.svn.daybook3.api.gateway.domain.entities.JsonRecord;
 import su.svn.daybook3.api.gateway.domain.messages.Answer;
 import su.svn.daybook3.api.gateway.models.dto.ResourceJsonRecord;
@@ -37,7 +38,7 @@ public class JsonRecordDataService implements PanacheDataService<UUID, JsonRecor
     @Override
     public Uni<UUID> add(ResourceJsonRecord o) {
         LOG.tracef("add(%s)", o);
-        return addEntry(mapper.toEntity(o));
+        return addEntry(mapper.toBaseRecord(o), mapper.toEntity(o));
     }
 
     @Override
@@ -77,8 +78,8 @@ public class JsonRecordDataService implements PanacheDataService<UUID, JsonRecor
         return putEntry(mapper.toEntity(o));
     }
 
-    private Uni<UUID> addEntry(JsonRecord entry) {
-        return JsonRecord.addJsonRecord(mapper.toBaseRecord(entry), entry)
+    private Uni<UUID> addEntry(BaseRecord baseRecord, JsonRecord entry) {
+        return JsonRecord.addJsonRecord(baseRecord, entry)
                 .onItem()
                 .transform(JsonRecord::id);
     }

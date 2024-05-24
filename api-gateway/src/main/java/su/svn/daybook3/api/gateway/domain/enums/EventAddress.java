@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-05-15 20:12 by Victor N. Skurikhin.
+ * This file was last modified at 2024-05-24 11:27 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * EventAddress.java
@@ -10,15 +10,25 @@ package su.svn.daybook3.api.gateway.domain.enums;
 
 public enum EventAddress {
     Null(null),
+    Base_Record_Add(EventAddress.BASE_RECORD_ADD),
+    Base_Record_Del(EventAddress.BASE_RECORD_DEL),
+    Base_Record_Get(EventAddress.BASE_RECORD_GET),
+    Base_Record_Page(EventAddress.BASE_RECORD_PAGE),
+    Base_Record_Put(EventAddress.BASE_RECORD_PUT),
     CodifierAdd(EventAddress.CODIFIER_ADD),
+    CodifierDel(EventAddress.CODIFIER_DEL),
     CodifierGet(EventAddress.CODIFIER_GET),
     CodifierPut(EventAddress.CODIFIER_PUT),
-    CodifierDel(EventAddress.CODIFIER_DEL),
     I18nAdd(EventAddress.I18N_ADD),
-    I18nGet(EventAddress.I18N_DEL),
     I18nDel(EventAddress.I18N_GET),
+    I18nGet(EventAddress.I18N_DEL),
     I18nPage(EventAddress.I18N_PAGE),
     I18nPut(EventAddress.I18N_PUT),
+    JsonRecordAdd(EventAddress.JSON_RECORD_ADD),
+    JsonRecordDel(EventAddress.JSON_RECORD_DEL),
+    JsonRecordGet(EventAddress.JSON_RECORD_GET),
+    JsonRecordPage(EventAddress.JSON_RECORD_PAGE),
+    JsonRecordPut(EventAddress.JSON_RECORD_PUT),
     KeyValueAdd(EventAddress.KEY_VALUE_ADD),
     KeyValueDel(EventAddress.KEY_VALUE_DEL),
     KeyValueGet(EventAddress.KEY_VALUE_GET),
@@ -50,26 +60,26 @@ public enum EventAddress {
     TagLabelPage(EventAddress.TAG_LABEL_PAGE),
     TagLabelPut(EventAddress.TAG_LABEL_PUT),
     UserAdd(EventAddress.USER_ADD),
+    UserDel(EventAddress.USER_DEL),
     UserGet(EventAddress.USER_GET),
     UserPut(EventAddress.USER_PUT),
-    UserDel(EventAddress.USER_DEL),
     ValueTypeAdd(EventAddress.VALUE_TYPE_ADD),
+    ValueTypeDel(EventAddress.VALUE_TYPE_DEL),
     ValueTypeGet(EventAddress.VALUE_TYPE_GET),
     ValueTypePut(EventAddress.VALUE_TYPE_PUT),
-    ValueTypeDel(EventAddress.VALUE_TYPE_DEL),
     VocabularyAdd(EventAddress.VOCABULARY_ADD),
+    VocabularyDel(EventAddress.VOCABULARY_DEL),
     VocabularyGet(EventAddress.VOCABULARY_GET),
     VocabularyPut(EventAddress.VOCABULARY_PUT),
-    VocabularyDel(EventAddress.VOCABULARY_DEL),
     WordAdd(EventAddress.WORD_ADD),
+    WordDel(EventAddress.WORD_DEL),
     WordGet(EventAddress.WORD_GET),
-    WordPut(EventAddress.WORD_PUT),
-    WordDel(EventAddress.WORD_DEL);
+    WordPut(EventAddress.WORD_PUT);
 
     public static final String BASE_RECORD_ADD = "base_record_add";
     public static final String BASE_RECORD_GET = "base_record_get";
     public static final String BASE_RECORD_PUT = "base_record_put";
-    public static final String BASE_RECORD_PAGE ="base_record_page_page";
+    public static final String BASE_RECORD_PAGE = "base_record_page_page";
     public static final String BASE_RECORD_DEL = "base_record_del";
     public static final String CODIFIER_ADD = "code_add";
     public static final String CODIFIER_GET = "code_get";
@@ -81,6 +91,11 @@ public enum EventAddress {
     public static final String I18N_GET = "i18n_get";
     public static final String I18N_PAGE = "i18n_page";
     public static final String I18N_PUT = "i18n_put";
+    public static final String JSON_RECORD_ADD = "json_record_add";
+    public static final String JSON_RECORD_GET = "json_record_get";
+    public static final String JSON_RECORD_PUT = "json_record_put";
+    public static final String JSON_RECORD_PAGE = "json_record_page_page";
+    public static final String JSON_RECORD_DEL = "json_record_del";
     public static final String KEY_VALUE_ADD = "key_value_add";
     public static final String KEY_VALUE_DEL = "key_value_del";
     public static final String KEY_VALUE_GET = "key_value_get";
@@ -94,17 +109,15 @@ public enum EventAddress {
     public static final String ROLE_ADD = "role_add";
     public static final String ROLE_DEL = "role_del";
     public static final String ROLE_GET = "role_get";
-    public static final String ROLE_PAGE= "role_page";
+    public static final String ROLE_PAGE = "role_page";
     public static final String ROLE_PUT = "role_put";
     public static final String LANGUAGE_PUT = "language_put";
-
     public static final String SESSION_ADD = "session_add";
     public static final String SESSION_DEL = "session_del";
     public static final String SESSION_GET = "session_get";
-    public static final String SESSION_PAGE= "session_page";
+    public static final String SESSION_PAGE = "session_page";
     public static final String SESSION_PUT = "session_put";
     public static final String SESSION_NAME = "session_get";
-
     public static final String SETTING_ADD = "setting_add";
     public static final String SETTING_DEL = "setting_del";
     public static final String SETTING_GET = "setting_get";
