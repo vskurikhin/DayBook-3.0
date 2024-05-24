@@ -2,7 +2,7 @@
  * This file was last modified at 2024-05-24 09:06 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
- * ResourceBaseRecord.java
+ * ResourceJsonRecord.java
  * $Id$
  */
 
@@ -17,18 +17,19 @@ import su.svn.daybook3.api.gateway.models.Owned;
 import su.svn.daybook3.api.gateway.models.UUIDIdentification;
 
 import java.io.Serializable;
+import java.util.Map;
 import java.util.UUID;
 
 @JsonPropertyOrder({"id", "visible", "flags"})
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public record ResourceBaseRecord(
+public record ResourceJsonRecord(
         @JsonProperty UUID id,
-        @JsonProperty UUID parentId,
+        @JsonProperty Map<String, String> values,
         @JsonIgnore String userName,
         @JsonProperty boolean visible,
         @JsonProperty int flags)
         implements UUIDIdentification, Owned, Serializable {
     @Builder(toBuilder = true)
-    public ResourceBaseRecord {
+    public ResourceJsonRecord {
     }
 }
