@@ -9,12 +9,12 @@ class ResourceBaseRecordTest {
 
     @Test
     void testConstructors() {
-        Assertions.assertDoesNotThrow(() -> new ResourceBaseRecord(null, null, false, 0));
+        Assertions.assertDoesNotThrow(() -> new ResourceBaseRecord(null, null, null, false, 0));
     }
 
     @Test
     void testGetters() {
-        var entry = new ResourceBaseRecord(null, null, false, 0);
+        var entry = new ResourceBaseRecord(null, null, null, false, 0);
         Assertions.assertDoesNotThrow(entry::id);
         Assertions.assertDoesNotThrow(entry::userName);
         Assertions.assertDoesNotThrow(entry::visible);
@@ -30,7 +30,7 @@ class ResourceBaseRecordTest {
 
     @Test
     void testToString() {
-        var entry = new ResourceBaseRecord(null, null, false, 0);
+        var entry = new ResourceBaseRecord(null, null, null, false, 0);
         Assertions.assertDoesNotThrow(() -> Assertions.assertNotNull(entry.toString()));
     }
 
@@ -46,8 +46,8 @@ class ResourceBaseRecordTest {
 
     @Test
     void testToBuilder() {
-        var test = new ResourceBaseRecord(null, null, false, 0);
-        var expected = new ResourceBaseRecord(null, null, false, 0);
+        var test = new ResourceBaseRecord(null, null, null, false, 0);
+        var expected = new ResourceBaseRecord(null, null, null, false, 0);
         Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(expected, test.toBuilder().build()));
     }
 }

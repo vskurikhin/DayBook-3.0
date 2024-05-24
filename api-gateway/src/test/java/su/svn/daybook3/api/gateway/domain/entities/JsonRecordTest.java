@@ -5,16 +5,17 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.UUID;
 
-class BaseRecordTest {
+class JsonRecordTest {
 
     @Test
     void testConstructors() {
         Assertions.assertDoesNotThrow(() -> {
-            var test1 = new BaseRecord();
-            var test2 = new BaseRecord(
-                    null, null, null, RecordType.Base, null, null, null, true, false, 0
+            var test1 = new JsonRecord();
+            var test2 = new JsonRecord(
+                    null, null, null, null, null, null, true, false, 0
             );
             Assertions.assertEquals(test1, test2);
         });
@@ -22,11 +23,10 @@ class BaseRecordTest {
 
     @Test
     void testGetters() {
-        var entry = BaseRecord.builder().build();
+        var entry = JsonRecord.builder().build();
         Assertions.assertDoesNotThrow(() -> entry.id());
-        Assertions.assertDoesNotThrow(() -> entry.parentId());
-        Assertions.assertDoesNotThrow(() -> entry.parent());
-        Assertions.assertDoesNotThrow(() -> entry.type());
+        Assertions.assertDoesNotThrow(() -> entry.values());
+        Assertions.assertDoesNotThrow(() -> entry.baseRecord());
         Assertions.assertDoesNotThrow(() -> entry.userName());
         Assertions.assertDoesNotThrow(() -> entry.createTime());
         Assertions.assertDoesNotThrow(() -> entry.updateTime());
@@ -38,11 +38,12 @@ class BaseRecordTest {
     @Test
     void testSetters() {
         var id = UUID.randomUUID();
-        var entry = BaseRecord.builder().build();
+        var base = BaseRecord.builder().id(id).parentId(id).build();
+        base.parent(base);
+        var entry = JsonRecord.builder().build();
         Assertions.assertDoesNotThrow(() -> entry.id(id));
-        Assertions.assertDoesNotThrow(() -> entry.parentId(id));
-        Assertions.assertDoesNotThrow(() -> entry.parent(entry));
-        Assertions.assertDoesNotThrow(() -> entry.type(RecordType.Base));
+        Assertions.assertDoesNotThrow(() -> entry.baseRecord(base));
+        Assertions.assertDoesNotThrow(() -> entry.values(Collections.emptyMap()));
         Assertions.assertDoesNotThrow(() -> entry.userName("test"));
         Assertions.assertDoesNotThrow(() -> entry.createTime(LocalDateTime.now()));
         Assertions.assertDoesNotThrow(() -> entry.updateTime(LocalDateTime.now()));
@@ -56,25 +57,27 @@ class BaseRecordTest {
         var base = new BaseRecord();
         base.parent(base);
         base.flags(13);
-        EqualsVerifier.forClass(BaseRecord.class)
-                .withIgnoredFields("parent")
+        EqualsVerifier.forClass(JsonRecord.class)
+                .withIgnoredFields("baseRecord")
                 .withPrefabValues(BaseRecord.class, base, new BaseRecord())
                 .verify();
     }
 
     @Test
     void testToString() {
-        var entry = BaseRecord.builder().build();
+        var entry = JsonRecord.builder().build();
         Assertions.assertDoesNotThrow(() -> Assertions.assertNotNull(entry.toString()));
     }
 
     @Test
     void testBuilder() {
-        Assertions.assertDoesNotThrow(() -> Assertions.assertNotNull(BaseRecord.builder()
+        var id = UUID.randomUUID();
+        var base = BaseRecord.builder().id(id).parentId(id).build();
+        base.parent(base);
+        Assertions.assertDoesNotThrow(() -> Assertions.assertNotNull(JsonRecord.builder()
                 .id(null)
-                .parentId(null)
-                .parent(null)
-                .type(RecordType.Base)
+                .baseRecord(base)
+                .values(Collections.emptyMap())
                 .userName(null)
                 .createTime(null)
                 .updateTime(null)
