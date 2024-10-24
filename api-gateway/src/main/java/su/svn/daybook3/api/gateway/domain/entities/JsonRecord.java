@@ -1,8 +1,8 @@
 /*
- * This file was last modified at 2024-05-24 09:04 by Victor N. Skurikhin.
+ * This file was last modified at 2024-05-24 12:12 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
- * BaseRecord.java
+ * JsonRecord.java
  * $Id$
  */
 
@@ -10,19 +10,18 @@ package su.svn.daybook3.api.gateway.domain.entities;
 
 import io.quarkus.hibernate.reactive.panache.Panache;
 import io.quarkus.hibernate.reactive.panache.PanacheEntityBase;
+import io.quarkus.hibernate.reactive.panache.PanacheQuery;
 import io.quarkus.panache.common.Parameters;
 import io.smallrye.mutiny.Uni;
 import jakarta.annotation.Nonnull;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.NamedQueries;
 import jakarta.persistence.NamedQuery;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -33,7 +32,9 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.Accessors;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.type.SqlTypes;
 import su.svn.daybook3.api.gateway.models.Marked;
 import su.svn.daybook3.api.gateway.models.Owned;
 import su.svn.daybook3.api.gateway.models.TimeUpdated;
@@ -42,54 +43,50 @@ import su.svn.daybook3.api.gateway.models.UUIDIdentification;
 import java.io.Serializable;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.UUID;
 
 @Entity
 @Getter
 @Setter
 @Builder
-@ToString(exclude = "parent")
+@ToString(exclude = "baseRecord")
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper = false, exclude = {"id", "parent"})
+@EqualsAndHashCode(callSuper = false, exclude = {"id", "baseRecord"})
 @Accessors(fluent = true, chain = false)
-@Table(schema = "db", name = "base_records")
+@Table(schema = "db", name = "json_records")
 @NamedQueries({
         @NamedQuery(
-                name = BaseRecord.LIST_ENABLED_WITH_TYPE,
-                query = "From BaseRecord WHERE enabled = :enabled AND type=:type"
+                name = JsonRecord.LIST_ENABLED_WITH_TYPE,
+                query = "From JsonRecord WHERE enabled = :enabled"
         )
 })
-public class BaseRecord
+public class JsonRecord
         extends PanacheEntityBase
         implements UUIDIdentification, Marked, Owned, TimeUpdated, Serializable {
 
-    public static final Duration TIMEOUT_DURATION = Duration.ofMillis(10000);
-    public static final String LIST_ENABLED_WITH_TYPE = "BaseRecord.ListEnabledWithType";
-    public static final Parameters ENABLED_BASE_TYPE = Parameters
-            .with("enabled", Boolean.TRUE)
-            .and("type", RecordType.Base);
+    public static final Duration TIMEOUT_DURATION = Duration.ofMillis(10100);
+    public static final String LIST_ENABLED_WITH_TYPE = "JsonRecord.ListEnabled";
+    public static final Parameters ENABLED_JSON_TYPE = Parameters
+            .with("enabled", Boolean.TRUE);
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id", updatable = false, nullable = false)
     private UUID id;
 
-    @Column(name = "parent_id", nullable = false)
-    private UUID parentId;
-
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(
-            name = "parent_id",
+            name = "id",
             referencedColumnName = "id",
             insertable = false,
             nullable = false,
             updatable = false)
-    private BaseRecord parent;
+    private BaseRecord baseRecord;
 
-    @Builder.Default
-    @Column(name = "type")
-    private RecordType type = RecordType.Base;
+    @Column(name = "values")
+    @JdbcTypeCode(SqlTypes.JSON)
+    private Map<String, String> values;
 
     @Column(name = "user_name")
     private String userName;
@@ -112,18 +109,19 @@ public class BaseRecord
     @Column(name = "flags")
     private int flags;
 
-    public Uni<BaseRecord> update() {
-        return updateBaseRecord(this);
+    public Uni<JsonRecord> update() {
+        return updateJsonRecord(this);
     }
 
-    public static Uni<BaseRecord> addBaseRecord(@Nonnull BaseRecord baseRecord) {
-        if (baseRecord.parentId == null) {
-            baseRecord.parentId(baseRecord.id());
-            baseRecord.parent(baseRecord);
-        }
+    public static Uni<JsonRecord> addJsonRecord(@Nonnull BaseRecord baseRecord, @Nonnull JsonRecord jsonRecord) {
         return Panache
-                .withTransaction(baseRecord::persistAndFlush)
-                .replaceWith(baseRecord)
+                .withTransaction(() -> baseRecord.<BaseRecord>persistAndFlush()
+                        .flatMap(base -> {
+                            jsonRecord.id(base.id());
+                            jsonRecord.baseRecord(base);
+                            return jsonRecord.persistAndFlush();
+                        }))
+                .replaceWith(jsonRecord)
                 .ifNoItem()
                 .after(TIMEOUT_DURATION)
                 .fail()
@@ -131,31 +129,34 @@ public class BaseRecord
                 .transform(IllegalStateException::new);
     }
 
-    public static Uni<Boolean> deleteBaseRecordById(@Nonnull UUID id) {
+    public static Uni<Boolean> deleteJsonRecordById(@Nonnull UUID id) {
         return Panache.withTransaction(() -> deleteById(id));
     }
 
-    public static Uni<BaseRecord> findByBaseRecordById(@Nonnull UUID id) {
+    public static Uni<JsonRecord> findByJsonRecordById(@Nonnull UUID id) {
         return findById(id);
     }
 
-    public static Uni<BaseRecord> updateBaseRecord(@Nonnull BaseRecord baseRecord) {
+    public static PanacheQuery<JsonRecord> getAllEnabledPanacheQuery() {
+        return find("#" + JsonRecord.LIST_ENABLED_WITH_TYPE, JsonRecord.ENABLED_JSON_TYPE);
+    }
+
+    public static Uni<JsonRecord> updateJsonRecord(@Nonnull JsonRecord jsonRecord) {
         return Panache
-                .withTransaction(() -> findByBaseRecordById(baseRecord.id)
+                .withTransaction(() -> findByJsonRecordById(jsonRecord.id)
                         .onItem()
                         .ifNotNull()
                         .transform(entity -> {
-                            entity.parentId = baseRecord.parentId;
-                            entity.type = baseRecord.type;
-                            entity.userName = baseRecord.userName;
-                            entity.enabled = baseRecord.enabled;
-                            entity.visible = baseRecord.visible;
-                            entity.flags = baseRecord.flags;
+                            entity.values = jsonRecord.values;
+                            entity.userName = jsonRecord.userName;
+                            entity.enabled = jsonRecord.enabled;
+                            entity.visible = jsonRecord.visible;
+                            entity.flags = jsonRecord.flags;
                             return entity;
                         })
                         .onFailure()
                         .recoverWithNull()
-                ).replaceWith(baseRecord)
+                ).replaceWith(jsonRecord)
                 .ifNoItem()
                 .after(TIMEOUT_DURATION)
                 .fail()

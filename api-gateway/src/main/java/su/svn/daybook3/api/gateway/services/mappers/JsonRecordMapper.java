@@ -1,8 +1,8 @@
 /*
- * This file was last modified at 2024-05-24 11:33 by Victor N. Skurikhin.
+ * This file was last modified at 2024-05-24 12:09 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
- * BaseRecordMapper.java
+ * JsonRecordMapper.java
  * $Id$
  */
 
@@ -13,28 +13,32 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
 import org.mapstruct.ValueMapping;
 import su.svn.daybook3.api.gateway.domain.entities.BaseRecord;
-import su.svn.daybook3.api.gateway.models.dto.NewBaseRecord;
-import su.svn.daybook3.api.gateway.models.dto.ResourceBaseRecord;
-import su.svn.daybook3.api.gateway.models.dto.UpdateBaseRecord;
+import su.svn.daybook3.api.gateway.domain.entities.JsonRecord;
+import su.svn.daybook3.api.gateway.models.dto.NewJsonRecord;
+import su.svn.daybook3.api.gateway.models.dto.ResourceJsonRecord;
+import su.svn.daybook3.api.gateway.models.dto.UpdateJsonRecord;
 
 @Mapper(componentModel = "cdi")
-public interface BaseRecordMapper {
+public interface JsonRecordMapper {
 
     @ValueMapping(source = "UNRECOGNIZED", target = MappingConstants.NULL)
-    ResourceBaseRecord toResource(BaseRecord record);
+    @Mapping(target = "parentId", source = "baseRecord.parentId")
+    ResourceJsonRecord toResource(JsonRecord record);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "userName", ignore = true)
-    ResourceBaseRecord toResource(NewBaseRecord record);
+    ResourceJsonRecord toResource(NewJsonRecord record);
 
     @Mapping(target = "userName", ignore = true)
     @Mapping(target = "parentId", ignore = true)
-    ResourceBaseRecord toResource(UpdateBaseRecord record);
+    ResourceJsonRecord toResource(UpdateJsonRecord record);
 
-    @Mapping(target = "parent", ignore = true)
-    @Mapping(target = "type", ignore = true)
+    @Mapping(target = "type", constant = "Json")
+    BaseRecord toBaseRecord(ResourceJsonRecord record);
+
+    @Mapping(target = "baseRecord", ignore = true)
     @Mapping(target = "createTime", ignore = true)
     @Mapping(target = "updateTime", ignore = true)
     @Mapping(target = "enabled", ignore = true)
-    BaseRecord toEntity(ResourceBaseRecord record);
+    JsonRecord toEntity(ResourceJsonRecord record);
 }

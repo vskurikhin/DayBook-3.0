@@ -9,12 +9,13 @@ class NewBaseRecordTest {
 
     @Test
     void testConstructors() {
-        Assertions.assertDoesNotThrow(() -> new NewBaseRecord(false, 0));
+        Assertions.assertDoesNotThrow(() -> new NewBaseRecord(null, false, 0));
     }
 
     @Test
     void testGetters() {
-        var entry = new NewBaseRecord(false, 0);
+        var entry = new NewBaseRecord(null, false, 0);
+        Assertions.assertDoesNotThrow(entry::parentId);
         Assertions.assertDoesNotThrow(entry::visible);
         Assertions.assertDoesNotThrow(entry::flags);
     }
@@ -28,7 +29,7 @@ class NewBaseRecordTest {
 
     @Test
     void testToString() {
-        var entry = new NewBaseRecord(false, 0);
+        var entry = new NewBaseRecord(null,false, 0);
         Assertions.assertDoesNotThrow(() -> Assertions.assertNotNull(entry.toString()));
     }
 
