@@ -2,7 +2,7 @@
 --
 
 --
---changeset svn:10003 endDelimiter:$$ failOnError:true logicalFilePath:src/main/resources/db/changelog/db/Change-Sets/10003_date_2022_12_24_time_21_59_33_issue_60_update_create_time_column.sql
+--changeset svn:10003 endDelimiter:$$ splitStatements:false failOnError:true logicalFilePath:src/main/resources/db/changelog/db/Change-Sets/10003_date_2022_12_24_time_21_59_33_issue_60_update_create_time_column.sql
 --
 
 --

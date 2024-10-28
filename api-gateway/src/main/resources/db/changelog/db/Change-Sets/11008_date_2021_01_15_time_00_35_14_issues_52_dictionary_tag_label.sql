@@ -2,7 +2,7 @@
 --
 
 --
---changeset a18578179:11008 failOnError:true logicalFilePath:src/main/resources/db/changelog/db/Change-Sets/11008_date_2021_01_15_time_00_35_14_issues_52_dictionary_tag_label.sql
+--changeset a18578179:11008  splitStatements:false failOnError:true logicalFilePath:src/main/resources/db/changelog/db/Change-Sets/11008_date_2021_01_15_time_00_35_14_issues_52_dictionary_tag_label.sql
 --
 
 --

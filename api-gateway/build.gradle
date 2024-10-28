@@ -46,7 +46,11 @@ dependencies {
     liquibaseRuntime 'info.picocli:picocli:4.6.3'
     liquibaseRuntime group: 'org.slf4j', name: 'slf4j-api', version: libVers.slf4j
     liquibaseRuntime group: 'org.slf4j', name: 'slf4j-simple', version: libVers.slf4j
-    liquibaseRuntime group: 'org.liquibase', name: 'liquibase-core', version: libVers.liquibase
+    liquibaseRuntime('org.liquibase:liquibase-core') {
+        version {
+            strictly libVers.liquibase as String
+        }
+    }
     liquibaseRuntime group: 'org.liquibase', name: 'liquibase-gradle-plugin', version: libVers.liquibase_gradle_plugin
     liquibaseRuntime group: 'org.postgresql', name: 'postgresql', version: libVers.org_postgresql
 
@@ -61,7 +65,11 @@ dependencies {
     testImplementation "io.rest-assured:rest-assured"
     testImplementation "io.zonky.test:embedded-postgres:$libVers.embedded_postgres"
     testImplementation "nl.jqno.equalsverifier:equalsverifier:$libVers.equalsverifier"
-    testImplementation "org.liquibase:liquibase-core:$libVers.liquibase"
+    testImplementation('org.liquibase:liquibase-core') {
+        version {
+            strictly libVers.liquibase as String
+        }
+    }
     testImplementation "org.mockito:mockito-core:$libVers.mockito_core"
 
     testAnnotationProcessor "org.mapstruct:mapstruct-processor:$libVers.mapstruct"

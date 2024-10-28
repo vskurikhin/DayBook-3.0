@@ -2,7 +2,7 @@
 --
 
 --
---changeset svn:10004 endDelimiter:$$ failOnError:true logicalFilePath:src/main/resources/db/changelog/db/Change-Sets/10004_date_2022_12_24_time_22_05_24_issue_60_update_update_time_column.sql
+--changeset svn:10004 endDelimiter:$$ splitStatements:false failOnError:true logicalFilePath:src/main/resources/db/changelog/db/Change-Sets/10004_date_2022_12_24_time_22_05_24_issue_60_update_update_time_column.sql
 --
 
 --
