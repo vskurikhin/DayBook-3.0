@@ -25,10 +25,10 @@ quarkus:
         expire-after-write: 90S
         metrics-enabled: true
       "json_record_get":
-        expire-after-write: 10S
+        expire-after-write: 90S
         metrics-enabled: true
       "json_record_page_page":
-        expire-after-write: 5S
+        expire-after-write: 90S
         metrics-enabled: true
       "user_get":
         expire-after-write: 90S
@@ -47,6 +47,7 @@ quarkus:
         metrics-enabled: true
   datasource:
     db-kind: postgresql
+    db-version: 14.0
     jdbc: false
     password: ${DAY_BOOK_DATASOURCE_PASSWORD:password}
     username: ${DATASOURCE_USERNAME:dbuser}
@@ -58,6 +59,7 @@ quarkus:
   hibernate-orm:
     database:
       generation: none
+    dialect: PostgreSQL
     log:
       sql: true
       format-sql: true

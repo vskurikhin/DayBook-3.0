@@ -8,7 +8,10 @@
 --
 CREATE TABLE IF NOT EXISTS db.json_records (
     id            UUID  PRIMARY KEY            NOT NULL  DEFAULT pg_catalog.uuid_generate_v4(),
+    title         TEXT,
     values        JSONB,
+    post_at       TIMESTAMP WITH TIME ZONE     NOT NULL   DEFAULT now(),
+    refresh_at    TIMESTAMP WITH TIME ZONE                DEFAULT now(),
     user_name     VARCHAR(64),
       CONSTRAINT  FK_a412_db_json_records_security_user_name
       FOREIGN KEY (user_name)

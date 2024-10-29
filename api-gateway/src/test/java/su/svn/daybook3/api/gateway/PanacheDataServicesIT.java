@@ -8,7 +8,7 @@
 
 package su.svn.daybook3.api.gateway;
 
-import io.quarkus.test.common.QuarkusTestResource;
+import io.quarkus.test.common.WithTestResource;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.vertx.RunOnVertxContext;
 import io.quarkus.test.vertx.UniAsserter;
@@ -36,7 +36,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 @SuppressWarnings({"SameParameterValue"})
 @QuarkusTest
-@QuarkusTestResource(value = PostgresDatabaseTestResource.class, restrictToAnnotatedClass = true)
+@WithTestResource(value=PostgresDatabaseTestResource.class)
 public class PanacheDataServicesIT {
 
     @Inject

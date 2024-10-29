@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-10-29 10:02 by Victor N. Skurikhin.
+ * This file was last modified at 2024-10-29 18:09 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * JsonRecordService.java
@@ -12,7 +12,6 @@ import io.quarkus.hibernate.reactive.panache.common.WithSession;
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.jboss.logging.Logger;
 import su.svn.daybook3.api.gateway.annotations.ExceptionBadRequestAnswer;
 import su.svn.daybook3.api.gateway.annotations.ExceptionDuplicateAnswer;
 import su.svn.daybook3.api.gateway.annotations.ExceptionNoSuchElementAnswer;
@@ -63,11 +62,13 @@ public class JsonRecordService
     @ExceptionBadRequestAnswer
     @ExceptionNoSuchElementAnswer
     public Uni<Answer> delete(Request<UUID> request) {
-        //noinspection DuplicatedCode
         return jsonRecordDataService
                 .delete(request.payload())
                 .map(this::apiResponseOkAnswer)
-                .flatMap(jsonRecordCacheProvider::invalidate);
+                .flatMap(answer1 -> jsonRecordCacheProvider
+                        .invalidateByKey(request.payload(), answer1)
+                        .flatMap(answer2 -> jsonRecordCacheProvider.invalidate(answer2))
+                );
     }
 
     /**
@@ -101,10 +102,12 @@ public class JsonRecordService
     @ExceptionDuplicateAnswer
     @ExceptionNoSuchElementAnswer
     public Uni<Answer> put(Request<ResourceJsonRecord> request) {
-        //noinspection DuplicatedCode
         return jsonRecordDataService
                 .put(request.payload())
                 .map(this::apiResponsePutAcceptedOrNotFoundAnswer)
-                .flatMap(answer -> jsonRecordCacheProvider.invalidateByKey(request.payload().id(), answer));
+                .flatMap(answer1 -> jsonRecordCacheProvider
+                        .invalidateByKey(request.payload().id(), answer1)
+                        .flatMap(answer2 -> jsonRecordCacheProvider.invalidate(answer2))
+                );
     }
 }

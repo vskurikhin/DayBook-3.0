@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.Collections;
 import java.util.UUID;
 
@@ -15,7 +16,7 @@ class JsonRecordTest {
         Assertions.assertDoesNotThrow(() -> {
             var test1 = new JsonRecord();
             var test2 = new JsonRecord(
-                    null, null, null, null, null, null, true, false, 0
+                    null, null, null, null, null, null, null, null, null, true, false, 0
             );
             Assertions.assertEquals(test1, test2);
         });
@@ -25,7 +26,10 @@ class JsonRecordTest {
     void testGetters() {
         var entry = JsonRecord.builder().build();
         Assertions.assertDoesNotThrow(() -> entry.id());
+        Assertions.assertDoesNotThrow(() -> entry.title());
         Assertions.assertDoesNotThrow(() -> entry.values());
+        Assertions.assertDoesNotThrow(() -> entry.postAt());
+        Assertions.assertDoesNotThrow(() -> entry.refreshAt());
         Assertions.assertDoesNotThrow(() -> entry.baseRecord());
         Assertions.assertDoesNotThrow(() -> entry.userName());
         Assertions.assertDoesNotThrow(() -> entry.createTime());
@@ -43,7 +47,10 @@ class JsonRecordTest {
         var entry = JsonRecord.builder().build();
         Assertions.assertDoesNotThrow(() -> entry.id(id));
         Assertions.assertDoesNotThrow(() -> entry.baseRecord(base));
+        Assertions.assertDoesNotThrow(() -> entry.title("test"));
         Assertions.assertDoesNotThrow(() -> entry.values(Collections.emptyMap()));
+        Assertions.assertDoesNotThrow(() -> entry.postAt(OffsetDateTime.now()));
+        Assertions.assertDoesNotThrow(() -> entry.refreshAt(OffsetDateTime.now()));
         Assertions.assertDoesNotThrow(() -> entry.userName("test"));
         Assertions.assertDoesNotThrow(() -> entry.createTime(LocalDateTime.now()));
         Assertions.assertDoesNotThrow(() -> entry.updateTime(LocalDateTime.now()));
@@ -77,7 +84,10 @@ class JsonRecordTest {
         Assertions.assertDoesNotThrow(() -> Assertions.assertNotNull(JsonRecord.builder()
                 .id(null)
                 .baseRecord(base)
+                .title("")
                 .values(Collections.emptyMap())
+                .postAt(OffsetDateTime.now())
+                .refreshAt(OffsetDateTime.now())
                 .userName(null)
                 .createTime(null)
                 .updateTime(null)

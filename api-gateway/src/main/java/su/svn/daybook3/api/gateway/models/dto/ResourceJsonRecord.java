@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-05-24 11:40 by Victor N. Skurikhin.
+ * This file was last modified at 2024-10-29 16:37 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * ResourceJsonRecord.java
@@ -17,6 +17,7 @@ import su.svn.daybook3.api.gateway.models.Owned;
 import su.svn.daybook3.api.gateway.models.UUIDIdentification;
 
 import java.io.Serializable;
+import java.time.OffsetDateTime;
 import java.util.Map;
 import java.util.UUID;
 
@@ -25,7 +26,10 @@ import java.util.UUID;
 public record ResourceJsonRecord(
         @JsonProperty UUID id,
         @JsonProperty UUID parentId,
+        @JsonProperty String title,
         @JsonProperty Map<String, String> values,
+        @JsonProperty OffsetDateTime postAt,
+        @JsonProperty OffsetDateTime refreshAt,
         @JsonIgnore String userName,
         @JsonProperty boolean visible,
         @JsonProperty int flags)
