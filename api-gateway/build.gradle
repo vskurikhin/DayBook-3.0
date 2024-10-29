@@ -41,7 +41,7 @@ dependencies {
     annotationProcessor "org.mapstruct:mapstruct-processor:$libVers.mapstruct"
     annotationProcessor "org.projectlombok:lombok-mapstruct-binding:0.2.0"
     annotationProcessor "org.projectlombok:lombok:$libVers.lombok"
-    annotationProcessor project(":spi-mapstruct-impl")
+    annotationProcessor project(":spi-mapstruct")
 
     liquibaseRuntime 'info.picocli:picocli:4.6.3'
     liquibaseRuntime group: 'org.slf4j', name: 'slf4j-api', version: libVers.slf4j
