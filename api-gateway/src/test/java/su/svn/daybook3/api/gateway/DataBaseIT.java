@@ -8,7 +8,7 @@
 
 package su.svn.daybook3.api.gateway;
 
-import io.quarkus.test.common.QuarkusTestResource;
+import io.quarkus.test.common.WithTestResource;
 import io.quarkus.test.junit.QuarkusTest;
 import io.smallrye.mutiny.Multi;
 import io.vertx.core.json.JsonObject;
@@ -85,7 +85,8 @@ import static su.svn.daybook3.api.gateway.TestUtils.uniToAnswerHelper;
 
 @SuppressWarnings({"SameParameterValue"})
 @QuarkusTest
-@QuarkusTestResource(value = PostgresDatabaseTestResource.class, restrictToAnnotatedClass = true)
+@WithTestResource(value=PostgresDatabaseTestResource.class)
+// @QuarkusTestResource(value = PostgresDatabaseTestResource.class, restrictToAnnotatedClass = true)
 public class DataBaseIT {
     @Inject
     CodifierDao codifierDao;

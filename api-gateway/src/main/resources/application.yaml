@@ -24,6 +24,12 @@ quarkus:
       "session_get":
         expire-after-write: 90S
         metrics-enabled: true
+      "json_record_get":
+        expire-after-write: 90S
+        metrics-enabled: true
+      "json_record_page_page":
+        expire-after-write: 90S
+        metrics-enabled: true
       "user_get":
         expire-after-write: 90S
         metrics-enabled: true
@@ -41,6 +47,7 @@ quarkus:
         metrics-enabled: true
   datasource:
     db-kind: postgresql
+    db-version: 14.0
     jdbc: false
     password: ${DAY_BOOK_DATASOURCE_PASSWORD:password}
     username: ${DATASOURCE_USERNAME:dbuser}
@@ -52,6 +59,7 @@ quarkus:
   hibernate-orm:
     database:
       generation: none
+    dialect: PostgreSQL
     log:
       sql: true
       format-sql: true
@@ -87,6 +95,8 @@ quarkus:
       new-token:
         issuer: "https://svn.su/issuer"
         lifespan: ${DAY_BOOK_SMALLRYE_JWT_NEW_TOKEN_LIFESPAN:36000}
+  smallrye-openapi:
+    security-scheme-name: "day-book"
   swagger-ui:
     always-include: true
   vertx:

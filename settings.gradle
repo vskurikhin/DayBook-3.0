@@ -10,5 +10,5 @@ pluginManagement {
 }
 rootProject.name = 'DayBook-3'
 rootProject.buildFileName = 'build.gradle'
-include 'api-gateway'
 include 'spi-mapstruct-impl'
+include 'api-gateway'

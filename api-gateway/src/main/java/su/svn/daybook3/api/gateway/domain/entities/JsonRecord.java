@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-05-24 12:12 by Victor N. Skurikhin.
+ * This file was last modified at 2024-10-29 18:27 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * JsonRecord.java
@@ -31,6 +31,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.Accessors;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -43,9 +44,12 @@ import su.svn.daybook3.api.gateway.models.UUIDIdentification;
 import java.io.Serializable;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
+@Slf4j
 @Entity
 @Getter
 @Setter
@@ -59,14 +63,19 @@ import java.util.UUID;
 @NamedQueries({
         @NamedQuery(
                 name = JsonRecord.LIST_ENABLED_WITH_TYPE,
-                query = "From JsonRecord WHERE enabled = :enabled"
+                query = """
+                        FROM JsonRecord j
+                        LEFT JOIN FETCH j.baseRecord
+                         WHERE j.enabled = :enabled
+                         ORDER BY j.refreshAt DESC
+                        """
         )
 })
 public class JsonRecord
         extends PanacheEntityBase
         implements UUIDIdentification, Marked, Owned, TimeUpdated, Serializable {
 
-    public static final Duration TIMEOUT_DURATION = Duration.ofMillis(10100);
+    public static final Duration TIMEOUT_DURATION = Duration.ofMillis(900);
     public static final String LIST_ENABLED_WITH_TYPE = "JsonRecord.ListEnabled";
     public static final Parameters ENABLED_JSON_TYPE = Parameters
             .with("enabled", Boolean.TRUE);
@@ -84,9 +93,18 @@ public class JsonRecord
             updatable = false)
     private BaseRecord baseRecord;
 
+    @Column(name = "title")
+    private String title;
+
     @Column(name = "values")
     @JdbcTypeCode(SqlTypes.JSON)
     private Map<String, String> values;
+
+    @Column(name = "post_at", nullable = false)
+    private OffsetDateTime postAt;
+
+    @Column(name = "refresh_at")
+    private OffsetDateTime refreshAt;
 
     @Column(name = "user_name")
     private String userName;
@@ -119,6 +137,12 @@ public class JsonRecord
                         .flatMap(base -> {
                             jsonRecord.id(base.id());
                             jsonRecord.baseRecord(base);
+                            if (Objects.isNull(jsonRecord.postAt)) {
+                                jsonRecord.postAt = OffsetDateTime.now();
+                            }
+                            if (Objects.isNull(jsonRecord.refreshAt)) {
+                                jsonRecord.refreshAt = jsonRecord.postAt;
+                            }
                             return jsonRecord.persistAndFlush();
                         }))
                 .replaceWith(jsonRecord)
@@ -130,7 +154,22 @@ public class JsonRecord
     }
 
     public static Uni<Boolean> deleteJsonRecordById(@Nonnull UUID id) {
-        return Panache.withTransaction(() -> deleteById(id));
+        return Panache
+                .withTransaction(() -> findByJsonRecordById(id)
+                        .onItem()
+                        .ifNotNull()
+                        .transform(entity -> {
+                            entity.enabled = false;
+                            return true;
+                        })
+                        .onFailure()
+                        .recoverWithNull()
+                )
+                .ifNoItem()
+                .after(TIMEOUT_DURATION)
+                .recoverWithUni(Uni.createFrom().item(false))
+                .onFailure()
+                .transform(IllegalStateException::new);
     }
 
     public static Uni<JsonRecord> findByJsonRecordById(@Nonnull UUID id) {
@@ -147,16 +186,25 @@ public class JsonRecord
                         .onItem()
                         .ifNotNull()
                         .transform(entity -> {
-                            entity.values = jsonRecord.values;
-                            entity.userName = jsonRecord.userName;
-                            entity.enabled = jsonRecord.enabled;
-                            entity.visible = jsonRecord.visible;
-                            entity.flags = jsonRecord.flags;
+                            if (entity.enabled) {
+                                entity.values = jsonRecord.values;
+                                if (!Objects.isNull(jsonRecord.postAt)) {
+                                    entity.postAt = jsonRecord.postAt;
+                                }
+                                entity.refreshAt = jsonRecord.refreshAt;
+                                if (Objects.isNull(entity.refreshAt)) {
+                                    entity.refreshAt = OffsetDateTime.now();
+                                }
+                                entity.userName = jsonRecord.userName;
+                                entity.enabled = jsonRecord.enabled;
+                                entity.visible = jsonRecord.visible;
+                                entity.flags = jsonRecord.flags;
+                            }
                             return entity;
                         })
                         .onFailure()
                         .recoverWithNull()
-                ).replaceWith(jsonRecord)
+                )
                 .ifNoItem()
                 .after(TIMEOUT_DURATION)
                 .fail()

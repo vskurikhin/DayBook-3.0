@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-05-24 11:52 by Victor N. Skurikhin.
+ * This file was last modified at 2024-10-29 18:09 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * JsonRecordService.java
@@ -62,11 +62,13 @@ public class JsonRecordService
     @ExceptionBadRequestAnswer
     @ExceptionNoSuchElementAnswer
     public Uni<Answer> delete(Request<UUID> request) {
-        //noinspection DuplicatedCode
         return jsonRecordDataService
                 .delete(request.payload())
                 .map(this::apiResponseOkAnswer)
-                .flatMap(answer -> jsonRecordCacheProvider.invalidateByKey(request.payload(), answer));
+                .flatMap(answer1 -> jsonRecordCacheProvider
+                        .invalidateByKey(request.payload(), answer1)
+                        .flatMap(answer2 -> jsonRecordCacheProvider.invalidate(answer2))
+                );
     }
 
     /**
@@ -100,10 +102,12 @@ public class JsonRecordService
     @ExceptionDuplicateAnswer
     @ExceptionNoSuchElementAnswer
     public Uni<Answer> put(Request<ResourceJsonRecord> request) {
-        //noinspection DuplicatedCode
         return jsonRecordDataService
                 .put(request.payload())
-                .map(this::apiResponseAcceptedAnswer)
-                .flatMap(answer -> jsonRecordCacheProvider.invalidateByKey(request.payload().id(), answer));
+                .map(this::apiResponsePutAcceptedOrNotFoundAnswer)
+                .flatMap(answer1 -> jsonRecordCacheProvider
+                        .invalidateByKey(request.payload().id(), answer1)
+                        .flatMap(answer2 -> jsonRecordCacheProvider.invalidate(answer2))
+                );
     }
 }
