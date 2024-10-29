@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-05-24 12:12 by Victor N. Skurikhin.
+ * This file was last modified at 2024-10-29 00:40 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * JsonRecord.java
@@ -59,7 +59,7 @@ import java.util.UUID;
 @NamedQueries({
         @NamedQuery(
                 name = JsonRecord.LIST_ENABLED_WITH_TYPE,
-                query = "From JsonRecord WHERE enabled = :enabled"
+                query = "From JsonRecord j LEFT JOIN FETCH j.baseRecord WHERE j.enabled = :enabled"
         )
 })
 public class JsonRecord
@@ -156,7 +156,7 @@ public class JsonRecord
                         })
                         .onFailure()
                         .recoverWithNull()
-                ).replaceWith(jsonRecord)
+                ) /*.replaceWith(jsonRecord) */
                 .ifNoItem()
                 .after(TIMEOUT_DURATION)
                 .fail()

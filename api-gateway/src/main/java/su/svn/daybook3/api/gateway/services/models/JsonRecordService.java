@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-05-24 11:52 by Victor N. Skurikhin.
+ * This file was last modified at 2024-10-29 10:02 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * JsonRecordService.java
@@ -12,6 +12,7 @@ import io.quarkus.hibernate.reactive.panache.common.WithSession;
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import org.jboss.logging.Logger;
 import su.svn.daybook3.api.gateway.annotations.ExceptionBadRequestAnswer;
 import su.svn.daybook3.api.gateway.annotations.ExceptionDuplicateAnswer;
 import su.svn.daybook3.api.gateway.annotations.ExceptionNoSuchElementAnswer;
@@ -66,7 +67,7 @@ public class JsonRecordService
         return jsonRecordDataService
                 .delete(request.payload())
                 .map(this::apiResponseOkAnswer)
-                .flatMap(answer -> jsonRecordCacheProvider.invalidateByKey(request.payload(), answer));
+                .flatMap(jsonRecordCacheProvider::invalidate);
     }
 
     /**
@@ -103,7 +104,7 @@ public class JsonRecordService
         //noinspection DuplicatedCode
         return jsonRecordDataService
                 .put(request.payload())
-                .map(this::apiResponseAcceptedAnswer)
+                .map(this::apiResponsePutAcceptedOrNotFoundAnswer)
                 .flatMap(answer -> jsonRecordCacheProvider.invalidateByKey(request.payload().id(), answer));
     }
 }

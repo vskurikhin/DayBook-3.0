@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-05-22 13:57 by Victor N. Skurikhin.
+ * This file was last modified at 2024-10-29 09:58 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * AbstractService.java
@@ -13,6 +13,7 @@ import su.svn.daybook3.api.gateway.domain.messages.ApiResponse;
 import su.svn.daybook3.api.gateway.models.Identification;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 public abstract class AbstractService
         <K extends Comparable<? extends Serializable>, V extends Identification<K>> {
@@ -26,6 +27,13 @@ public abstract class AbstractService
     }
 
     protected Answer apiResponseAcceptedAnswer(K id) {
+        return Answer.from(new ApiResponse<>(id, 202), 202);
+    }
+
+    protected Answer apiResponsePutAcceptedOrNotFoundAnswer(K id) {
+        if (Objects.isNull(id)) {
+            return new Answer("Not Found", 404);
+        }
         return Answer.from(new ApiResponse<>(id, 202), 202);
     }
 }
