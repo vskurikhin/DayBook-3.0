@@ -18,9 +18,6 @@ mp:
 quarkus:
   cache:
     caffeine:
-      "login_request":
-        expire-after-write: 90S
-        metrics-enabled: true
       "session_get":
         expire-after-write: 90S
         metrics-enabled: true
@@ -28,12 +25,6 @@ quarkus:
         expire-after-write: 90S
         metrics-enabled: true
       "json_record_page_page":
-        expire-after-write: 90S
-        metrics-enabled: true
-      "user_get":
-        expire-after-write: 90S
-        metrics-enabled: true
-      "user_page":
         expire-after-write: 90S
         metrics-enabled: true
       "word_get":
@@ -56,6 +47,9 @@ quarkus:
       max-size: 20
       reconnect-interval: PT1S
       url: ${DAY_BOOK_DATASOURCE_REACTIVE_URL:postgresql://localhost:5432/db}
+  grpc:
+    server:
+      port: 9900
   hibernate-orm:
     database:
       generation: none
@@ -69,11 +63,14 @@ quarkus:
     compress-media-types: text/html,text/plain,text/xml,text/css,text/javascript,application/javascript,application/json
     non-application-root-path: /q
     root-path: /
+    port: 8800
   jackson:
     serialization-inclusion: non_null
   log:
     category:
-      "su.svn.daybook":
+      "io.quarkus.smallrye":
+        level: TRACE
+      "su.svn.daybook3":
         level: TRACE
     console:
       format: "%d{HH:mm:ss} %-5p request.id=%X{request.id} [%c{2.}] (%t) %s%n"

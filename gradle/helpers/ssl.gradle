@@ -21,3 +21,50 @@ task startOpenSSLPrivKey(type: Exec) {
     executable "openssl"
     args "pkcs8", "-topk8", "-nocrypt", "-inform", "pem", "-in", "rsaPrivateKey.pem", "-outform", "pem", "-out", "privateKey.pem"
 }
+
+startOpenSSLGenRsa.onlyIf {
+    def taskPath = it.path.toString()
+    def submodule = taskPath.split(":")[1]
+    def file = new File("$submodule/${getProperty("src.main.resources")}/rsaPrivateKey.pem")
+    !file?.exists()
+}
+
+startOpenSSLPubKey.onlyIf {
+    def taskPath = it.path.toString()
+    def submodule = taskPath.split(":")[1]
+    def file = new File("$submodule/${getProperty("src.main.resources")}/publicKey.pem")
+    !file?.exists()
+}
+
+startOpenSSLPrivKey.onlyIf {
+    def taskPath = it.path.toString()
+    def submodule = taskPath.split(":")[1]
+    def file = new File(submodule + "/${getProperty("src.main.resources")}/privateKey.pem")
+    !file?.exists()
+}
+
+task copySSL(type: Copy) {
+    /** copy SSL files */
+    def workingDir = getProperty("src.main.resources")
+    def destine= "${rootDir}/auth-user/src/main/resources/"
+    from "$workingDir"
+    into "$destine"
+    eachFile {
+        if (!it.path.toString().contains(".pem")) {
+            it.exclude()
+        } else if (it.getRelativePath().getFile(project.file("$destine")).exists()) {
+            println "$it.path exists at destination, skipping it"
+            it.exclude()
+        }
+    }
+    doLast {
+        println "api-container conf assets copied"
+    }
+}
+
+copySSL.onlyIf {
+    def taskPath = it.path.toString()
+    def submodule = taskPath.split(":")[1]
+    def file = new File(submodule + "/${getProperty("src.main.resources")}/privateKey.pem")
+    submodule == "api-gateway"
+}

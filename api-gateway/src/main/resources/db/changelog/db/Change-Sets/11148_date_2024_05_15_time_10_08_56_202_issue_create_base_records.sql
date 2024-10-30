@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS db.base_records (
       REFERENCES  db.base_records (id)
         ON DELETE CASCADE ON UPDATE CASCADE,
     type          SMALLINT                     NOT NULL   DEFAULT 0      CHECK (type BETWEEN 0 AND 7),
-    user_name     VARCHAR(64),
+    user_name     VARCHAR(64)                  NOT NULL,
       CONSTRAINT  FK_605f_db_base_records_security_user_name
       FOREIGN KEY (user_name)
       REFERENCES  security.user_name (user_name)
