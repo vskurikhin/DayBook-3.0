@@ -11,22 +11,54 @@ package su.svn.daybook3.api.gateway;
 import io.smallrye.mutiny.Uni;
 import org.jose4j.jwt.JwtClaims;
 import su.svn.daybook3.api.gateway.domain.entities.BaseRecord;
-import su.svn.daybook3.api.gateway.domain.messages.Answer;
-import su.svn.daybook3.api.gateway.domain.messages.ApiResponse;
-import su.svn.daybook3.api.gateway.domain.messages.Request;
-import su.svn.daybook3.api.gateway.domain.model.*;
-import su.svn.daybook3.api.gateway.models.domain.*;
+import su.svn.daybook3.api.gateway.domain.model.CodifierTable;
+import su.svn.daybook3.api.gateway.domain.model.I18nTable;
+import su.svn.daybook3.api.gateway.domain.model.I18nView;
+import su.svn.daybook3.api.gateway.domain.model.KeyValueTable;
+import su.svn.daybook3.api.gateway.domain.model.LanguageTable;
+import su.svn.daybook3.api.gateway.domain.model.RoleTable;
+import su.svn.daybook3.api.gateway.domain.model.SessionTable;
+import su.svn.daybook3.api.gateway.domain.model.SettingTable;
+import su.svn.daybook3.api.gateway.domain.model.SettingView;
+import su.svn.daybook3.api.gateway.domain.model.StanzaTable;
+import su.svn.daybook3.api.gateway.domain.model.StanzaView;
+import su.svn.daybook3.api.gateway.domain.model.TagLabelTable;
+import su.svn.daybook3.api.gateway.domain.model.UserNameTable;
+import su.svn.daybook3.api.gateway.domain.model.UserView;
+import su.svn.daybook3.api.gateway.domain.model.ValueTypeTable;
+import su.svn.daybook3.api.gateway.domain.model.VocabularyTable;
+import su.svn.daybook3.api.gateway.domain.model.WordTable;
+import su.svn.daybook3.api.gateway.models.domain.Codifier;
+import su.svn.daybook3.api.gateway.models.domain.I18n;
+import su.svn.daybook3.api.gateway.models.domain.KeyValue;
+import su.svn.daybook3.api.gateway.models.domain.Language;
+import su.svn.daybook3.api.gateway.models.domain.Role;
+import su.svn.daybook3.api.gateway.models.domain.Session;
+import su.svn.daybook3.api.gateway.models.domain.Setting;
+import su.svn.daybook3.api.gateway.models.domain.Stanza;
+import su.svn.daybook3.api.gateway.models.domain.TagLabel;
+import su.svn.daybook3.api.gateway.models.domain.UserName;
+import su.svn.daybook3.api.gateway.models.domain.ValueType;
+import su.svn.daybook3.api.gateway.models.domain.Vocabulary;
+import su.svn.daybook3.api.gateway.models.domain.Word;
 import su.svn.daybook3.api.gateway.models.dto.ResourceBaseRecord;
 import su.svn.daybook3.api.gateway.models.pagination.Page;
 import su.svn.daybook3.api.gateway.models.pagination.PageRequest;
 import su.svn.daybook3.api.gateway.models.security.SessionPrincipal;
+import su.svn.daybook3.domain.messages.Answer;
+import su.svn.daybook3.domain.messages.ApiResponse;
+import su.svn.daybook3.domain.messages.Request;
 
 import java.math.BigInteger;
 import java.security.Principal;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.Random;
+import java.util.UUID;
 
 import static su.svn.daybook3.api.gateway.TestUtils.localDateTime;
 
@@ -142,6 +174,7 @@ public class TestData {
                 {"page":0,"totalRecords":0,"nextPage":false,"prevPage":false,"content":\
                 """ + JSON_ARRAY_SINGLETON_0 + """
                 }""";
+
         static {
             TABLE_0.id(uuid.ZERO);
         }
@@ -262,6 +295,7 @@ public class TestData {
                 null, new JwtClaims(), null, Collections.emptySet(), null
         );
     }
+
     public static class ROLE {
         public static final Role MODEL_0 = new Role(
                 uuid.ZERO, Role.NONE, null, true, 0
@@ -352,7 +386,7 @@ public class TestData {
                 0L, StanzaTable.NONE, null, 0L, null, null, null, true, true, 0
         );
         public static final StanzaView VIEW_0 = new StanzaView(
-                0L, StanzaTable.NONE, null, StanzaTable.ROOT, Collections.emptySet(),null, null, null, true, true, 0
+                0L, StanzaTable.NONE, null, StanzaTable.ROOT, Collections.emptySet(), null, null, null, true, true, 0
         );
         public static final Uni<Page<Answer>> UNI_PAGE_ANSWER_SINGLETON_TEST = Uni.createFrom()
                 .item(

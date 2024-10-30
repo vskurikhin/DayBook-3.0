@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-05-14 21:36 by Victor N. Skurikhin.
+ * This file was last modified at 2024-10-30 00:11 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * Helper.java
@@ -9,7 +9,7 @@
 package su.svn.daybook3.api.gateway.domain.transact;
 
 import io.vertx.mutiny.sqlclient.Tuple;
-import su.svn.daybook3.api.gateway.domain.model.CasesOfId;
+import su.svn.daybook3.domain.model.CasesOfId;
 
 public interface Helper {
 

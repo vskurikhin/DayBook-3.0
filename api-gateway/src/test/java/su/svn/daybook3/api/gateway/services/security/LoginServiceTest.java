@@ -13,6 +13,7 @@ import io.quarkus.security.runtime.QuarkusPrincipal;
 import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
 import io.smallrye.mutiny.Uni;
+import jakarta.inject.Inject;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,15 +23,13 @@ import su.svn.daybook3.api.gateway.TestData;
 import su.svn.daybook3.api.gateway.domain.dao.SessionDao;
 import su.svn.daybook3.api.gateway.domain.dao.UserViewDao;
 import su.svn.daybook3.api.gateway.domain.enums.EventAddress;
-import su.svn.daybook3.api.gateway.domain.messages.Answer;
-import su.svn.daybook3.api.gateway.domain.messages.ApiResponse;
-import su.svn.daybook3.api.gateway.domain.messages.Request;
 import su.svn.daybook3.api.gateway.domain.model.SessionTable;
 import su.svn.daybook3.api.gateway.domain.model.UserView;
 import su.svn.daybook3.api.gateway.models.security.AuthRequest;
 import su.svn.daybook3.api.gateway.utils.CacheUtil;
-
-import jakarta.inject.Inject;
+import su.svn.daybook3.domain.messages.Answer;
+import su.svn.daybook3.domain.messages.ApiResponse;
+import su.svn.daybook3.domain.messages.Request;
 
 import java.security.Principal;
 import java.util.Collections;

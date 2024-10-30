@@ -38,9 +38,6 @@ import su.svn.daybook3.api.gateway.domain.dao.UserViewDao;
 import su.svn.daybook3.api.gateway.domain.dao.ValueTypeDao;
 import su.svn.daybook3.api.gateway.domain.dao.VocabularyDao;
 import su.svn.daybook3.api.gateway.domain.dao.WordDao;
-import su.svn.daybook3.api.gateway.domain.messages.Answer;
-import su.svn.daybook3.api.gateway.domain.messages.ApiResponse;
-import su.svn.daybook3.api.gateway.domain.messages.Request;
 import su.svn.daybook3.api.gateway.domain.model.CodifierTable;
 import su.svn.daybook3.api.gateway.domain.model.I18nTable;
 import su.svn.daybook3.api.gateway.domain.model.I18nView;
@@ -62,10 +59,13 @@ import su.svn.daybook3.api.gateway.domain.transact.I18nTransactionalJob;
 import su.svn.daybook3.api.gateway.domain.transact.SettingTransactionalJob;
 import su.svn.daybook3.api.gateway.domain.transact.StanzaTransactionalJob;
 import su.svn.daybook3.api.gateway.domain.transact.UserTransactionalJob;
-import su.svn.daybook3.api.gateway.models.TimeUpdated;
 import su.svn.daybook3.api.gateway.models.domain.User;
 import su.svn.daybook3.api.gateway.resources.PostgresDatabaseTestResource;
 import su.svn.daybook3.api.gateway.services.models.UserService;
+import su.svn.daybook3.domain.messages.Answer;
+import su.svn.daybook3.domain.messages.ApiResponse;
+import su.svn.daybook3.domain.messages.Request;
+import su.svn.daybook3.models.TimeUpdated;
 
 import java.math.BigInteger;
 import java.security.Principal;
@@ -85,7 +85,7 @@ import static su.svn.daybook3.api.gateway.TestUtils.uniToAnswerHelper;
 
 @SuppressWarnings({"SameParameterValue"})
 @QuarkusTest
-@WithTestResource(value=PostgresDatabaseTestResource.class)
+@WithTestResource(value = PostgresDatabaseTestResource.class)
 // @QuarkusTestResource(value = PostgresDatabaseTestResource.class, restrictToAnnotatedClass = true)
 public class DataBaseIT {
     @Inject

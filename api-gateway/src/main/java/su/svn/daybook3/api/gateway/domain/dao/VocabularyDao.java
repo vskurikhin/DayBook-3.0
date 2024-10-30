@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-05-14 21:36 by Victor N. Skurikhin.
+ * This file was last modified at 2024-10-30 09:54 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * VocabularyDao.java
@@ -11,11 +11,10 @@ package su.svn.daybook3.api.gateway.domain.dao;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import io.vertx.mutiny.sqlclient.Tuple;
-import su.svn.daybook3.api.gateway.annotations.PrincipalLogging;
-import su.svn.daybook3.api.gateway.annotations.SQL;
-import su.svn.daybook3.api.gateway.domain.model.VocabularyTable;
-
 import jakarta.enterprise.context.ApplicationScoped;
+import su.svn.daybook3.annotations.SQL;
+import su.svn.daybook3.api.gateway.annotations.PrincipalLogging;
+import su.svn.daybook3.api.gateway.domain.model.VocabularyTable;
 
 import java.util.Optional;
 

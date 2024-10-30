@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-05-22 13:57 by Victor N. Skurikhin.
+ * This file was last modified at 2024-10-30 09:48 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * BaseRecordService.java
@@ -16,13 +16,13 @@ import su.svn.daybook3.api.gateway.annotations.ExceptionBadRequestAnswer;
 import su.svn.daybook3.api.gateway.annotations.ExceptionDuplicateAnswer;
 import su.svn.daybook3.api.gateway.annotations.ExceptionNoSuchElementAnswer;
 import su.svn.daybook3.api.gateway.annotations.PrincipalLogging;
-import su.svn.daybook3.api.gateway.domain.messages.Answer;
-import su.svn.daybook3.api.gateway.domain.messages.Request;
 import su.svn.daybook3.api.gateway.models.dto.ResourceBaseRecord;
 import su.svn.daybook3.api.gateway.models.pagination.Page;
 import su.svn.daybook3.api.gateway.models.pagination.PageRequest;
 import su.svn.daybook3.api.gateway.services.cache.BaseRecordCacheProvider;
 import su.svn.daybook3.api.gateway.services.domain.BaseRecordDataService;
+import su.svn.daybook3.domain.messages.Answer;
+import su.svn.daybook3.domain.messages.Request;
 
 import java.util.UUID;
 

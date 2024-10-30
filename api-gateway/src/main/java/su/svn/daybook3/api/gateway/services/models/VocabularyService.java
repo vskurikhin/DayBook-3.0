@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-05-22 13:57 by Victor N. Skurikhin.
+ * This file was last modified at 2024-10-30 09:55 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * VocabularyService.java
@@ -11,21 +11,20 @@ package su.svn.daybook3.api.gateway.services.models;
 import io.quarkus.vertx.ConsumeEvent;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import su.svn.daybook3.api.gateway.annotations.ExceptionBadRequestAnswer;
 import su.svn.daybook3.api.gateway.annotations.ExceptionDuplicateAnswer;
 import su.svn.daybook3.api.gateway.annotations.ExceptionNoSuchElementAnswer;
 import su.svn.daybook3.api.gateway.annotations.PrincipalLogging;
 import su.svn.daybook3.api.gateway.domain.enums.EventAddress;
-import su.svn.daybook3.api.gateway.domain.messages.Answer;
-import su.svn.daybook3.api.gateway.domain.messages.Request;
 import su.svn.daybook3.api.gateway.models.domain.Vocabulary;
 import su.svn.daybook3.api.gateway.models.pagination.Page;
 import su.svn.daybook3.api.gateway.models.pagination.PageRequest;
 import su.svn.daybook3.api.gateway.services.cache.VocabularyCacheProvider;
 import su.svn.daybook3.api.gateway.services.domain.VocabularyDataService;
-
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
+import su.svn.daybook3.domain.messages.Answer;
+import su.svn.daybook3.domain.messages.Request;
 
 @PrincipalLogging
 @ApplicationScoped

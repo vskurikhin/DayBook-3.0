@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-05-14 21:36 by Victor N. Skurikhin.
+ * This file was last modified at 2024-10-29 23:50 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * Stanza.java
@@ -10,11 +10,10 @@ package su.svn.daybook3.api.gateway.models.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import su.svn.daybook3.api.gateway.annotations.DomainField;
-import su.svn.daybook3.api.gateway.domain.model.StanzaTable;
-import su.svn.daybook3.api.gateway.models.LongIdentification;
-
 import jakarta.annotation.Nonnull;
+import su.svn.daybook3.annotations.DomainField;
+import su.svn.daybook3.api.gateway.domain.model.StanzaTable;
+import su.svn.daybook3.models.LongIdentification;
 
 import java.io.Serial;
 import java.io.Serializable;

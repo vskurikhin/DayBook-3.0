@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-05-14 21:36 by Victor N. Skurikhin.
+ * This file was last modified at 2024-10-29 23:58 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * UserNameTable.java
@@ -12,10 +12,11 @@ import io.vertx.mutiny.sqlclient.Row;
 import io.vertx.mutiny.sqlclient.Tuple;
 import jakarta.annotation.Nonnull;
 import org.intellij.lang.annotations.Language;
-import su.svn.daybook3.api.gateway.annotations.ModelField;
-import su.svn.daybook3.api.gateway.models.Marked;
-import su.svn.daybook3.api.gateway.models.Owned;
-import su.svn.daybook3.api.gateway.models.TimeUpdated;
+import su.svn.daybook3.annotations.ModelField;
+import su.svn.daybook3.domain.model.CasesOfUUID;
+import su.svn.daybook3.models.Marked;
+import su.svn.daybook3.models.Owned;
+import su.svn.daybook3.models.TimeUpdated;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;

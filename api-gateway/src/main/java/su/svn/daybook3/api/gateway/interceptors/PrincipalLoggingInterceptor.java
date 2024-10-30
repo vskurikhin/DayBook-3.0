@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-05-14 21:36 by Victor N. Skurikhin.
+ * This file was last modified at 2024-10-30 09:48 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * PrincipalLoggingInterceptor.java
@@ -20,8 +20,8 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.JBossLogManagerProvider;
 import org.jboss.logging.Logger;
 import su.svn.daybook3.api.gateway.annotations.PrincipalLogging;
-import su.svn.daybook3.api.gateway.domain.messages.Request;
 import su.svn.daybook3.api.gateway.services.security.AuthenticationContext;
+import su.svn.daybook3.domain.messages.Request;
 
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -44,7 +44,8 @@ public class PrincipalLoggingInterceptor {
     @AroundInvoke
     Object invocation(InvocationContext context) {
         Object ret = null;
-        Runnable fin = () -> {};
+        Runnable fin = () -> {
+        };
         Logger logger = provider.getLogger(context.getTarget().getClass().getSuperclass().getName());
         logb(logger, context);
         try {

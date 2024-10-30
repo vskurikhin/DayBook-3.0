@@ -21,7 +21,6 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import su.svn.daybook3.api.gateway.domain.entities.BaseRecord;
 import su.svn.daybook3.api.gateway.domain.entities.JsonRecord;
-import su.svn.daybook3.api.gateway.domain.messages.Answer;
 import su.svn.daybook3.api.gateway.models.dto.ResourceBaseRecord;
 import su.svn.daybook3.api.gateway.models.dto.ResourceJsonRecord;
 import su.svn.daybook3.api.gateway.models.pagination.Page;
@@ -30,13 +29,14 @@ import su.svn.daybook3.api.gateway.resources.PostgresDatabaseTestResource;
 import su.svn.daybook3.api.gateway.services.domain.BaseRecordDataService;
 import su.svn.daybook3.api.gateway.services.domain.JsonRecordDataService;
 import su.svn.daybook3.api.gateway.utils.TransactionalUniAsserterInterceptor;
+import su.svn.daybook3.domain.messages.Answer;
 
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @SuppressWarnings({"SameParameterValue"})
 @QuarkusTest
-@WithTestResource(value=PostgresDatabaseTestResource.class)
+@WithTestResource(value = PostgresDatabaseTestResource.class)
 public class PanacheDataServicesIT {
 
     @Inject

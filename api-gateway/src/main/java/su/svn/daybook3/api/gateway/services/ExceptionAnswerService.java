@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-05-14 23:10 by Victor N. Skurikhin.
+ * This file was last modified at 2024-10-30 09:48 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * ExceptionAnswerService.java
@@ -10,11 +10,10 @@ package su.svn.daybook3.api.gateway.services;
 
 import io.quarkus.security.AuthenticationFailedException;
 import io.smallrye.mutiny.Uni;
-import org.jboss.logging.Logger;
-import su.svn.daybook3.api.gateway.domain.messages.Answer;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.core.Response;
+import org.jboss.logging.Logger;
+import su.svn.daybook3.domain.messages.Answer;
 
 import java.util.Arrays;
 

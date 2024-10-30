@@ -9,12 +9,11 @@
 package su.svn.daybook3.api.gateway.services.models;
 
 import io.smallrye.mutiny.Multi;
+import jakarta.ws.rs.core.Response;
 import org.jboss.resteasy.reactive.RestResponse;
 import org.junit.jupiter.api.BeforeEach;
-import su.svn.daybook3.api.gateway.domain.messages.Answer;
-import su.svn.daybook3.api.gateway.models.LongIdentification;
-
-import jakarta.ws.rs.core.Response;
+import su.svn.daybook3.domain.messages.Answer;
+import su.svn.daybook3.models.LongIdentification;
 
 import java.io.Serializable;
 

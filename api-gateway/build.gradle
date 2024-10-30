@@ -11,6 +11,9 @@ repositories {
 }
 
 dependencies {
+
+    implementation project(':lib-daybook')
+
     implementation enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}")
     implementation enforcedPlatform("${quarkusPlatformGroupId}:quarkus-camel-bom:${quarkusPlatformVersion}")
 
@@ -42,6 +45,7 @@ dependencies {
     annotationProcessor "org.projectlombok:lombok-mapstruct-binding:0.2.0"
     annotationProcessor "org.projectlombok:lombok:$libVers.lombok"
     annotationProcessor project(":spi-mapstruct")
+    annotationProcessor project(":lib-daybook")
 
     liquibaseRuntime 'info.picocli:picocli:4.6.3'
     liquibaseRuntime group: 'org.slf4j', name: 'slf4j-api', version: libVers.slf4j
