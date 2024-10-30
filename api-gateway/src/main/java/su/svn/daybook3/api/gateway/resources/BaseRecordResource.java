@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-05-22 13:35 by Victor N. Skurikhin.
+ * This file was last modified at 2024-10-30 09:48 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * BaseRecordResource.java
@@ -27,12 +27,12 @@ import org.jboss.resteasy.reactive.RestResponse;
 import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
 import su.svn.daybook3.api.gateway.annotations.PrincipalLogging;
 import su.svn.daybook3.api.gateway.domain.enums.ResourcePath;
-import su.svn.daybook3.api.gateway.domain.messages.Request;
 import su.svn.daybook3.api.gateway.models.dto.NewBaseRecord;
 import su.svn.daybook3.api.gateway.models.dto.UpdateBaseRecord;
 import su.svn.daybook3.api.gateway.models.pagination.PageRequest;
 import su.svn.daybook3.api.gateway.services.mappers.BaseRecordMapper;
 import su.svn.daybook3.api.gateway.services.models.BaseRecordService;
+import su.svn.daybook3.domain.messages.Request;
 
 import java.util.UUID;
 

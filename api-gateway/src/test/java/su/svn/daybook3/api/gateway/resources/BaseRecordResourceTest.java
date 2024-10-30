@@ -20,9 +20,9 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import su.svn.daybook3.api.gateway.TestData;
 import su.svn.daybook3.api.gateway.domain.enums.ResourcePath;
-import su.svn.daybook3.api.gateway.domain.messages.Answer;
-import su.svn.daybook3.api.gateway.domain.messages.Request;
 import su.svn.daybook3.api.gateway.services.models.BaseRecordService;
+import su.svn.daybook3.domain.messages.Answer;
+import su.svn.daybook3.domain.messages.Request;
 
 import static io.restassured.RestAssured.given;
 import static org.mockito.ArgumentMatchers.any;

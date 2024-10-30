@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-05-14 21:36 by Victor N. Skurikhin.
+ * This file was last modified at 2024-10-30 09:48 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * AbstractViewDao.java
@@ -14,11 +14,10 @@ import io.vertx.mutiny.sqlclient.Row;
 import io.vertx.mutiny.sqlclient.RowSet;
 import io.vertx.mutiny.sqlclient.SqlConnection;
 import io.vertx.mutiny.sqlclient.Tuple;
-import su.svn.daybook3.api.gateway.annotations.SQL;
-import su.svn.daybook3.api.gateway.models.Identification;
-
 import jakarta.annotation.Nonnull;
 import jakarta.inject.Inject;
+import su.svn.daybook3.annotations.SQL;
+import su.svn.daybook3.models.Identification;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;

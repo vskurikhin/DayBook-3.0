@@ -12,8 +12,8 @@ import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import org.junit.jupiter.api.Assertions;
 import su.svn.daybook3.api.gateway.domain.dao.DaoIface;
-import su.svn.daybook3.api.gateway.domain.model.CasesOfId;
-import su.svn.daybook3.api.gateway.models.TimeUpdated;
+import su.svn.daybook3.domain.model.CasesOfId;
+import su.svn.daybook3.models.TimeUpdated;
 
 import java.io.Serializable;
 import java.util.List;

@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-05-22 13:08 by Victor N. Skurikhin.
+ * This file was last modified at 2024-10-30 09:48 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * AbstractResource.java
@@ -18,13 +18,13 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
 import org.jboss.logging.Logger;
 import org.jboss.resteasy.reactive.RestResponse;
-import su.svn.daybook3.api.gateway.domain.messages.Answer;
-import su.svn.daybook3.api.gateway.domain.messages.ApiResponse;
-import su.svn.daybook3.api.gateway.domain.messages.Request;
-import su.svn.daybook3.api.gateway.models.Identification;
 import su.svn.daybook3.api.gateway.models.pagination.Page;
 import su.svn.daybook3.api.gateway.models.pagination.PageRequest;
 import su.svn.daybook3.api.gateway.services.security.AuthenticationContext;
+import su.svn.daybook3.domain.messages.Answer;
+import su.svn.daybook3.domain.messages.ApiResponse;
+import su.svn.daybook3.domain.messages.Request;
+import su.svn.daybook3.models.Identification;
 
 import java.io.Serializable;
 import java.net.URI;

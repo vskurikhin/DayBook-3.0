@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-05-20 22:02 by Victor N. Skurikhin.
+ * This file was last modified at 2024-10-30 09:48 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * BaseRecordDataService.java
@@ -15,12 +15,12 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.jboss.logging.Logger;
 import su.svn.daybook3.api.gateway.domain.entities.BaseRecord;
-import su.svn.daybook3.api.gateway.domain.messages.Answer;
 import su.svn.daybook3.api.gateway.models.dto.ResourceBaseRecord;
 import su.svn.daybook3.api.gateway.models.pagination.Page;
 import su.svn.daybook3.api.gateway.models.pagination.PageRequest;
 import su.svn.daybook3.api.gateway.services.PanachePageService;
 import su.svn.daybook3.api.gateway.services.mappers.BaseRecordMapper;
+import su.svn.daybook3.domain.messages.Answer;
 
 import java.util.UUID;
 

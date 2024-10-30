@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-05-14 21:36 by Victor N. Skurikhin.
+ * This file was last modified at 2024-10-30 09:48 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * I18nTransactionalJob.java
@@ -13,14 +13,14 @@ import io.vertx.mutiny.sqlclient.Row;
 import io.vertx.mutiny.sqlclient.RowIterator;
 import jakarta.enterprise.context.ApplicationScoped;
 import org.jboss.logging.Logger;
-import su.svn.daybook3.api.gateway.annotations.TransactionAction;
-import su.svn.daybook3.api.gateway.annotations.TransactionActions;
-import su.svn.daybook3.api.gateway.domain.enums.IteratorNextMapperEnum;
-import su.svn.daybook3.api.gateway.domain.enums.TupleMapperEnum;
+import su.svn.daybook3.annotations.TransactionAction;
+import su.svn.daybook3.annotations.TransactionActions;
 import su.svn.daybook3.api.gateway.domain.model.I18nTable;
 import su.svn.daybook3.api.gateway.domain.model.LanguageTable;
 import su.svn.daybook3.api.gateway.domain.transact.one_to_one.AbstractOneToOneJob;
 import su.svn.daybook3.api.gateway.models.Constants;
+import su.svn.daybook3.enums.IteratorNextMapperEnum;
+import su.svn.daybook3.enums.TupleMapperEnum;
 
 import java.util.Optional;
 import java.util.function.BiFunction;

@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-05-14 23:10 by Victor N. Skurikhin.
+ * This file was last modified at 2024-10-30 09:54 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * StanzaMapper.java
@@ -8,13 +8,12 @@
 
 package su.svn.daybook3.api.gateway.services.mappers;
 
+import jakarta.enterprise.context.ApplicationScoped;
 import org.jboss.logging.Logger;
-import su.svn.daybook3.api.gateway.converters.mappers.AbstractMapper;
 import su.svn.daybook3.api.gateway.domain.model.StanzaTable;
 import su.svn.daybook3.api.gateway.domain.model.StanzaView;
 import su.svn.daybook3.api.gateway.models.domain.Stanza;
-
-import jakarta.enterprise.context.ApplicationScoped;
+import su.svn.daybook3.converters.mappers.AbstractMapper;
 
 @ApplicationScoped
 public class StanzaMapper extends AbstractMapper<Long, Stanza, StanzaView> {

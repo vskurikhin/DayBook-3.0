@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-10-29 16:37 by Victor N. Skurikhin.
+ * This file was last modified at 2024-10-29 23:58 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * ResourceJsonRecord.java
@@ -13,8 +13,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.Builder;
-import su.svn.daybook3.api.gateway.models.Owned;
-import su.svn.daybook3.api.gateway.models.UUIDIdentification;
+import su.svn.daybook3.models.Owned;
+import su.svn.daybook3.models.UUIDIdentification;
 
 import java.io.Serializable;
 import java.time.OffsetDateTime;

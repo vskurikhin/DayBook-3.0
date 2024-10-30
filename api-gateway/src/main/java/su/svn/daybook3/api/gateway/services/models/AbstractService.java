@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-10-29 14:33 by Victor N. Skurikhin.
+ * This file was last modified at 2024-10-30 08:52 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * AbstractService.java
@@ -8,9 +8,9 @@
 
 package su.svn.daybook3.api.gateway.services.models;
 
-import su.svn.daybook3.api.gateway.domain.messages.Answer;
-import su.svn.daybook3.api.gateway.domain.messages.ApiResponse;
-import su.svn.daybook3.api.gateway.models.Identification;
+import su.svn.daybook3.domain.messages.Answer;
+import su.svn.daybook3.domain.messages.ApiResponse;
+import su.svn.daybook3.models.Identification;
 
 import java.io.Serializable;
 import java.util.Objects;

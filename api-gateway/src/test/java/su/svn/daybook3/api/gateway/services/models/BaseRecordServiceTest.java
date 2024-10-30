@@ -20,12 +20,12 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import su.svn.daybook3.api.gateway.TestData;
-import su.svn.daybook3.api.gateway.domain.messages.Answer;
-import su.svn.daybook3.api.gateway.domain.messages.ApiResponse;
-import su.svn.daybook3.api.gateway.domain.messages.Request;
 import su.svn.daybook3.api.gateway.models.pagination.Page;
 import su.svn.daybook3.api.gateway.models.pagination.PageRequest;
 import su.svn.daybook3.api.gateway.services.domain.BaseRecordDataService;
+import su.svn.daybook3.domain.messages.Answer;
+import su.svn.daybook3.domain.messages.ApiResponse;
+import su.svn.daybook3.domain.messages.Request;
 
 import java.util.Collections;
 

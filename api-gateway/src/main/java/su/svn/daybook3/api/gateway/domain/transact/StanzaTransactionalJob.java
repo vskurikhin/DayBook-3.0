@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-05-23 18:35 by Victor N. Skurikhin.
+ * This file was last modified at 2024-10-30 08:35 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * StanzaTransactionalJob.java
@@ -15,8 +15,8 @@ import jakarta.annotation.Nonnull;
 import jakarta.enterprise.context.ApplicationScoped;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jboss.logging.Logger;
-import su.svn.daybook3.api.gateway.annotations.TransactionAction;
-import su.svn.daybook3.api.gateway.annotations.TransactionActions;
+import su.svn.daybook3.annotations.TransactionAction;
+import su.svn.daybook3.annotations.TransactionActions;
 import su.svn.daybook3.api.gateway.domain.model.SettingTable;
 import su.svn.daybook3.api.gateway.domain.model.StanzaTable;
 import su.svn.daybook3.api.gateway.domain.transact.one_to_many.AbstractOneToManyJob;

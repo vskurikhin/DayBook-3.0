@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-05-14 21:36 by Victor N. Skurikhin.
+ * This file was last modified at 2024-10-30 09:48 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * ExceptionInterceptor.java
@@ -13,7 +13,7 @@ import io.smallrye.mutiny.operators.uni.builders.UniCreateFromItemSupplier;
 import jakarta.interceptor.InvocationContext;
 import jakarta.ws.rs.core.Response;
 import org.jboss.logging.Logger;
-import su.svn.daybook3.api.gateway.domain.messages.Answer;
+import su.svn.daybook3.domain.messages.Answer;
 
 import java.util.Arrays;
 import java.util.function.Function;
@@ -61,6 +61,7 @@ public class ExceptionInterceptor {
                 .payload(String.valueOf(t.getMessage()))
                 .build();
     }
+
     protected Object noSuchElementObject(Throwable t) {
         return noSuchElementAnswer(t);
     }

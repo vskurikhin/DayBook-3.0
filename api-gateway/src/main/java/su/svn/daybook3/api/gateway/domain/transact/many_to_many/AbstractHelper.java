@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-05-14 21:36 by Victor N. Skurikhin.
+ * This file was last modified at 2024-10-30 09:48 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * AbstractHelper.java
@@ -17,10 +17,10 @@ import io.vertx.mutiny.sqlclient.RowSet;
 import io.vertx.mutiny.sqlclient.SqlConnection;
 import io.vertx.mutiny.sqlclient.Tuple;
 import jakarta.annotation.Nonnull;
-import su.svn.daybook3.api.gateway.domain.model.CasesOfId;
 import su.svn.daybook3.api.gateway.domain.transact.Action;
 import su.svn.daybook3.api.gateway.domain.transact.OptionalHelper;
 import su.svn.daybook3.api.gateway.models.Constants;
+import su.svn.daybook3.domain.model.CasesOfId;
 
 import java.io.Serializable;
 import java.util.ArrayList;

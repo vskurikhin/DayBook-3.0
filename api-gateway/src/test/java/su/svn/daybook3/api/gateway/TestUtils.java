@@ -11,13 +11,12 @@ package su.svn.daybook3.api.gateway;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import org.junit.jupiter.api.Assertions;
-import su.svn.daybook3.api.gateway.domain.messages.Answer;
+import su.svn.daybook3.domain.messages.Answer;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 
 public class TestUtils {
 

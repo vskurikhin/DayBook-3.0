@@ -23,9 +23,6 @@ import su.svn.daybook3.api.gateway.TestData;
 import su.svn.daybook3.api.gateway.TestUtils;
 import su.svn.daybook3.api.gateway.domain.dao.StanzaDao;
 import su.svn.daybook3.api.gateway.domain.dao.StanzaViewDao;
-import su.svn.daybook3.api.gateway.domain.messages.Answer;
-import su.svn.daybook3.api.gateway.domain.messages.ApiResponse;
-import su.svn.daybook3.api.gateway.domain.messages.Request;
 import su.svn.daybook3.api.gateway.domain.model.SettingTable;
 import su.svn.daybook3.api.gateway.domain.model.StanzaTable;
 import su.svn.daybook3.api.gateway.domain.model.StanzaView;
@@ -34,8 +31,15 @@ import su.svn.daybook3.api.gateway.models.domain.Stanza;
 import su.svn.daybook3.api.gateway.models.pagination.Page;
 import su.svn.daybook3.api.gateway.models.pagination.PageRequest;
 import su.svn.daybook3.api.gateway.services.cache.StanzaCacheProvider;
+import su.svn.daybook3.domain.messages.Answer;
+import su.svn.daybook3.domain.messages.ApiResponse;
+import su.svn.daybook3.domain.messages.Request;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 @QuarkusTest
 class StanzaServiceTest {

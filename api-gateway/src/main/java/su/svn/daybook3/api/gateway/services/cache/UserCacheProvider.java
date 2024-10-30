@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-05-14 23:10 by Victor N. Skurikhin.
+ * This file was last modified at 2024-10-30 09:54 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * UserCacheProvider.java
@@ -17,12 +17,12 @@ import jakarta.inject.Inject;
 import org.jboss.logging.Logger;
 import su.svn.daybook3.api.gateway.annotations.PrincipalLogging;
 import su.svn.daybook3.api.gateway.domain.enums.EventAddress;
-import su.svn.daybook3.api.gateway.domain.messages.Answer;
 import su.svn.daybook3.api.gateway.models.domain.User;
 import su.svn.daybook3.api.gateway.models.pagination.Page;
 import su.svn.daybook3.api.gateway.models.pagination.PageRequest;
-import su.svn.daybook3.api.gateway.services.domain.UserDataService;
 import su.svn.daybook3.api.gateway.services.PageService;
+import su.svn.daybook3.api.gateway.services.domain.UserDataService;
+import su.svn.daybook3.domain.messages.Answer;
 
 import java.util.UUID;
 

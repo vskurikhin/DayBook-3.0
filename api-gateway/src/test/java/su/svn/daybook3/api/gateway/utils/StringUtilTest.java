@@ -11,6 +11,7 @@ package su.svn.daybook3.api.gateway.utils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import su.svn.daybook3.utils.StringUtil;
 
 class StringUtilTest {
 

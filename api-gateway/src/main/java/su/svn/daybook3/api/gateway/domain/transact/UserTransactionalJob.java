@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-05-14 21:36 by Victor N. Skurikhin.
+ * This file was last modified at 2024-10-30 09:54 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * UserTransactionalJob.java
@@ -11,17 +11,16 @@ package su.svn.daybook3.api.gateway.domain.transact;
 import io.smallrye.mutiny.Uni;
 import io.vertx.mutiny.sqlclient.Row;
 import io.vertx.mutiny.sqlclient.RowIterator;
+import jakarta.annotation.Nonnull;
 import jakarta.enterprise.context.ApplicationScoped;
 import org.jboss.logging.Logger;
-import su.svn.daybook3.api.gateway.annotations.TransactionAction;
-import su.svn.daybook3.api.gateway.annotations.TransactionActions;
-import su.svn.daybook3.api.gateway.domain.transact.many_to_many.AbstractManyToManyJob;
-import su.svn.daybook3.api.gateway.domain.enums.TupleMapperEnum;
+import su.svn.daybook3.annotations.TransactionAction;
+import su.svn.daybook3.annotations.TransactionActions;
 import su.svn.daybook3.api.gateway.domain.model.RoleTable;
 import su.svn.daybook3.api.gateway.domain.model.UserNameTable;
+import su.svn.daybook3.api.gateway.domain.transact.many_to_many.AbstractManyToManyJob;
 import su.svn.daybook3.api.gateway.models.Constants;
-
-import jakarta.annotation.Nonnull;
+import su.svn.daybook3.enums.TupleMapperEnum;
 
 import java.util.Collection;
 import java.util.Optional;
