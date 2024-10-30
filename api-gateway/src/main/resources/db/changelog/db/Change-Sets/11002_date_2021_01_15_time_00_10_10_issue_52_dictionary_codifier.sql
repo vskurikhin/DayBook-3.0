@@ -9,7 +9,7 @@
 CREATE TABLE IF NOT EXISTS dictionary.codifier (
   code          VARCHAR(64) PRIMARY KEY     NOT NULL,
   value         VARCHAR(10485760),
-  user_name     VARCHAR(64),
+  user_name     VARCHAR(64)                 NOT NULL,
                 CONSTRAINT FK_84d3_dictionary_codifier_security_user_name
                 FOREIGN KEY (user_name)
                 REFERENCES  security.user_name (user_name)
