@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS db.json_records (
     values        JSONB,
     post_at       TIMESTAMP WITH TIME ZONE     NOT NULL   DEFAULT now(),
     refresh_at    TIMESTAMP WITH TIME ZONE                DEFAULT now(),
-    user_name     VARCHAR(64),
+    user_name     VARCHAR(64)                  NOT NULL,
       CONSTRAINT  FK_a412_db_json_records_security_user_name
       FOREIGN KEY (user_name)
       REFERENCES  security.user_name (user_name)

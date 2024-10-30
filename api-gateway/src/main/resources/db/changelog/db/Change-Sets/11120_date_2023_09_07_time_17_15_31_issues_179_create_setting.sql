@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS dictionary.setting (
       FOREIGN KEY (value_type_id)
       REFERENCES  dictionary.value_type (id)
         ON DELETE CASCADE ON UPDATE CASCADE,
-    user_name     VARCHAR(64),
+    user_name     VARCHAR(64)                  NOT NULL,
       CONSTRAINT  FK_6109_dictionary_setting_security_user_name
       FOREIGN KEY (user_name)
       REFERENCES  security.user_name (user_name)
