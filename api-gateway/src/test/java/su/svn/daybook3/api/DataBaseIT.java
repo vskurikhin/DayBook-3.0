@@ -107,6 +107,7 @@ public class DataBaseIT {
         void setUp() {
             var entry = CodifierTable.builder()
                     .code(str)
+                    .userName("root")
                     .enabled(true)
                     .build();
             super.setUp(codifierDao, entry, customId);
@@ -127,19 +128,19 @@ public class DataBaseIT {
 
         CodifierTable expected(String id, CodifierTable test) {
             Assertions.assertNotNull(test);
-            return builder(id, test).build();
+            return builder(id, test).userName("root").build();
         }
 
         CodifierTable expected(String id, String value, CodifierTable test) {
             Assertions.assertNotNull(test);
-            return builder(id, test).value(value).build();
+            return builder(id, test).value(value).userName("root").build();
         }
 
         @Test
         void test() {
             super.whenFindByIdThenEntry(this::expected);
 
-            var update = CodifierTable.builder().code(super.id).value("value1").build();
+            var update = CodifierTable.builder().code(super.id).value("value1").userName("root").build();
             super.whenUpdateAndFindByIdThenEntry((id, test) -> expected(id, "value1", test), update);
 
             super.whenFindAllThenMultiWithOneItem();
@@ -149,11 +150,13 @@ public class DataBaseIT {
             var custom = CodifierTable.builder()
                     .code(customId)
                     .value("value2")
+                    .userName("root")
                     .build();
             super.whenInsertCustomThenEntry((id, test) -> expected(id, "value2", test), custom);
             var customUpdate = CodifierTable.builder()
                     .code(super.customId)
                     .value("value3")
+                    .userName("root")
                     .build();
             super.whenUpdateCustomAndFindByIdThenEntry(
                     (id, test) -> expected(id, "value3", test),
@@ -197,12 +200,14 @@ public class DataBaseIT {
         void setUp() {
             var language = LanguageTable.builder()
                     .language(LanguageTable.NONE)
+                    .userName("root")
                     .enabled(true)
                     .build();
             languageDaoTest.setUp(languageDao, language, 0L);
             var entry = I18nTable.builder()
                     .languageId(languageDaoTest.id)
                     .message(I18nTable.NONE)
+                    .userName("root")
                     .enabled(true)
                     .build();
             Long customId = 0L;
@@ -227,12 +232,12 @@ public class DataBaseIT {
 
         I18nTable expected(Long id, Long languageId, I18nTable test) {
             Assertions.assertNotNull(test);
-            return builder(id, languageId, test).build();
+            return builder(id, languageId, test).userName("root").build();
         }
 
         I18nTable expected(Long id, Long languageId, String message, I18nTable test) {
             Assertions.assertNotNull(test);
-            return builder(id, languageId, test).message(message).build();
+            return builder(id, languageId, test).message(message).userName("root").build();
         }
 
         @Test
@@ -243,6 +248,7 @@ public class DataBaseIT {
                     .id(super.id)
                     .languageId(languageDaoTest.id)
                     .message(I18nTable.NONE)
+                    .userName("root")
                     .build();
             super.whenUpdateAndFindByIdThenEntry((id, test) -> expected(id, languageDaoTest.id, test), update);
 
@@ -255,6 +261,7 @@ public class DataBaseIT {
                     .id(customId)
                     .languageId(languageDaoTest.id)
                     .message(customMessage)
+                    .userName("root")
                     .build();
             super.whenInsertCustomThenEntry(
                     (id, test) -> expected(id, languageDaoTest.id, customMessage, test),
@@ -265,6 +272,7 @@ public class DataBaseIT {
                     .id(customId)
                     .languageId(languageDaoTest.id)
                     .message(customMessageUpdate)
+                    .userName("root")
                     .build();
             super.whenUpdateCustomAndFindByIdThenEntry(
                     (id, test) -> expected(id, languageDaoTest.id, customMessageUpdate, test),
@@ -333,10 +341,12 @@ public class DataBaseIT {
 
         I18nTable insertEntry1 = I18nTable.builder()
                 .message(I18nTable.NONE)
+                .userName("root")
                 .build();
 
         I18nTable insertEntry2 = I18nTable.builder()
                 .message(UUID.randomUUID().toString())
+                .userName("root")
                 .build();
 
         @Test
@@ -349,18 +359,22 @@ public class DataBaseIT {
             var updateEntry1 = I18nTable.builder()
                     .id(result1)
                     .message(I18nTable.NONE)
+                    .userName("root")
                     .build();
             var updateEntry2 = I18nTable.builder()
                     .id(result2)
                     .message(I18nTable.NONE)
+                    .userName("root")
                     .build();
             var updateEntry3 = I18nTable.builder()
                     .id(result3)
                     .message(I18nTable.NONE)
+                    .userName("root")
                     .build();
             var updateEntry4 = I18nTable.builder()
                     .id(result4)
                     .message(I18nTable.NONE)
+                    .userName("root")
                     .build();
 
             whenUpdateEntryForLangThenOk(updateEntry1, "en");
@@ -419,6 +433,7 @@ public class DataBaseIT {
         void setUp() {
             var language = LanguageTable.builder()
                     .language(LanguageTable.NONE)
+                    .userName("root")
                     .enabled(true)
                     .build();
             messageEntry2 = UUID.randomUUID().toString();
@@ -426,11 +441,13 @@ public class DataBaseIT {
             var entry1 = I18nTable.builder()
                     .languageId(languageDaoTest.id)
                     .message(I18nTable.NONE)
+                    .userName("root")
                     .enabled(true)
                     .build();
             var entry2 = I18nTable.builder()
                     .languageId(languageDaoTest.id)
                     .message(messageEntry2)
+                    .userName("root")
                     .enabled(true)
                     .build();
             super.setUp(i18nDao, i18nViewDao, entry1, entry2);
@@ -454,12 +471,12 @@ public class DataBaseIT {
 
         I18nView expected(Long id, String message, I18nView test) {
             Assertions.assertNotNull(test);
-            return builder(id, message, test).build();
+            return builder(id, message, test).userName("root").build();
         }
 
         I18nView expected(Long id, String language, String message, I18nView test) {
             Assertions.assertNotNull(test);
-            return builder(id, message, test).language(language).build();
+            return builder(id, message, test).language(language).userName("root").build();
         }
 
         List<I18nView> expectedSingletonList(Long id, String language, String message, List<I18nView> test) {
@@ -508,6 +525,7 @@ public class DataBaseIT {
         void setUp() {
             var entry = KeyValueTable.builder()
                     .key(BigInteger.ONE)
+                    .userName("root")
                     .enabled(true)
                     .build();
             UUID customId = TestData.uuid.ONE;
@@ -530,19 +548,19 @@ public class DataBaseIT {
 
         KeyValueTable expected(UUID id, BigInteger key, KeyValueTable test) {
             Assertions.assertNotNull(test);
-            return builder(id, key, test).build();
+            return builder(id, key, test).userName("root").build();
         }
 
         KeyValueTable expected(UUID id, BigInteger key, JsonObject value, KeyValueTable test) {
             Assertions.assertNotNull(test);
-            return builder(id, key, test).value(value).build();
+            return builder(id, key, test).value(value).userName("root").build();
         }
 
         @Test
         void test() {
             super.whenFindByIdThenEntry((id, test) -> expected(id, BigInteger.ONE, test));
 
-            var update = KeyValueTable.builder().id(super.id).key(BigInteger.TWO).build();
+            var update = KeyValueTable.builder().id(super.id).key(BigInteger.TWO).userName("root").build();
             super.whenUpdateAndFindByIdThenEntry((id, test) -> expected(id, BigInteger.TWO, test), update);
 
             super.whenFindAllThenMultiWithOneItem();
@@ -553,6 +571,7 @@ public class DataBaseIT {
                     .id(customId)
                     .key(BigInteger.valueOf(7))
                     .value(new JsonObject("{}"))
+                    .userName("root")
                     .build();
             super.whenInsertCustomThenEntry(
                     (id, test) -> expected(id, BigInteger.valueOf(7), new JsonObject("{}"), test),
@@ -562,6 +581,7 @@ public class DataBaseIT {
                     .id(customId)
                     .key(BigInteger.TEN)
                     .value(new JsonObject("{}"))
+                    .userName("root")
                     .build();
             super.whenUpdateCustomAndFindByIdThenEntry(
                     (id, test) -> expected(id, BigInteger.TEN, new JsonObject("{}"), test),
@@ -608,6 +628,7 @@ public class DataBaseIT {
         void setUp() {
             var entry = LanguageTable.builder()
                     .language(ONE)
+                    .userName("root")
                     .enabled(true)
                     .build();
             Long customId = 0L;
@@ -630,14 +651,14 @@ public class DataBaseIT {
 
         LanguageTable expected(Long id, String language, LanguageTable test) {
             Assertions.assertNotNull(test);
-            return builder(id, language, test).build();
+            return builder(id, language, test).userName("root").build();
         }
 
         @Test
         void test() {
             super.whenFindByIdThenEntry((id, test) -> expected(id, ONE, test));
 
-            var update = LanguageTable.builder().id(super.id).language(TWO).build();
+            var update = LanguageTable.builder().id(super.id).language(TWO).userName("root").build();
             super.whenUpdateAndFindByIdThenEntry((id, test) -> expected(id, TWO, test), update);
 
             super.whenFindAllThenMultiWithOneItem();
@@ -647,6 +668,7 @@ public class DataBaseIT {
             var custom = LanguageTable.builder()
                     .id(customId)
                     .language(ZERO)
+                    .userName("root")
                     .build();
             super.whenInsertCustomThenEntry(
                     (id, test) -> expected(id, ZERO, test),
@@ -655,6 +677,7 @@ public class DataBaseIT {
             var customUpdate = LanguageTable.builder()
                     .id(customId)
                     .language(ZERO)
+                    .userName("root")
                     .build();
             super.whenUpdateCustomAndFindByIdThenEntry(
                     (id, test) -> expected(id, ZERO, test),
@@ -695,6 +718,7 @@ public class DataBaseIT {
             var valueType = ValueTypeTable.builder()
                     .id(0L)
                     .valueType(ValueTypeTable.NONE)
+                    .userName("root")
                     .enabled(true)
                     .build();
             Assertions.assertDoesNotThrow(() -> {
@@ -704,6 +728,7 @@ public class DataBaseIT {
                     .variable(ONE)
                     .valueTypeId(valueTypeId)
                     .stanzaId(0L)
+                    .userName("root")
                     .enabled(true)
                     .build();
             Long customId = 2L;
@@ -728,7 +753,7 @@ public class DataBaseIT {
 
         SettingTable expected(Long id, String variable, SettingTable test) {
             Assertions.assertNotNull(test);
-            return builder(id, variable, test).build();
+            return builder(id, variable, test).userName("root").build();
         }
 
         SettingTable expected(Long id, String variable, String value, SettingTable test) {
@@ -736,6 +761,7 @@ public class DataBaseIT {
             return builder(id, variable, test)
                     .value(value)
                     .valueTypeId(valueTypeId)
+                    .userName("root")
                     .build();
         }
 
@@ -748,6 +774,7 @@ public class DataBaseIT {
                     .variable(TWO)
                     .valueTypeId(valueTypeId)
                     .stanzaId(0L)
+                    .userName("root")
                     .build();
             super.whenUpdateAndFindByIdThenEntry((id, test) -> expected(id, TWO, test), update);
 
@@ -761,6 +788,7 @@ public class DataBaseIT {
                     .value("{}")
                     .valueTypeId(valueTypeId)
                     .stanzaId(0)
+                    .userName("root")
                     .build();
             super.whenInsertCustomThenEntry(
                     (id, test) -> expected(id, String.valueOf(7), "{}", test),
@@ -772,6 +800,7 @@ public class DataBaseIT {
                     .value("{}")
                     .valueTypeId(valueTypeId)
                     .stanzaId(0)
+                    .userName("root")
                     .build();
             super.whenUpdateCustomAndFindByIdThenEntry(
                     (id, test) -> expected(id, TEN, "{}", test),
@@ -813,6 +842,7 @@ public class DataBaseIT {
                 .value(SettingTable.NONE)
                 .valueTypeId(0L)
                 .stanzaId(0L)
+                .userName("root")
                 .build();
 
         SettingTable insertEntry2 = SettingTable.builder()
@@ -820,6 +850,7 @@ public class DataBaseIT {
                 .value(SettingTable.NONE)
                 .valueTypeId(0L)
                 .stanzaId(0L)
+                .userName("root")
                 .build();
 
         @AfterEach
@@ -838,6 +869,7 @@ public class DataBaseIT {
                     .value(SettingTable.NONE)
                     .valueTypeId(0L)
                     .stanzaId(0L)
+                    .userName("root")
                     .build();
             var updateEntry2 = SettingTable.builder()
                     .id(result2)
@@ -845,6 +877,7 @@ public class DataBaseIT {
                     .value(SettingTable.NONE)
                     .valueTypeId(0L)
                     .stanzaId(0L)
+                    .userName("root")
                     .build();
 
             whenUpdateEntryForValueTypehenOk(updateEntry1, "Object");
@@ -898,6 +931,7 @@ public class DataBaseIT {
         void setUp() {
             var valueType = ValueTypeTable.builder()
                     .valueType(ValueTypeTable.NONE)
+                    .userName("root")
                     .enabled(true)
                     .build();
             messageEntry2 = UUID.randomUUID().toString();
@@ -907,6 +941,7 @@ public class DataBaseIT {
                     .valueTypeId(valueTypeDaoTest.id)
                     .value(SettingTable.NONE)
                     .stanzaId(0L)
+                    .userName("root")
                     .enabled(true)
                     .build();
             var entry2 = SettingTable.builder()
@@ -914,6 +949,7 @@ public class DataBaseIT {
                     .valueTypeId(valueTypeDaoTest.id)
                     .value(messageEntry2)
                     .stanzaId(0L)
+                    .userName("root")
                     .enabled(true)
                     .build();
             super.setUp(settingDao, settingViewDao, entry1, entry2);
@@ -939,7 +975,7 @@ public class DataBaseIT {
 
         SettingView expected(Long id, String value, SettingView test) {
             Assertions.assertNotNull(test);
-            return builder(id, value, test).build();
+            return builder(id, value, test).userName("root").build();
         }
 
         List<SettingView> expectedSingletonList(Long id, String value, List<SettingView> test) {
@@ -995,6 +1031,7 @@ public class DataBaseIT {
                     .id(1L)
                     .name(ONE)
                     .parentId(0L)
+                    .userName("root")
                     .enabled(true)
                     .visible(true)
                     .build();
@@ -1021,12 +1058,12 @@ public class DataBaseIT {
 
         StanzaTable expected(Long id, String name, StanzaTable test) {
             Assertions.assertNotNull(test);
-            return builder(id, name, test).build();
+            return builder(id, name, test).userName("root").build();
         }
 
         StanzaTable expected(Long id, String name, Long parentId, StanzaTable test) {
             Assertions.assertNotNull(test);
-            return builder(id, name, test).parentId(parentId).build();
+            return builder(id, name, test).parentId(parentId).userName("root").build();
         }
 
         @Test
@@ -1036,6 +1073,7 @@ public class DataBaseIT {
             var update = StanzaTable.builder()
                     .id(super.id)
                     .name(TWO)
+                    .userName("root")
                     .visible(true)
                     .build();
             super.whenUpdateAndFindByIdThenEntry((id, test) -> expected(id, TWO, test), update);
@@ -1053,6 +1091,7 @@ public class DataBaseIT {
                     .id(customId)
                     .name(NINE)
                     .parentId(0L)
+                    .userName("root")
                     .visible(true)
                     .build();
             super.whenInsertCustomThenEntry(
@@ -1063,6 +1102,7 @@ public class DataBaseIT {
                     .id(customId)
                     .name(TEN)
                     .parentId(0L)
+                    .userName("root")
                     .visible(true)
                     .build();
             super.whenUpdateCustomAndFindByIdThenEntry(
@@ -1104,11 +1144,13 @@ public class DataBaseIT {
         void setUp() {
             var entry1 = StanzaTable.builder()
                     .parentId(0L)
+                    .userName("root")
                     .enabled(true)
                     .build();
             var entry2 = StanzaTable.builder()
                     .name("name2")
                     .parentId(0L)
+                    .userName("root")
                     .enabled(true)
                     .build();
             super.setUp(stanzaDao, stanzaViewDao, entry1, entry2);
@@ -1134,13 +1176,13 @@ public class DataBaseIT {
 
         StanzaView expected(Long id, StanzaView test) {
             Assertions.assertNotNull(test);
-            return builder(id, test).build();
+            return builder(id, test).userName("root").build();
         }
 
 
         StanzaView expected(Long id, String name, StanzaView test) {
             Assertions.assertNotNull(test);
-            return builder(id, test).name(name).build();
+            return builder(id, test).name(name).userName("root").build();
         }
 
         List<StanzaView> expectedSingletonList(Long id, String name, List<StanzaView> test) {
@@ -1207,6 +1249,7 @@ public class DataBaseIT {
                 var valueTypeTable = ValueTypeTable.builder()
                         .id(0L)
                         .valueType(ValueTypeTable.NONE)
+                        .userName("root")
                         .enabled(true)
                         .build();
                 var settingTable = SettingTable.builder()
@@ -1215,6 +1258,7 @@ public class DataBaseIT {
                         .value(SettingTable.NONE)
                         .valueTypeId(0L)
                         .stanzaId(0L)
+                        .userName("root")
                         .build();
                 var id1 = uniOptionalHelper(valueTypeDao.insert(valueTypeTable));
                 var id2 = uniOptionalHelper(settingDao.insert(settingTable));
@@ -1260,6 +1304,7 @@ public class DataBaseIT {
                     .value(SettingTable.NONE)
                     .valueTypeId(valueTypeId)
                     .stanzaId(0L)
+                    .userName("root")
                     .build();
             Assertions.assertDoesNotThrow(() -> {
                 uniOptionalHelper(settingDao.insert(setting));
@@ -1319,6 +1364,7 @@ public class DataBaseIT {
         void setUp() {
             var entry = TagLabelTable.builder()
                     .label(ZERO)
+                    .userName("root")
                     .enabled(true)
                     .build();
             String customId = ZERO;
@@ -1334,6 +1380,7 @@ public class DataBaseIT {
             return TagLabelTable.builder()
                     .id(id)
                     .label(label)
+                    .userName("root")
                     .createTime(test.createTime())
                     .updateTime(test.updateTime())
                     .enabled(true);
@@ -1341,14 +1388,14 @@ public class DataBaseIT {
 
         TagLabelTable expected(String id, String label, TagLabelTable test) {
             Assertions.assertNotNull(test);
-            return builder(id, label, test).build();
+            return builder(id, label, test).userName("root").build();
         }
 
         @Test
         void test() {
             super.whenFindByIdThenEntry((id, test) -> expected(id, ZERO, test));
 
-            var update = TagLabelTable.builder().id(super.id).label(ONE).build();
+            var update = TagLabelTable.builder().id(super.id).label(ONE).userName("root").build();
             super.whenUpdateAndFindByIdThenEntry((id, test) -> expected(id, ONE, test), update);
 
             super.whenFindAllThenMultiWithOneItem();
@@ -1358,6 +1405,7 @@ public class DataBaseIT {
             var custom = TagLabelTable.builder()
                     .id(customId)
                     .label(TWO)
+                    .userName("root")
                     .build();
             super.whenInsertCustomThenEntry(
                     (id, test) -> expected(id, TWO, test),
@@ -1366,6 +1414,7 @@ public class DataBaseIT {
             var customUpdate = TagLabelTable.builder()
                     .id(customId)
                     .label(TEN)
+                    .userName("root")
                     .build();
             super.whenUpdateCustomAndFindByIdThenEntry(
                     (id, test) -> expected(id, TEN, test),
@@ -1491,11 +1540,13 @@ public class DataBaseIT {
         void setUp() {
             var word = WordTable.builder()
                     .word(word1)
+                    .userName("root")
                     .enabled(true)
                     .build();
             wordDaoTest.setUp(wordDao, word, wordCustom);
             var entry = VocabularyTable.builder()
                     .word(word1)
+                    .userName("root")
                     .enabled(true)
                     .build();
             Long customId = 0L;
@@ -1519,12 +1570,12 @@ public class DataBaseIT {
 
         VocabularyTable expected(Long id, String word, VocabularyTable test) {
             Assertions.assertNotNull(test);
-            return builder(id, word, test).build();
+            return builder(id, word, test).userName("root").build();
         }
 
         VocabularyTable expected(Long id, String word, String value, VocabularyTable test) {
             Assertions.assertNotNull(test);
-            return builder(id, word, test).value(value).build();
+            return builder(id, word, test).value(value).userName("root").build();
         }
 
         @Test
@@ -1535,6 +1586,7 @@ public class DataBaseIT {
                     .id(super.id)
                     .word(word1)
                     .value("value1")
+                    .userName("root")
                     .build();
             super.whenUpdateAndFindByIdThenEntry((id, test) -> expected(id, word1, "value1", test), update);
 
@@ -1544,10 +1596,12 @@ public class DataBaseIT {
 
             var customWord = WordTable.builder()
                     .word(wordCustom)
+                    .userName("root")
                     .build();
             wordDaoTest.whenInsertCustomThenEntry(
                     (id, test) -> WordTable.builder()
                             .word(wordCustom)
+                            .userName("root")
                             .createTime(test.createTime())
                             .updateTime(test.updateTime())
                             .enabled(true).build(),
@@ -1557,6 +1611,7 @@ public class DataBaseIT {
                     .id(customId)
                     .word(wordCustom)
                     .value("custom1")
+                    .userName("root")
                     .build();
             super.whenInsertCustomThenEntry(
                     (id, test) -> expected(id, wordCustom, "custom1", test),
@@ -1566,6 +1621,7 @@ public class DataBaseIT {
                     .id(customId)
                     .word(wordCustom)
                     .value("custom2")
+                    .userName("root")
                     .build();
             super.whenUpdateCustomAndFindByIdThenEntry(
                     (id, test) -> expected(id, wordCustom, "custom2", test),
@@ -1609,6 +1665,7 @@ public class DataBaseIT {
         void setUp() {
             var entry = WordTable.builder()
                     .word("word1")
+                    .userName("root")
                     .enabled(true)
                     .build();
             var customId = UUID.randomUUID().toString();
@@ -1631,7 +1688,7 @@ public class DataBaseIT {
 
         WordTable expected(String id, WordTable test) {
             Assertions.assertNotNull(test);
-            return builder(id, test).build();
+            return builder(id, test).userName("root").build();
         }
 
         @Test
@@ -1641,10 +1698,12 @@ public class DataBaseIT {
             var update = WordTable
                     .builder()
                     .id(super.id)
+                    .userName("root")
                     .visible(true)
                     .build();
             super.whenUpdateAndFindByIdThenEntry(
                     (id1, test1) -> builder(id1, test1)
+                            .userName("root")
                             .visible(true)
                             .build(),
                     update
@@ -1657,15 +1716,18 @@ public class DataBaseIT {
             var custom = WordTable
                     .builder()
                     .id(customId)
+                    .userName("root")
                     .build();
             super.whenInsertCustomThenEntry(this::expected, custom);
             var customUpdate = WordTable
                     .builder()
                     .id(customId)
+                    .userName("root")
                     .visible(true)
                     .build();
             super.whenUpdateCustomAndFindByIdThenEntry(
                     (id1, test1) -> builder(id1, test1)
+                            .userName("root")
                             .visible(true)
                             .build(),
                     customUpdate
@@ -1673,6 +1735,7 @@ public class DataBaseIT {
 
             super.whenFindRangeFromZeroToOneThenMultiWithOneItemCustom(
                     (id1, test1) -> builder(id1, test1)
+                            .userName("root")
                             .visible(true)
                             .build()
             );
@@ -1682,6 +1745,7 @@ public class DataBaseIT {
             Assertions.assertDoesNotThrow(() -> {
                 var test = uniOptionalHelper(wordDao.findByWord("word1"));
                 var expected = builder(super.id, test)
+                        .userName("root")
                         .visible(true)
                         .build();
                 Assertions.assertEquals(expected, test);

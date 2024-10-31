@@ -79,6 +79,7 @@ public class DataBaseIT {
             entry = RoleTable.builder()
                     .id(id)
                     .role("role")
+                    .userName("root")
                     .build();
             Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(id, uniOptionalHelper(roleDao.insert(entry))));
         }
@@ -94,6 +95,7 @@ public class DataBaseIT {
             return RoleTable.builder()
                     .id(id)
                     .role(role)
+                    .userName("root")
                     .createTime(test.createTime())
                     .updateTime(test.updateTime())
                     .enabled(true)
@@ -395,9 +397,9 @@ public class DataBaseIT {
 
         @BeforeEach
         void setUp() {
-            role1 = RoleTable.builder().id(id1).role("role1").build();
+            role1 = RoleTable.builder().id(id1).role("role1").userName("root").build();
             Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(id1, uniOptionalHelper(roleDao.insert(role1))));
-            role2 = RoleTable.builder().id(id2).role("role2").build();
+            role2 = RoleTable.builder().id(id2).role("role2").userName("root").build();
             Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(id2, uniOptionalHelper(roleDao.insert(role2))));
             user = User.builder()
                     .id(id)
@@ -615,11 +617,13 @@ public class DataBaseIT {
             role1 = RoleTable.builder()
                     .id(id1)
                     .role("role1")
+                    .userName("root")
                     .build();
             Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(id1, uniOptionalHelper(roleDao.insert(role1))));
             role2 = RoleTable.builder()
                     .id(id2)
                     .role("role2")
+                    .userName("root")
                     .build();
             Assertions.assertDoesNotThrow(() -> Assertions.assertEquals(id2, uniOptionalHelper(roleDao.insert(role2))));
             userName = UserNameTable.builder()

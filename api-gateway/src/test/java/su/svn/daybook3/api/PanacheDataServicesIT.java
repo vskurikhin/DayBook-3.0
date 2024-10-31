@@ -59,15 +59,15 @@ public class PanacheDataServicesIT {
         @Test
         @RunOnVertxContext
         void test(UniAsserter asserter) {
-            var test = ResourceBaseRecord.builder().build();
+            var test = ResourceBaseRecord.builder().userName("root").build();
             asserter = new TransactionalUniAsserterInterceptor(asserter);
             asserter.assertNotNull(() -> baseRecordDataService.add(test));
-            asserter.assertEquals(() -> baseRecordDataService.count(), 1l);
+            asserter.assertEquals(() -> baseRecordDataService.count(), 2l);
             asserter.execute(() ->
                     baseRecordDataService.getPage(new PageRequest(0L, (short) 1))
                             .flatMap(this::doTestsWithPage)
             );
-            asserter.assertEquals(() -> baseRecordDataService.count(), 0l);
+            asserter.assertEquals(() -> baseRecordDataService.count(), 1l);
         }
 
         private Uni<?> doTestsWithPage(Page<Answer> answerPage) {
@@ -115,7 +115,7 @@ public class PanacheDataServicesIT {
         void test(UniAsserter asserter) {
             asserter = new TransactionalUniAsserterInterceptor(asserter);
 
-            var test = ResourceJsonRecord.builder().build();
+            var test = ResourceJsonRecord.builder().userName("root").build();
             asserter.assertNotNull(() -> jsonRecordDataService.add(test));
             asserter.assertEquals(() -> jsonRecordDataService.count(), 1l);
             asserter.execute(() ->

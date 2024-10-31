@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-10-30 19:24 by Victor N. Skurikhin.
+ * This file was last modified at 2024-10-31 16:52 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * I18nTransactionalJob.java
@@ -35,7 +35,7 @@ public class I18nTransactionalJob extends AbstractOneToOneJob<Long, I18nTable, L
             = (t, id) -> t.toBuilder().languageId(id).build();
 
     private static final Function<String, LanguageTable> LANGUAGE_TABLE_BUILDER
-            = s -> LanguageTable.builder().language(s).build();
+            = s -> LanguageTable.builder().language(s).userName("root").build(); // todo
 
     public I18nTransactionalJob() {
         super(I18N_TABLE_BUILDER, LANGUAGE_TABLE_BUILDER, LOG);
