@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS dictionary.key_value (
     id            UUID  PRIMARY KEY    NOT NULL  DEFAULT pg_catalog.uuid_generate_v4(),
     key           NUMERIC(64)          NOT NULL  UNIQUE,
     value         JSONB,
-    user_name     VARCHAR(64),
+    user_name     VARCHAR(64)          NOT NULL,
       CONSTRAINT  FK_5004_dictionary_key_value_security_user_name
       FOREIGN KEY (user_name)
       REFERENCES  security.user_name (user_name)

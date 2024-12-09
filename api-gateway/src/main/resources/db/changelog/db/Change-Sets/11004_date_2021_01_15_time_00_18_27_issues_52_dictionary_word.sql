@@ -8,7 +8,7 @@
 --
 CREATE TABLE IF NOT EXISTS dictionary.word (
   word          VARCHAR(256) PRIMARY KEY    NOT NULL,
-  user_name     VARCHAR(64),
+  user_name     VARCHAR(64)                 NOT NULL,
                 CONSTRAINT FK_7854_dictionary_word_security_user_name
                 FOREIGN KEY (user_name)
                 REFERENCES  security.user_name (user_name)
