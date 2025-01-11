@@ -10,7 +10,6 @@ repositories {
 
 dependencies {
     implementation enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}")
-    implementation enforcedPlatform("${quarkusPlatformGroupId}:quarkus-camel-bom:${quarkusPlatformVersion}")
 
     implementation "com.intellij:annotations:9.0.4"
 
@@ -18,9 +17,6 @@ dependencies {
     implementation "io.quarkus:quarkus-cache"
     implementation "io.quarkus:quarkus-config-yaml"
     implementation "io.quarkus:quarkus-grpc"
-    implementation "io.quarkus:quarkus-hibernate-reactive"
-    implementation "io.quarkus:quarkus-hibernate-reactive-panache"
-    implementation "io.quarkus:quarkus-hibernate-validator"
     implementation "io.quarkus:quarkus-micrometer"
     implementation "io.quarkus:quarkus-micrometer-registry-prometheus"
     implementation "io.quarkus:quarkus-reactive-pg-client"
@@ -30,8 +26,6 @@ dependencies {
     implementation "io.quarkus:quarkus-smallrye-jwt-build"
     implementation "io.quarkus:quarkus-smallrye-openapi"
 
-    implementation "org.apache.camel.quarkus:camel-quarkus-mapstruct"
-    implementation "org.apache.camel.quarkus:camel-quarkus-zipfile"
     implementation "org.apache.commons:commons-lang3:3.13.0"
 
     compileOnly "org.projectlombok:lombok:$libVers.lombok"

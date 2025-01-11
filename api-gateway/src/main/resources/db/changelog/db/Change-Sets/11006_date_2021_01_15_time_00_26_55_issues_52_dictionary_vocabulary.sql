@@ -9,14 +9,14 @@
 CREATE SEQUENCE IF NOT EXISTS dictionary.vocabulary_seq START 1;
 
 CREATE TABLE IF NOT EXISTS dictionary.vocabulary (
-  id            BIGINT  PRIMARY KEY  NOT NULL  DEFAULT nextval('dictionary.vocabulary_seq'),
+  id            BIGINT  PRIMARY KEY         NOT NULL  DEFAULT nextval('dictionary.vocabulary_seq'),
   word          VARCHAR(256) NOT NULL,
                 CONSTRAINT FK_80e4_dictionary_vocabulary_to_word
                 FOREIGN KEY (word)
                 REFERENCES  dictionary.word (word)
                 ON DELETE CASCADE ON UPDATE CASCADE,
   value         VARCHAR(10485760),
-  user_name     VARCHAR(64),
+  user_name     VARCHAR(64)                 NOT NULL,
                 CONSTRAINT FK_92c6_dictionary_vocabulary_security_user_name
                 FOREIGN KEY (user_name)
                 REFERENCES  security.user_name (user_name)

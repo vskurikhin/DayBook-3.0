@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS dictionary.stanza (
       FOREIGN KEY (parent_id)
       REFERENCES  dictionary.stanza (id)
         ON DELETE CASCADE ON UPDATE CASCADE,
-    user_name     VARCHAR(64),
+    user_name     VARCHAR(64)                  NOT NULL,
       CONSTRAINT  FK_5911_dictionary_stanza_security_user_name
       FOREIGN KEY (user_name)
       REFERENCES  security.user_name (user_name)

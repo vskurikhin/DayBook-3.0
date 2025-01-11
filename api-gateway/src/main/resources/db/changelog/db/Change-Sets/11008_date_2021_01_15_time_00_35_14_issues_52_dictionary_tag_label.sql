@@ -13,10 +13,10 @@ CREATE OR REPLACE FUNCTION dictionary.next_val_tag_label_seq() RETURNS TEXT
 AS $$ SELECT lpad(to_hex(nextval('dictionary.tag_label_seq')), 16, '0') $$;
 
 CREATE TABLE dictionary.tag_label (
-  id            CHAR(16)  PRIMARY KEY  NOT NULL  DEFAULT dictionary.next_val_tag_label_seq(),
-  label         VARCHAR(128)           NOT NULL
+  id            CHAR(16)  PRIMARY KEY       NOT NULL  DEFAULT dictionary.next_val_tag_label_seq(),
+  label         VARCHAR(128)                NOT NULL
                 CONSTRAINT UC_85b5_dictionary_tag_must_be_different UNIQUE,
-  user_name     VARCHAR(64),
+  user_name     VARCHAR(64)                 NOT NULL,
                 CONSTRAINT FK_4783_dictionary_tag_label_security_user_name
                 FOREIGN KEY (user_name)
                 REFERENCES  security.user_name (user_name)
