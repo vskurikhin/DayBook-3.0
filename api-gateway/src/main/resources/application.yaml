@@ -44,6 +44,25 @@ quarkus:
       max-size: 20
       reconnect-interval: PT1S
       url: ${DAY_BOOK_DATASOURCE_REACTIVE_URL:postgresql://localhost:5432/db}
+  etcd:
+    client1:
+      host: localhost.svn.su
+      port: 2379
+      authentication-timeout: 5s
+      keep-alive-time: 5s
+      keep-alive-timeout: 20s
+      keep-alive-without-calls: false
+      max-inbound-message-size: 4194304
+      default-load-balancing-policy: pick_first
+      ssl-config:
+        key-store:
+          path: ${DAY_BOOK_KEY_STORE:../../../../../tls/etcd.keystore}
+          password: storePassword
+          alias: ${DAY_BOOK_KEY_STORE_ALIAS:svn}
+          alias-password: ${DAY_BOOK_KEY_STORE_ALIAS_PASSWORD:storePassword}
+        trust-store:
+          path: ${DAY_BOOK_TRUST_STORE:../../../../../tls/etcd.truststore}
+          password: ${DAY_BOOK_TRUST_STORE_PASSWORD:storePassword}
   grpc:
     server:
       port: 9900
