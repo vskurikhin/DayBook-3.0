@@ -38,6 +38,8 @@ dependencies {
     implementation "org.apache.camel.quarkus:camel-quarkus-mapstruct"
     implementation "org.apache.camel.quarkus:camel-quarkus-zipfile"
     implementation "org.apache.commons:commons-lang3:3.13.0"
+    implementation "ro.gs1:quarkus-etcd-client:0.3"
+    implementation "ro.gs1:quarkus-etcd-client-api:0.3"
 
     compileOnly "org.projectlombok:lombok:$libVers.lombok"
 
