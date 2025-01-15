@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2025-01-14 19:55 by Victor N. Skurikhin.
+ * This file was last modified at 2025-01-15 16:48 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * EtcdWatcher.java
@@ -37,7 +37,7 @@ public class EtcdWatcher implements Runnable {
 
     private static final String UUID_BEGIN = new UUID(0, 0).toString();
     private static final String UUID_END = "ffffffff-ffff-ffff-ffff-ffffffffffff";
-    private static final String DB_JSON_RECORD = "/db/json_record/";
+    private static final String DB_JSON_RECORD = "/db/json_records/";
     private static final ByteString KEY = ByteString.copyFrom(DB_JSON_RECORD + UUID_BEGIN, StandardCharsets.UTF_8);
     private static final ByteString RANGE_END = ByteString.copyFrom(DB_JSON_RECORD + UUID_END, StandardCharsets.UTF_8);
     private static final Pattern pattern = Pattern.compile(DB_JSON_RECORD + "([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})");

@@ -40,6 +40,8 @@ nb-configuration.xml
 /.quarkus/cli/plugins/
 /node_modules
 
+test.keystore
+test.truststore
 api-gateway/.gradle/
 api-gateway/bin/
 api-gateway/build/
@@ -50,3 +52,5 @@ api-gateway/src/tmp-templates/
 api-gateway/src/test/resources/db/changelog/db/*sql
 api-gateway/src/test/resources/db/*.zip
 api-gateway/src/test/resources/db/word/
+go-postgres-cdc-etcd/postgres-cdc-etcd.yaml
+tls/
