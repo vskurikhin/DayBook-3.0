@@ -2,7 +2,7 @@ package publication
 
 import (
 	"context"
-	goerrors "errors"
+	goErrors "errors"
 
 	"github.com/go-playground/errors"
 	"github.com/jackc/pgx/v5/pgconn"
@@ -12,7 +12,7 @@ import (
 )
 
 var (
-	ErrorPublicationIsNotExists = goerrors.New("publication is not exists")
+	ErrorPublicationIsNotExists = goErrors.New("publication is not exists")
 )
 
 var typeMap = pgtype.NewMap()
@@ -29,7 +29,7 @@ func New(cfg Config, conn pq.Connection) *Publication {
 func (c *Publication) Create(ctx context.Context) (*Config, error) {
 	info, err := c.Info(ctx)
 	if err != nil {
-		if !goerrors.Is(err, ErrorPublicationIsNotExists) || !c.cfg.CreateIfNotExists {
+		if !goErrors.Is(err, ErrorPublicationIsNotExists) || !c.cfg.CreateIfNotExists {
 			return nil, errors.Wrap(err, "publication info")
 		}
 	} else {
@@ -57,7 +57,7 @@ func (c *Publication) Info(ctx context.Context) (*Config, error) {
 	results, err := resultReader.ReadAll()
 	if err != nil {
 		var v *pgconn.PgError
-		if goerrors.As(err, &v) && v.Code == "42703" {
+		if goErrors.As(err, &v) && v.Code == "42703" {
 			return nil, ErrorPublicationIsNotExists
 		}
 		return nil, errors.Wrap(err, "publication info result")

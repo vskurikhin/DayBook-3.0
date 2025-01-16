@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/go-playground/errors"
-
 	"github.com/vskurikhin/DayBook-3.10/go-postgres-cdc-etcd/pq"
 )
 

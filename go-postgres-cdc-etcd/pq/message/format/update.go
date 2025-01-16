@@ -1,11 +1,18 @@
+/*
+ * This file was last modified at 2025-01-16 13:36 by Victor N. Skurikhin.
+ * update.go
+ * $Id$
+ */
+
 package format
 
 import (
 	"encoding/binary"
+	"github.com/vskurikhin/DayBook-3.10/go-postgres-cdc-etcd/pq"
 	"time"
 
-	"github.com/vskurikhin/DayBook-3.10/go-postgres-cdc-etcd/pq/message/tuple"
 	"github.com/go-playground/errors"
+	"github.com/vskurikhin/DayBook-3.10/go-postgres-cdc-etcd/pq/message/tuple"
 )
 
 const (
@@ -25,11 +32,13 @@ type Update struct {
 	OID            uint32
 	XID            uint32
 	OldTupleType   uint8
+	XLogPos        pq.LSN
 }
 
-func NewUpdate(data []byte, streamedTransaction bool, relation map[uint32]*Relation, serverTime time.Time) (*Update, error) {
+func NewUpdate(data []byte, streamedTransaction bool, pos pq.LSN, relation map[uint32]*Relation, serverTime time.Time) (*Update, error) {
 	msg := &Update{
 		MessageTime: serverTime,
+		XLogPos:     pos,
 	}
 	if err := msg.decode(data, streamedTransaction); err != nil {
 		return nil, err

@@ -3,8 +3,8 @@ package format
 import (
 	"testing"
 
-	"github.com/vskurikhin/DayBook-3.10/go-postgres-cdc-etcd/pq/message/tuple"
 	"github.com/stretchr/testify/assert"
+	"github.com/vskurikhin/DayBook-3.10/go-postgres-cdc-etcd/pq/message/tuple"
 )
 
 func TestRelation_New(t *testing.T) {

@@ -4,8 +4,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/vskurikhin/DayBook-3.10/go-postgres-cdc-etcd/pq/message/tuple"
 	"github.com/stretchr/testify/assert"
+	"github.com/vskurikhin/DayBook-3.10/go-postgres-cdc-etcd/pq/message/tuple"
 )
 
 func TestUpdate_New(t *testing.T) {
@@ -37,7 +37,7 @@ func TestUpdate_New(t *testing.T) {
 	}
 
 	now := time.Now()
-	msg, err := NewUpdate(data, false, rel, now)
+	msg, err := NewUpdate(data, false, 0, rel, now)
 	if err != nil {
 		t.Fatal(err)
 	}

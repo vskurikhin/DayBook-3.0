@@ -1,11 +1,18 @@
+/*
+ * This file was last modified at 2025-01-16 13:36 by Victor N. Skurikhin.
+ * delete.go
+ * $Id$
+ */
+
 package format
 
 import (
 	"encoding/binary"
+	"github.com/vskurikhin/DayBook-3.10/go-postgres-cdc-etcd/pq"
 	"time"
 
-	"github.com/vskurikhin/DayBook-3.10/go-postgres-cdc-etcd/pq/message/tuple"
 	"github.com/go-playground/errors"
+	"github.com/vskurikhin/DayBook-3.10/go-postgres-cdc-etcd/pq/message/tuple"
 )
 
 type Delete struct {
@@ -17,11 +24,13 @@ type Delete struct {
 	OID            uint32
 	XID            uint32
 	OldTupleType   uint8
+	XLogPos        pq.LSN
 }
 
-func NewDelete(data []byte, streamedTransaction bool, relation map[uint32]*Relation, serverTime time.Time) (*Delete, error) {
+func NewDelete(data []byte, streamedTransaction bool, pos pq.LSN, relation map[uint32]*Relation, serverTime time.Time) (*Delete, error) {
 	msg := &Delete{
 		MessageTime: serverTime,
+		XLogPos:     pos,
 	}
 	if err := msg.decode(data, streamedTransaction); err != nil {
 		return nil, err

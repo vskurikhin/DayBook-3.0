@@ -1,9 +1,15 @@
+/*
+ * This file was last modified at 2025-01-16 13:36 by Victor N. Skurikhin.
+ * stream.go
+ * $Id$
+ */
+
 package replication
 
 import (
 	"context"
 	"encoding/binary"
-	goerrors "errors"
+	goErrors "errors"
 	"fmt"
 	"sync"
 	"sync/atomic"
@@ -92,7 +98,7 @@ func NewStream(conn pq.Connection, cfg config.Config, m metric.Metric, system *p
 func (s *stream) Open(ctx context.Context) error {
 	if err := s.setup(ctx); err != nil {
 		var v *pgconn.PgError
-		if goerrors.As(err, &v) && v.Code == "55006" {
+		if goErrors.As(err, &v) && v.Code == "55006" {
 			return ErrorSlotInUse
 		}
 		return errors.Wrap(err, "replication setup")
@@ -181,7 +187,7 @@ func (s *stream) sink(ctx context.Context) {
 			s.metric.SetCDCLatency(time.Now().UTC().Sub(xld.ServerTime).Nanoseconds())
 
 			var decodedMsg any
-			decodedMsg, err = message.New(xld.WALData, xld.ServerTime, s.relation)
+			decodedMsg, err = message.New(xld.WALData, xld.ServerWALEnd, xld.ServerTime, s.relation)
 			if err != nil || decodedMsg == nil {
 				logger.Debug("wal data message parsing error", "error", err)
 				continue

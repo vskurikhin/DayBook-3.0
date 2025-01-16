@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"encoding/binary"
 
-	"github.com/vskurikhin/DayBook-3.10/go-postgres-cdc-etcd/pq/message/tuple"
 	"github.com/go-playground/errors"
+	"github.com/vskurikhin/DayBook-3.10/go-postgres-cdc-etcd/pq/message/tuple"
 )
 
 type Relation struct {

@@ -2,20 +2,20 @@ package slot
 
 import (
 	"context"
-	goerrors "errors"
+	goErrors "errors"
 	"fmt"
 	"time"
 
-	"github.com/vskurikhin/DayBook-3.10/go-postgres-cdc-etcd/internal/metric"
-	"github.com/vskurikhin/DayBook-3.10/go-postgres-cdc-etcd/logger"
-	"github.com/vskurikhin/DayBook-3.10/go-postgres-cdc-etcd/pq"
 	"github.com/go-playground/errors"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/vskurikhin/DayBook-3.10/go-postgres-cdc-etcd/internal/metric"
+	"github.com/vskurikhin/DayBook-3.10/go-postgres-cdc-etcd/logger"
+	"github.com/vskurikhin/DayBook-3.10/go-postgres-cdc-etcd/pq"
 )
 
 var (
-	ErrorSlotIsNotExists = goerrors.New("slot is not exists")
+	ErrorSlotIsNotExists = goErrors.New("slot is not exists")
 )
 
 var typeMap = pgtype.NewMap()
@@ -54,7 +54,7 @@ func NewSlot(ctx context.Context, dsn string, cfg Config, m metric.Metric, updat
 func (s *Slot) Create(ctx context.Context) (*Info, error) {
 	info, err := s.Info(ctx)
 	if err != nil {
-		if !goerrors.Is(err, ErrorSlotIsNotExists) || !s.cfg.CreateIfNotExists {
+		if !goErrors.Is(err, ErrorSlotIsNotExists) || !s.cfg.CreateIfNotExists {
 			return nil, errors.Wrap(err, "replication slot info")
 		}
 	} else {

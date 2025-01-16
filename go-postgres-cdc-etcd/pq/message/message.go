@@ -1,3 +1,9 @@
+/*
+ * This file was last modified at 2025-01-16 13:36 by Victor N. Skurikhin.
+ * message.go
+ * $Id$
+ */
+
 package message
 
 import (
@@ -5,6 +11,7 @@ import (
 	"time"
 
 	"github.com/go-playground/errors"
+	"github.com/vskurikhin/DayBook-3.10/go-postgres-cdc-etcd/pq"
 	"github.com/vskurikhin/DayBook-3.10/go-postgres-cdc-etcd/pq/message/format"
 )
 
@@ -36,14 +43,14 @@ type Type uint8
 
 var streamedTransaction bool
 
-func New(data []byte, serverTime time.Time, relation map[uint32]*format.Relation) (any, error) {
+func New(data []byte, pos pq.LSN, serverTime time.Time, relation map[uint32]*format.Relation) (any, error) {
 	switch Type(data[0]) {
 	case InsertByte:
-		return format.NewInsert(data, streamedTransaction, relation, serverTime)
+		return format.NewInsert(data, streamedTransaction, pos, relation, serverTime)
 	case UpdateByte:
-		return format.NewUpdate(data, streamedTransaction, relation, serverTime)
+		return format.NewUpdate(data, streamedTransaction, pos, relation, serverTime)
 	case DeleteByte:
-		return format.NewDelete(data, streamedTransaction, relation, serverTime)
+		return format.NewDelete(data, streamedTransaction, pos, relation, serverTime)
 	case StreamStopByte, StreamAbortByte, StreamCommitByte:
 		streamedTransaction = false
 		return nil, nil

@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2025-01-16 13:34 by Victor N. Skurikhin.
+ * This file was last modified at 2025-01-16 17:39 by Victor N. Skurikhin.
  * main.go
  * $Id$
  */

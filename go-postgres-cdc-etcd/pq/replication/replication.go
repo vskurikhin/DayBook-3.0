@@ -6,10 +6,10 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/vskurikhin/DayBook-3.10/go-postgres-cdc-etcd/pq"
 	"github.com/go-playground/errors"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgproto3"
+	"github.com/vskurikhin/DayBook-3.10/go-postgres-cdc-etcd/pq"
 )
 
 type Replication struct {

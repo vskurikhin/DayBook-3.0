@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2025-01-16 13:36 by Victor N. Skurikhin.
+ * This file was last modified at 2025-01-16 17:37 by Victor N. Skurikhin.
  * listeners_container.go
  * $Id$
  */
@@ -8,7 +8,6 @@ package listener
 
 import (
 	"log/slog"
-	"sync/atomic"
 
 	"github.com/vskurikhin/DayBook-3.10/go-postgres-cdc-etcd/pq"
 	"github.com/vskurikhin/DayBook-3.10/go-postgres-cdc-etcd/pq/message/format"
@@ -32,7 +31,6 @@ func New(messages chan Message, system string) *Container {
 
 type Container struct {
 	messages chan Message
-	xLogPos  atomic.Uint64
 	system   string
 }
 
@@ -40,15 +38,14 @@ func (l *Container) ListenerFunc() replication.ListenerFunc {
 	return func(ctx *replication.ListenerContext) {
 		var err error
 		var message Message
-		xLogPos := l.xLogPos.Load()
 
 		switch msg := ctx.Message.(type) {
 		case *format.Insert:
-			message, err = l.newMessageFromInsert(ctx.Ack, xLogPos, msg)
+			message, err = l.newMessageFromInsert(ctx.Ack, msg)
 		case *format.Delete:
-			message, err = l.newMessageFromDelete(ctx.Ack, xLogPos, msg)
+			message, err = l.newMessageFromDelete(ctx.Ack, msg)
 		case *format.Update:
-			message, err = l.newMessageFromUpdate(ctx.Ack, xLogPos, msg)
+			message, err = l.newMessageFromUpdate(ctx.Ack, msg)
 		}
 		if err != nil {
 			slog.Error("ListenerFunc", "error", err)
@@ -67,22 +64,21 @@ func (l *Container) SendLSNHookFunc() replication.SendLSNHookFunc {
 func (l *Container) SinkHookFunc() replication.SinkHookFunc {
 	return func(xLogData *replication.XLogData) {
 		slog.Debug("SinkHookFunc", "WALStart", xLogData.WALStart.String(), "WALEnd", xLogData.ServerWALEnd.String())
-		l.xLogPos.Store(uint64(xLogData.ServerWALEnd))
 	}
 }
 
-func (l *Container) newMessageFromDelete(ack func() error, pos uint64, msg *format.Delete) (Message, error) {
+func (l *Container) newMessageFromDelete(ack func() error, msg *format.Delete) (Message, error) {
 	return messageFactory{
 		Ack:            ack,
 		MessageTime:    msg.MessageTime,
 		System:         l.system,
 		TableName:      msg.TableName,
 		TableNamespace: msg.TableNamespace,
-		XLogPos:        pq.LSN(pos),
+		XLogPos:        msg.XLogPos,
 	}.createMessageDelete()
 }
 
-func (l *Container) newMessageFromInsert(ack func() error, pos uint64, msg *format.Insert) (Message, error) {
+func (l *Container) newMessageFromInsert(ack func() error, msg *format.Insert) (Message, error) {
 	return messageFactory{
 		Ack:            ack,
 		Data:           msg.Decoded,
@@ -90,11 +86,11 @@ func (l *Container) newMessageFromInsert(ack func() error, pos uint64, msg *form
 		System:         l.system,
 		TableName:      msg.TableName,
 		TableNamespace: msg.TableNamespace,
-		XLogPos:        pq.LSN(pos),
+		XLogPos:        msg.XLogPos,
 	}.createMessageInsert()
 }
 
-func (l *Container) newMessageFromUpdate(ack func() error, pos uint64, msg *format.Update) (Message, error) {
+func (l *Container) newMessageFromUpdate(ack func() error, msg *format.Update) (Message, error) {
 	return messageFactory{
 		Ack:            ack,
 		Data:           msg.NewDecoded,
@@ -102,7 +98,7 @@ func (l *Container) newMessageFromUpdate(ack func() error, pos uint64, msg *form
 		System:         l.system,
 		TableName:      msg.TableName,
 		TableNamespace: msg.TableNamespace,
-		XLogPos:        pq.LSN(pos),
+		XLogPos:        msg.XLogPos,
 	}.createMessageUpdate()
 }
 
