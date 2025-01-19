@@ -4,7 +4,7 @@
  * $Id$
  */
 
-package listener
+package etcd_producer
 
 import (
 	"log/slog"
@@ -26,7 +26,7 @@ const (
 
 var _ replication.Listeners = (*Container)(nil)
 
-func New(messages chan Message, system string) *Container {
+func NewListener(messages chan Message, system string) *Container {
 	return &Container{messages: messages, system: system}
 }
 
@@ -50,9 +50,10 @@ func (l *Container) ListenerFunc() replication.ListenerFunc {
 		case *format.Update:
 			message, err = l.newMessageFromUpdate(ctx.Ack, xLogPos, msg)
 		}
+		slog.Debug("send stand by status update", "xLogPos", xLogPos, " message.NotFlag()",  message.NotFlag())
 		if err != nil {
 			slog.Error("ListenerFunc", "error", err)
-		} else {
+		} else if message.NotFlag() {
 			l.messages <- message
 		}
 	}
@@ -60,13 +61,11 @@ func (l *Container) ListenerFunc() replication.ListenerFunc {
 
 func (l *Container) SendLSNHookFunc() replication.SendLSNHookFunc {
 	return func(xLogPos pq.LSN) {
-		slog.Debug("send stand by status update", "xLogPos", xLogPos.String())
 	}
 }
 
 func (l *Container) SinkHookFunc() replication.SinkHookFunc {
 	return func(xLogData *replication.XLogData) {
-		slog.Debug("SinkHookFunc", "WALStart", xLogData.WALStart.String(), "WALEnd", xLogData.ServerWALEnd.String())
 		l.xLogPos.Store(uint64(xLogData.ServerWALEnd))
 	}
 }

@@ -2,13 +2,13 @@ package publication
 
 import (
 	"context"
-	goerrors "errors"
+	goErrors "errors"
 	"fmt"
 	"strings"
 
-	"github.com/vskurikhin/DayBook-3.10/go-postgres-cdc-etcd/logger"
 	"github.com/go-playground/errors"
 	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/vskurikhin/DayBook-3.10/go-postgres-cdc-etcd/logger"
 )
 
 const (
@@ -17,7 +17,7 @@ const (
 )
 
 var (
-	ErrorTablesNotExists   = goerrors.New("table is not exists")
+	ErrorTablesNotExists   = goErrors.New("table is not exists")
 	ReplicaIdentityOptions = []string{ReplicaIdentityDefault, ReplicaIdentityFull}
 	ReplicaIdentityMap     = map[string]string{
 		"d": ReplicaIdentityDefault, // primary key on old value
@@ -95,9 +95,8 @@ func (c *Publication) GetReplicaIdentities(ctx context.Context) ([]Table, error)
 
 func decodeReplicaIdentitiesResult(results []*pgconn.Result) ([]Table, error) {
 	var res []Table
-
 	for _, result := range results {
-		for i := range len(result.Rows) {
+		for i := 0; i <  len(result.Rows); i++ {
 			var t Table
 			for j, fd := range result.FieldDescriptions {
 				v, err := decodeTextColumnData(result.Rows[i][j], fd.DataTypeOID)
