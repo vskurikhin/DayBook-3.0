@@ -1,0 +1,22 @@
+CREATE DATABASE db WITH OWNER dbuser;
+CREATE USER replicator WITH REPLICATION ENCRYPTED PASSWORD 'replicator_password';
+-- \connect db
+-- GRANT USAGE ON SCHEMA db TO replicator;
+-- GRANT USAGE ON SCHEMA dictionary TO replicator;
+-- GRANT USAGE ON SCHEMA security TO replicator;
+-- GRANT SELECT ON ALL TABLES IN SCHEMA db TO replicator;
+-- GRANT SELECT ON ALL TABLES IN SCHEMA dictionary TO replicator;
+-- GRANT SELECT ON ALL TABLES IN SCHEMA security TO replicator;
+-- ALTER DEFAULT PRIVILEGES IN SCHEMA db GRANT SELECT ON TABLES TO replicator;
+-- ALTER DEFAULT PRIVILEGES IN SCHEMA dictionary GRANT SELECT ON TABLES TO replicator;
+-- ALTER DEFAULT PRIVILEGES IN SCHEMA security GRANT SELECT ON TABLES TO replicator;
+-- CREATE SUBSCRIPTION sub_db CONNECTION 'host=postgres-db-1.svn.su user=replicator dbname=db password=replicator_password' PUBLICATION pub_db;
+-- CREATE SUBSCRIPTION sub_dictionary CONNECTION 'host=postgres-db-1.svn.su user=replicator dbname=db password=replicator_password' PUBLICATION pub_dictionary;
+-- CREATE SUBSCRIPTION sub_security CONNECTION 'host=postgres-db-1.svn.su user=replicator dbname=db password=replicator_password' PUBLICATION pub_security;
+-- DELETE FROM db.base_records;
+-- DELETE FROM dictionary.stanza;
+-- DELETE FROM security.role;
+-- DELETE FROM security.user_name;
+-- ALTER SUBSCRIPTION sub_db REFRESH PUBLICATION;
+-- ALTER SUBSCRIPTION sub_dictionary REFRESH PUBLICATION;
+-- ALTER SUBSCRIPTION sub_security REFRESH PUBLICATION;

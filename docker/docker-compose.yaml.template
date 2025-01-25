@@ -1,0 +1,204 @@
+version: '3.9'
+x-variables:
+  etcd_cert_file: &etcd_cert_file '--cert-file=/etcd-tls/tls.crt'
+  etcd_data_dir: &etcd_data_dir '--data-dir=/var/lib/etcd'
+  etcd_initial_cluster: &etcd_initial_cluster '--initial-cluster=etcd-1=https://etcd-1.localdomain:2380,etcd-2=https://etcd-2.localdomain:2380,etcd-3=https://etcd-3.localdomain:2380'
+  etcd_initial_cluster_state: &etcd_initial_cluster_state '--initial-cluster-state=existing'
+  etcd_key_file: &etcd_key_file '--key-file=/etcd-tls/tls.key'
+  etcd_peer_cert_file: &etcd_peer_cert_file '--peer-cert-file=/etcd-tls/tls.crt'
+  trusted_ca_file: &trusted_ca_file '--trusted-ca-file=/etcd-tls/isrgrootx1.pem'
+  peer_trusted_ca_file: &peer_trusted_ca_file '--peer-trusted-ca-file=/etcd-tls/isrgrootx1.pem'
+  flag_initial_cluster_token: &flag_initial_cluster_token '--initial-cluster-token=token'
+  etcd_common_settings: &etcd_common_settings
+    image: quay.io/coreos/etcd:v3.5.17-arm64
+    entrypoint: /usr/local/bin/etcd
+    healthcheck:
+      test:
+        - "CMD"
+        - "/usr/local/bin/etcdctl"
+        - "--endpoints=https://localhost.localdomain:2379"
+        - "--cacert=/etcd-tls/isrgrootx1.pem"
+        - "--key=/etcd-tls/tls.key"
+        - "--cert=/etcd-tls/tls.crt"
+        - "endpoint"
+        - "status"
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    networks:
+      - svn
+  postgresql_common_settings: &postgresql_common_settings
+    image: postgres:latest
+    environment:
+      pguser: pguser
+      pgpassword: pgpassword
+      pgdb: pgdb
+      PGDATA: /var/lib/postgresql/data/pgdata
+      POSTGRES_USER: pguser
+      POSTGRES_PASSWORD: pgpassword
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U pguser -d pgdb" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    restart: unless-stopped
+    tty: true
+    stdin_open: true
+    networks:
+      - svn
+services:
+  etcd-1:
+    <<: *etcd_common_settings
+    container_name: etcd-db-1
+    hostname: etcd-1
+    command:
+      - '--name=etcd-1'
+      - '--initial-advertise-peer-urls=https://etcd-1.localdomain:2380'
+      - '--listen-peer-urls=https://0.0.0.0:2380'
+      - '--listen-client-urls=https://0.0.0.0:2379'
+      - '--advertise-client-urls=https://etcd-1.localdomain:2379'
+      - '--heartbeat-interval=250'
+      - '--election-timeout=1250'
+      - '--peer-key-file=/etcd-tls/tls.key'
+      - *etcd_initial_cluster
+      - *etcd_initial_cluster_state
+      - *etcd_data_dir
+      - *etcd_cert_file
+      - *etcd_key_file
+      - *etcd_peer_cert_file
+      - *trusted_ca_file
+      - *peer_trusted_ca_file
+      - *flag_initial_cluster_token
+    ports:
+      - "2379:2379"
+      - "2380:2380"
+    volumes:
+      - ./etcdata/etcd-db-1:/var/lib/etcd
+      - ./etcdata/etcd-tls:/etcd-tls
+  etcd-2:
+    <<: *etcd_common_settings
+    container_name: etcd-db-2
+    hostname: etcd-2
+    command:
+      - '--name=etcd-2'
+      - '--initial-advertise-peer-urls=https://etcd-2.localdomain:2380'
+      - '--listen-peer-urls=https://0.0.0.0:2380'
+      - '--listen-client-urls=https://0.0.0.0:2379'
+      - '--advertise-client-urls=https://etcd-2.localdomain:2379'
+      - '--heartbeat-interval=250'
+      - '--election-timeout=1250'
+      - '--peer-key-file=/etcd-tls/tls.key'
+      - *etcd_initial_cluster
+      - *etcd_initial_cluster_state
+      - *etcd_data_dir
+      - *etcd_cert_file
+      - *etcd_key_file
+      - *etcd_peer_cert_file
+      - *trusted_ca_file
+      - *peer_trusted_ca_file
+      - *flag_initial_cluster_token
+    ports:
+      - "22379:2379"
+      - "22380:2380"
+    volumes:
+      - ./etcdata/etcd-db-2:/var/lib/etcd
+      - ./etcdata/etcd-tls:/etcd-tls
+  etcd-3:
+    <<: *etcd_common_settings
+    container_name: etcd-db-3
+    hostname: etcd-3
+    command:
+      - '--name=etcd-3'
+      - '--initial-advertise-peer-urls=https://etcd-3.localdomain:2380'
+      - '--listen-peer-urls=https://0.0.0.0:2380'
+      - '--listen-client-urls=https://0.0.0.0:2379'
+      - '--advertise-client-urls=https://etcd-3.localdomain:2379'
+      - '--heartbeat-interval=250'
+      - '--election-timeout=1250'
+      - '--peer-key-file=/etcd-tls/tls.key'
+      - *etcd_initial_cluster
+      - *etcd_initial_cluster_state
+      - *etcd_data_dir
+      - *etcd_cert_file
+      - *etcd_key_file
+      - *etcd_peer_cert_file
+      - *trusted_ca_file
+      - *peer_trusted_ca_file
+      - *flag_initial_cluster_token
+    ports:
+      - "32379:2379"
+      - "32380:2380"
+    volumes:
+      - ./etcdata/etcd-db-3:/var/lib/etcd
+      - ./etcdata/etcd-tls:/etcd-tls
+  postgres-db-1:
+    <<: *postgresql_common_settings
+    container_name: postgres-db-1
+    hostname: postgres-db-1
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./pgdata/postgres-db-1:/var/lib/postgresql/data/pgdata
+      - ./pgdata/postgres-scripts/postgres-db-1-00_init.sql:/docker-entrypoint-initdb.d/00_init.sql
+      - ./pgdata/postgres-scripts/postgres-db-1-01_init.sh:/docker-entrypoint-initdb.d/01_init.sh
+    command: >
+      postgres -c max_connections=1000
+               -c shared_buffers=256MB
+               -c effective_cache_size=768MB
+               -c maintenance_work_mem=64MB
+               -c checkpoint_completion_target=0.7
+               -c wal_buffers=16MB
+               -c default_statistics_target=100
+               -c wal_level=logical
+               -c max_wal_senders=32
+               -c max_replication_slots=32
+               -c max_logical_replication_workers=32
+               -c max_worker_processes=32
+  postgres-db-2:
+    <<: *postgresql_common_settings
+    container_name: postgres-db-2
+    hostname: postgres-db-2
+    ports:
+      - "5433:5432"
+    volumes:
+      - ./pgdata/postgres-db-2:/var/lib/postgresql/data/pgdata
+      - ./pgdata/postgres-scripts/postgres-db-2-00_init.sql:/docker-entrypoint-initdb.d/00_init.sql
+      - ./pgdata/postgres-scripts/postgres-db-2-01_init.sh:/docker-entrypoint-initdb.d/01_init.sh
+    command: >
+      postgres -c max_connections=1000
+               -c shared_buffers=256MB
+               -c effective_cache_size=768MB
+               -c maintenance_work_mem=64MB
+               -c checkpoint_completion_target=0.7
+               -c wal_buffers=16MB
+               -c default_statistics_target=100
+               -c wal_level=logical
+               -c max_wal_senders=32
+               -c max_replication_slots=32
+               -c max_logical_replication_workers=32
+               -c max_worker_processes=32
+
+volumes:
+  etcdata:
+    driver: local
+  pgdata:
+    driver: local
+networks:
+  svn:
+    name: svn.su

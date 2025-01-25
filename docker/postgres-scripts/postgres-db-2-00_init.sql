@@ -1,0 +1,2 @@
+CREATE DATABASE pgdb WITH OWNER pguser;
+CREATE USER replicator WITH REPLICATION ENCRYPTED PASSWORD 'replicator_password';
