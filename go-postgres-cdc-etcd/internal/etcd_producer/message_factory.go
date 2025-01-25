@@ -4,7 +4,7 @@
  * $Id$
  */
 
-package listener
+package etcd_producer
 
 import (
 	"errors"
@@ -30,6 +30,20 @@ type Message struct {
 	XLogPos      string
 }
 
+func (p Message) NotFlag() bool {
+	if raw, ok1 := p.Data["flags"]; ok1 {
+		switch i := raw.(type) {
+		case int32:
+			return i & 1 == 0
+		case int:
+			return i & 1 == 0
+		case int64:
+			return i & 1 == 0
+		}
+	}
+	return false
+}
+
 type messageFactory struct {
 	Ack            func() error
 	Data           map[string]any
@@ -48,6 +62,22 @@ func (p messageFactory) createKey() (uuid.UUID, error) {
 		}
 	}
 	return uuid.UUID{}, errors.New("not found id")
+}
+
+func (p messageFactory) setFlag()  {
+	if raw, ok1 := p.Data["flags"]; ok1 {
+		switch i := raw.(type) {
+		case int32:
+			i |= 1
+			p.Data["flags"] = i
+		case int:
+			i |= 1
+			p.Data["flags"] = i
+		case int64:
+			i |= 1
+			p.Data["flags"] = i
+		}
+	}
 }
 
 func (p messageFactory) createMessage(operationEtcd, operationPostgres int) (Message, error) {

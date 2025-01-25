@@ -85,7 +85,7 @@ public class PanacheDataServicesIT {
         }
 
         private Uni<UUID> assertEqualsByUpdateAndNext(ResourceBaseRecord got) {
-            Assertions.assertEquals(13, got.flags());
+            Assertions.assertEquals(12, got.flags());
             count.getAndIncrement();
             return BaseRecord.findByBaseRecordById(got.id())
                     .flatMap(this::deleteTest);
@@ -139,7 +139,7 @@ public class PanacheDataServicesIT {
         }
 
         private Uni<UUID> assertEqualsByUpdateAndNext(ResourceJsonRecord got) {
-            Assertions.assertEquals(13, got.flags());
+            Assertions.assertEquals(12, got.flags());
             count.getAndIncrement();
             return JsonRecord.findByJsonRecordById(got.id())
                     .flatMap(this::deleteTest);

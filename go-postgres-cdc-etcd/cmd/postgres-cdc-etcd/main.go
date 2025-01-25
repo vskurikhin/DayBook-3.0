@@ -9,7 +9,6 @@ package main
 import (
 	"context"
 	"crypto/tls"
-	"crypto/x509"
 	"fmt"
 	"log/slog"
 	"os"
@@ -17,7 +16,7 @@ import (
 	cdc "github.com/vskurikhin/DayBook-3.10/go-postgres-cdc-etcd"
 	"github.com/vskurikhin/DayBook-3.10/go-postgres-cdc-etcd/config"
 	"github.com/vskurikhin/DayBook-3.10/go-postgres-cdc-etcd/internal/env"
-	"github.com/vskurikhin/DayBook-3.10/go-postgres-cdc-etcd/internal/listener"
+	"github.com/vskurikhin/DayBook-3.10/go-postgres-cdc-etcd/internal/etcd_producer"
 	"github.com/vskurikhin/DayBook-3.10/go-postgres-cdc-etcd/pq/publication"
 	"github.com/vskurikhin/DayBook-3.10/go-postgres-cdc-etcd/pq/slot"
 	clientV3 "go.etcd.io/etcd/client/v3"
@@ -28,11 +27,11 @@ func main() {
 }
 
 func run(ctx context.Context) {
-	yml := loadYaml()
-	setDefaultSlog(yml.CDC.LogLevel)
+	yml := env.LoadYaml()
+	env.SetDefaultSlog(yml.CDC.LogLevel)
 	cfg := newConfig(yml)
-	certPool := newCertPool(yml)
-	certificate := newCertificate(yml)
+	certPool := env.NewCertPool(&yml.CDC.Etcd.EtcdConfig)
+	certificate := env.NewCertificate(&yml.CDC.Etcd.EtcdConfig)
 
 	clientConfig := clientV3.Config{
 		Endpoints: yml.CDC.Etcd.Endpoints,
@@ -42,10 +41,10 @@ func run(ctx context.Context) {
 		},
 		DialTimeout: yml.CDC.Etcd.DialTimeout,
 	}
-	messages := make(chan listener.Message, 1000)
+	messages := make(chan etcd_producer.Message, 1000)
 
-	go listener.Produce(ctx, clientConfig, messages)
-	lc := listener.New(messages, yml.CDC.System)
+	go etcd_producer.Produce(ctx, clientConfig, messages)
+	lc := etcd_producer.NewListener(messages, yml.System)
 
 	connector, errConnector := cdc.NewConnector(ctx, cfg, lc)
 	if errConnector != nil {
@@ -53,37 +52,6 @@ func run(ctx context.Context) {
 		os.Exit(1)
 	}
 	connector.Start(ctx)
-}
-
-func setDefaultSlog(logLevel int) {
-	slog.SetDefault(slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.Level(logLevel)})))
-}
-
-func newCertificate(yml *env.YamlConfig) tls.Certificate {
-	cer, err := tls.LoadX509KeyPair(yml.CDC.Etcd.CertFile, yml.CDC.Etcd.KeyFile)
-	if err != nil {
-		slog.Error("load CertFile and KeyFile", "error", err)
-		os.Exit(1)
-	}
-	return cer
-}
-
-func newCertPool(yml *env.YamlConfig) *x509.CertPool {
-	certPool, err := x509.SystemCertPool()
-	if err != nil {
-		slog.Error("system CertPool", "error", err)
-		os.Exit(1)
-	}
-	for _, file := range yml.CDC.Etcd.CACertFiles {
-		if caCertPEM, err := os.ReadFile(file); err != nil {
-			slog.Error("read CA Cert", "error", err, "file", file)
-			os.Exit(1)
-		} else if ok := certPool.AppendCertsFromPEM(caCertPEM); !ok {
-			slog.Error("append CA Cert", "error", err, "file", file)
-			os.Exit(1)
-		}
-	}
-	return certPool
 }
 
 func newConfig(yml *env.YamlConfig) config.Config {
@@ -123,15 +91,6 @@ func appendPublicationTables(cfg *config.Config, yml *env.YamlConfig) *config.Co
 		cfg.Publication.Tables = append(cfg.Publication.Tables, table)
 	}
 	return cfg
-}
-
-func loadYaml() *env.YamlConfig {
-	yml, err := env.LoadConfig(".")
-	if err != nil {
-		slog.Error("load YAML config", "error", err)
-		os.Exit(1)
-	}
-	return yml
 }
 //!-
 /* vim: set tabstop=4 softtabstop=4 shiftwidth=4 noexpandtab: */

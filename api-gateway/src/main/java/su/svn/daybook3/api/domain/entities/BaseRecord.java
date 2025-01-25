@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-10-30 17:26 by Victor N. Skurikhin.
+ * This file was last modified at 2025-01-19 21:46 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * BaseRecord.java
@@ -121,6 +121,7 @@ public class BaseRecord
             baseRecord.parentId(baseRecord.id());
             baseRecord.parent(baseRecord);
         }
+        baseRecord.flags &= (Integer.MAX_VALUE - 1);
         return Panache
                 .withTransaction(baseRecord::persistAndFlush)
                 .replaceWith(baseRecord)
@@ -150,7 +151,7 @@ public class BaseRecord
                             entity.userName = baseRecord.userName;
                             entity.enabled = baseRecord.enabled;
                             entity.visible = baseRecord.visible;
-                            entity.flags = baseRecord.flags;
+                            entity.flags = baseRecord.flags &= (Integer.MAX_VALUE - 1);
                             return entity;
                         })
                         .onFailure()

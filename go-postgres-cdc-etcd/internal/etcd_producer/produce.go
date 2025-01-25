@@ -4,7 +4,7 @@
  * $Id$
  */
 
-package listener
+package etcd_producer
 
 import (
 	"context"
@@ -26,23 +26,29 @@ func Produce(ctx context.Context, clientConfig clientV3.Config, messages <-chan 
 		case event := <-messages:
 			switch event.OpEtcd {
 			case DELETE:
-				_, errPut := cli.Delete(ctx, event.Key)
+				res, errPut := cli.Delete(ctx, event.Key)
 				if errPut != nil {
 					slog.Error("Delete", "error", errPut)
+				} else {
+					slog.Info("produce send", "TblNamespace", event.TblNamespace, "TblName", event.TblName, "event.ID", event.ID, "res", res)
 				}
 			case PUT:
 				msg, errMarshal := json.Marshal(event)
 				if errMarshal != nil {
 					slog.Error("Marshal", "error", errMarshal)
 				}
-				_, errPut := cli.Put(ctx, event.Key, string(msg))
+				res, errPut := cli.Put(ctx, event.Key, string(msg))
 				if errPut != nil {
 					slog.Error("Put", "error", errPut)
+				} else {
+					slog.Info("produce send", "TblNamespace", event.TblNamespace, "TblName", event.TblName, "event.ID", event.ID, "res", res)
 				}
 			}
 			if  event.ack != nil {
 				if err = event.ack(); err != nil {
 					slog.Error("ack", "error", err)
+				} else {
+					slog.Info("produce send", "TblNamespace", event.TblNamespace, "TblName", event.TblName, "event.ID", event.ID)
 				}
 			}
 		}

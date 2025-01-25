@@ -1,5 +1,5 @@
 /*
- * This file was last modified at 2024-10-30 17:26 by Victor N. Skurikhin.
+ * This file was last modified at 2025-01-19 21:46 by Victor N. Skurikhin.
  * This is free and unencumbered software released into the public domain.
  * For more information, please refer to <http://unlicense.org>
  * JsonRecord.java
@@ -143,6 +143,7 @@ public class JsonRecord
                             if (Objects.isNull(jsonRecord.refreshAt)) {
                                 jsonRecord.refreshAt = jsonRecord.postAt;
                             }
+                            jsonRecord.flags &= (Integer.MAX_VALUE - 1);
                             return jsonRecord.persistAndFlush();
                         }))
                 .replaceWith(jsonRecord)
@@ -160,6 +161,7 @@ public class JsonRecord
                         .ifNotNull()
                         .transform(entity -> {
                             entity.enabled = false;
+                            entity.flags &= (Integer.MAX_VALUE - 1);
                             return true;
                         })
                         .onFailure()
@@ -200,6 +202,7 @@ public class JsonRecord
                                 entity.visible = jsonRecord.visible;
                                 entity.flags = jsonRecord.flags;
                             }
+                            entity.flags &= (Integer.MAX_VALUE - 1);
                             return entity;
                         })
                         .onFailure()
