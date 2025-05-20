@@ -2,7 +2,7 @@
 --
 
 --
---changeset vnsk:11150 endDelimiter:$$ failOnError:true logicalFilePath:src/main/resources/db/changelog/db/Change-Sets/11150_date_2024_05_15_time_10_00_00_202_issue_set_parent_if_null.sql
+--changeset vnsk:11150 endDelimiter:$$ splitStatements:false failOnError:true logicalFilePath:src/main/resources/db/changelog/db/Change-Sets/11150_date_2024_05_15_time_10_00_00_202_issue_set_parent_if_null.sql
 --
 
 --

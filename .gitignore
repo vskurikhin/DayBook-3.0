@@ -47,6 +47,8 @@ api-gateway/bin/
 api-gateway/build/
 api-gateway/src/main/resources/META-INF/img/
 api-gateway/src/main/resources/META-INF/resources/
+api-gateway/src/main/resources/*.csr
+api-gateway/src/main/resources/*.keystore
 api-gateway/src/main/resources/*.pem
 api-gateway/src/tmp-templates/
 api-gateway/src/test/resources/db/changelog/db/*sql
