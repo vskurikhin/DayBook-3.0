@@ -34,30 +34,31 @@ public record StanzaTable(
         LocalDateTime createTime,
         LocalDateTime updateTime,
         boolean enabled,
+        boolean localChange,
         @ModelField boolean visible,
         @ModelField int flags)
         implements CasesOfLong, Marked, Owned, TimeUpdated, Serializable {
 
     public static final String ID = "id";
     public static final String NONE = "00000000-0000-0000-0000-000000000000";
-    public static final StanzaTable ROOT = new StanzaTable(0L, NONE, null, 0L, null, LocalDateTime.MIN, null, true, true, 0);
+    public static final StanzaTable ROOT = new StanzaTable(0L, NONE, null, 0L, null, LocalDateTime.MIN, null, true, true, true, 0);
     @Language("SQL")
     public static final String COUNT_DICTIONARY_STANZA = """
             SELECT count(*) FROM dictionary.stanza WHERE enabled""";
     @Language("SQL")
     public static final String INSERT_INTO_DICTIONARY_STANZA_RETURNING_S = """
             INSERT INTO dictionary.stanza
-             (id, name, description, parent_id, user_name, enabled, visible, flags)
+             (id, name, description, parent_id, user_name, enabled, local_change, visible, flags)
              VALUES
-             ($1, $2, $3, $4, $5, $6, $7, $8)
+             ($1, $2, $3, $4, $5, $6, DEFAULT, $7, $8)
              RETURNING %s
             """;
     @Language("SQL")
     public static final String INSERT_INTO_DICTIONARY_STANZA_DEFAULT_ID_RETURNING_S = """
             INSERT INTO dictionary.stanza
-             (id, name, description, parent_id, user_name, enabled, visible, flags)
+             (id, name, description, parent_id, user_name, enabled, local_change, visible, flags)
              VALUES
-             (DEFAULT, $1, $2, $3, $4, $5, $6, $7)
+             (DEFAULT, $1, $2, $3, $4, $5, DEFAULT, $6, $7)
              RETURNING %s
             """;
     @Language("SQL")
@@ -68,33 +69,33 @@ public record StanzaTable(
             """;
     @Language("SQL")
     public static final String SELECT_ALL_FROM_DICTIONARY_STANZA_ORDER_BY_S = """
-            SELECT id, name, description, parent_id, user_name, create_time, update_time, enabled, visible, flags
+            SELECT id, name, description, parent_id, user_name, create_time, update_time, enabled, local_change, visible, flags
               FROM dictionary.stanza
              WHERE enabled
              ORDER BY %s
             """;
     @Language("SQL")
     public static final String SELECT_ALL_FROM_DICTIONARY_STANZA_ORDER_BY_S_OFFSET_$1_LIMIT_$2 = """
-            SELECT id, name, description, parent_id, user_name, create_time, update_time, enabled, visible, flags
+            SELECT id, name, description, parent_id, user_name, create_time, update_time, enabled, local_change, visible, flags
               FROM dictionary.stanza
              WHERE enabled
              ORDER BY %s OFFSET $1 LIMIT $2
             """;
     @Language("SQL")
     public static final String SELECT_FROM_DICTIONARY_STANZA_WHERE_ID_$1 = """
-            SELECT id, name, description, parent_id, user_name, create_time, update_time, enabled, visible, flags
+            SELECT id, name, description, parent_id, user_name, create_time, update_time, enabled, local_change, visible, flags
               FROM dictionary.stanza
              WHERE id = $1 AND enabled
             """;
     @Language("SQL")
     public static final String SELECT_FROM_DICTIONARY_STANZA_WHERE_NAME_$1 = """
-            SELECT id, name, description, parent_id, user_name, create_time, update_time, enabled, visible, flags
+            SELECT id, name, description, parent_id, user_name, create_time, update_time, enabled, local_change, visible, flags
               FROM dictionary.stanza
              WHERE name = $1 AND enabled
             """;
     @Language("SQL")
     public static final String SELECT_FROM_DICTIONARY_STANZA_WHERE_PARENT_ID_$1 = """
-            SELECT id, name, description, parent_id, user_name, create_time, update_time, enabled, visible, flags
+            SELECT id, name, description, parent_id, user_name, create_time, update_time, enabled, local_change, visible, flags
               FROM dictionary.stanza
              WHERE parent_id = $1 AND enabled
             """;
@@ -106,6 +107,7 @@ public record StanzaTable(
               parent_id = $4,
               user_name = $5,
               enabled = $6,
+              local_change = DEFAULT,
               visible = $7,
               flags = $8
              WHERE id = $1
@@ -140,6 +142,7 @@ public record StanzaTable(
                 row.getLocalDateTime("create_time"),
                 row.getLocalDateTime("update_time"),
                 row.getBoolean("enabled"),
+                row.getBoolean("local_change"),
                 row.getBoolean("visible"),
                 row.getInteger("flags")
         );
@@ -253,7 +256,7 @@ public record StanzaTable(
 
         public StanzaTable build() {
             return new StanzaTable(
-                    id, name, description, parentId, userName, createTime, updateTime, enabled, visible, flags
+                    id, name, description, parentId, userName, createTime, updateTime, enabled, true, visible, flags
             );
         }
     }

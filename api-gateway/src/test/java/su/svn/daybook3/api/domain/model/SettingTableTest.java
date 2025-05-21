@@ -17,7 +17,7 @@ class SettingTableTest {
     @Test
     void testConstructors() {
         Assertions.assertDoesNotThrow(() -> new SettingTable(
-                null, SettingTable.NONE, null, 0L, 0L, null, null, null, true, true, 0
+                null, SettingTable.NONE, null, 0L, 0L, null, null, null, true, true, true, 0
         ));
     }
 
@@ -33,6 +33,7 @@ class SettingTableTest {
         Assertions.assertDoesNotThrow(entry::createTime);
         Assertions.assertDoesNotThrow(entry::updateTime);
         Assertions.assertDoesNotThrow(entry::enabled);
+        Assertions.assertDoesNotThrow(entry::localChange);
         Assertions.assertDoesNotThrow(entry::visible);
         Assertions.assertDoesNotThrow(entry::flags);
     }

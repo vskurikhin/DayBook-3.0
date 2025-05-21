@@ -19,7 +19,7 @@ class UserNameTableTest {
     @Test
     void testConstructors() {
         Assertions.assertDoesNotThrow(() -> new UserNameTable(
-                UUID.randomUUID(), UserNameTable.NONE, "password", null, null, false, true, 0
+                UUID.randomUUID(), UserNameTable.NONE, "password", null, null, false, true, true, 0
         ));
     }
 
@@ -32,6 +32,7 @@ class UserNameTableTest {
         Assertions.assertDoesNotThrow(entry::createTime);
         Assertions.assertDoesNotThrow(entry::updateTime);
         Assertions.assertDoesNotThrow(entry::enabled);
+        Assertions.assertDoesNotThrow(entry::localChange);
         Assertions.assertDoesNotThrow(entry::visible);
         Assertions.assertDoesNotThrow(entry::flags);
     }

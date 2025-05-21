@@ -213,7 +213,7 @@ class StanzaServiceTest {
                 .build();
         Mockito.when(stanzaDaoMock.insert(TestData.STANZA.TABLE_0)).thenReturn(TestData.lng.UNI_OPTIONAL_ZERO);
         var table = new StanzaTable(
-                0L, SettingTable.NONE, null, StanzaTable.ROOT.id(), null, null, null, true, true, 0
+                0L, SettingTable.NONE, null, StanzaTable.ROOT.id(), null, null, null, true, true, true, 0
         );
         Collection<SettingTable> collection = Collections.emptySet();
         var pair = Pair.of(table, collection);
@@ -232,7 +232,7 @@ class StanzaServiceTest {
     @Test
     void testWhenAddThenEmpty() {
         var table = new StanzaTable(
-                0L, SettingTable.NONE, null, StanzaTable.ROOT.id(), null, null, null, true, true, 0
+                0L, SettingTable.NONE, null, StanzaTable.ROOT.id(), null, null, null, true, true, true, 0
         );
         Collection<SettingTable> collection = Collections.emptySet();
         var pair = Pair.of(table, collection);
@@ -258,7 +258,7 @@ class StanzaServiceTest {
     @Test
     void testWhenPutThenId() {
         var table = new StanzaTable(
-                0L, SettingTable.NONE, null, StanzaTable.ROOT.id(), null, null, null, true, true, 0
+                0L, SettingTable.NONE, null, StanzaTable.ROOT.id(), null, null, null, true, true, true, 0
         );
         Collection<SettingTable> collection = Collections.emptySet();
         var pair = Pair.of(table, collection);

@@ -36,5 +36,6 @@ public interface BaseRecordMapper {
     @Mapping(target = "createTime", ignore = true)
     @Mapping(target = "updateTime", ignore = true)
     @Mapping(target = "enabled", ignore = true)
+    @Mapping(target = "localChange", ignore = true)
     BaseRecord toEntity(ResourceBaseRecord record);
 }

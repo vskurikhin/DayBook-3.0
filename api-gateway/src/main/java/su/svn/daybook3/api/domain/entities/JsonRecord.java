@@ -113,6 +113,10 @@ public class JsonRecord
     @Column(name = "enabled")
     private boolean enabled = true;
 
+    @Builder.Default
+    @Column(name = "local_change")
+    private boolean localChange = true;
+
     @Column(name = "visible")
     private boolean visible;
 

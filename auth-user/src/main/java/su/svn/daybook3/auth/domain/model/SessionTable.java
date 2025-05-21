@@ -36,6 +36,7 @@ public record SessionTable(
         @ModelField(nullable = false) @Nonnull LocalDateTime validTime,
         LocalDateTime createTime, LocalDateTime updateTime,
         boolean enabled,
+        boolean localChange,
         @ModelField boolean visible,
         @ModelField int flags)
         implements CasesOfUUID, Marked, Owned, TimeUpdated, Serializable {
@@ -53,41 +54,41 @@ public record SessionTable(
     @Language("SQL")
     public static final String INSERT_INTO_SECURITY_SESSION = """
             INSERT INTO security.session
-             (id, user_name, roles, valid_time, enabled, visible, flags)
+             (id, user_name, roles, valid_time, enabled, local_change, visible, flags)
              VALUES
-             ($1, $2, $3, $4, $5, $6, $7)
+             ($1, $2, $3, $4, $5, DEFAULT, $6, $7)
              RETURNING id
             """;
     @Language("SQL")
     public static final String INSERT_INTO_SECURITY_SESSION_DEFAULT_ID = """
             INSERT INTO security.session
-             (id, user_name, roles, valid_time, enabled, visible, flags)
+             (id, user_name, roles, valid_time, enabled, local_change, visible, flags)
              VALUES
-             (DEFAULT, $1, $2, $3, $4, $5, $6)
+             (DEFAULT, $1, $2, $3, $4, DEFAULT, $5, $6)
              RETURNING id
             """;
     @Language("SQL")
     public static final String SELECT_FROM_SECURITY_SESSION_WHERE_ID_$1 = """
-            SELECT id, user_name, roles, valid_time, create_time, update_time, enabled, visible, flags
+            SELECT id, user_name, roles, valid_time, create_time, update_time, enabled, local_change, visible, flags
               FROM security.session
              WHERE id = $1 AND enabled
             """;
     @Language("SQL")
     public static final String SELECT_FROM_SECURITY_SESSION_WHERE_USER_NAME_$1 = """
-            SELECT id, user_name, roles, valid_time, create_time, update_time, enabled, visible, flags
+            SELECT id, user_name, roles, valid_time, create_time, update_time, enabled, local_change, visible, flags
               FROM security.session
              WHERE user_name = $1 AND enabled
             """;
     @Language("SQL")
     public static final String SELECT_ALL_FROM_SECURITY_SESSION_ORDER_BY_ID_ASC = """
-            SELECT id, user_name, roles, valid_time, create_time, update_time, enabled, visible, flags
+            SELECT id, user_name, roles, valid_time, create_time, update_time, enabled, local_change, visible, flags
               FROM security.session
              WHERE enabled
              ORDER BY id ASC
             """;
     @Language("SQL")
     public static final String SELECT_ALL_FROM_SECURITY_SESSION_ORDER_BY_ID_ASC_OFFSET_LIMIT = """
-            SELECT id, user_name, roles, valid_time, create_time, update_time, enabled, visible, flags
+            SELECT id, user_name, roles, valid_time, create_time, update_time, enabled, local_change, visible, flags
               FROM security.session
              WHERE enabled
              ORDER BY id ASC OFFSET $1 LIMIT $2
@@ -99,6 +100,7 @@ public record SessionTable(
               roles = $3,
               valid_time = $4,
               enabled = $5,
+              local_change = DEFAULT,
               visible = $6,
               flags = $7
              WHERE id = $1
@@ -118,6 +120,7 @@ public record SessionTable(
                 row.getLocalDateTime("create_time"),
                 row.getLocalDateTime("update_time"),
                 row.getBoolean("enabled"),
+                row.getBoolean("local_change"),
                 row.getBoolean("visible"),
                 row.getInteger("flags")
         );
@@ -223,7 +226,7 @@ public record SessionTable(
         }
 
         public SessionTable build() {
-            return new SessionTable(id, userName, roles, validTime, createTime, updateTime, enabled, visible, flags);
+            return new SessionTable(id, userName, roles, validTime, createTime, updateTime, enabled, true, visible, flags);
         }
     }
 }

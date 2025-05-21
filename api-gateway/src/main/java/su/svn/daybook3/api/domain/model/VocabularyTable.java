@@ -33,6 +33,7 @@ public record VocabularyTable(
         LocalDateTime createTime,
         LocalDateTime updateTime,
         boolean enabled,
+        boolean localChange,
         @ModelField boolean visible,
         @ModelField int flags)
         implements CasesOfLong, Marked, Owned, TimeUpdated, Serializable {
@@ -45,17 +46,17 @@ public record VocabularyTable(
     @Language("SQL")
     public static final String INSERT_INTO_DICTIONARY_VOCABULARY_RETURNING_S = """
             INSERT INTO dictionary.vocabulary
-             (id, word, value, user_name, enabled, visible, flags)
+             (id, word, value, user_name, enabled, local_change, visible, flags)
              VALUES
-             ($1, $2, $3, $4, $5, $6, $7)
+             ($1, $2, $3, $4, $5, DEFAULT, $6, $7)
              RETURNING %s
             """;
     @Language("SQL")
     public static final String INSERT_INTO_DICTIONARY_VOCABULARY_DEFAULT_ID_RETURNING_S = """
             INSERT INTO dictionary.vocabulary
-             (id, word, value, user_name, enabled, visible, flags)
+             (id, word, value, user_name, enabled, local_change, visible, flags)
              VALUES
-             (DEFAULT, $1, $2, $3, $4, $5, $6)
+             (DEFAULT, $1, $2, $3, $4, DEFAULT, $5, $6)
              RETURNING %s
             """;
     @Language("SQL")
@@ -66,33 +67,33 @@ public record VocabularyTable(
             """;
     @Language("SQL")
     public static final String SELECT_ALL_FROM_DICTIONARY_VOCABULARY_ORDER_BY_S = """
-            SELECT id, word, value, user_name, create_time, update_time, enabled, visible, flags
+            SELECT id, word, value, user_name, create_time, update_time, enabled, local_change, visible, flags
               FROM dictionary.vocabulary
              WHERE enabled
              ORDER BY %s
             """;
     @Language("SQL")
     public static final String SELECT_ALL_FROM_DICTIONARY_VOCABULARY_ORDER_BY_S_OFFSET_$1_LIMIT_$2 = """
-            SELECT id, word, value, user_name, create_time, update_time, enabled, visible, flags
+            SELECT id, word, value, user_name, create_time, update_time, enabled, local_change, visible, flags
               FROM dictionary.vocabulary
              WHERE enabled
              ORDER BY %s OFFSET $1 LIMIT $2
             """;
     @Language("SQL")
     public static final String SELECT_FROM_DICTIONARY_VOCABULARY_WHERE_ID_$1 = """
-            SELECT id, word, value, user_name, create_time, update_time, enabled, visible, flags
+            SELECT id, word, value, user_name, create_time, update_time, enabled, local_change, visible, flags
               FROM dictionary.vocabulary
              WHERE id = $1 AND enabled
             """;
     @Language("SQL")
     public static final String SELECT_FROM_DICTIONARY_VOCABULARY_WHERE_KEY_$1 = """
-            SELECT id, word, value, user_name, create_time, update_time, enabled, visible, flags
+            SELECT id, word, value, user_name, create_time, update_time, enabled, local_change, visible, flags
               FROM dictionary.vocabulary
              WHERE word = $1 AND enabled
             """;
     @Language("SQL")
     public static final String SELECT_FROM_DICTIONARY_VOCABULARY_WHERE_VALUE_$1 = """
-            SELECT id, word, value, user_name, create_time, update_time, enabled, visible, flags
+            SELECT id, word, value, user_name, create_time, update_time, enabled, local_change, visible, flags
               FROM dictionary.vocabulary
              WHERE value = $1 AND enabled
             """;
@@ -103,6 +104,7 @@ public record VocabularyTable(
               value = $3,
               user_name = $4,
               enabled = $5,
+              local_change = DEFAULT,
               visible = $6,
               flags = $7
              WHERE id = $1
@@ -122,6 +124,7 @@ public record VocabularyTable(
                 row.getLocalDateTime("create_time"),
                 row.getLocalDateTime("update_time"),
                 row.getBoolean("enabled"),
+                row.getBoolean("local_change"),
                 row.getBoolean("visible"),
                 row.getInteger("flags")
         );
@@ -223,7 +226,7 @@ public record VocabularyTable(
         }
 
         public VocabularyTable build() {
-            return new VocabularyTable(id, word, value, userName, createTime, updateTime, enabled, visible, flags);
+            return new VocabularyTable(id, word, value, userName, createTime, updateTime, enabled, true, visible, flags);
         }
     }
 }

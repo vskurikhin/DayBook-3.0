@@ -25,7 +25,7 @@ class ValueTypeTableTest {
     @Test
     void testConstructors() {
         Assertions.assertDoesNotThrow(() -> new ValueTypeTable(
-                null, ValueTypeTable.NONE, null, null, null, true, true, 0
+                null, ValueTypeTable.NONE, null, null, null, true, true, true, 0
         ));
     }
 
@@ -38,6 +38,7 @@ class ValueTypeTableTest {
         Assertions.assertDoesNotThrow(entry::createTime);
         Assertions.assertDoesNotThrow(entry::updateTime);
         Assertions.assertDoesNotThrow(entry::enabled);
+        Assertions.assertDoesNotThrow(entry::localChange);
         Assertions.assertDoesNotThrow(entry::visible);
         Assertions.assertDoesNotThrow(entry::flags);
     }

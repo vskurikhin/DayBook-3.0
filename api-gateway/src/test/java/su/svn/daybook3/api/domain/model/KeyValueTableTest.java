@@ -19,7 +19,7 @@ class KeyValueTableTest {
     @Test
     void testConstructors() {
         Assertions.assertDoesNotThrow(() -> new KeyValueTable(
-                null, BigInteger.ZERO, null, null, null, null, true, true, 0
+                null, BigInteger.ZERO, null, null, null, null, true, true, true, 0
         ));
     }
 
@@ -33,6 +33,7 @@ class KeyValueTableTest {
         Assertions.assertDoesNotThrow(entry::createTime);
         Assertions.assertDoesNotThrow(entry::updateTime);
         Assertions.assertDoesNotThrow(entry::enabled);
+        Assertions.assertDoesNotThrow(entry::localChange);
         Assertions.assertDoesNotThrow(entry::visible);
         Assertions.assertDoesNotThrow(entry::flags);
     }

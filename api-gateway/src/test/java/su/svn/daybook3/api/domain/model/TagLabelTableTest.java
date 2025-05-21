@@ -17,7 +17,7 @@ class TagLabelTableTest {
     @Test
     void testConstructors() {
         Assertions.assertDoesNotThrow(() -> new TagLabelTable(
-                null, TagLabelTable.NONE, null, null, null, true, true, 0
+                null, TagLabelTable.NONE, null, null, null, true, true, true, 0
         ));
     }
 
@@ -30,6 +30,7 @@ class TagLabelTableTest {
         Assertions.assertDoesNotThrow(entry::createTime);
         Assertions.assertDoesNotThrow(entry::updateTime);
         Assertions.assertDoesNotThrow(entry::enabled);
+        Assertions.assertDoesNotThrow(entry::localChange);
         Assertions.assertDoesNotThrow(entry::visible);
         Assertions.assertDoesNotThrow(entry::flags);
     }

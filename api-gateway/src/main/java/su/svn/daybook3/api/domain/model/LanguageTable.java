@@ -32,6 +32,7 @@ public record LanguageTable(
         LocalDateTime createTime,
         LocalDateTime updateTime,
         boolean enabled,
+        boolean localChange,
         @ModelField boolean visible,
         @ModelField int flags)
         implements CasesOfLong, Marked, Owned, TimeUpdated, Serializable {
@@ -43,17 +44,17 @@ public record LanguageTable(
     @Language("SQL")
     public static final String INSERT_INTO_DICTIONARY_LANGUAGE_RETURNING_S = """
             INSERT INTO dictionary.language
-             (id, language, user_name, enabled, visible, flags)
+             (id, language, user_name, enabled, local_change, visible, flags)
              VALUES
-             ($1, $2, $3, $4, $5, $6)
+             ($1, $2, $3, $4, DEFAULT, $5, $6)
              RETURNING %s
             """;
     @Language("SQL")
     public static final String INSERT_INTO_DICTIONARY_LANGUAGE_DEFAULT_ID_RETURNING_S = """
             INSERT INTO dictionary.language
-             (id, language, user_name, enabled, visible, flags)
+             (id, language, user_name, enabled, local_change, visible, flags)
              VALUES
-             (DEFAULT, $1, $2, $3, $4, $5)
+             (DEFAULT, $1, $2, $3, DEFAULT, $4, $5)
              RETURNING %s
             """;
     @Language("SQL")
@@ -64,27 +65,27 @@ public record LanguageTable(
             """;
     @Language("SQL")
     public static final String SELECT_ALL_FROM_DICTIONARY_LANGUAGE_ORDER_BY_S = """
-            SELECT id, language, user_name, create_time, update_time, enabled, visible, flags
+            SELECT id, language, user_name, create_time, update_time, enabled, local_change, visible, flags
               FROM dictionary.language
              WHERE enabled
              ORDER BY %s
             """;
     @Language("SQL")
     public static final String SELECT_ALL_FROM_DICTIONARY_LANGUAGE_ORDER_BY_S_OFFSET_$1_LIMIT_$2 = """
-            SELECT id, language, user_name, create_time, update_time, enabled, visible, flags
+            SELECT id, language, user_name, create_time, update_time, enabled, local_change, visible, flags
               FROM dictionary.language
              WHERE enabled
              ORDER BY %s OFFSET $1 LIMIT $2
             """;
     @Language("SQL")
     public static final String SELECT_FROM_DICTIONARY_LANGUAGE_WHERE_ID_$1 = """
-            SELECT id, language, user_name, create_time, update_time, enabled, visible, flags
+            SELECT id, language, user_name, create_time, update_time, enabled, local_change, visible, flags
               FROM dictionary.language
              WHERE id = $1 AND enabled
             """;
     @Language("SQL")
     public static final String SELECT_FROM_DICTIONARY_LANGUAGE_WHERE_KEY_$1 = """
-            SELECT id, language, user_name, create_time, update_time, enabled, visible, flags
+            SELECT id, language, user_name, create_time, update_time, enabled, local_change, visible, flags
               FROM dictionary.language
              WHERE language = $1 AND enabled
             """;
@@ -94,6 +95,7 @@ public record LanguageTable(
               language = $2,
               user_name = $3,
               enabled = $4,
+              local_change = DEFAULT,
               visible = $5,
               flags = $6
              WHERE id = $1
@@ -112,6 +114,7 @@ public record LanguageTable(
                 row.getLocalDateTime("create_time"),
                 row.getLocalDateTime("update_time"),
                 row.getBoolean("enabled"),
+                row.getBoolean("local_change"),
                 row.getBoolean("visible"),
                 row.getInteger("flags")
         );
@@ -207,7 +210,7 @@ public record LanguageTable(
         }
 
         public LanguageTable build() {
-            return new LanguageTable(id, language, userName, createTime, updateTime, enabled, visible, flags);
+            return new LanguageTable(id, language, userName, createTime, updateTime, enabled, true, visible, flags);
         }
     }
 }

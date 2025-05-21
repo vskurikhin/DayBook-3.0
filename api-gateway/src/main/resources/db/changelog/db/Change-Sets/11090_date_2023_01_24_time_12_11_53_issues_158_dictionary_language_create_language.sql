@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS dictionary.language (
     create_time   TIMESTAMP WITHOUT TIME ZONE  NOT NULL DEFAULT now(),
     update_time   TIMESTAMP WITHOUT TIME ZONE           DEFAULT now(),
     enabled       BOOLEAN                               DEFAULT false,
+    local_change  BOOLEAN                      NOT NULL DEFAULT true,
     visible       BOOLEAN                               DEFAULT true,
     flags         INT                          NOT NULL DEFAULT 0
     );

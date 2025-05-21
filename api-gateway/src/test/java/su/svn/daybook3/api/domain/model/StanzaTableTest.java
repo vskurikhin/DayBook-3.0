@@ -17,7 +17,7 @@ class StanzaTableTest {
     @Test
     void testConstructors() {
         Assertions.assertDoesNotThrow(() -> new StanzaTable(
-                null, StanzaTable.NONE, null, 0L, null, null, null, true, true, 0
+                null, StanzaTable.NONE, null, 0L, null, null, null, true, true, true, 0
         ));
     }
 
@@ -32,6 +32,7 @@ class StanzaTableTest {
         Assertions.assertDoesNotThrow(entry::createTime);
         Assertions.assertDoesNotThrow(entry::updateTime);
         Assertions.assertDoesNotThrow(entry::enabled);
+        Assertions.assertDoesNotThrow(entry::localChange);
         Assertions.assertDoesNotThrow(entry::visible);
         Assertions.assertDoesNotThrow(entry::flags);
     }

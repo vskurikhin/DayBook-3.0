@@ -32,6 +32,7 @@ public record ValueTypeTable(
         LocalDateTime createTime,
         LocalDateTime updateTime,
         boolean enabled,
+        boolean localChange,
         @ModelField boolean visible,
         @ModelField int flags)
         implements CasesOfLong, Marked, Owned, TimeUpdated, Serializable {
@@ -44,17 +45,17 @@ public record ValueTypeTable(
     @Language("SQL")
     public static final String INSERT_INTO_DICTIONARY_VALUE_TYPE_RETURNING_S = """
             INSERT INTO dictionary.value_type
-             (id, value_type, user_name, enabled, visible, flags)
+             (id, value_type, user_name, enabled, local_change, visible, flags)
              VALUES
-             ($1, $2, $3, $4, $5, $6)
+             ($1, $2, $3, $4, DEFAULT, $5, $6)
              RETURNING %s
             """;
     @Language("SQL")
     public static final String INSERT_INTO_DICTIONARY_VALUE_TYPE_DEFAULT_ID_RETURNING_S = """
             INSERT INTO dictionary.value_type
-             (id, value_type, user_name, enabled, visible, flags)
+             (id, value_type, user_name, enabled, local_change, visible, flags)
              VALUES
-             (DEFAULT, $1, $2, $3, $4, $5)
+             (DEFAULT, $1, $2, $3, DEFAULT, $4, $5)
              RETURNING %s
             """;
     @Language("SQL")
@@ -65,27 +66,27 @@ public record ValueTypeTable(
             """;
     @Language("SQL")
     public static final String SELECT_ALL_FROM_DICTIONARY_VALUE_TYPE_ORDER_BY_S = """
-            SELECT id, value_type, user_name, create_time, update_time, enabled, visible, flags
+            SELECT id, value_type, user_name, create_time, update_time, enabled, local_change, visible, flags
               FROM dictionary.value_type
              WHERE enabled
              ORDER BY %s
             """;
     @Language("SQL")
     public static final String SELECT_ALL_FROM_DICTIONARY_VALUE_TYPE_ORDER_BY_S_OFFSET_$1_LIMIT_$2 = """
-            SELECT id, value_type, user_name, create_time, update_time, enabled, visible, flags
+            SELECT id, value_type, user_name, create_time, update_time, enabled, local_change, visible, flags
               FROM dictionary.value_type
              WHERE enabled
              ORDER BY %s OFFSET $1 LIMIT $2
             """;
     @Language("SQL")
     public static final String SELECT_FROM_DICTIONARY_VALUE_TYPE_WHERE_ID_$1 = """
-            SELECT id, value_type, user_name, create_time, update_time, enabled, visible, flags
+            SELECT id, value_type, user_name, create_time, update_time, enabled, local_change, visible, flags
               FROM dictionary.value_type
              WHERE id = $1 AND enabled
             """;
     @Language("SQL")
     public static final String SELECT_FROM_DICTIONARY_VALUE_TYPE_WHERE_KEY_$1 = """
-            SELECT id, value_type, user_name, create_time, update_time, enabled, visible, flags
+            SELECT id, value_type, user_name, create_time, update_time, enabled, local_change, visible, flags
               FROM dictionary.value_type
              WHERE value_type = $1 AND enabled
             """;
@@ -95,6 +96,7 @@ public record ValueTypeTable(
               value_type = $2,
               user_name = $3,
               enabled = $4,
+              local_change = DEFAULT,
               visible = $5,
               flags = $6
              WHERE id = $1
@@ -113,6 +115,7 @@ public record ValueTypeTable(
                 row.getLocalDateTime("create_time"),
                 row.getLocalDateTime("update_time"),
                 row.getBoolean("enabled"),
+                row.getBoolean("local_change"),
                 row.getBoolean("visible"),
                 row.getInteger("flags")
         );
@@ -207,7 +210,7 @@ public record ValueTypeTable(
         }
 
         public ValueTypeTable build() {
-            return new ValueTypeTable(id, valueType, userName, createTime, updateTime, enabled, visible, flags);
+            return new ValueTypeTable(id, valueType, userName, createTime, updateTime, enabled, true, visible, flags);
         }
     }
 }

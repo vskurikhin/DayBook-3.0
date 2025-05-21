@@ -32,6 +32,7 @@ public record UserHasRolesTable(
         LocalDateTime createTime,
         LocalDateTime updateTime,
         boolean enabled,
+        boolean localChange,
         @ModelField boolean visible,
         @ModelField int flags)
         implements LongIdentification, Marked, Owned, TimeUpdated, Serializable {
@@ -55,35 +56,35 @@ public record UserHasRolesTable(
     @Language("SQL")
     public static final String INSERT_INTO_SECURITY_USER_HAS_ROLES = """
             INSERT INTO security.user_has_roles
-             (id, user_name, role, enabled, visible, flags)
+             (id, user_name, role, enabled, local_change, visible, flags)
              VALUES
-             ($1, $2, $3, $4, $5, $6)
+             ($1, $2, $3, $4, DEFAULT, $5, $6)
              RETURNING id
             """;
     @Language("SQL")
     public static final String INSERT_INTO_SECURITY_USER_HAS_ROLES_DEFAULT_ID = """
             INSERT INTO security.user_has_roles
-             (id, user_name, role, enabled, visible, flags)
+             (id, user_name, role, enabled, local_change, visible, flags)
              VALUES
-             (DEFAULT, $1, $2, $3, $4, $5)
+             (DEFAULT, $1, $2, $3, DEFAULT, $4, $5)
              RETURNING id
             """;
     @Language("SQL")
     public static final String SELECT_FROM_SECURITY_USER_HAS_ROLES_WHERE_ID_$1 = """
-            SELECT id, user_name, role, create_time, update_time, enabled, visible, flags
+            SELECT id, user_name, role, create_time, update_time, enabled, local_change, visible, flags
               FROM security.user_has_roles
              WHERE id = $1 AND enabled
             """;
     @Language("SQL")
     public static final String SELECT_ALL_FROM_SECURITY_USER_HAS_ROLES_ORDER_BY_ID_ASC = """
-            SELECT id, user_name, role, create_time, update_time, enabled, visible, flags
+            SELECT id, user_name, role, create_time, update_time, enabled, local_change, visible, flags
               FROM security.user_has_roles
              WHERE enabled
              ORDER BY id ASC
             """;
     @Language("SQL")
     public static final String SELECT_ALL_FROM_SECURITY_USER_HAS_ROLES_ORDER_BY_ID_ASC_OFFSET_LIMIT = """
-            SELECT id, user_name, role, create_time, update_time, enabled, visible, flags
+            SELECT id, user_name, role, create_time, update_time, enabled, local_change, visible, flags
               FROM security.user_has_roles
              WHERE enabled
              ORDER BY id ASC OFFSET $1 LIMIT $2
@@ -94,6 +95,7 @@ public record UserHasRolesTable(
               user_name = $2,
               role = $3,
               enabled = $4,
+              local_change = DEFAULT,
               visible = $5,
               flags = $6
              WHERE id = $1
@@ -109,6 +111,7 @@ public record UserHasRolesTable(
                 row.getLocalDateTime("create_time"),
                 row.getLocalDateTime("update_time"),
                 row.getBoolean("enabled"),
+                row.getBoolean("local_change"),
                 row.getBoolean("visible"),
                 row.getInteger("flags")
         );
@@ -193,7 +196,7 @@ public record UserHasRolesTable(
         }
 
         public UserHasRolesTable build() {
-            return new UserHasRolesTable(id, userName, role, createTime, updateTime, enabled, visible, flags);
+            return new UserHasRolesTable(id, userName, role, createTime, updateTime, enabled, true, visible, flags);
         }
     }
 }

@@ -18,7 +18,7 @@ class UserHasRolesTableTest {
     @Test
     void testConstructors() {
         Assertions.assertDoesNotThrow(() -> new UserHasRolesTable(
-                null, UserNameTable.NONE, RoleTable.NONE, null, null, true, true, 0
+                null, UserNameTable.NONE, RoleTable.NONE, null, null, true, true, true, 0
         ));
     }
 
@@ -32,6 +32,7 @@ class UserHasRolesTableTest {
         Assertions.assertDoesNotThrow(entry::createTime);
         Assertions.assertDoesNotThrow(entry::updateTime);
         Assertions.assertDoesNotThrow(entry::enabled);
+        Assertions.assertDoesNotThrow(entry::localChange);
         Assertions.assertDoesNotThrow(entry::visible);
         Assertions.assertDoesNotThrow(entry::flags);
     }
