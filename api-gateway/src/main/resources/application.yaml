@@ -56,13 +56,13 @@ quarkus:
       default-load-balancing-policy: pick_first
       ssl-config:
         key-store:
-          path: ${DAY_BOOK_KEY_STORE:../../../../../tls/etcd.keystore}
-          password: storePassword
-          alias: ${DAY_BOOK_KEY_STORE_ALIAS:svn}
-          alias-password: ${DAY_BOOK_KEY_STORE_ALIAS_PASSWORD:storePassword}
+          path: ${DAY_BOOK_KEY_STORE:src/main/resources/test.keystore}
+          password: password
+          alias: ${DAY_BOOK_KEY_STORE_ALIAS:localhost}
+          alias-password: ${DAY_BOOK_KEY_STORE_ALIAS_PASSWORD:password}
         trust-store:
-          path: ${DAY_BOOK_TRUST_STORE:../../../../../tls/etcd.truststore}
-          password: ${DAY_BOOK_TRUST_STORE_PASSWORD:storePassword}
+          path: ${DAY_BOOK_TRUST_STORE:src/main/resources/test.keystore}
+          password: ${DAY_BOOK_TRUST_STORE_PASSWORD:password}
   grpc:
     server:
       port: 9900

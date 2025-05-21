@@ -102,4 +102,9 @@ apply from: "${rootDir}/gradle/helpers/generators.gradle"
 apply from: "${rootDir}/gradle/helpers/liquibase.gradle"
 apply from: "${rootDir}/gradle/helpers/ssl.gradle"
 
-tasks.processResources.dependsOn("startOpenSSLGenRsa", "startOpenSSLPubKey", "startOpenSSLPrivKey")
+
+tasks.processResources.dependsOn(
+        "start01OpenSSLGenRsa",
+        "start02OpenSSLPubKey",
+        "start03OpenSSLPrivKey"
+)

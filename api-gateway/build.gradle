@@ -111,4 +111,12 @@ apply from: "${rootDir}/gradle/helpers/keystore.gradle"
 apply from: "${rootDir}/gradle/helpers/liquibase.gradle"
 apply from: "${rootDir}/gradle/helpers/ssl.gradle"
 
-tasks.processResources.dependsOn("startOpenSSLGenRsa", "startOpenSSLPubKey", "startOpenSSLPrivKey", "createKeystore", "createTruststore")
+tasks.processResources.dependsOn(
+        "start01OpenSSLGenRsa",
+        "start02OpenSSLPubKey",
+        "start03OpenSSLPrivKey",
+        "start04OpenSSLReq",
+        "start05OpenSSLRsa",
+        "start06OpenSSLx509",
+        "start08ImportCertToKeystore"
+)

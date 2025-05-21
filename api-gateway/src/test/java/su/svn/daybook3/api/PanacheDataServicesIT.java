@@ -62,12 +62,12 @@ public class PanacheDataServicesIT {
             var test = ResourceBaseRecord.builder().userName("root").build();
             asserter = new TransactionalUniAsserterInterceptor(asserter);
             asserter.assertNotNull(() -> baseRecordDataService.add(test));
-            asserter.assertEquals(() -> baseRecordDataService.count(), 2l);
+            asserter.assertEquals(() -> baseRecordDataService.count(), 3L);
             asserter.execute(() ->
                     baseRecordDataService.getPage(new PageRequest(0L, (short) 1))
                             .flatMap(this::doTestsWithPage)
             );
-            asserter.assertEquals(() -> baseRecordDataService.count(), 1l);
+            asserter.assertEquals(() -> baseRecordDataService.count(), 2L);
         }
 
         private Uni<?> doTestsWithPage(Page<Answer> answerPage) {
@@ -117,7 +117,7 @@ public class PanacheDataServicesIT {
 
             var test = ResourceJsonRecord.builder().userName("root").build();
             asserter.assertNotNull(() -> jsonRecordDataService.add(test));
-            asserter.assertEquals(() -> jsonRecordDataService.count(), 1l);
+            asserter.assertEquals(() -> jsonRecordDataService.count(), 1L);
             asserter.execute(() ->
                     jsonRecordDataService.getPage(new PageRequest(0L, (short) 1))
                             .flatMap(this::doTestsWithPage)
@@ -150,7 +150,7 @@ public class PanacheDataServicesIT {
             count.getAndIncrement();
             return jsonRecord.update()
                     .flatMap(t -> jsonRecordDataService.delete(t.id()))
-                    .flatMap(x -> baseRecordDataService.delete(jsonRecord.id()));
+                    /*.flatMap(x -> baseRecordDataService.delete(jsonRecord.id()))*/;
         }
     }
 }

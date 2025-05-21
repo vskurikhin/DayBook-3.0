@@ -1,52 +1,85 @@
-task startOpenSSLGenRsa(type: Exec) {
-    def file = new File("${getProperty("src.main.resources")}/rsaPrivateKey.pem")
-    if (!file.exists()) {
-        workingDir = getProperty("src.main.resources")
-        executable "openssl"
-        args "genrsa", "-out", "rsaPrivateKey.pem", "2048"
-    } else {
-        executable "echo"
-        args "Ok"
-    }
-}
-
-task startOpenSSLPubKey(type: Exec) {
+task start01OpenSSLGenRsa(type: Exec) {
     workingDir = getProperty("src.main.resources")
     executable "openssl"
-    args "rsa", "-pubout", "-in", "rsaPrivateKey.pem", "-out", "publicKey.pem"
+    args "genrsa", "-out", "rsaPrivateKey.pem", "2048"
 }
 
-task startOpenSSLPrivKey(type: Exec) {
-    workingDir = getProperty("src.main.resources")
-    executable "openssl"
-    args "pkcs8", "-topk8", "-nocrypt", "-inform", "pem", "-in", "rsaPrivateKey.pem", "-outform", "pem", "-out", "privateKey.pem"
-}
-
-startOpenSSLGenRsa.onlyIf {
+start01OpenSSLGenRsa.onlyIf {
     def taskPath = it.path.toString()
     def submodule = taskPath.split(":")[1]
     def file = new File("$submodule/${getProperty("src.main.resources")}/rsaPrivateKey.pem")
     !file?.exists()
 }
 
-startOpenSSLPubKey.onlyIf {
+task start02OpenSSLPubKey(type: Exec) {
+    workingDir = getProperty("src.main.resources")
+    executable "openssl"
+    args "rsa", "-pubout", "-in", "rsaPrivateKey.pem", "-out", "publicKey.pem"
+}
+
+start02OpenSSLPubKey.onlyIf {
     def taskPath = it.path.toString()
     def submodule = taskPath.split(":")[1]
     def file = new File("$submodule/${getProperty("src.main.resources")}/publicKey.pem")
     !file?.exists()
 }
 
-startOpenSSLPrivKey.onlyIf {
+task start03OpenSSLPrivKey(type: Exec) {
+    workingDir = getProperty("src.main.resources")
+    executable "openssl"
+    args "pkcs8", "-topk8", "-nocrypt", "-inform", "pem", "-in", "rsaPrivateKey.pem", "-outform", "pem", "-out", "privateKey.pem"
+}
+
+start03OpenSSLPrivKey.onlyIf {
     def taskPath = it.path.toString()
     def submodule = taskPath.split(":")[1]
-    def file = new File(submodule + "/${getProperty("src.main.resources")}/privateKey.pem")
+    def file = new File("$submodule/${getProperty("src.main.resources")}/privateKey.pem")
+    !file?.exists()
+}
+
+task start04OpenSSLReq(type: Exec) {
+    workingDir = getProperty("src.main.resources")
+    executable "openssl"
+    args "req", "-new", "-nodes", "-out", "cert.csr", "-subj", "/CN=localhost", "-addext", "subjectAltName=DNS:localhost,DNS:*.localhost"
+}
+
+start04OpenSSLReq.onlyIf {
+    def taskPath = it.path.toString()
+    def submodule = taskPath.split(":")[1]
+    def file = new File("$submodule/${getProperty("src.main.resources")}/cert.csr")
+    !file?.exists()
+}
+
+task start05OpenSSLRsa(type: Exec) {
+    workingDir = getProperty("src.main.resources")
+    executable "openssl"
+    args "rsa", "-in", "rsaPrivateKey.pem", "-out", "key.pem"
+}
+
+start05OpenSSLRsa.onlyIf {
+    def taskPath = it.path.toString()
+    def submodule = taskPath.split(":")[1]
+    def file = new File("$submodule/${getProperty("src.main.resources")}/key.pem")
+    !file?.exists()
+}
+
+task start06OpenSSLx509(type: Exec) {
+    workingDir = getProperty("src.main.resources")
+    executable "openssl"
+    args "x509", "-extfile", 'san.txt', "-in", "cert.csr", "-out", "cert.pem", "-req", "-signkey", "key.pem", "-days", "9999"
+}
+
+start06OpenSSLx509.onlyIf {
+    def taskPath = it.path.toString()
+    def submodule = taskPath.split(":")[1]
+    def file = new File("$submodule/${getProperty("src.main.resources")}/cert.pem")
     !file?.exists()
 }
 
 task copySSL(type: Copy) {
     /** copy SSL files */
     def workingDir = getProperty("src.main.resources")
-    def destine= "${rootDir}/auth-user/src/main/resources/"
+    def destine = "${rootDir}/auth-user/src/main/resources/"
     from "$workingDir"
     into "$destine"
     eachFile {
@@ -65,6 +98,5 @@ task copySSL(type: Copy) {
 copySSL.onlyIf {
     def taskPath = it.path.toString()
     def submodule = taskPath.split(":")[1]
-    def file = new File(submodule + "/${getProperty("src.main.resources")}/privateKey.pem")
     submodule == "api-gateway"
 }
