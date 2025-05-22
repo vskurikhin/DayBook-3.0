@@ -5,9 +5,6 @@
 # application.properties
 # $Id$
 #
-greeting:
-  message: "hello"
-
 mp:
   jwt:
     verify:
@@ -56,12 +53,12 @@ quarkus:
       default-load-balancing-policy: pick_first
       ssl-config:
         key-store:
-          path: ${DAY_BOOK_KEY_STORE:src/main/resources/test.keystore}
+          path: ${DAY_BOOK_KEY_STORE:/dev/null}
           password: password
-          alias: ${DAY_BOOK_KEY_STORE_ALIAS:localhost}
+          alias: ${DAY_BOOK_KEY_STORE_ALIAS:localhost-p12}
           alias-password: ${DAY_BOOK_KEY_STORE_ALIAS_PASSWORD:password}
         trust-store:
-          path: ${DAY_BOOK_TRUST_STORE:src/main/resources/test.keystore}
+          path: ${DAY_BOOK_TRUST_STORE:/dev/null}
           password: ${DAY_BOOK_TRUST_STORE_PASSWORD:password}
   grpc:
     server:

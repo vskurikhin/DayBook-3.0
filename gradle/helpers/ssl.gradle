@@ -40,39 +40,52 @@ start03OpenSSLPrivKey.onlyIf {
 task start04OpenSSLReq(type: Exec) {
     workingDir = getProperty("src.main.resources")
     executable "openssl"
-    args "req", "-new", "-nodes", "-out", "cert.csr", "-subj", "/CN=localhost", "-addext", "subjectAltName=DNS:localhost,DNS:*.localhost"
+    args "req", "-new", "-noenc", "-out", "localhost.csr", "-subj", "/CN=localhost", "-addext", "subjectAltName=DNS:localhost,DNS:*.localhost"
 }
 
 start04OpenSSLReq.onlyIf {
     def taskPath = it.path.toString()
     def submodule = taskPath.split(":")[1]
-    def file = new File("$submodule/${getProperty("src.main.resources")}/cert.csr")
+    def file = new File("$submodule/${getProperty("src.main.resources")}/localhost.csr")
     !file?.exists()
 }
 
 task start05OpenSSLRsa(type: Exec) {
     workingDir = getProperty("src.main.resources")
     executable "openssl"
-    args "rsa", "-in", "rsaPrivateKey.pem", "-out", "key.pem"
+    args "rsa", "-in", "rsaPrivateKey.pem", "-out", "localhost-key.pem"
 }
 
 start05OpenSSLRsa.onlyIf {
     def taskPath = it.path.toString()
     def submodule = taskPath.split(":")[1]
-    def file = new File("$submodule/${getProperty("src.main.resources")}/key.pem")
+    def file = new File("$submodule/${getProperty("src.main.resources")}/localhost-key.pem")
     !file?.exists()
 }
 
 task start06OpenSSLx509(type: Exec) {
     workingDir = getProperty("src.main.resources")
     executable "openssl"
-    args "x509", "-extfile", 'san.txt', "-in", "cert.csr", "-out", "cert.pem", "-req", "-signkey", "key.pem", "-days", "9999"
+    args "x509", "-extfile", 'localhost-san.txt', "-in", "localhost.csr", "-out", "localhost-cert.pem", "-req", "-signkey", "localhost-key.pem", "-days", "9999"
 }
 
 start06OpenSSLx509.onlyIf {
     def taskPath = it.path.toString()
     def submodule = taskPath.split(":")[1]
-    def file = new File("$submodule/${getProperty("src.main.resources")}/cert.pem")
+    def file = new File("$submodule/${getProperty("src.main.resources")}/localhost-cert.pem")
+    !file?.exists()
+}
+
+task start07OpenSSLpkcs12(type: Exec) {
+    workingDir = getProperty("src.main.resources")
+    executable "openssl"
+    args "pkcs12", "-export", "-noenc", "-in", "localhost-cert.pem", "-inkey", "localhost-key.pem", "-passout", "pass:", "-name", "localhost-p12", "-out", "localhost.p12"
+}
+
+start07OpenSSLpkcs12.onlyIf {
+    def taskPath = it.path.toString()
+    def submodule = taskPath.split(":")[1]
+    def file = new File("$submodule/${getProperty("src.main.resources")}/localhost.p12")
     !file?.exists()
 }
 
@@ -83,7 +96,7 @@ task copySSL(type: Copy) {
     from "$workingDir"
     into "$destine"
     eachFile {
-        if (!it.path.toString().contains(".pem")) {
+        if (!it.path.toString().contains(".pem") && !it.path.toString().contains(".keystore")) {
             it.exclude()
         } else if (it.getRelativePath().getFile(project.file("$destine")).exists()) {
             println "$it.path exists at destination, skipping it"
