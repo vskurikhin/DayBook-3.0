@@ -118,5 +118,11 @@ tasks.processResources.dependsOn(
         "start04OpenSSLReq",
         "start05OpenSSLRsa",
         "start06OpenSSLx509",
-        "start08ImportCertToKeystore"
+        "start07OpenSSLpkcs12",
+        "start12ImportCertToKeystore",
+        "start13ImportPKCS12ToKeystore"
+)
+
+tasks.update.dependsOn(
+        ":auth-user:update"
 )
