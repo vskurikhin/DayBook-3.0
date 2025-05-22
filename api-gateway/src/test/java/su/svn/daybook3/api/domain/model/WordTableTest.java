@@ -19,7 +19,7 @@ class WordTableTest {
     @Test
     void testConstructors() {
         Assertions.assertDoesNotThrow(() -> new WordTable(
-                NONE, null, null, null, false, true, 0
+                NONE, null, null, null, false, true, true, 0
         ));
     }
 
@@ -32,6 +32,7 @@ class WordTableTest {
         Assertions.assertDoesNotThrow(entry::createTime);
         Assertions.assertDoesNotThrow(entry::updateTime);
         Assertions.assertDoesNotThrow(entry::enabled);
+        Assertions.assertDoesNotThrow(entry::localChange);
         Assertions.assertDoesNotThrow(entry::visible);
         Assertions.assertDoesNotThrow(entry::flags);
     }

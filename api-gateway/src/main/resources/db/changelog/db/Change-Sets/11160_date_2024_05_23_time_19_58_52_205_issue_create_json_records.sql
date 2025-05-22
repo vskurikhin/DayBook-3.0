@@ -7,21 +7,22 @@
 
 --
 CREATE TABLE IF NOT EXISTS db.json_records (
-    id            UUID  PRIMARY KEY            NOT NULL  DEFAULT pg_catalog.uuid_generate_v4(),
+    id            UUID  PRIMARY KEY             NOT NULL    DEFAULT pg_catalog.uuid_generate_v4(),
     title         TEXT,
     values        JSONB,
-    post_at       TIMESTAMP WITH TIME ZONE     NOT NULL   DEFAULT now(),
-    refresh_at    TIMESTAMP WITH TIME ZONE                DEFAULT now(),
-    user_name     VARCHAR(64)                  NOT NULL,
+    post_at       TIMESTAMP WITH TIME ZONE      NOT NULL    DEFAULT now(),
+    refresh_at    TIMESTAMP WITH TIME ZONE                  DEFAULT now(),
+    user_name     VARCHAR(64)                   NOT NULL,
       CONSTRAINT  FK_a412_db_json_records_security_user_name
       FOREIGN KEY (user_name)
       REFERENCES  security.user_name (user_name)
         ON DELETE CASCADE ON UPDATE CASCADE,
-    create_time   TIMESTAMP WITHOUT TIME ZONE  NOT NULL   DEFAULT now(),
-    update_time   TIMESTAMP WITHOUT TIME ZONE             DEFAULT now(),
-    enabled       BOOLEAN                                 DEFAULT true,
-    visible       BOOLEAN                                 DEFAULT true,
-    flags         INT                          NOT NULL   DEFAULT 0
+    create_time   TIMESTAMP WITHOUT TIME ZONE   NOT NULL    DEFAULT now(),
+    update_time   TIMESTAMP WITHOUT TIME ZONE               DEFAULT now(),
+    enabled       BOOLEAN                                   DEFAULT true,
+    local_change  BOOLEAN                       NOT NULL    DEFAULT true,
+    visible       BOOLEAN                                   DEFAULT true,
+    flags         INT                           NOT NULL    DEFAULT 0
     );
 
 --

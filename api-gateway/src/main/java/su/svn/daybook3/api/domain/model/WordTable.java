@@ -29,6 +29,7 @@ public record WordTable(
         LocalDateTime createTime,
         LocalDateTime updateTime,
         boolean enabled,
+        boolean localChange,
         @ModelField boolean visible,
         @ModelField int flags)
         implements CasesOfString, Marked, Owned, TimeUpdated, Serializable {
@@ -46,27 +47,27 @@ public record WordTable(
     @Language("SQL")
     public static final String INSERT_INTO_DICTIONARY_WORD_RETURNING_S = """
             INSERT INTO dictionary.word
-             (word, user_name, enabled, visible, flags)
+             (word, user_name, enabled, local_change, visible, flags)
              VALUES
-             ($1, $2, $3, $4, $5)
+             ($1, $2, $3, DEFAULT, $4, $5)
              RETURNING %s
             """;
     @Language("SQL")
     public static final String SELECT_FROM_DICTIONARY_WORD_WHERE_ID_$1 = """
-            SELECT word, user_name, create_time, update_time, enabled, visible, flags
+            SELECT word, user_name, create_time, update_time, enabled, local_change, visible, flags
               FROM dictionary.word
              WHERE word = $1 AND enabled
             """;
     @Language("SQL")
     public static final String SELECT_ALL_FROM_DICTIONARY_WORD_ORDER_BY_ID_ASC = """
-            SELECT word, user_name, create_time, update_time, enabled, visible, flags
+            SELECT word, user_name, create_time, update_time, enabled, local_change, visible, flags
               FROM dictionary.word
              WHERE enabled
              ORDER BY word ASC
             """;
     @Language("SQL")
     public static final String SELECT_ALL_FROM_DICTIONARY_WORD_ORDER_BY_WORD_ASC_OFFSET_LIMIT = """
-            SELECT word, user_name, create_time, update_time, enabled, visible, flags
+            SELECT word, user_name, create_time, update_time, enabled, local_change, visible, flags
               FROM dictionary.word
              WHERE enabled
              ORDER BY word ASC OFFSET $1 LIMIT $2 
@@ -86,6 +87,7 @@ public record WordTable(
             UPDATE dictionary.word SET
               user_name = $2,
               enabled = $3,
+              local_change = DEFAULT,
               visible = $4,
               flags = $5
              WHERE word = $1
@@ -99,6 +101,7 @@ public record WordTable(
                 row.getLocalDateTime("create_time"),
                 row.getLocalDateTime("update_time"),
                 row.getBoolean("enabled"),
+                row.getBoolean("local_change"),
                 row.getBoolean("visible"),
                 row.getInteger("flags")
         );
@@ -197,7 +200,7 @@ public record WordTable(
         }
 
         public WordTable build() {
-            return new WordTable(word, userName, createTime, updateTime, enabled, visible, flags);
+            return new WordTable(word, userName, createTime, updateTime, enabled, true, visible, flags);
         }
     }
 }

@@ -34,6 +34,7 @@ public record I18nTable(
         LocalDateTime createTime,
         LocalDateTime updateTime,
         boolean enabled,
+        boolean localChange,
         @ModelField boolean visible,
         @ModelField int flags)
         implements CasesOfLong, Marked, Owned, TimeUpdated, Serializable {
@@ -45,17 +46,17 @@ public record I18nTable(
     @Language("SQL")
     public static final String INSERT_INTO_DICTIONARY_I18N_RETURNING_S = """
             INSERT INTO dictionary.i18n
-             (id, language_id, message, translation, user_name, enabled, visible, flags)
+             (id, language_id, message, translation, user_name, enabled, local_change, visible, flags)
              VALUES
-             ($1, $2, $3, $4, $5, $6, $7, $8)
+             ($1, $2, $3, $4, $5, $6, DEFAULT, $7, $8)
              RETURNING %s
             """;
     @Language("SQL")
     public static final String INSERT_INTO_DICTIONARY_I18N_DEFAULT_ID_RETURNING_S = """
             INSERT INTO dictionary.i18n
-             (id, language_id, message, translation, user_name, enabled, visible, flags)
+             (id, language_id, message, translation, user_name, enabled, local_change, visible, flags)
              VALUES
-             (DEFAULT, $1, $2, $3, $4, $5, $6, $7)
+             (DEFAULT, $1, $2, $3, $4, $5, DEFAULT, $6, $7)
              RETURNING %s
             """;
     @Language("SQL")
@@ -66,39 +67,39 @@ public record I18nTable(
             """;
     @Language("SQL")
     public static final String SELECT_ALL_FROM_DICTIONARY_I18N_ORDER_BY_S = """
-            SELECT id, language_id, message, translation, user_name, create_time, update_time, enabled, visible, flags
+            SELECT id, language_id, message, translation, user_name, create_time, update_time, enabled, local_change, visible, flags
               FROM dictionary.i18n
              WHERE enabled
              ORDER BY %s
             """;
     @Language("SQL")
     public static final String SELECT_ALL_FROM_DICTIONARY_I18N_ORDER_BY_S_OFFSET_$1_LIMIT_$2 = """
-            SELECT id, language_id, message, translation, user_name, create_time, update_time, enabled, visible, flags
+            SELECT id, language_id, message, translation, user_name, create_time, update_time, enabled, local_change, visible, flags
               FROM dictionary.i18n
              WHERE enabled
              ORDER BY %s OFFSET $1 LIMIT $2
             """;
     @Language("SQL")
     public static final String SELECT_FROM_DICTIONARY_I18N_WHERE_ID_$1 = """
-            SELECT id, language_id, message, translation, user_name, create_time, update_time, enabled, visible, flags
+            SELECT id, language_id, message, translation, user_name, create_time, update_time, enabled, local_change, visible, flags
               FROM dictionary.i18n
              WHERE id = $1 AND enabled
             """;
     @Language("SQL")
     public static final String SELECT_FROM_DICTIONARY_I18N_WHERE_KEY_$1_$2 = """
-            SELECT id, language_id, message, translation, user_name, create_time, update_time, enabled, visible, flags
+            SELECT id, language_id, message, translation, user_name, create_time, update_time, enabled, local_change, visible, flags
               FROM dictionary.i18n
              WHERE language_id = $1 AND message = $2 AND enabled
             """;
     @Language("SQL")
     public static final String SELECT_FROM_DICTIONARY_I18N_WHERE_MESSAGE_$1 = """
-            SELECT id, language_id, message, translation, user_name, create_time, update_time, enabled, visible, flags
+            SELECT id, language_id, message, translation, user_name, create_time, update_time, enabled, local_change, visible, flags
               FROM dictionary.i18n
              WHERE message = $1 AND enabled
             """;
     @Language("SQL")
     public static final String SELECT_FROM_DICTIONARY_I18N_WHERE_LANGUAGE_ID_$1 = """
-            SELECT id, language_id, message, translation, user_name, create_time, update_time, enabled, visible, flags
+            SELECT id, language_id, message, translation, user_name, create_time, update_time, enabled, local_change, visible, flags
               FROM dictionary.i18n
              WHERE language_id = $1 AND enabled
             """;
@@ -110,6 +111,7 @@ public record I18nTable(
               translation = $4,
               user_name = $5,
               enabled = $6,
+              local_change = DEFAULT,
               visible = $7,
               flags = $8
              WHERE id = $1
@@ -144,6 +146,7 @@ public record I18nTable(
                 row.getLocalDateTime("create_time"),
                 row.getLocalDateTime("update_time"),
                 row.getBoolean("enabled"),
+                row.getBoolean("local_change"),
                 row.getBoolean("visible"),
                 row.getInteger("flags")
         );
@@ -256,7 +259,7 @@ public record I18nTable(
 
         public I18nTable build() {
             return new I18nTable(
-                    id, languageId, message, translation, userName, createTime, updateTime, enabled, visible, flags
+                    id, languageId, message, translation, userName, createTime, updateTime, enabled, true, visible, flags
             );
         }
     }

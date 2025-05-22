@@ -129,6 +129,7 @@ public record StanzaView(
                         row.getLocalDateTime("parent_create_time"),
                         row.getLocalDateTime("parent_update_time"),
                         row.getBoolean("parent_enabled"),
+                        true,
                         row.getBoolean("parent_visible"),
                         row.getInteger("parent_flags")
                 ),

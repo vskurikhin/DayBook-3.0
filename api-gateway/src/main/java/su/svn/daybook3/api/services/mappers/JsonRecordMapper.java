@@ -45,5 +45,6 @@ public interface JsonRecordMapper {
     @Mapping(target = "createTime", ignore = true)
     @Mapping(target = "updateTime", ignore = true)
     @Mapping(target = "enabled", ignore = true)
+    @Mapping(target = "localChange", ignore = true)
     JsonRecord toEntity(ResourceJsonRecord record);
 }

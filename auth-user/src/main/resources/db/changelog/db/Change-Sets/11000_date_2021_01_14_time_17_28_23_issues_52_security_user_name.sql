@@ -8,15 +8,16 @@
 --
 CREATE TABLE IF NOT EXISTS security.user_name
 (
-    user_name   VARCHAR(64) PRIMARY KEY     NOT NULL,
-    id          UUID                        NOT NULL DEFAULT pg_catalog.uuid_generate_v4()
+    user_name       VARCHAR(64) PRIMARY KEY     NOT NULL,
+    id              UUID                        NOT NULL DEFAULT pg_catalog.uuid_generate_v4()
         CONSTRAINT UC_3109_security_id_must_be_unique UNIQUE,
-    password    VARCHAR(1024)               NOT NULL,
-    create_time TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT now(),
-    update_time TIMESTAMP WITHOUT TIME ZONE          DEFAULT now(),
-    enabled     BOOLEAN                     NOT NULL DEFAULT true,
-    visible     BOOLEAN                     NOT NULL DEFAULT true,
-    flags       INT                         NOT NULL DEFAULT 0
+    password        VARCHAR(1024)               NOT NULL,
+    create_time     TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT now(),
+    update_time     TIMESTAMP WITHOUT TIME ZONE          DEFAULT now(),
+    enabled         BOOLEAN                     NOT NULL DEFAULT true,
+    local_change    BOOLEAN                     NOT NULL DEFAULT true,
+    visible         BOOLEAN                     NOT NULL DEFAULT true,
+    flags           INT                         NOT NULL DEFAULT 0
 );
 
 

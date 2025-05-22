@@ -20,14 +20,14 @@ class RoleTableTest {
     @Test
     void testConstructors() {
         Assertions.assertDoesNotThrow(() -> new RoleTable(
-                null, NONE, null, null, null, null, true, true, 0
+                null, NONE, null, null, null, null, true, true, true, 0
         ));
     }
 
     @Test
     void testGetters() {
         var entry = new RoleTable(
-                null, NONE, null, null, null, null, true, true, 0
+                null, NONE, null, null, null, null, true, true, true, 0
         );
         Assertions.assertDoesNotThrow(entry::id);
         Assertions.assertDoesNotThrow(entry::role);
@@ -36,6 +36,7 @@ class RoleTableTest {
         Assertions.assertDoesNotThrow(entry::createTime);
         Assertions.assertDoesNotThrow(entry::updateTime);
         Assertions.assertDoesNotThrow(entry::enabled);
+        Assertions.assertDoesNotThrow(entry::localChange);
         Assertions.assertDoesNotThrow(entry::visible);
         Assertions.assertDoesNotThrow(entry::flags);
     }
@@ -50,7 +51,7 @@ class RoleTableTest {
     @Test
     void testToString() {
         var entry = new RoleTable(
-                null, NONE, null, null, null, null, true, true, 0
+                null, NONE, null, null, null, null, true, true, true, 0
         );
         Assertions.assertDoesNotThrow(() -> Assertions.assertNotNull(entry.toString()));
     }

@@ -21,7 +21,7 @@ class SessionTableTest {
     @Test
     void testConstructors() {
         Assertions.assertDoesNotThrow(() -> new SessionTable(
-                null, SessionTable.NONE, Collections.emptySet(), TestData.time.EPOCH_TIME, null, null, true, true, 0
+                null, SessionTable.NONE, Collections.emptySet(), TestData.time.EPOCH_TIME, null, null, true, true, true, 0
         ));
     }
 
@@ -35,6 +35,7 @@ class SessionTableTest {
         Assertions.assertDoesNotThrow(entry::createTime);
         Assertions.assertDoesNotThrow(entry::updateTime);
         Assertions.assertDoesNotThrow(entry::enabled);
+        Assertions.assertDoesNotThrow(entry::localChange);
         Assertions.assertDoesNotThrow(entry::visible);
         Assertions.assertDoesNotThrow(entry::flags);
     }

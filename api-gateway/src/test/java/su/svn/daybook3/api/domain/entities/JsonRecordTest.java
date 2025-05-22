@@ -16,7 +16,7 @@ class JsonRecordTest {
         Assertions.assertDoesNotThrow(() -> {
             var test1 = new JsonRecord();
             var test2 = new JsonRecord(
-                    null, null, null, null, null, null, null, null, null, true, false, 0
+                    null, null, null, null, null, null, null, null, null, true, true, false, 0
             );
             Assertions.assertEquals(test1, test2);
         });
@@ -35,6 +35,7 @@ class JsonRecordTest {
         Assertions.assertDoesNotThrow(() -> entry.createTime());
         Assertions.assertDoesNotThrow(() -> entry.updateTime());
         Assertions.assertDoesNotThrow(() -> entry.enabled());
+        Assertions.assertDoesNotThrow(() -> entry.localChange());
         Assertions.assertDoesNotThrow(() -> entry.visible());
         Assertions.assertDoesNotThrow(() -> entry.flags());
     }
@@ -55,6 +56,7 @@ class JsonRecordTest {
         Assertions.assertDoesNotThrow(() -> entry.createTime(LocalDateTime.now()));
         Assertions.assertDoesNotThrow(() -> entry.updateTime(LocalDateTime.now()));
         Assertions.assertDoesNotThrow(() -> entry.enabled(true));
+        Assertions.assertDoesNotThrow(() -> entry.localChange(true));
         Assertions.assertDoesNotThrow(() -> entry.visible(true));
         Assertions.assertDoesNotThrow(() -> entry.flags(0));
     }

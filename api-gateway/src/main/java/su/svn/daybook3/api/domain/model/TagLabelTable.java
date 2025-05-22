@@ -32,6 +32,7 @@ public record TagLabelTable(
         LocalDateTime createTime,
         LocalDateTime updateTime,
         boolean enabled,
+        boolean localChange,
         @ModelField boolean visible,
         @ModelField int flags)
         implements CasesOfString, Marked, Owned, TimeUpdated, Serializable {
@@ -43,17 +44,17 @@ public record TagLabelTable(
     @Language("SQL")
     public static final String INSERT_INTO_DICTIONARY_TAG_LABEL_RETURNING_S = """
             INSERT INTO dictionary.tag_label
-             (id, label, user_name, enabled, visible, flags)
+             (id, label, user_name, enabled, local_change, visible, flags)
              VALUES
-             ($1, $2, $3, $4, $5, $6)
+             ($1, $2, $3, $4, DEFAULT, $5, $6)
              RETURNING %s
             """;
     @Language("SQL")
     public static final String INSERT_INTO_DICTIONARY_TAG_LABEL_DEFAULT_ID_RETURNING_S = """
             INSERT INTO dictionary.tag_label
-             (id, label, user_name, enabled, visible, flags)
+             (id, label, user_name, enabled, local_change, visible, flags)
              VALUES
-             (DEFAULT, $1, $2, $3, $4, $5)
+             (DEFAULT, $1, $2, $3, DEFAULT, $4, $5)
              RETURNING %s
             """;
     @Language("SQL")
@@ -64,27 +65,27 @@ public record TagLabelTable(
             """;
     @Language("SQL")
     public static final String SELECT_ALL_FROM_DICTIONARY_TAG_LABEL_ORDER_BY_S = """
-            SELECT id, label, user_name, create_time, update_time, enabled, visible, flags
+            SELECT id, label, user_name, create_time, update_time, enabled, local_change, visible, flags
               FROM dictionary.tag_label
              WHERE enabled
              ORDER BY %s
             """;
     @Language("SQL")
     public static final String SELECT_ALL_FROM_DICTIONARY_TAG_LABEL_ORDER_BY_S_OFFSET_$1_LIMIT_$2 = """
-            SELECT id, label, user_name, create_time, update_time, enabled, visible, flags
+            SELECT id, label, user_name, create_time, update_time, enabled, local_change, visible, flags
               FROM dictionary.tag_label
              WHERE enabled
              ORDER BY %s OFFSET $1 LIMIT $2
             """;
     @Language("SQL")
     public static final String SELECT_FROM_DICTIONARY_TAG_LABEL_WHERE_ID_$1 = """
-            SELECT id, label, user_name, create_time, update_time, enabled, visible, flags
+            SELECT id, label, user_name, create_time, update_time, enabled, local_change, visible, flags
               FROM dictionary.tag_label
              WHERE id = $1 AND enabled
             """;
     @Language("SQL")
     public static final String SELECT_FROM_DICTIONARY_TAG_LABEL_WHERE_KEY_$1 = """
-            SELECT id, label, user_name, create_time, update_time, enabled, visible, flags
+            SELECT id, label, user_name, create_time, update_time, enabled, local_change, visible, flags
               FROM dictionary.tag_label
              WHERE label = $1 AND enabled
             """;
@@ -94,6 +95,7 @@ public record TagLabelTable(
               label = $2,
               user_name = $3,
               enabled = $4,
+              local_change = DEFAULT,
               visible = $5,
               flags = $6
              WHERE id = $1
@@ -112,6 +114,7 @@ public record TagLabelTable(
                 row.getLocalDateTime("create_time"),
                 row.getLocalDateTime("update_time"),
                 row.getBoolean("enabled"),
+                row.getBoolean("local_change"),
                 row.getBoolean("visible"),
                 row.getInteger("flags")
         );
@@ -213,7 +216,7 @@ public record TagLabelTable(
         }
 
         public TagLabelTable build() {
-            return new TagLabelTable(id, label, userName, createTime, updateTime, enabled, visible, flags);
+            return new TagLabelTable(id, label, userName, createTime, updateTime, enabled, true, visible, flags);
         }
     }
 }

@@ -17,7 +17,7 @@ class CodifierTableTest {
     @Test
     void testConstructors() {
         Assertions.assertDoesNotThrow(() -> new CodifierTable(
-                CodifierTable.NONE, null, null, null, null, true, true, 0
+                CodifierTable.NONE, null, null, null, null, true, true, true, 0
         ));
     }
 
@@ -31,6 +31,7 @@ class CodifierTableTest {
         Assertions.assertDoesNotThrow(entry::createTime);
         Assertions.assertDoesNotThrow(entry::updateTime);
         Assertions.assertDoesNotThrow(entry::enabled);
+        Assertions.assertDoesNotThrow(entry::localChange);
         Assertions.assertDoesNotThrow(entry::visible);
         Assertions.assertDoesNotThrow(entry::flags);
     }

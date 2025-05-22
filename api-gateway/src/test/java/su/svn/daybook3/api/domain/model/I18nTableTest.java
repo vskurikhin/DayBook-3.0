@@ -17,7 +17,7 @@ class I18nTableTest {
     @Test
     void testConstructors() {
         Assertions.assertDoesNotThrow(() -> new I18nTable(
-                null, 0L, I18nTable.NONE, null, null, null, null, true, true, 0
+                null, 0L, I18nTable.NONE, null, null, null, null, true, true, true, 0
         ));
     }
 
@@ -32,6 +32,7 @@ class I18nTableTest {
         Assertions.assertDoesNotThrow(entry::createTime);
         Assertions.assertDoesNotThrow(entry::updateTime);
         Assertions.assertDoesNotThrow(entry::enabled);
+        Assertions.assertDoesNotThrow(entry::localChange);
         Assertions.assertDoesNotThrow(entry::visible);
         Assertions.assertDoesNotThrow(entry::flags);
     }

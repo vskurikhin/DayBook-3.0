@@ -10,26 +10,27 @@ CREATE SEQUENCE IF NOT EXISTS dictionary.i18n_seq START 1;
 
 CREATE TABLE IF NOT EXISTS dictionary.i18n
 (
-    id          BIGINT PRIMARY KEY          NOT NULL DEFAULT nextval('dictionary.i18n_seq'),
-    language_id BIGINT                      NOT NULL,
+    id              BIGINT PRIMARY KEY          NOT NULL DEFAULT nextval('dictionary.i18n_seq'),
+    language_id     BIGINT                      NOT NULL,
       CONSTRAINT FK_dictionary_i18n_language_id_7344
         FOREIGN KEY (language_id)
         REFERENCES dictionary.language (id)
         ON DELETE CASCADE ON UPDATE CASCADE,
-    message     VARCHAR(10485760)           NOT NULL,
+    message         VARCHAR(10485760)           NOT NULL,
       CONSTRAINT UQ_1553_dictionary_i18n_uniq_language_id_message
         UNIQUE (language_id, message),
-    translation VARCHAR(10485760),
-    user_name   VARCHAR(64),
+    translation     VARCHAR(10485760),
+    user_name       VARCHAR(64),
       CONSTRAINT FK_3155_dictionary_i18n_security_user_name
         FOREIGN KEY (user_name)
         REFERENCES security.user_name (user_name)
         ON DELETE CASCADE ON UPDATE CASCADE,
-    create_time TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT now(),
-    update_time TIMESTAMP WITHOUT TIME ZONE          DEFAULT now(),
-    enabled     BOOLEAN                              DEFAULT false,
-    visible     BOOLEAN                              DEFAULT true,
-    flags       INT                         NOT NULL DEFAULT 0
+    create_time     TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT now(),
+    update_time     TIMESTAMP WITHOUT TIME ZONE          DEFAULT now(),
+    enabled         BOOLEAN                              DEFAULT false,
+    local_change    BOOLEAN                     NOT NULL DEFAULT true,
+    visible         BOOLEAN                              DEFAULT true,
+    flags           INT                         NOT NULL DEFAULT 0
 );
 
 --

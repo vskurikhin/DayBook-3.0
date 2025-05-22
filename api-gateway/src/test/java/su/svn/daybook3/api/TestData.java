@@ -178,7 +178,7 @@ public class TestData {
                 CodifierTable.NONE, null, true, 0
         );
         public static final CodifierTable TABLE_0 = new CodifierTable(
-                CodifierTable.NONE, null, null, null, null, true, true, 0
+                CodifierTable.NONE, null, null, null, null, true, true, true, 0
         );
         public static final Uni<Page<Answer>> UNI_PAGE_ANSWER_SINGLETON_TEST = Uni.createFrom()
                 .item(
@@ -208,7 +208,7 @@ public class TestData {
                 0L, Language.NONE, I18n.NONE, null, true, 0
         );
         public static final I18nTable TABLE_0 = new I18nTable(
-                0L, 0L, I18n.NONE, null, null, null, null, true, true, 0
+                0L, 0L, I18n.NONE, null, null, null, null, true, true, true, 0
         );
         public static final I18nView VIEW_0 = new I18nView(
                 0L, Language.NONE, I18n.NONE, null, null, null, null, true, true, 0
@@ -235,7 +235,7 @@ public class TestData {
                 uuid.ZERO, BigInteger.ZERO, null, true, 0
         );
         public static final KeyValueTable TABLE_0 = new KeyValueTable(
-                uuid.ZERO, BigInteger.ZERO, null, null, null, null, true, true, 0
+                uuid.ZERO, BigInteger.ZERO, null, null, null, null, true, true, true, 0
         );
         public static final Uni<Page<Answer>> UNI_PAGE_ANSWER_SINGLETON_TEST = Uni.createFrom()
                 .item(
@@ -262,7 +262,7 @@ public class TestData {
                 0L, Language.NONE, true, 0
         );
         public static final LanguageTable TABLE_0 = new LanguageTable(
-                0L, LanguageTable.NONE, null, null, null, true, true, 0
+                0L, LanguageTable.NONE, null, null, null, true, true, true, 0
         );
         public static final Uni<Page<Answer>> UNI_PAGE_ANSWER_SINGLETON_TEST = Uni.createFrom()
                 .item(
@@ -294,7 +294,7 @@ public class TestData {
                 0L, SettingTable.NONE, null, Setting.DEFAULT_TYPE, 0L, true, 0
         );
         public static final SettingTable TABLE_0 = new SettingTable(
-                0L, SettingTable.NONE, null, 0L, 0L, null, null, null, true, true, 0
+                0L, SettingTable.NONE, null, 0L, 0L, null, null, null, true, true, true, 0
         );
         public static final SettingView VIEW_0 = new SettingView(
                 0L, SettingTable.NONE, null, Setting.DEFAULT_TYPE, 0L, null, null, null, true, true, 0
@@ -323,7 +323,7 @@ public class TestData {
                 0L, StanzaTable.NONE, null, Stanza.ROOT, Collections.emptySet(), true, 0
         );
         public static final StanzaTable TABLE_0 = new StanzaTable(
-                0L, StanzaTable.NONE, null, 0L, null, null, null, true, true, 0
+                0L, StanzaTable.NONE, null, 0L, null, null, null, true, true, true, 0
         );
         public static final StanzaView VIEW_0 = new StanzaView(
                 0L, StanzaTable.NONE, null, StanzaTable.ROOT, Collections.emptySet(), null, null, null, true, true, 0
@@ -355,7 +355,7 @@ public class TestData {
                 ID, TagLabelTable.NONE, true, 0
         );
         public static final TagLabelTable TABLE_0 = new TagLabelTable(
-                ID, TagLabelTable.NONE, null, null, null, true, true, 0
+                ID, TagLabelTable.NONE, null, null, null, true, true, true, 0
         );
         public static final Uni<Page<Answer>> UNI_PAGE_ANSWER_SINGLETON_TEST = Uni.createFrom()
                 .item(
@@ -383,7 +383,7 @@ public class TestData {
                 0L, ValueTypeTable.NONE, true, 0
         );
         public static final ValueTypeTable TABLE_0 = new ValueTypeTable(
-                0L, ValueTypeTable.NONE, null, null, null, true, true, 0
+                0L, ValueTypeTable.NONE, null, null, null, true, true, true, 0
         );
         public static final Uni<Page<Answer>> UNI_PAGE_ANSWER_SINGLETON_TEST = Uni.createFrom()
                 .item(
@@ -409,7 +409,7 @@ public class TestData {
                 0L, VocabularyTable.NONE, null, true, 0
         );
         public static final VocabularyTable TABLE_0 = new VocabularyTable(
-                0L, VocabularyTable.NONE, null, null, null, null, true, true, 0
+                0L, VocabularyTable.NONE, null, null, null, null, true, true, true, 0
         );
         public static final Uni<Page<Answer>> UNI_PAGE_ANSWER_SINGLETON_TEST = Uni.createFrom()
                 .item(
@@ -435,7 +435,7 @@ public class TestData {
                 Word.NONE, true, 0
         );
         public static final WordTable TABLE_0 = new WordTable(
-                WordTable.NONE, null, null, null, true, true, 0
+                WordTable.NONE, null, null, null, true, true, true, 0
         );
         public static final Uni<Page<Answer>> UNI_PAGE_ANSWER_SINGLETON_TEST = Uni.createFrom()
                 .item(

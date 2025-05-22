@@ -36,6 +36,7 @@ public record KeyValueTable(
         LocalDateTime createTime,
         LocalDateTime updateTime,
         boolean enabled,
+        boolean localChange,
         @ModelField boolean visible,
         @ModelField int flags)
         implements CasesOfUUID, Marked, Owned, TimeUpdated, Serializable {
@@ -47,17 +48,17 @@ public record KeyValueTable(
     @Language("SQL")
     public static final String INSERT_INTO_DICTIONARY_KEY_VALUE_RETURNING_S = """
             INSERT INTO dictionary.key_value
-             (id, key, value, user_name, enabled, visible, flags)
+             (id, key, value, user_name, enabled, local_change, visible, flags)
              VALUES
-             ($1, $2, $3, $4, $5, $6, $7)
+             ($1, $2, $3, $4, $5, DEFAULT, $6, $7)
              RETURNING %s
             """;
     @Language("SQL")
     public static final String INSERT_INTO_DICTIONARY_KEY_VALUE_DEFAULT_ID_RETURNING_S = """
             INSERT INTO dictionary.key_value
-             (id, key, value, user_name, enabled, visible, flags)
+             (id, key, value, user_name, enabled, local_change, visible, flags)
              VALUES
-             (DEFAULT, $1, $2, $3, $4, $5, $6)
+             (DEFAULT, $1, $2, $3, $4, DEFAULT, $5, $6)
              RETURNING %s
             """;
     @Language("SQL")
@@ -68,33 +69,33 @@ public record KeyValueTable(
             """;
     @Language("SQL")
     public static final String SELECT_ALL_FROM_DICTIONARY_KEY_VALUE_ORDER_BY_S = """
-            SELECT id, key, value, user_name, create_time, update_time, enabled, visible, flags
+            SELECT id, key, value, user_name, create_time, update_time, enabled, local_change, visible, flags
               FROM dictionary.key_value
              WHERE enabled
              ORDER BY %s
             """;
     @Language("SQL")
     public static final String SELECT_ALL_FROM_DICTIONARY_KEY_VALUE_ORDER_BY_S_OFFSET_$1_LIMIT_$2 = """
-            SELECT id, key, value, user_name, create_time, update_time, enabled, visible, flags
+            SELECT id, key, value, user_name, create_time, update_time, enabled, local_change, visible, flags
               FROM dictionary.key_value
              WHERE enabled
              ORDER BY %s OFFSET $1 LIMIT $2
             """;
     @Language("SQL")
     public static final String SELECT_FROM_DICTIONARY_KEY_VALUE_WHERE_ID_$1 = """
-            SELECT id, key, value, user_name, create_time, update_time, enabled, visible, flags
+            SELECT id, key, value, user_name, create_time, update_time, enabled, local_change, visible, flags
               FROM dictionary.key_value
              WHERE id = $1 AND enabled
             """;
     @Language("SQL")
     public static final String SELECT_FROM_DICTIONARY_KEY_VALUE_WHERE_KEY_$1 = """
-            SELECT id, key, value, user_name, create_time, update_time, enabled, visible, flags
+            SELECT id, key, value, user_name, create_time, update_time, enabled, local_change, visible, flags
               FROM dictionary.key_value
              WHERE key = $1 AND enabled
             """;
     @Language("SQL")
     public static final String SELECT_FROM_DICTIONARY_KEY_VALUE_WHERE_VALUE_$1 = """
-            SELECT id, key, value, user_name, create_time, update_time, enabled, visible, flags
+            SELECT id, key, value, user_name, create_time, update_time, enabled, local_change, visible, flags
               FROM dictionary.key_value
              WHERE value = $1 AND enabled
             """;
@@ -105,6 +106,7 @@ public record KeyValueTable(
               value = $3,
               user_name = $4,
               enabled = $5,
+              local_change = DEFAULT,
               visible = $6,
               flags = $7
              WHERE id = $1
@@ -124,6 +126,7 @@ public record KeyValueTable(
                 row.getLocalDateTime("create_time"),
                 row.getLocalDateTime("update_time"),
                 row.getBoolean("enabled"),
+                row.getBoolean("local_change"),
                 row.getBoolean("visible"),
                 row.getInteger("flags")
         );
@@ -225,7 +228,7 @@ public record KeyValueTable(
         }
 
         public KeyValueTable build() {
-            return new KeyValueTable(id, key, value, userName, createTime, updateTime, enabled, visible, flags);
+            return new KeyValueTable(id, key, value, userName, createTime, updateTime, enabled, true, visible, flags);
         }
     }
 }

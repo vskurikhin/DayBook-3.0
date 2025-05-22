@@ -35,6 +35,7 @@ public record SettingTable(
         LocalDateTime createTime,
         LocalDateTime updateTime,
         boolean enabled,
+        boolean localChange,
         @ModelField boolean visible,
         @ModelField int flags)
         implements CasesOfLong, Marked, Owned, TimeUpdated, Serializable {
@@ -48,17 +49,17 @@ public record SettingTable(
     @Language("SQL")
     public static final String INSERT_INTO_DICTIONARY_SETTING_RETURNING_S = """
             INSERT INTO dictionary.setting
-             (id, variable, value, value_type_id, stanza_id, user_name, enabled, visible, flags)
+             (id, variable, value, value_type_id, stanza_id, user_name, enabled, local_change, visible, flags)
              VALUES
-             ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+             ($1, $2, $3, $4, $5, $6, $7, DEFAULT, $8, $9)
              RETURNING %s
             """;
     @Language("SQL")
     public static final String INSERT_INTO_DICTIONARY_SETTING_DEFAULT_ID_RETURNING_S = """
             INSERT INTO dictionary.setting
-             (id, variable, value, value_type_id, stanza_id, user_name, enabled, visible, flags)
+             (id, variable, value, value_type_id, stanza_id, user_name, enabled, local_change, visible, flags)
              VALUES
-             (DEFAULT, $1, $2, $3, $4, $5, $6, $7, $8)
+             (DEFAULT, $1, $2, $3, $4, $5, $6, DEFAULT, $7, $8)
              RETURNING %s
             """;
     @Language("SQL")
@@ -70,7 +71,7 @@ public record SettingTable(
     @Language("SQL")
     public static final String SELECT_ALL_FROM_DICTIONARY_SETTING_ORDER_BY_S = """
             SELECT
-              id, variable, value, value_type_id, stanza_id, user_name, create_time, update_time, enabled, visible, flags
+              id, variable, value, value_type_id, stanza_id, user_name, create_time, update_time, enabled, local_change, visible, flags
               FROM dictionary.setting
              WHERE enabled
              ORDER BY %s
@@ -78,7 +79,7 @@ public record SettingTable(
     @Language("SQL")
     public static final String SELECT_ALL_FROM_DICTIONARY_SETTING_ORDER_BY_S_OFFSET_$1_LIMIT_$2 = """
             SELECT
-              id, variable, value, value_type_id, stanza_id, user_name, create_time, update_time, enabled, visible, flags
+              id, variable, value, value_type_id, stanza_id, user_name, create_time, update_time, enabled, local_change, visible, flags
               FROM dictionary.setting
              WHERE enabled
              ORDER BY %s OFFSET $1 LIMIT $2
@@ -86,21 +87,21 @@ public record SettingTable(
     @Language("SQL")
     public static final String SELECT_FROM_DICTIONARY_SETTING_WHERE_ID_$1 = """
             SELECT
-              id, variable, value, value_type_id, stanza_id, user_name, create_time, update_time, enabled, visible, flags
+              id, variable, value, value_type_id, stanza_id, user_name, create_time, update_time, enabled, local_change, visible, flags
               FROM dictionary.setting
              WHERE id = $1 AND enabled
             """;
     @Language("SQL")
     public static final String SELECT_FROM_DICTIONARY_SETTING_WHERE_KEY_$1 = """
             SELECT 
-              id, variable, value, value_type_id, stanza_id, user_name, create_time, update_time, enabled, visible, flags
+              id, variable, value, value_type_id, stanza_id, user_name, create_time, update_time, enabled, local_change, visible, flags
               FROM dictionary.setting
              WHERE variable = $1 AND enabled
             """;
     @Language("SQL")
     public static final String SELECT_FROM_DICTIONARY_SETTING_WHERE_VALUE_$1 = """
             SELECT
-              id, variable, value, value_type_id, stanza_id, user_name, create_time, update_time, enabled, visible, flags
+              id, variable, value, value_type_id, stanza_id, user_name, create_time, update_time, enabled, local_change, visible, flags
               FROM dictionary.setting
              WHERE value = $1 AND enabled
             """;
@@ -113,6 +114,7 @@ public record SettingTable(
               stanza_id = $5,
               user_name = $6,
               enabled = $7,
+              local_change = DEFAULT,
               visible = $8,
               flags = $9
              WHERE id = $1
@@ -149,6 +151,7 @@ public record SettingTable(
                 row.getLocalDateTime("create_time"),
                 row.getLocalDateTime("update_time"),
                 row.getBoolean("enabled"),
+                row.getBoolean("local_change"),
                 row.getBoolean("visible"),
                 row.getInteger("flags")
         );
@@ -266,7 +269,7 @@ public record SettingTable(
 
         public SettingTable build() {
             return new SettingTable(
-                    id, variable, value, valueTypeId, stanzaId, userName, createTime, updateTime, enabled, visible, flags
+                    id, variable, value, valueTypeId, stanzaId, userName, createTime, updateTime, enabled, true, visible, flags
             );
         }
     }

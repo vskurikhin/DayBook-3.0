@@ -213,7 +213,7 @@ class SettingServiceTest {
                 .payload(new ApiResponse<>(Long.valueOf(0), 201))
                 .build();
         var table = new SettingTable(
-                0L, SettingTable.NONE, null, null, 0L, null, null, null, true, true, 0
+                0L, SettingTable.NONE, null, null, 0L, null, null, null, true, true, true, 0
         );
         Mockito.when(settingTransactionalJobMock.insert(table, SettingTable.DEFAULT_TYPE))
                 .thenReturn(TestData.lng.UNI_OPTIONAL_ZERO);
@@ -227,7 +227,7 @@ class SettingServiceTest {
     @Test
     void testWhenAddThenEmpty() {
         var table = new SettingTable(
-                0L, SettingTable.NONE, null, null, 0L, null, null, null, true, true, 0
+                0L, SettingTable.NONE, null, null, 0L, null, null, null, true, true, true, 0
         );
         var expected = Answer.builder()
                 .message("bad request")
@@ -251,7 +251,7 @@ class SettingServiceTest {
                 .payload(new ApiResponse<>(Long.valueOf(0), 202))
                 .build();
         var table = new SettingTable(
-                0L, SettingTable.NONE, null, null, 0L, null, null, null, true, true, 0
+                0L, SettingTable.NONE, null, null, 0L, null, null, null, true, true, true, 0
         );
         Mockito.when(settingTransactionalJobMock.update(table, SettingTable.DEFAULT_TYPE))
                 .thenReturn(TestData.lng.UNI_OPTIONAL_ZERO);

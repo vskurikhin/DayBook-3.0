@@ -17,16 +17,17 @@ CREATE TABLE IF NOT EXISTS dictionary.stanza (
       FOREIGN KEY (parent_id)
       REFERENCES  dictionary.stanza (id)
         ON DELETE CASCADE ON UPDATE CASCADE,
-    user_name     VARCHAR(64)                  NOT NULL,
+    user_name     VARCHAR(64)                   NOT NULL,
       CONSTRAINT  FK_5911_dictionary_stanza_security_user_name
       FOREIGN KEY (user_name)
       REFERENCES  security.user_name (user_name)
         ON DELETE CASCADE ON UPDATE CASCADE,
-    create_time   TIMESTAMP WITHOUT TIME ZONE  NOT NULL   DEFAULT now(),
-    update_time   TIMESTAMP WITHOUT TIME ZONE             DEFAULT now(),
-    enabled       BOOLEAN                                 DEFAULT false,
-    visible       BOOLEAN                                 DEFAULT true,
-    flags         INT                          NOT NULL   DEFAULT 0
+    create_time   TIMESTAMP WITHOUT TIME ZONE   NOT NULL    DEFAULT now(),
+    update_time   TIMESTAMP WITHOUT TIME ZONE               DEFAULT now(),
+    enabled       BOOLEAN                                   DEFAULT false,
+    local_change  BOOLEAN                       NOT NULL    DEFAULT true,
+    visible       BOOLEAN                                   DEFAULT true,
+    flags         INT                           NOT NULL    DEFAULT 0
     );
 
 --

@@ -46,7 +46,7 @@ quarkus:
       url: ${DAY_BOOK_DATASOURCE_REACTIVE_URL:postgresql://localhost:5432/db}
   etcd:
     client1:
-      host: localhost.svn.su
+      host: localhost
       port: 2379
       authentication-timeout: 5s
       keep-alive-time: 5s

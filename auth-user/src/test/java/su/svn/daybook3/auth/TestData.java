@@ -140,7 +140,7 @@ public class TestData {
                 uuid.ZERO, Role.NONE, null, true, 0
         );
         public static final RoleTable TABLE_0 = new RoleTable(
-                uuid.ZERO, Role.NONE, null, null, null, null, true, true, 0
+                uuid.ZERO, Role.NONE, null, null, null, null, true, true, true, 0
         );
         public static final Uni<Page<Answer>> UNI_PAGE_ANSWER_SINGLETON_TEST = Uni.createFrom()
                 .item(
@@ -166,7 +166,7 @@ public class TestData {
                 uuid.ZERO, Session.NONE, Collections.emptySet(), time.EPOCH_TIME, true, 0
         );
         public static final SessionTable TABLE_0 = new SessionTable(
-                uuid.ZERO, SessionTable.NONE, Collections.emptySet(), time.EPOCH_TIME, null, null, true, true, 0
+                uuid.ZERO, SessionTable.NONE, Collections.emptySet(), time.EPOCH_TIME, null, null, true, true, true, 0
         );
         public static final Uni<Page<Answer>> UNI_PAGE_ANSWER_SINGLETON_TEST = Uni.createFrom()
                 .item(
@@ -201,7 +201,7 @@ public class TestData {
                                     .build()
                     );
             public static final UserNameTable TABLE_0 = new UserNameTable(
-                    uuid.ZERO, "root", "password", null, null, true, true, 0
+                    uuid.ZERO, "root", "password", null, null, true, true, true, 0
             );
         }
 
