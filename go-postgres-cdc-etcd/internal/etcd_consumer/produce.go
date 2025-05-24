@@ -34,7 +34,7 @@ func Produce(ctx context.Context, w *pgxpool.Pool, messages <-chan Message) {
 				batchResults := w.SendBatch(ctx, &pgx.Batch{QueuedQueries: queue})
 				err := Exec(batchResults, counter)
 				if err != nil {
-					slog.Error("batch results", "error", err)
+					slog.Error("batch results", "error", err, "SQL", event.Query, "Arguments", event.Args)
 					continue
 				}
 				slog.Info("postgresql write", "count", counter)
@@ -44,12 +44,12 @@ func Produce(ctx context.Context, w *pgxpool.Pool, messages <-chan Message) {
 				}
 			}
 
-		case <-time.After(time.Millisecond):
+		case <-time.After(100*time.Millisecond):
 			if counter > 0 {
 				batchResults := w.SendBatch(ctx, &pgx.Batch{QueuedQueries: queue[:counter]})
 				err := Exec(batchResults, counter)
 				if err != nil {
-					slog.Error("batch results", "error", err)
+					slog.Error("batch results2", "error", err, "batchResults", batchResults)
 					continue
 				}
 				slog.Info("postgresql write", "count", counter)

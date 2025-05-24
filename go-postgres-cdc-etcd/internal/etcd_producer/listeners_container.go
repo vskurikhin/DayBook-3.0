@@ -53,7 +53,7 @@ func (l *Container) ListenerFunc() replication.ListenerFunc {
 		slog.Debug("send stand by status update", "xLogPos", xLogPos, " message.NotFlag()",  message.NotFlag())
 		if err != nil {
 			slog.Error("ListenerFunc", "error", err)
-		} else if message.NotFlag() {
+		} else if message.LocalChange() {
 			l.messages <- message
 		}
 	}

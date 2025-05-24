@@ -46,3 +46,11 @@ lint: init/lint
 .PHONY: build
 build/linux:
 	GOOS=linux CGO_ENABLED=0 GOARCH=amd64 go build -trimpath -a -v
+
+build/etcd-watch-postgres/linux:
+	@echo "  >  Building agent binary..."
+	@GOPATH=$(GOPATH) GOBIN=$(GOBIN) cd ./cmd/etcd-watch-postgres && go build -ldflags "-X main.buildVersion=v3.10.SNAPSHOT -X 'main.buildDate=$$(date +'%Y/%m/%d')' -X 'main.buildCommit=$$(git rev-parse HEAD)'" -o ../../bin/etcd-watch-postgres $(GOFILES)
+
+build/postgres-cdc-etcd/linux:
+	@echo "  >  Building agent binary..."
+	@GOPATH=$(GOPATH) GOBIN=$(GOBIN) cd ./cmd/postgres-cdc-etcd && go build -ldflags "-X main.buildVersion=v3.10.SNAPSHOT -X 'main.buildDate=$$(date +'%Y/%m/%d')' -X 'main.buildCommit=$$(git rev-parse HEAD)'" -o ../../bin/postgres-cdc-etcd $(GOFILES)
