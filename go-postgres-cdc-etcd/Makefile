@@ -1,4 +1,8 @@
-default: init
+include Environment.mk
+
+PROJECTNAME=$(shell basename "$(PWD)")
+
+default: build
 
 .PHONY: init
 init: init/lint
@@ -43,6 +47,32 @@ lint: init/lint
 	fieldalignment -fix ./...
 	golangci-lint run -c .golangci.yml --timeout=5m -v --fix
 
-.PHONY: build
-build/linux:
-	GOOS=linux CGO_ENABLED=0 GOARCH=amd64 go build -trimpath -a -v
+go-clean:
+	@echo "  >  Cleaning build cache"
+	@GOPATH=$(GOPATH) GOBIN=$(GOBIN) go clean
+
+## clean: Clean build files. Runs `go clean` internally.
+clean:
+	@(MAKEFILE) go-clean
+
+## build: Compile the binaries.
+build: build/$(ETCD_WATCH_POSTGRES) build/$(POSTGRES_CDC_ETCD)
+
+## build/etcd-watch-postgres: Build and the binary compile etcd-watch-postgres
+build/$(ETCD_WATCH_POSTGRES):
+	@echo "  >  Building $(ETCD_WATCH_POSTGRES) binary..."
+	@GOPATH=$(GOPATH) GOBIN=$(GOBIN) cd ./cmd/$(ETCD_WATCH_POSTGRES) && go build -ldflags "$(LD_VERSION) $(LD_COMMIT)" -o ../../bin/$(ETCD_WATCH_POSTGRES) $(GOFILES)
+
+## build/etcd-watch-postgres: Build and the binary compile postgres-cdc-etcd
+build/$(POSTGRES_CDC_ETCD):
+	@echo "  >  Building $(POSTGRES_CDC_ETCD) binary..."
+	@GOPATH=$(GOPATH) GOBIN=$(GOBIN) cd ./cmd/$(POSTGRES_CDC_ETCD) && go build -ldflags "$(LD_VERSION) $(LD_COMMIT)" -o ../../bin/$(POSTGRES_CDC_ETCD) $(GOFILES)
+
+.PHONY: help
+all: help
+help: Makefile
+	@echo
+	@echo " Choose a command run in "$(PROJECTNAME)":"
+	@echo
+	@sed -n 's/^##//p' $< | column -t -s ':' |  sed -e 's/^/ /'
+	@echo

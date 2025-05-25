@@ -22,6 +22,12 @@ import (
 	clientV3 "go.etcd.io/etcd/client/v3"
 )
 
+var (
+	buildVersion = "N/A"
+	buildDate    = "N/A"
+	buildCommit  = "N/A"
+)
+
 func main() {
 	run(context.Background())
 }

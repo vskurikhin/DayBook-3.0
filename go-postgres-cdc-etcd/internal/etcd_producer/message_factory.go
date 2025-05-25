@@ -30,6 +30,26 @@ type Message struct {
 	XLogPos      string
 }
 
+func (p Message) LocalChange() bool {
+	if raw, ok1 := p.Data["local_change"]; ok1 {
+		switch value := raw.(type) {
+		case bool:
+			return value
+		case int32:
+			return value != 0
+		case int:
+			return value != 0
+		case int64:
+			return value != 0
+		case float32:
+			return value != 0
+		case float64:
+			return value != 0
+		}
+	}
+	return false
+}
+
 func (p Message) NotFlag() bool {
 	if raw, ok1 := p.Data["flags"]; ok1 {
 		switch i := raw.(type) {

@@ -10,15 +10,16 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/vskurikhin/DayBook-3.10/go-postgres-cdc-etcd/internal/ack"
-	"github.com/vskurikhin/DayBook-3.10/go-postgres-cdc-etcd/internal/kv"
-	"go.etcd.io/etcd/api/v3/mvccpb"
-	clientV3 "go.etcd.io/etcd/client/v3"
 	"log/slog"
 	"os"
 	"os/signal"
 	"sync"
 	"syscall"
+
+	"github.com/vskurikhin/DayBook-3.10/go-postgres-cdc-etcd/internal/ack"
+	"github.com/vskurikhin/DayBook-3.10/go-postgres-cdc-etcd/internal/holders"
+	"go.etcd.io/etcd/api/v3/mvccpb"
+	clientV3 "go.etcd.io/etcd/client/v3"
 )
 
 const EndOfUUID = "ffffffff-ffff-ffff-ffff-ffffffffffff"
@@ -63,15 +64,18 @@ func (l Container) watchFor(ctx context.Context, name string) {
 	key := fmt.Sprintf("/%s/%s/", l.Schema, name)
 	end := fmt.Sprintf("%s%s", key, EndOfUUID)
 	rch := cli.Watch(context.TODO(), key, clientV3.WithPrefix(), clientV3.WithRange(end), clientV3.WithRev(revision))
+	slog.Debug("watchFor", "key", key, "end", end)
 
 	for watchResp := range rch {
 		for _, ev := range watchResp.Events {
-			etcdValue, errUnmarshal := kv.Unmarshaler{EtcdKvValue: ev.Kv.Value}.Unmarshal()
+			slog.Debug("watchFor.Events", "ev", ev.Kv.Key, "Value", ev.Kv.Value)
+			etcdValue, errUnmarshal := holders.Unmarshaler{EtcdKvValue: ev.Kv.Value}.Unmarshal()
 
 			if errUnmarshal != nil {
 				logUnmarshalError(errUnmarshal)
 				continue
 			}
+			slog.Debug("watchFor.Events", "key", ev.Kv.Key, "etcdValue", etcdValue)
 			if etcdValue.SystemName() == l.System {
 				continue
 			}

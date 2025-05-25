@@ -4,7 +4,7 @@
  * $Id$
  */
 
-package kv
+package holders
 
 import (
 	"bytes"
@@ -80,6 +80,34 @@ func (u valueMessage) CreateSQLHolder() (SQLHolder, error) {
 	for key, value := range u.Data {
 		if key == "id" || key == "create_time" || key == "update_time" {
 			continue
+		}
+		if key == "parent_id" {
+			switch a := value.(type) {
+			case []interface{}:
+				parentID, err := convertFromFloat64(a)
+				if err != nil {
+					continue
+				}
+				value = parentID
+			default:
+				continue
+			}
+		}
+		if key == "local_change" {
+			switch value.(type) {
+			case bool:
+				value = true
+			case int32:
+				value = 0
+			case int:
+				value = 0
+			case int64:
+				value = 0
+			case float32:
+				value = 0
+			case float64:
+				value = 0
+			}
 		}
 		if key == "flags" {
 			switch i := value.(type) {
@@ -166,10 +194,17 @@ func appendId(values []any, unknownID any, uuidID uuid.UUID) []any {
 }
 
 func convertFromFloat64(su []any) (uuid.UUID, error) {
-	if _, ok2 := su[0].(float64); ok2 {
+	if _, ok := su[0].(float64); ok {
 		bytez := make([]byte, 16)
 		for i := 0; i < len(su); i++ {
 			bytez[i] = byte(su[i].(float64))
+		}
+		return uuid.FromBytes(bytez)
+	}
+	if _, ok := su[0].(*float64); ok {
+		bytez := make([]byte, 16)
+		for i := 0; i < len(su); i++ {
+			bytez[i] = byte(*(su[i].(*float64)))
 		}
 		return uuid.FromBytes(bytez)
 	}
