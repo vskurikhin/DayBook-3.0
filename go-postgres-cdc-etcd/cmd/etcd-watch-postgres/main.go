@@ -10,13 +10,13 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
-	"github.com/vskurikhin/DayBook-3.10/go-postgres-cdc-etcd/internal/etcd_consumer"
 	"log/slog"
 	"os"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/vskurikhin/DayBook-3.10/go-postgres-cdc-etcd/internal/env"
+	"github.com/vskurikhin/DayBook-3.10/go-postgres-cdc-etcd/internal/etcd_consumer"
 	clientV3 "go.etcd.io/etcd/client/v3"
 )
 
@@ -58,14 +58,14 @@ func run(ctx context.Context) {
 			DialTimeout: yml.Watch.Etcd.DialTimeout,
 		},
 		Messages: messages,
-		Schema: yml.Watch.DB.Schema,
-		System: yml.System,
-		Tables: yml.Watch.DB.Tables,
-
+		Schema:   yml.Watch.DB.Schema,
+		System:   yml.System,
+		Tables:   yml.Watch.DB.Tables,
 	}
-	ctx, cancel := context.WithTimeout(ctx, 5 * time.Second)
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 	consumer.Start(ctx)
 }
+
 //!-
 /* vim: set tabstop=4 softtabstop=4 shiftwidth=4 noexpandtab: */

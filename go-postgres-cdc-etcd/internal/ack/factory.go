@@ -8,8 +8,9 @@ package ack
 
 import (
 	"fmt"
-	"github.com/vskurikhin/DayBook-3.10/go-postgres-cdc-etcd/tool"
 	"os"
+
+	"github.com/vskurikhin/DayBook-3.10/go-postgres-cdc-etcd/tool"
 )
 
 type Factory struct {

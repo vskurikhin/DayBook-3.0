@@ -11,7 +11,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log/slog"
 	"strconv"
 	"strings"
 	"time"
@@ -87,7 +86,6 @@ func (u valueMessage) CreateSQLHolder() (SQLHolder, error) {
 			case []interface{}:
 				parentID, err := convertFromFloat64(a)
 				if err != nil {
-					slog.Error("CreateSQLHolder", "error", err)
 					continue
 				}
 				value = parentID
